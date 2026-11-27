@@ -1,0 +1,1058 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Device Sensor Inspector (Accelerometer, Gyroscope & Orientation) — PureWebKits</title>
+  <meta name="description" content="Inspect live device accelerometer (X, Y, Z & gravity), gyroscope rotation rates (alpha, beta, gamma), compass orientation, and sensor permission support online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/device-sensor-inspector.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Sensor Inspector Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover:not(:disabled) { background: #E2E8F0; }
+    .btn-sec:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-sec.active-sim {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary-dark);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .tilt-stage-box {
+      background: #0F172A;
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .tilt-hud {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    #sensorBubbleCanvas {
+      width: 100%;
+      height: 195px;
+      display: block;
+      background: #020617;
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+    }
+
+    .sensor-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .sensor-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .sensor-title { font-size: 16px; font-weight: 800; color: #34D399; }
+    .sensor-title.warn { color: #FBBF24; }
+    .sensor-sub { font-size: 12px; color: #CBD5E1; }
+    .sensor-mag {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 18px;
+      font-weight: 800;
+      color: #38BDF8;
+      white-space: nowrap;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--text-main);
+      word-break: break-word;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Device Sensor Inspector Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Device Sensor Inspector</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Live accelerometer (X, Y, Z), gyroscope rotation & orientation in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);" id="sensorApiBanner">
+            Tilt a phone/tablet or click Enable Sensors (or Simulate Tilt Preview on desktop) — zero server uploads:
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="enableSensorsBtn" class="btn-primary">Enable Sensors</button>
+            <button type="button" id="simTiltBtn" class="btn-sec">Simulate Tilt Preview</button>
+            <button type="button" id="stopSensorsBtn" class="btn-sec" disabled>Pause</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="tilt-stage-box">
+              <div class="tilt-hud">
+                <span>Live Tilt & Motion Bubble</span>
+                <span id="sensorStreamStateBadge" style="color:#FBBF24;">Ready</span>
+              </div>
+              <canvas id="sensorBubbleCanvas" width="460" height="210" aria-label="Device Tilt & Acceleration Bubble"></canvas>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="sensor-hero-box">
+              <div>
+                <div class="sensor-kicker">Motion & Orientation Status</div>
+                <div class="sensor-title" id="sensorStatusTitle">Ready to Inspect Sensors</div>
+                <div class="sensor-sub" id="sensorStatusSub">Click Enable Sensors on mobile or Simulate Tilt Preview to test UI</div>
+              </div>
+              <div class="sensor-mag" id="accelMagBadge">0.00 g</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Acceleration (incl. Gravity)</div>
+                <div class="metric-val" id="accelGravityVal">X: — | Y: — | Z: —</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Linear Acceleration</div>
+                <div class="metric-val" id="accelLinearVal">X: — | Y: — | Z: —</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Gyroscope Rotation Rate</div>
+                <div class="metric-val" id="gyroRateVal">α: — | β: — | γ: —</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Orientation (Alpha/Beta/Gamma)</div>
+                <div class="metric-val" id="orientAnglesVal">α: — | β: — | γ: —</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copySensorReportBtn" class="btn-sec" style="height:38px;">Copy Sensor Snapshot</button>
+              <button type="button" id="downloadSensorReportBtn" class="btn-sec" style="height:38px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Accelerometer vs Gyroscope & Orientation -->
+    <article class="content-card">
+      <h2>Complete User Guide to Device Sensors, Accelerometer, Gyroscope & Orientation APIs</h2>
+
+      <h3>How Accelerometers, Gyroscopes, and Orientation Angles Work in Browsers</h3>
+      <p>
+        Smartphones, tablets, and certain hybrid laptops contain Micro-Electro-Mechanical Systems (<strong>MEMS</strong>) motion sensors that web pages can read through the <strong>DeviceMotion</strong> and <strong>DeviceOrientation</strong> browser APIs when served over a secure context and permitted by the browser. An <strong>accelerometer</strong> measures acceleration in meters per second squared (<code>m/s²</code>) along three axes (<code>X</code> left-to-right across the screen, <code>Y</code> bottom-to-top along the screen, and <code>Z</code> perpendicular out of the screen)—including Earth's gravity (<code>~9.81 m/s²</code>) when resting flat or upright. A <strong>gyroscope</strong> measures angular rotation rate (<code>α, β, γ</code> in degrees per second) around those axes, while orientation reports device rotation and tilt angles (<code>alpha</code>, <code>beta</code> front-to-back tilt, and <code>gamma</code> left-to-right roll). A browser-based <strong>Device Sensor Inspector</strong> reads sensor frames 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Inspect Your Device Sensors in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Open on a Sensor-Equipped Device & Tap Enable Sensors:</strong> Tap <strong>Enable Sensors</strong> (required on iOS Safari and certain browsers to request motion/orientation permission), or click <strong>Simulate Tilt Preview</strong> on a desktop browser to test the live bubble and readout pipeline.</li>
+        <li><strong>Tilt or Rotate Your Device Gently:</strong> Watch the bubble indicator, gravity acceleration (<code>m/s²</code>), gyroscope rotation rate, and orientation angles respond in real time.</li>
+        <li><strong>Pause or Export Your Sensor Snapshot:</strong> Click <strong>Pause</strong> to freeze a reading, then export via <strong>Copy Sensor Snapshot</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Acceleration Magnitude & Gravity Reference Formula</h3>
+      <p>
+        Combining three-axis acceleration components <code>(a<sub>x</sub>, a<sub>y</sub>, a<sub>z</sub>)</code> gives total acceleration magnitude:
+      </p>
+      <div class="formula-box">
+        Total Acceleration (|a|) = sqrt(a<sub>x</sub>² + a<sub>y</sub>² + a<sub>z</sub>²)  |  1 g ≈ 9.81 m/s²
+      </div>
+
+      <h3>Helpful Tips When Testing Sensors on Mobile & Desktop</h3>
+      <ul>
+        <li><strong>Desktop PCs Often Lack Motion Sensors:</strong> Most desktop computers and many laptops do not have an accelerometer or gyroscope—if no real hardware events arrive, use <strong>Simulate Tilt Preview</strong> to preview how the visualizer and report formatter behave.</li>
+        <li><strong>Check Browser Motion & Orientation Permissions:</strong> If iOS Safari or an Android browser blocks motion events, verify that motion/orientation access is allowed in browser or device settings.</li>
+        <li><strong>Hold Device Firmly When Tilting:</strong> Avoid rapid jerky movements near tables or hard edges while testing tilt and rotation.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> A smartphone resting face-up flat on a table experiences roughly <code>0 m/s²</code> on X and Y and about <code>+9.81 m/s²</code> (<code>~1.00 g</code>) along the vertical Z axis due to Earth's gravity.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="sensor-table-heading">
+      <h2 id="sensor-table-heading">Device Sensor Axes, Orientation Angles & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to understand accelerometer axes, gyroscope rates, and orientation angles.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Sensor Axis / Metric</th>
+              <th>API Property</th>
+              <th>Unit / Range</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Accel X (Left / Right)</strong></td>
+              <td><code>accelerationIncludingGravity.x</code></td>
+              <td><code>m/s²</code></td>
+              <td>Positive right across screen plane</td>
+            </tr>
+            <tr>
+              <td><strong>Accel Y (Bottom / Top)</strong></td>
+              <td><code>accelerationIncludingGravity.y</code></td>
+              <td><code>m/s²</code></td>
+              <td>Positive up along screen plane</td>
+            </tr>
+            <tr>
+              <td><strong>Accel Z (Out of Screen)</strong></td>
+              <td><code>accelerationIncludingGravity.z</code></td>
+              <td><code>m/s²</code></td>
+              <td><code>~9.81 m/s²</code> when flat face-up</td>
+            </tr>
+            <tr>
+              <td><strong>Linear Acceleration</strong></td>
+              <td><code>acceleration.x/y/z</code></td>
+              <td><code>m/s²</code> (gravity removed)</td>
+              <td>Measures active motion without 1g</td>
+            </tr>
+            <tr>
+              <td><strong>Gyro Alpha (Z-Axis Spin)</strong></td>
+              <td><code>rotationRate.alpha</code></td>
+              <td><code>deg/s</code></td>
+              <td>Yaw / flat spin angular velocity</td>
+            </tr>
+            <tr>
+              <td><strong>Gyro Beta (X-Axis Tilt)</strong></td>
+              <td><code>rotationRate.beta</code></td>
+              <td><code>deg/s</code></td>
+              <td>Front-to-back pitch angular velocity</td>
+            </tr>
+            <tr>
+              <td><strong>Gyro Gamma (Y-Axis Roll)</strong></td>
+              <td><code>rotationRate.gamma</code></td>
+              <td><code>deg/s</code></td>
+              <td>Left-to-right roll angular velocity</td>
+            </tr>
+            <tr>
+              <td><strong>Orientation Alpha</strong></td>
+              <td><code>DeviceOrientationEvent.alpha</code></td>
+              <td><code>0° – 360°</code></td>
+              <td>Compass / Z-axis rotation angle</td>
+            </tr>
+            <tr>
+              <td><strong>Orientation Beta</strong></td>
+              <td><code>DeviceOrientationEvent.beta</code></td>
+              <td><code>−180° – 180°</code></td>
+              <td>Front-back tilt (<code>0°</code> when flat)</td>
+            </tr>
+            <tr>
+              <td><strong>Orientation Gamma</strong></td>
+              <td><code>DeviceOrientationEvent.gamma</code></td>
+              <td><code>−90° – 90°</code></td>
+              <td>Left-right tilt (<code>0°</code> when flat)</td>
+            </tr>
+            <tr>
+              <td><strong>iOS Permission Prompt</strong></td>
+              <td><code>DeviceMotionEvent.requestPermission()</code></td>
+              <td>User gesture required</td>
+              <td>Triggered by Enable Sensors button</td>
+            </tr>
+            <tr>
+              <td><strong>Simulate Tilt Preview</strong></td>
+              <td>Local synthetic tilt animation</td>
+              <td>Desktop / UI verification</td>
+              <td>Toggleable in studio top bar</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser <code>devicemotion</code> & <code>deviceorientation</code> Listener — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Sensor telemetry is never transmitted to any server</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero motion streams stored externally</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser sensor check with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Device, Hardware, Display & Everyday Utilities</h2>
+      <p>Checking battery status, testing your webcam or screen resolution, or inspecting browser signals? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="battery-status-checker.html"><span>Battery Status Checker</span><span class="arrow">→</span></a>
+        <a class="related-link" href="webcam-test.html"><span>Webcam Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="screen-resolution-tester.html"><span>Screen Resolution Tester</span><span class="arrow">→</span></a>
+        <a class="related-link" href="browser-fingerprint-inspector.html"><span>Browser Fingerprint Inspector</span><span class="arrow">→</span></a>
+        <a class="related-link" href="microphone-test.html"><span>Microphone Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="keyboard-test.html"><span>Keyboard Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="dead-pixel-test.html"><span>Dead Pixel Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="html5-gamepad-tester.html"><span>HTML5 Gamepad Tester</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Why do real sensor readings stay at zero on my desktop computer?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Most desktop PCs and standard laptops do not include hardware accelerometers or gyroscopes—open this page on a smartphone or tablet with motion sensors, or click <strong>Simulate Tilt Preview</strong> to test the live bubble and readouts.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Why do I need to tap "Enable Sensors" on iPhone or iPad?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            iOS Safari requires a direct user tap gesture to call <code>DeviceMotionEvent.requestPermission()</code> and <code>DeviceOrientationEvent.requestPermission()</code> before delivering live motion and orientation values.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my device sensor readings sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All sensor listeners, bubble rendering, and snapshot exports run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online Device Sensor Inspector free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side DeviceMotion & DeviceOrientation Sensor Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const enableSensorsBtn = document.getElementById("enableSensorsBtn");
+      const simTiltBtn = document.getElementById("simTiltBtn");
+      const stopSensorsBtn = document.getElementById("stopSensorsBtn");
+      const sensorStreamStateBadge = document.getElementById("sensorStreamStateBadge");
+
+      const sensorBubbleCanvas = document.getElementById("sensorBubbleCanvas");
+      const sctx = sensorBubbleCanvas.getContext("2d");
+
+      const sensorStatusTitle = document.getElementById("sensorStatusTitle");
+      const sensorStatusSub = document.getElementById("sensorStatusSub");
+      const accelMagBadge = document.getElementById("accelMagBadge");
+
+      const accelGravityVal = document.getElementById("accelGravityVal");
+      const accelLinearVal = document.getElementById("accelLinearVal");
+      const gyroRateVal = document.getElementById("gyroRateVal");
+      const orientAnglesVal = document.getElementById("orientAnglesVal");
+
+      const copySensorReportBtn = document.getElementById("copySensorReportBtn");
+      const downloadSensorReportBtn = document.getElementById("downloadSensorReportBtn");
+
+      let listenersActive = false;
+      let simInterval = null;
+      let simPhase = 0;
+      let eventsReceived = 0;
+      let hasReportedSnapshot = false;
+
+      let latestSnapshot = {
+        gx: 0, gy: 0, gz: 9.81,
+        lx: 0, ly: 0, lz: 0,
+        ra: 0, rb: 0, rg: 0,
+        oa: 0, ob: 0, og: 0
+      };
+      let latestReportText = "";
+
+      function copyToClipboardSafe(text, btnEl) {
+        if (!text) return;
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+          navigator.clipboard.writeText(text).then(function () {
+            const orig = btnEl.textContent;
+            btnEl.textContent = "Copied!";
+            setTimeout(function () { btnEl.textContent = orig; }, 1800);
+          }).catch(function () {});
+        } else {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand("copy"); } catch (e) {}
+          document.body.removeChild(ta);
+          const orig = btnEl.textContent;
+          btnEl.textContent = "Copied!";
+          setTimeout(function () { btnEl.textContent = orig; }, 1800);
+        }
+      }
+
+      function drawBubbleLevel(tiltXDeg, tiltYDeg) {
+        const w = sensorBubbleCanvas.width;
+        const h = sensorBubbleCanvas.height;
+        const cx = w / 2;
+        const cy = h / 2;
+        const maxR = Math.min(cx, cy) - 18;
+
+        sctx.fillStyle = "#020617";
+        sctx.fillRect(0, 0, w, h);
+
+        sctx.strokeStyle = "#1E293B";
+        sctx.lineWidth = 1.5;
+        sctx.beginPath();
+        sctx.arc(cx, cy, maxR, 0, Math.PI * 2);
+        sctx.stroke();
+
+        sctx.beginPath();
+        sctx.moveTo(cx - maxR, cy);
+        sctx.lineTo(cx + maxR, cy);
+        sctx.moveTo(cx, cy - maxR);
+        sctx.lineTo(cx, cy + maxR);
+        sctx.stroke();
+
+        const normX = Math.max(-1, Math.min(1, tiltXDeg / 45));
+        const normY = Math.max(-1, Math.min(1, tiltYDeg / 45));
+        const bx = cx + normX * (maxR - 12);
+        const by = cy + normY * (maxR - 12);
+
+        sctx.beginPath();
+        sctx.arc(bx, by, 12, 0, Math.PI * 2);
+        sctx.fillStyle = hasReportedSnapshot ? "#2563EB" : "#334155";
+        sctx.fill();
+        sctx.lineWidth = 2;
+        sctx.strokeStyle = hasReportedSnapshot ? "#93C5FD" : "#64748B";
+        sctx.stroke();
+
+        if (!hasReportedSnapshot) {
+          sctx.fillStyle = "#64748B";
+          sctx.font = "700 13px -apple-system, BlinkMacSystemFont, sans-serif";
+          sctx.textAlign = "center";
+          sctx.fillText("Tilt mobile device or click Simulate Tilt Preview", cx, h - 14);
+        }
+      }
+
+      function refreshSensorUi(modeLabel) {
+        hasReportedSnapshot = true;
+        const s = latestSnapshot;
+        const gMag = Math.hypot(s.gx, s.gy, s.gz);
+        const gInGs = gMag / 9.80665;
+
+        accelMagBadge.textContent = `${gInGs.toFixed(2)} g`;
+        accelGravityVal.textContent = `X: ${s.gx.toFixed(1)} | Y: ${s.gy.toFixed(1)} | Z: ${s.gz.toFixed(1)}`;
+        accelLinearVal.textContent = `X: ${s.lx.toFixed(1)} | Y: ${s.ly.toFixed(1)} | Z: ${s.lz.toFixed(1)}`;
+        gyroRateVal.textContent = `\u03B1: ${s.ra.toFixed(0)} | \u03B2: ${s.rb.toFixed(0)} | \u03B3: ${s.rg.toFixed(0)}`;
+        orientAnglesVal.textContent = `\u03B1: ${s.oa.toFixed(0)}\u00B0 | \u03B2: ${s.ob.toFixed(0)}\u00B0 | \u03B3: ${s.og.toFixed(0)}\u00B0`;
+
+        sensorStatusTitle.className = "sensor-title";
+        sensorStatusTitle.textContent = modeLabel === "sim"
+          ? "Simulated Tilt Preview Active"
+          : "Live Motion & Orientation Active";
+        sensorStatusSub.textContent = modeLabel === "sim"
+          ? "Synthetic tilt preview on desktop \u2022 Zero external sensor stream"
+          : `${eventsReceived} sensor frames received \u2022 ${gMag.toFixed(2)} m/s\u00B2 total accel`;
+
+        drawBubbleLevel(s.og, s.ob);
+
+        latestReportText = [
+          "PureWebKits Device Sensor Snapshot",
+          "-----------------------------------",
+          `Source: ${modeLabel === "sim" ? "Simulated Preview" : "Device Sensor API (" + eventsReceived + " frames)"}`,
+          `Acceleration (incl. Gravity, m/s^2): X=${s.gx.toFixed(2)}, Y=${s.gy.toFixed(2)}, Z=${s.gz.toFixed(2)} (|g|=${gInGs.toFixed(2)}g)`,
+          `Linear Acceleration (m/s^2): X=${s.lx.toFixed(2)}, Y=${s.ly.toFixed(2)}, Z=${s.lz.toFixed(2)}`,
+          `Gyroscope Rate (deg/s): alpha=${s.ra.toFixed(1)}, beta=${s.rb.toFixed(1)}, gamma=${s.rg.toFixed(1)}`,
+          `Orientation (deg): alpha=${s.oa.toFixed(1)}, beta=${s.ob.toFixed(1)}, gamma=${s.og.toFixed(1)}`
+        ].join("\n");
+      }
+
+      function stopSimulation() {
+        if (simInterval) {
+          clearInterval(simInterval);
+          simInterval = null;
+        }
+        simTiltBtn.classList.remove("active-sim");
+        simTiltBtn.textContent = "Simulate Tilt Preview";
+      }
+
+      function toggleSimulation() {
+        if (simInterval) {
+          stopSimulation();
+          sensorStreamStateBadge.style.color = "#94A3B8";
+          sensorStreamStateBadge.textContent = "Stopped";
+          return;
+        }
+        detachRealListenersOnly();
+        simTiltBtn.classList.add("active-sim");
+        simTiltBtn.textContent = "Stop Preview";
+        stopSensorsBtn.disabled = false;
+        sensorStreamStateBadge.style.color = "#38BDF8";
+        sensorStreamStateBadge.textContent = "Simulating";
+
+        simInterval = setInterval(function () {
+          simPhase += 0.08;
+          const rollDeg = Math.sin(simPhase) * 24;
+          const pitchDeg = Math.cos(simPhase * 0.85) * 18;
+          const radG = (rollDeg * Math.PI) / 180;
+          const radB = (pitchDeg * Math.PI) / 180;
+
+          latestSnapshot = {
+            gx: Math.sin(radG) * 9.81,
+            gy: -Math.sin(radB) * 9.81,
+            gz: Math.cos(radG) * Math.cos(radB) * 9.81,
+            lx: Math.sin(simPhase * 1.4) * 1.2,
+            ly: Math.cos(simPhase * 1.2) * 0.9,
+            lz: Math.sin(simPhase * 0.6) * 0.4,
+            ra: Math.cos(simPhase) * 12,
+            rb: -Math.sin(simPhase * 0.85) * 18,
+            rg: Math.cos(simPhase) * 22,
+            oa: ((((simPhase * 28) % 360) + 360) % 360),
+            ob: pitchDeg,
+            og: rollDeg
+          };
+          refreshSensorUi("sim");
+        }, 60);
+      }
+
+      function onDeviceMotion(e) {
+        if (!listenersActive) return;
+        eventsReceived += 1;
+        if (e.accelerationIncludingGravity) {
+          latestSnapshot.gx = Number(e.accelerationIncludingGravity.x) || 0;
+          latestSnapshot.gy = Number(e.accelerationIncludingGravity.y) || 0;
+          latestSnapshot.gz = Number(e.accelerationIncludingGravity.z) || 0;
+        }
+        if (e.acceleration) {
+          latestSnapshot.lx = Number(e.acceleration.x) || 0;
+          latestSnapshot.ly = Number(e.acceleration.y) || 0;
+          latestSnapshot.lz = Number(e.acceleration.z) || 0;
+        }
+        if (e.rotationRate) {
+          latestSnapshot.ra = Number(e.rotationRate.alpha) || 0;
+          latestSnapshot.rb = Number(e.rotationRate.beta) || 0;
+          latestSnapshot.rg = Number(e.rotationRate.gamma) || 0;
+        }
+        refreshSensorUi("real");
+      }
+
+      function onDeviceOrientation(e) {
+        if (!listenersActive) return;
+        eventsReceived += 1;
+        if (typeof e.alpha === "number") latestSnapshot.oa = e.alpha;
+        if (typeof e.beta === "number") latestSnapshot.ob = e.beta;
+        if (typeof e.gamma === "number") latestSnapshot.og = e.gamma;
+        refreshSensorUi("real");
+      }
+
+      function detachRealListenersOnly() {
+        listenersActive = false;
+        window.removeEventListener("devicemotion", onDeviceMotion);
+        window.removeEventListener("deviceorientation", onDeviceOrientation);
+      }
+
+      function pauseAll() {
+        detachRealListenersOnly();
+        stopSimulation();
+        stopSensorsBtn.disabled = true;
+        sensorStreamStateBadge.style.color = "#94A3B8";
+        sensorStreamStateBadge.textContent = "Paused";
+      }
+
+      async function attachRealListeners() {
+        stopSimulation();
+        detachRealListenersOnly();
+
+        const hasMotion = typeof DeviceMotionEvent !== "undefined";
+        const hasOrient = typeof DeviceOrientationEvent !== "undefined";
+
+        if (!hasMotion && !hasOrient) {
+          sensorStatusTitle.className = "sensor-title warn";
+          sensorStatusTitle.textContent = "Sensor APIs Not Available Here";
+          sensorStatusSub.textContent = "Try on a mobile device or click Simulate Tilt Preview";
+          sensorStreamStateBadge.style.color = "#FBBF24";
+          sensorStreamStateBadge.textContent = "Unsupported";
+          return;
+        }
+
+        if (hasMotion && typeof DeviceMotionEvent.requestPermission === "function") {
+          try {
+            const motPerm = await DeviceMotionEvent.requestPermission();
+            if (motPerm !== "granted") {
+              sensorStatusTitle.className = "sensor-title warn";
+              sensorStatusTitle.textContent = "Motion Permission Denied";
+              sensorStatusSub.textContent = "Enable Motion & Orientation in browser/device settings";
+              return;
+            }
+          } catch (e) {}
+        }
+
+        if (hasOrient && typeof DeviceOrientationEvent.requestPermission === "function") {
+          try {
+            await DeviceOrientationEvent.requestPermission();
+          } catch (e) {}
+        }
+
+        listenersActive = true;
+        if (hasMotion) window.addEventListener("devicemotion", onDeviceMotion);
+        if (hasOrient) window.addEventListener("deviceorientation", onDeviceOrientation);
+
+        stopSensorsBtn.disabled = false;
+        sensorStreamStateBadge.style.color = "#34D399";
+        sensorStreamStateBadge.textContent = "Listening";
+
+        if (eventsReceived === 0) {
+          sensorStatusTitle.className = "sensor-title warn";
+          sensorStatusTitle.textContent = "Listening for Sensor Events";
+          sensorStatusSub.textContent = "Tilt or move device (no motion hardware detected if static on desktop)";
+        }
+      }
+
+      enableSensorsBtn.addEventListener("click", attachRealListeners);
+      simTiltBtn.addEventListener("click", toggleSimulation);
+      stopSensorsBtn.addEventListener("click", pauseAll);
+
+      copySensorReportBtn.addEventListener("click", function () {
+        const text = latestReportText || "PureWebKits Device Sensor Inspector: No sensor snapshot captured yet.";
+        copyToClipboardSafe(text, copySensorReportBtn);
+      });
+
+      downloadSensorReportBtn.addEventListener("click", function () {
+        const text = latestReportText || "PureWebKits Device Sensor Inspector: No sensor snapshot captured yet.";
+        const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "device-sensor-snapshot.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      drawBubbleLevel(0, 0);
+      // Attach non-prompting listeners automatically on supported Android/desktop browsers
+      if (
+        (typeof DeviceMotionEvent !== "undefined" && typeof DeviceMotionEvent.requestPermission !== "function") ||
+        (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission !== "function")
+      ) {
+        listenersActive = true;
+        if (typeof DeviceMotionEvent !== "undefined") window.addEventListener("devicemotion", onDeviceMotion);
+        if (typeof DeviceOrientationEvent !== "undefined") window.addEventListener("deviceorientation", onDeviceOrientation);
+        stopSensorsBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

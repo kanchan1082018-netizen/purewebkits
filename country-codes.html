@@ -1,0 +1,963 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Country Code Lookup (ISO Alpha-2, Alpha-3 & Dialing Codes) — PureWebKits</title>
+  <meta name="description" content="Look up country names, ISO 3166-1 Alpha-2 and Alpha-3 codes, numeric codes, and international telephone dialing codes (+1, +91, +44, +49, +81) online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/country-code-lookup.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Country Code Lookup Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 44px;
+      padding: 0 13px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .quick-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .cc-chip {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 7px;
+      padding: 5px 11px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .cc-chip:hover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary-dark);
+    }
+
+    .cc-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .cc-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .cc-hero-title { font-size: 17px; font-weight: 800; }
+    .cc-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .cc-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 22px;
+      font-weight: 800;
+      color: #38BDF8;
+      text-align: right;
+      white-space: nowrap;
+    }
+    .cc-hero-num.error { color: #FCA5A5; font-size: 13.5px; text-align: left; white-space: normal; }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+      word-break: break-word;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Country Code Lookup Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Country Code Lookup</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Look up ISO Alpha-2, Alpha-3, numeric codes & phone dialing codes in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Search by country name, ISO 2- or 3-letter code, or phone dialing code (e.g., IN, IND, +91, US, +1):</div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample (IN)</button>
+            <button type="button" id="resetCcBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="countrySearchInput" class="field-label">Search Country Name, ISO Code, or Dialing Code</label>
+              <input type="text" id="countrySearchInput" class="std-input" value="IN" placeholder="e.g., India, IN, IND, +91, US, +1, GB, +44" autocomplete="off" />
+            </div>
+
+            <div class="field-group">
+              <label for="countryDropdownSelect" class="field-label">Or Pick Directly From Country List</label>
+              <select id="countryDropdownSelect" class="std-select"></select>
+            </div>
+
+            <div class="quick-chips" aria-label="Popular country code lookups">
+              <button type="button" class="cc-chip" data-cc-query="IN">IN (+91)</button>
+              <button type="button" class="cc-chip" data-cc-query="US">US (+1)</button>
+              <button type="button" class="cc-chip" data-cc-query="GB">GB (+44)</button>
+              <button type="button" class="cc-chip" data-cc-query="DE">DE (+49)</button>
+              <button type="button" class="cc-chip" data-cc-query="JP">JP (+81)</button>
+              <button type="button" class="cc-chip" data-cc-query="AU">AU (+61)</button>
+              <button type="button" class="cc-chip" data-cc-query="AE">AE (+971)</button>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="cc-hero-box">
+              <div>
+                <div class="cc-hero-kicker" id="ccHeroKicker">ISO Alpha-2 / Alpha-3</div>
+                <div class="cc-hero-title" id="ccCountryTitle">India</div>
+                <div class="cc-hero-sub" id="ccRegionSub">South Asia • Currency: INR</div>
+              </div>
+              <div class="cc-hero-num" id="ccDialDisplay">+91</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">ISO Alpha-2 Code</div>
+                <div class="metric-val" id="isoAlpha2Val">IN</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">ISO Alpha-3 Code</div>
+                <div class="metric-val" id="isoAlpha3Val">IND</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">ISO Numeric Code</div>
+                <div class="metric-val" id="isoNumericVal">356</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">International Dialing</div>
+                <div class="metric-val" id="dialCodeVal">+91</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyCcBtn" class="btn-primary">Copy Country Codes</button>
+              <button type="button" id="downloadCcBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, ISO Standards & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to ISO Country Codes (Alpha-2, Alpha-3, Numeric) and Phone Dialing Codes</h2>
+
+      <h3>Why Standardized Country Codes Matter Across Commerce, APIs, and Telephony</h3>
+      <p>
+        Whether you are filling out shipping forms, validating billing addresses, configuring payment gateways, working with databases and APIs, or placing international phone calls, unambiguous country identifiers prevent mistakes. The <strong>ISO 3166-1</strong> standard defines three widely used country code formats: two-letter <strong>Alpha-2 codes</strong> (such as <code>IN</code>, <code>US</code>, <code>GB</code>, <code>DE</code>, and <code>JP</code>, also used in country-code top-level domains), three-letter <strong>Alpha-3 codes</strong> (such as <code>IND</code>, <code>USA</code>, <code>GBR</code>, <code>DEU</code>, and <code>JPN</code>), and three-digit <strong>ISO numeric codes</strong> (such as <code>356</code>, <code>840</code>, <code>826</code>, <code>276</code>, and <code>392</code>). Separately, ITU-T <strong>E.164 international calling codes</strong> (such as <code>+91</code>, <code>+1</code>, <code>+44</code>, <code>+49</code>, and <code>+81</code>) specify the prefix dialed before a national subscriber number. A browser-based <strong>Country Code Lookup</strong> provides instant access to these codes—100% locally in your browser with zero server uploads.
+      </p>
+
+      <h3>How to Look Up a Country Code in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Type a Query or Pick From the Dropdown:</strong> Enter a country name, 2-letter or 3-letter ISO code, or dialing code (like <code>+91</code> or <code>+1</code>), choose a country from the dropdown, or click a quick preset chip.</li>
+        <li><strong>Verify ISO & Calling Identifiers:</strong> Inspect the country's Alpha-2, Alpha-3, and numeric codes alongside its international telephone code and currency.</li>
+        <li><strong>Copy or Export the Record:</strong> Click <strong>Copy Country Codes</strong> to copy a clean text summary to your clipboard, or click <strong>Download .txt</strong> to save it locally.</li>
+      </ol>
+
+      <h3>ISO 3166-1 vs. E.164 Dialing Codes</h3>
+      <p>
+        Keep in mind that ISO country codes identify jurisdictions in data and logistics, whereas E.164 codes govern international telephone routing:
+      </p>
+      <div class="formula-box">
+        ISO 3166-1: Alpha-2 (2 letters) • Alpha-3 (3 letters) • Numeric (3 digits)<br />
+        E.164 Telephony: +[Country Code][National Significant Number] (e.g., +91 ..., +1 ...)
+      </div>
+
+      <h3>Helpful Tips When Using Country & Dialing Codes</h3>
+      <ul>
+        <li><strong>Check NANP Shared Dialing (+1):</strong> Several countries and territories in North America and the Caribbean share country code <code>+1</code> with distinct area codes.</li>
+        <li><strong>Distinguish ISO Codes From Currency Codes:</strong> For example, India's ISO Alpha-3 country code is <code>IND</code> while its currency code is <code>INR</code>; the United Kingdom uses <code>GBR</code> for country and <code>GBP</code> for currency.</li>
+        <li><strong>Match Your API or Form Schema:</strong> Confirm whether a form or integration expects 2-letter (<code>IN</code>) or 3-letter (<code>IND</code>) codes.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Searching <code>IN</code> (or <code>India</code> or <code>+91</code>) returns <strong>India</strong> with ISO Alpha-2 <code>IN</code>, ISO Alpha-3 <code>IND</code>, ISO Numeric <code>356</code>, and international dialing code <code>+91</code> (currency <code>INR</code>).</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="cc-table-heading">
+      <h2 id="cc-table-heading">Popular Country Codes, ISO Identifiers & Dialing Reference Table (16 Rows)</h2>
+      <p>Use this reference table to quickly check ISO Alpha-2, Alpha-3, numeric codes, and international dialing codes.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Country</th>
+              <th>Alpha-2 / Alpha-3</th>
+              <th>ISO Numeric</th>
+              <th>Dialing Code</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>India</strong></td>
+              <td><code>IN</code> / <code>IND</code></td>
+              <td><code>356</code></td>
+              <td><code>+91</code></td>
+            </tr>
+            <tr>
+              <td><strong>United States</strong></td>
+              <td><code>US</code> / <code>USA</code></td>
+              <td><code>840</code></td>
+              <td><code>+1</code></td>
+            </tr>
+            <tr>
+              <td><strong>United Kingdom</strong></td>
+              <td><code>GB</code> / <code>GBR</code></td>
+              <td><code>826</code></td>
+              <td><code>+44</code></td>
+            </tr>
+            <tr>
+              <td><strong>Canada</strong></td>
+              <td><code>CA</code> / <code>CAN</code></td>
+              <td><code>124</code></td>
+              <td><code>+1</code></td>
+            </tr>
+            <tr>
+              <td><strong>Germany</strong></td>
+              <td><code>DE</code> / <code>DEU</code></td>
+              <td><code>276</code></td>
+              <td><code>+49</code></td>
+            </tr>
+            <tr>
+              <td><strong>France</strong></td>
+              <td><code>FR</code> / <code>FRA</code></td>
+              <td><code>250</code></td>
+              <td><code>+33</code></td>
+            </tr>
+            <tr>
+              <td><strong>Japan</strong></td>
+              <td><code>JP</code> / <code>JPN</code></td>
+              <td><code>392</code></td>
+              <td><code>+81</code></td>
+            </tr>
+            <tr>
+              <td><strong>Australia</strong></td>
+              <td><code>AU</code> / <code>AUS</code></td>
+              <td><code>036</code></td>
+              <td><code>+61</code></td>
+            </tr>
+            <tr>
+              <td><strong>United Arab Emirates</strong></td>
+              <td><code>AE</code> / <code>ARE</code></td>
+              <td><code>784</code></td>
+              <td><code>+971</code></td>
+            </tr>
+            <tr>
+              <td><strong>Singapore</strong></td>
+              <td><code>SG</code> / <code>SGP</code></td>
+              <td><code>702</code></td>
+              <td><code>+65</code></td>
+            </tr>
+            <tr>
+              <td><strong>Brazil</strong></td>
+              <td><code>BR</code> / <code>BRA</code></td>
+              <td><code>076</code></td>
+              <td><code>+55</code></td>
+            </tr>
+            <tr>
+              <td><strong>South Africa</strong></td>
+              <td><code>ZA</code> / <code>ZAF</code></td>
+              <td><code>710</code></td>
+              <td><code>+27</code></td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download</strong></td>
+              <td colspan="3">One-click clipboard copy or <code>.txt</code> download of country code details</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Country & ISO Lookup — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — All lookups run locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Your searches stay strictly on your device</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Travel, Time, Finance & Everyday Utilities</h2>
+      <p>Checking world clocks, U.S. ZIP time zones, currencies, or global shipping costs? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="world-clock.html"><span>World Clock</span><span class="arrow">→</span></a>
+        <a class="related-link" href="us-zip-code-timezone-finder.html"><span>US ZIP & Timezone Finder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="global-shipping-cost-estimator.html"><span>Global Shipping Estimator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="sepa-transfer-fee-calculator.html"><span>SEPA Transfer Fee Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is the difference between ISO Alpha-2 and Alpha-3 country codes?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Alpha-2 codes are two-letter codes (such as <code>IN</code> or <code>US</code>) widely used in domains, shipping labels, and web forms, whereas Alpha-3 codes are three-letter codes (such as <code>IND</code> or <code>USA</code>) often used in international reporting, passports, and databases.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I search by phone dialing code like +91 or +44?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> Type a dialing code such as <code>+91</code>, <code>91</code>, <code>+44</code>, or <code>+1</code> into the search box to find matching countries.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my country code searches sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All lookups run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Country Code Lookup free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Country Code Lookup Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const COUNTRIES = [
+        { name: "India", alpha2: "IN", alpha3: "IND", numeric: "356", dial: "+91", region: "South Asia", currency: "INR" },
+        { name: "United States", alpha2: "US", alpha3: "USA", numeric: "840", dial: "+1", region: "North America", currency: "USD" },
+        { name: "United Kingdom", alpha2: "GB", alpha3: "GBR", numeric: "826", dial: "+44", region: "Europe", currency: "GBP" },
+        { name: "Canada", alpha2: "CA", alpha3: "CAN", numeric: "124", dial: "+1", region: "North America", currency: "CAD" },
+        { name: "Germany", alpha2: "DE", alpha3: "DEU", numeric: "276", dial: "+49", region: "Europe", currency: "EUR" },
+        { name: "France", alpha2: "FR", alpha3: "FRA", numeric: "250", dial: "+33", region: "Europe", currency: "EUR" },
+        { name: "Italy", alpha2: "IT", alpha3: "ITA", numeric: "380", dial: "+39", region: "Europe", currency: "EUR" },
+        { name: "Spain", alpha2: "ES", alpha3: "ESP", numeric: "724", dial: "+34", region: "Europe", currency: "EUR" },
+        { name: "Netherlands", alpha2: "NL", alpha3: "NLD", numeric: "528", dial: "+31", region: "Europe", currency: "EUR" },
+        { name: "Switzerland", alpha2: "CH", alpha3: "CHE", numeric: "756", dial: "+41", region: "Europe", currency: "CHF" },
+        { name: "Japan", alpha2: "JP", alpha3: "JPN", numeric: "392", dial: "+81", region: "East Asia", currency: "JPY" },
+        { name: "China", alpha2: "CN", alpha3: "CHN", numeric: "156", dial: "+86", region: "East Asia", currency: "CNY" },
+        { name: "South Korea", alpha2: "KR", alpha3: "KOR", numeric: "410", dial: "+82", region: "East Asia", currency: "KRW" },
+        { name: "Singapore", alpha2: "SG", alpha3: "SGP", numeric: "702", dial: "+65", region: "Southeast Asia", currency: "SGD" },
+        { name: "United Arab Emirates", alpha2: "AE", alpha3: "ARE", numeric: "784", dial: "+971", region: "Middle East", currency: "AED" },
+        { name: "Saudi Arabia", alpha2: "SA", alpha3: "SAU", numeric: "682", dial: "+966", region: "Middle East", currency: "SAR" },
+        { name: "Australia", alpha2: "AU", alpha3: "AUS", numeric: "036", dial: "+61", region: "Oceania", currency: "AUD" },
+        { name: "New Zealand", alpha2: "NZ", alpha3: "NZL", numeric: "554", dial: "+64", region: "Oceania", currency: "NZD" },
+        { name: "Brazil", alpha2: "BR", alpha3: "BRA", numeric: "076", dial: "+55", region: "South America", currency: "BRL" },
+        { name: "Mexico", alpha2: "MX", alpha3: "MEX", numeric: "484", dial: "+52", region: "North America", currency: "MXN" },
+        { name: "South Africa", alpha2: "ZA", alpha3: "ZAF", numeric: "710", dial: "+27", region: "Southern Africa", currency: "ZAR" },
+        { name: "Nigeria", alpha2: "NG", alpha3: "NGA", numeric: "566", dial: "+234", region: "West Africa", currency: "NGN" },
+        { name: "Sweden", alpha2: "SE", alpha3: "SWE", numeric: "752", dial: "+46", region: "Europe", currency: "SEK" },
+        { name: "Norway", alpha2: "NO", alpha3: "NOR", numeric: "578", dial: "+47", region: "Europe", currency: "NOK" }
+      ];
+
+      const countrySearchInput = document.getElementById("countrySearchInput");
+      const countryDropdownSelect = document.getElementById("countryDropdownSelect");
+      const ccChips = document.querySelectorAll(".cc-chip");
+
+      const ccHeroKicker = document.getElementById("ccHeroKicker");
+      const ccCountryTitle = document.getElementById("ccCountryTitle");
+      const ccRegionSub = document.getElementById("ccRegionSub");
+      const ccDialDisplay = document.getElementById("ccDialDisplay");
+
+      const isoAlpha2Val = document.getElementById("isoAlpha2Val");
+      const isoAlpha3Val = document.getElementById("isoAlpha3Val");
+      const isoNumericVal = document.getElementById("isoNumericVal");
+      const dialCodeVal = document.getElementById("dialCodeVal");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetCcBtn = document.getElementById("resetCcBtn");
+      const copyCcBtn = document.getElementById("copyCcBtn");
+      const downloadCcBtn = document.getElementById("downloadCcBtn");
+
+      let latestSummaryText = "";
+
+      function populateDropdown() {
+        const sorted = COUNTRIES.slice().sort(function (a, b) {
+          return a.name.localeCompare(b.name);
+        });
+        sorted.forEach(function (c) {
+          const opt = document.createElement("option");
+          opt.value = c.alpha2;
+          opt.textContent = `${c.name} (${c.alpha2} / ${c.alpha3}) \u2022 ${c.dial}`;
+          if (c.alpha2 === "IN") opt.selected = true;
+          countryDropdownSelect.appendChild(opt);
+        });
+      }
+
+      function renderCountry(c) {
+        ccHeroKicker.textContent = `ISO ${c.alpha2} / ${c.alpha3} \u2022 #${c.numeric}`;
+        ccCountryTitle.textContent = c.name;
+        ccRegionSub.textContent = `${c.region} \u2022 Currency: ${c.currency}`;
+        ccDialDisplay.className = "cc-hero-num";
+        ccDialDisplay.textContent = c.dial;
+
+        isoAlpha2Val.textContent = c.alpha2;
+        isoAlpha3Val.textContent = c.alpha3;
+        isoNumericVal.textContent = c.numeric;
+        dialCodeVal.textContent = c.dial;
+        countryDropdownSelect.value = c.alpha2;
+
+        latestSummaryText = [
+          "PureWebKits Country Code Lookup",
+          "--------------------------------",
+          `Country: ${c.name} (${c.region})`,
+          `ISO Alpha-2: ${c.alpha2} | ISO Alpha-3: ${c.alpha3} | ISO Numeric: ${c.numeric}`,
+          `International Dialing Code: ${c.dial} | Currency: ${c.currency}`
+        ].join("\n");
+      }
+
+      function renderNotFound(q) {
+        ccHeroKicker.textContent = "Country Code Lookup";
+        ccCountryTitle.textContent = "No Matching Country Found";
+        ccRegionSub.textContent = "Try a country name, ISO code (IN, US, GB), or dial code (+91, +1)";
+        ccDialDisplay.className = "cc-hero-num error";
+        ccDialDisplay.textContent = `No match for "${q}"`;
+        isoAlpha2Val.textContent = "—";
+        isoAlpha3Val.textContent = "—";
+        isoNumericVal.textContent = "—";
+        dialCodeVal.textContent = "—";
+        latestSummaryText = "";
+      }
+
+      function findCountryByQuery(rawQ) {
+        const q = String(rawQ || "").trim().toLowerCase();
+        if (!q) return COUNTRIES[0];
+
+        const qNoPlus = q.replace(/^\+/, "");
+
+        // Exact Alpha-2 or Alpha-3 match
+        let match = COUNTRIES.find(function (c) {
+          return c.alpha2.toLowerCase() === q || c.alpha3.toLowerCase() === q || c.numeric === q;
+        });
+        if (match) return match;
+
+        // Dialing code match (with or without leading +)
+        if (q.startsWith("+") || /^\d+$/.test(qNoPlus)) {
+          match = COUNTRIES.find(function (c) {
+            return c.dial.toLowerCase() === q || c.dial.replace(/^\+/, "") === qNoPlus;
+          });
+          if (match) return match;
+        }
+
+        // Country name or region substring match
+        match = COUNTRIES.find(function (c) {
+          return (
+            c.name.toLowerCase().includes(q) ||
+            c.alpha2.toLowerCase().includes(q) ||
+            c.alpha3.toLowerCase().includes(q) ||
+            c.currency.toLowerCase().includes(q)
+          );
+        });
+        return match || null;
+      }
+
+      function handleSearchInput() {
+        const raw = countrySearchInput.value;
+        if (!raw.trim()) {
+          renderNotFound("");
+          return;
+        }
+        const found = findCountryByQuery(raw);
+        if (found) {
+          renderCountry(found);
+        } else {
+          renderNotFound(raw.trim());
+        }
+      }
+
+      countrySearchInput.addEventListener("input", handleSearchInput);
+
+      countryDropdownSelect.addEventListener("change", function () {
+        const found = COUNTRIES.find(function (c) { return c.alpha2 === countryDropdownSelect.value; });
+        if (found) {
+          countrySearchInput.value = found.alpha2;
+          renderCountry(found);
+        }
+      });
+
+      ccChips.forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          const val = chip.getAttribute("data-cc-query");
+          countrySearchInput.value = val;
+          handleSearchInput();
+        });
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        countrySearchInput.value = "IN";
+        handleSearchInput();
+      });
+
+      resetCcBtn.addEventListener("click", function () {
+        countrySearchInput.value = "";
+        handleSearchInput();
+      });
+
+      copyCcBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyCcBtn.textContent;
+          copyCcBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyCcBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadCcBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "country-code-lookup.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      populateDropdown();
+      handleSearchInput();
+    });
+  </script>
+</body>
+</html>

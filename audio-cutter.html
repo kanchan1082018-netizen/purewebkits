@@ -1,0 +1,1283 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Audio Cutter & MP3/WAV Trimmer (Waveform & Fade) — PureWebKits</title>
+  <meta name="description" content="Trim and cut audio clips with an interactive waveform timeline, exact start/end time sliders, fade-in/fade-out envelopes, and instant WAV/MP3-compatible export online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/audio-cutter.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Audio Cutter Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover:not(:disabled) { background: #E2E8F0; }
+    .btn-sec:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .dropzone-box {
+      border: 2px dashed #93C5FD;
+      background: #F8FAFC;
+      border-radius: 12px;
+      padding: 16px 18px;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+      margin-bottom: 18px;
+    }
+    .dropzone-box:hover, .dropzone-box.dragover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+    }
+    .dropzone-title { font-size: 14.5px; font-weight: 800; color: var(--text-main); }
+    .dropzone-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    /* Waveform Canvas Box */
+    .wave-stage-box {
+      background: #0F172A;
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .wave-hud {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: #93C5FD;
+    }
+    #audioWaveformCanvas {
+      width: 100%;
+      height: 155px;
+      display: block;
+      background: #020617;
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.95fr;
+      gap: 22px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .field-label { font-size: 11.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 40px;
+      padding: 0 11px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+    .range-slider {
+      width: 100%;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .trim-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .trim-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .trim-title { font-size: 16px; font-weight: 800; color: #34D399; }
+    .trim-sub { font-size: 12px; color: #CBD5E1; }
+    .trim-dur-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 20px;
+      font-weight: 800;
+      color: #38BDF8;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    #trimmedAudioPlayer {
+      width: 100%;
+      height: 36px;
+      display: none;
+    }
+
+    .alert-banner {
+      display: none;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: #991B1B;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 860px) {
+      .calc-grid, .metrics-grid, .two-col-fields { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Audio Cutter Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Audio Cutter & Trimmer</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Waveform selection, exact start/end times, fade envelopes & lossless WAV export
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <button type="button" id="previewSelectionBtn" class="btn-primary" disabled>Preview Selection</button>
+            <button type="button" id="stopPreviewBtn" class="btn-sec" disabled>Stop Preview</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleToneBtn" class="btn-sec">Generate 10s Test Chime</button>
+            <button type="button" id="resetAudioCutterBtn" class="btn-sec">Clear</button>
+          </div>
+        </div>
+
+        <div class="alert-banner" id="audioErrorBanner" role="alert"></div>
+
+        <input type="file" id="audioFileInput" accept="audio/*" style="display:none;" />
+        <div class="dropzone-box" id="audioDropzone" role="button" tabindex="0" aria-label="Choose or drop an audio file to trim">
+          <div class="dropzone-title">Click to Choose an Audio File or Drag & Drop Here (MP3, WAV, OGG, M4A)</div>
+          <div class="dropzone-sub">Decoded & trimmed locally via Web Audio API — or click "Generate 10s Test Chime" above to try immediately</div>
+        </div>
+
+        <div class="wave-stage-box">
+          <div class="wave-hud">
+            <span id="waveFileLabel">No audio loaded</span>
+            <span id="waveRangeReadout">Start: 0.00s • End: 0.00s • Duration: 0.00s</span>
+          </div>
+          <canvas id="audioWaveformCanvas" width="840" height="175" aria-label="Interactive Audio Waveform Timeline"></canvas>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="startSecInput" class="field-label">Start Time (Seconds)</label>
+                <input type="number" id="startSecInput" class="std-input" min="0" step="0.1" value="0.0" />
+              </div>
+
+              <div class="field-group">
+                <label for="endSecInput" class="field-label">End Time (Seconds)</label>
+                <input type="number" id="endSecInput" class="std-input" min="0" step="0.1" value="0.0" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <div class="field-label-row">
+                  <label for="fadeInSlider" class="field-label">Fade In</label>
+                  <span id="fadeInValLabel" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:12px; font-weight:800; color:var(--primary);">0.0s</span>
+                </div>
+                <input type="range" id="fadeInSlider" class="range-slider" min="0" max="5" step="0.1" value="0" />
+              </div>
+
+              <div class="field-group">
+                <div class="field-label-row">
+                  <label for="fadeOutSlider" class="field-label">Fade Out</label>
+                  <span id="fadeOutValLabel" style="font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; font-weight:800; color:var(--primary);">0.0s</span>
+                </div>
+                <input type="range" id="fadeOutSlider" class="range-slider" min="0" max="5" step="0.1" value="0" />
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="trim-hero-box">
+              <div>
+                <div class="trim-kicker">Selected Clip Length</div>
+                <div class="trim-title" id="clipStatusTitle">Load Audio or Test Chime</div>
+                <div class="trim-sub" id="clipStatusSub">16-bit PCM WAV export preserves crisp sample accuracy</div>
+              </div>
+              <div class="trim-dur-num" id="clipDurationHero">0.00s</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Original Duration</div>
+                <div class="metric-val" id="origDurationVal">0.00s</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Sample Rate & Channels</div>
+                <div class="metric-val" id="audioSpecVal">—</div>
+              </div>
+            </div>
+
+            <audio id="trimmedAudioPlayer" controls></audio>
+
+            <div class="btn-row">
+              <button type="button" id="renderDownloadWavBtn" class="btn-primary" disabled>Cut & Download WAV</button>
+              <button type="button" id="copyClipSummaryBtn" class="btn-sec" style="height:40px;" disabled>Copy Clip Details</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Waveform Trimming & PCM WAV Export -->
+    <article class="content-card">
+      <h2>Complete User Guide to Cutting & Trimming Audio, Waveform Selection & Fade Envelopes</h2>
+
+      <h3>How Browser Audio Decoding, Waveform Trimming & PCM WAV Export Work</h3>
+      <p>
+        Whether you are trimming a voice memo, cutting an intro or outro from a podcast clip, isolating a sound effect, or preparing a short audio snippet, working visually against the audio waveform makes finding exact start and end points fast and accurate. When you choose an audio file (such as <code>MP3</code>, <code>WAV</code>, <code>OGG</code>, or <code>M4A</code>), the browser's <strong>Web Audio API</strong> (<code>AudioContext.decodeAudioData()</code>) decodes the waveform into PCM sample buffers in memory, draws peak amplitude bars onto the timeline canvas, and lets you set precise start and end timestamps along with optional linear <strong>Fade In</strong> and <strong>Fade Out</strong> ramps to smooth out abrupt cuts. When you click <strong>Cut & Download WAV</strong>, the selected sample slice is packaged into a standard <code>16-bit PCM RIFF/WAV</code> file directly inside your browser. A browser-based <strong>Audio Cutter</strong> runs 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Cut & Export an Audio Clip in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Load an Audio File or Test Chime:</strong> Drop an audio file onto the upload area or click <strong>Generate 10s Test Chime</strong> to try out the timeline immediately.</li>
+        <li><strong>Set Start/End Times & Optional Fades:</strong> Enter or adjust <strong>Start Time (Seconds)</strong> and <strong>End Time (Seconds)</strong> (or click along the waveform timeline to jump your start point), and optionally add a short <strong>Fade In</strong> or <strong>Fade Out</strong>.</li>
+        <li><strong>Preview & Download Clean WAV:</strong> Click <strong>Preview Selection</strong> to audition your trim, then click <strong>Cut & Download WAV</strong> to save the clipped audio file.</li>
+      </ol>
+
+      <h3>Clip Sample Count & Fade Envelope Formulas</h3>
+      <p>
+        For sample rate <code>SR</code> (in Hz), start time <code>t<sub>start</sub></code>, and end time <code>t<sub>end</sub></code>:
+      </p>
+      <div class="formula-box">
+        Clip Duration = t<sub>end</sub> − t<sub>start</sub> (seconds)  |  Samples per Channel = round(Duration × SR)<br />
+        PCM Byte Size = Samples_per_Channel × Channels × 2 bytes (16-bit) + 44-byte WAV Header
+      </div>
+
+      <h3>Helpful Tips for Clean Audio Edits</h3>
+      <ul>
+        <li><strong>Add a 0.1s–0.3s Fade In / Fade Out to Prevent Clicks:</strong> Cutting a waveform abruptly at a non-zero amplitude point can produce a tiny pop or click—a short fade smooths the transition cleanly.</li>
+        <li><strong>Keep a Copy of Your Original File:</strong> Exported WAV files are uncompressed PCM and can be larger than compressed MP3 files—keep your original source file if you archive compact formats.</li>
+        <li><strong>DRM-Protected or Unusual Codecs:</strong> Files encrypted or encoded with codecs unsupported by your browser may fail to decode in <code>decodeAudioData()</code>.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Trimming a <code>48,000 Hz</code> stereo clip from <code>2.0s</code> to <code>7.0s</code> produces a <code>5.00s</code> segment containing <code>240,000</code> samples per channel (<code>960,000</code> bytes of 16-bit stereo PCM audio plus the 44-byte WAV header).</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="audio-table-heading">
+      <h2 id="audio-table-heading">Audio Cutter Formats, Sample Rates & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to understand audio sample rates, WAV export structure, and editing controls.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature / Parameter</th>
+              <th>Specification / Value</th>
+              <th>Role in Audio Cutting</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Input Formats</strong></td>
+              <td><code>MP3</code>, <code>WAV</code>, <code>OGG</code>, <code>M4A</code>, etc.</td>
+              <td>Decoded via browser Web Audio API</td>
+              <td>Depends on browser codec support</td>
+            </tr>
+            <tr>
+              <td><strong>Output Format</strong></td>
+              <td><code>16-bit PCM WAV</code> (<code>.wav</code>)</td>
+              <td>Uncompressed standard RIFF/WAV</td>
+              <td>Instant zero-server-encode export</td>
+            </tr>
+            <tr>
+              <td><strong>44,100 Hz Sample Rate</strong></td>
+              <td><code>44,100</code> samples/sec</td>
+              <td>Standard CD / consumer audio rate</td>
+              <td>Preserved from decoded buffer</td>
+            </tr>
+            <tr>
+              <td><strong>48,000 Hz Sample Rate</strong></td>
+              <td><code>48,000</code> samples/sec</td>
+              <td>Standard video / podcast / studio rate</td>
+              <td>Preserved from decoded buffer</td>
+            </tr>
+            <tr>
+              <td><strong>Start & End Time</strong></td>
+              <td>Seconds (<code>0.1s</code> precision)</td>
+              <td>Defines exact trim boundaries</td>
+              <td><code>End</code> automatically clamped to duration</td>
+            </tr>
+            <tr>
+              <td><strong>Fade In Envelope</strong></td>
+              <td><code>0.0s – 5.0s</code> linear ramp</td>
+              <td>Smooths clip entrance from silence</td>
+              <td>Clamped to clip length</td>
+            </tr>
+            <tr>
+              <td><strong>Fade Out Envelope</strong></td>
+              <td><code>0.0s – 5.0s</code> linear ramp</td>
+              <td>Smooths clip exit into silence</td>
+              <td>Clamped to clip length</td>
+            </tr>
+            <tr>
+              <td><strong>Selection Preview</strong></td>
+              <td>Live Web Audio playback</td>
+              <td>Auditions start-to-end trim range</td>
+              <td>Stops cleanly on Stop Preview</td>
+            </tr>
+            <tr>
+              <td><strong>Local Audio Player</strong></td>
+              <td>Generated preview player</td>
+              <td>Plays freshly rendered WAV output</td>
+              <td>Uses local browser <code>blob:</code> URL</td>
+            </tr>
+            <tr>
+              <td><strong>Built-In Test Chime</strong></td>
+              <td><code>10.0s</code> multi-tone chord</td>
+              <td>Lets you test trimming with no file</td>
+              <td>Click Generate 10s Test Chime</td>
+            </tr>
+            <tr>
+              <td><strong>Copy Clip Details</strong></td>
+              <td>Plain-text summary</td>
+              <td>Copies start, end, duration & specs</td>
+              <td>Local clipboard action</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser Web Audio API & 16-Bit PCM WAV Builder — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your audio files stay strictly inside your browser memory</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero audio bytes uploaded over the network</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser audio trimming with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Audio, Hardware, Media & Everyday Utilities</h2>
+      <p>Testing your microphone or speakers, inspecting EXIF image metadata, or running a Pomodoro timer? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="microphone-test.html"><span>Microphone Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="speaker-audio-test.html"><span>Speaker Audio Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="exif-data-remover.html"><span>EXIF Data Remover</span><span class="arrow">→</span></a>
+        <a class="related-link" href="study-timer-pomodoro.html"><span>Study Timer (Pomodoro)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Are my audio files uploaded to any server when cutting or trimming?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Never.</strong> Your audio file is decoded and trimmed 100% locally inside your browser using the Web Audio API with zero server uploads.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. What format does "Cut & Download WAV" produce?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            It exports a standard, widely compatible <code>16-bit PCM WAV</code> (<code>.wav</code>) audio file preserving your decoded sample rate and channel layout.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. How do I use Fade In and Fade Out smoothly?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Slide <strong>Fade In</strong> or <strong>Fade Out</strong> between <code>0.1s</code> and <code>5.0s</code> before clicking <strong>Cut & Download WAV</strong>—the tool applies a linear amplitude ramp at the start and end of your trimmed clip.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online Audio Cutter free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Web Audio Waveform Trimmer & 16-Bit PCM WAV Exporter -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const audioFileInput = document.getElementById("audioFileInput");
+      const audioDropzone = document.getElementById("audioDropzone");
+      const loadSampleToneBtn = document.getElementById("loadSampleToneBtn");
+      const resetAudioCutterBtn = document.getElementById("resetAudioCutterBtn");
+      const audioErrorBanner = document.getElementById("audioErrorBanner");
+
+      const previewSelectionBtn = document.getElementById("previewSelectionBtn");
+      const stopPreviewBtn = document.getElementById("stopPreviewBtn");
+
+      const waveFileLabel = document.getElementById("waveFileLabel");
+      const waveRangeReadout = document.getElementById("waveRangeReadout");
+      const audioWaveformCanvas = document.getElementById("audioWaveformCanvas");
+      const wctx = audioWaveformCanvas.getContext("2d");
+
+      const startSecInput = document.getElementById("startSecInput");
+      const endSecInput = document.getElementById("endSecInput");
+      const fadeInSlider = document.getElementById("fadeInSlider");
+      const fadeInValLabel = document.getElementById("fadeInValLabel");
+      const fadeOutSlider = document.getElementById("fadeOutSlider");
+      const fadeOutValLabel = document.getElementById("fadeOutValLabel");
+
+      const clipStatusTitle = document.getElementById("clipStatusTitle");
+      const clipStatusSub = document.getElementById("clipStatusSub");
+      const clipDurationHero = document.getElementById("clipDurationHero");
+      const origDurationVal = document.getElementById("origDurationVal");
+      const audioSpecVal = document.getElementById("audioSpecVal");
+
+      const trimmedAudioPlayer = document.getElementById("trimmedAudioPlayer");
+      const renderDownloadWavBtn = document.getElementById("renderDownloadWavBtn");
+      const copyClipSummaryBtn = document.getElementById("copyClipSummaryBtn");
+
+      let decodedBuffer = null;
+      let sourceFileName = "audio-clip";
+      let previewCtx = null;
+      let previewSrcNode = null;
+      let previewStopTimer = null;
+      let lastBlobUrl = null;
+      let latestSummaryText = "";
+
+      function showErr(msg) {
+        audioErrorBanner.style.display = "block";
+        audioErrorBanner.textContent = msg;
+      }
+      function clearErr() {
+        audioErrorBanner.style.display = "none";
+        audioErrorBanner.textContent = "";
+      }
+
+      function stopPreviewAudio() {
+        if (previewStopTimer) {
+          clearTimeout(previewStopTimer);
+          previewStopTimer = null;
+        }
+        if (previewSrcNode) {
+          try {
+            previewSrcNode.stop();
+            previewSrcNode.disconnect();
+          } catch (e) {}
+          previewSrcNode = null;
+        }
+        stopPreviewBtn.disabled = true;
+        if (decodedBuffer) previewSelectionBtn.disabled = false;
+      }
+
+      function drawWaveform() {
+        const w = audioWaveformCanvas.width;
+        const h = audioWaveformCanvas.height;
+        wctx.fillStyle = "#020617";
+        wctx.fillRect(0, 0, w, h);
+
+        if (!decodedBuffer) {
+          wctx.fillStyle = "#64748B";
+          wctx.font = "700 15px -apple-system, BlinkMacSystemFont, sans-serif";
+          wctx.textAlign = "center";
+          wctx.textBaseline = "middle";
+          wctx.fillText("Upload an audio file or click 'Generate 10s Test Chime' to view waveform", w / 2, h / 2);
+          return;
+        }
+
+        const totalDur = decodedBuffer.duration;
+        const startS = Math.max(0, Math.min(totalDur, parseFloat(startSecInput.value) || 0));
+        const endS = Math.max(startS, Math.min(totalDur, parseFloat(endSecInput.value) || totalDur));
+
+        const startX = totalDur > 0 ? (startS / totalDur) * w : 0;
+        const endX = totalDur > 0 ? (endS / totalDur) * w : w;
+
+        // Dim outside selection
+        wctx.fillStyle = "rgba(15, 23, 42, 0.65)";
+        wctx.fillRect(0, 0, startX, h);
+        wctx.fillRect(endX, 0, w - endX, h);
+
+        // Highlight active trim window
+        wctx.fillStyle = "rgba(37, 99, 235, 0.14)";
+        wctx.fillRect(startX, 0, Math.max(0, endX - startX), h);
+
+        const ch0 = decodedBuffer.getChannelData(0);
+        const totalSamples = ch0.length;
+        const barCount = Math.floor(w / 3);
+        const samplesPerBar = Math.max(1, Math.floor(totalSamples / barCount));
+
+        for (let i = 0; i < barCount; i++) {
+          const idxStart = i * samplesPerBar;
+          const idxEnd = Math.min(totalSamples, idxStart + samplesPerBar);
+          let peak = 0;
+          for (let j = idxStart; j < idxEnd; j++) {
+            const amp = Math.abs(ch0[j]);
+            if (amp > peak) peak = amp;
+          }
+          const barH = Math.max(3, peak * (h - 24));
+          const x = i * 3 + 1;
+          const y = (h - barH) / 2;
+          const midX = x + 1;
+
+          wctx.fillStyle = (midX >= startX && midX <= endX) ? "#38BDF8" : "#334155";
+          wctx.fillRect(x, y, 2, barH);
+        }
+
+        // Start & End markers
+        wctx.strokeStyle = "#34D399";
+        wctx.lineWidth = 2;
+        wctx.beginPath();
+        wctx.moveTo(startX, 0);
+        wctx.lineTo(startX, h);
+        wctx.moveTo(endX, 0);
+        wctx.lineTo(endX, h);
+        wctx.stroke();
+      }
+
+      function syncTrimUi() {
+        const fadeInS = parseFloat(fadeInSlider.value) || 0;
+        const fadeOutS = parseFloat(fadeOutSlider.value) || 0;
+        fadeInValLabel.textContent = `${fadeInS.toFixed(1)}s`;
+        fadeOutValLabel.textContent = `${fadeOutS.toFixed(1)}s`;
+
+        if (!decodedBuffer) {
+          waveRangeReadout.textContent = "Start: 0.00s \u2022 End: 0.00s \u2022 Duration: 0.00s";
+          clipDurationHero.textContent = "0.00s";
+          drawWaveform();
+          return;
+        }
+
+        const totalDur = decodedBuffer.duration;
+        let startS = parseFloat(startSecInput.value);
+        let endS = parseFloat(endSecInput.value);
+        if (!Number.isFinite(startS) || startS < 0) startS = 0;
+        if (!Number.isFinite(endS) || endS <= 0) endS = totalDur;
+        startS = Math.max(0, Math.min(startS, Math.max(0, totalDur - 0.1)));
+        endS = Math.max(startS + 0.1, Math.min(totalDur, endS));
+
+        const clipLen = Math.max(0, endS - startS);
+        waveRangeReadout.textContent = `Start: ${startS.toFixed(2)}s \u2022 End: ${endS.toFixed(2)}s \u2022 Duration: ${clipLen.toFixed(2)}s`;
+        clipDurationHero.textContent = `${clipLen.toFixed(2)}s`;
+        clipStatusTitle.textContent = `Trim Ready (${startS.toFixed(1)}s \u2192 ${endS.toFixed(1)}s)`;
+        clipStatusSub.textContent = `Fade In: ${fadeInS.toFixed(1)}s \u2022 Fade Out: ${fadeOutS.toFixed(1)}s`;
+
+        latestSummaryText = [
+          "PureWebKits Audio Cutter Clip Details",
+          "------------------------------------",
+          `Source File: ${sourceFileName}`,
+          `Original Duration: ${totalDur.toFixed(2)}s (${decodedBuffer.sampleRate} Hz, ${decodedBuffer.numberOfChannels} ch)`,
+          `Trim Range: ${startS.toFixed(2)}s to ${endS.toFixed(2)}s (Clip Length: ${clipLen.toFixed(2)}s)`,
+          `Fade In: ${fadeInS.toFixed(1)}s | Fade Out: ${fadeOutS.toFixed(1)}s`
+        ].join("\n");
+
+        drawWaveform();
+      }
+
+      async function loadAudioFromArrayBuffer(arrayBuf, labelName) {
+        clearErr();
+        stopPreviewAudio();
+        try {
+          const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+          const tempCtx = new AudioCtxClass();
+          const buf = await tempCtx.decodeAudioData(arrayBuf.slice(0));
+          await tempCtx.close().catch(function () {});
+
+          decodedBuffer = buf;
+          sourceFileName = labelName;
+
+          const dur = buf.duration;
+          startSecInput.max = dur.toFixed(2);
+          endSecInput.max = dur.toFixed(2);
+          startSecInput.value = "0.0";
+          endSecInput.value = Math.min(dur, Math.max(0.5, dur)).toFixed(1);
+
+          waveFileLabel.textContent = `${labelName} (${dur.toFixed(2)}s)`;
+          origDurationVal.textContent = `${dur.toFixed(2)}s`;
+          audioSpecVal.textContent = `${buf.sampleRate.toLocaleString("en-US")} Hz \u2022 ${buf.numberOfChannels} ch`;
+
+          previewSelectionBtn.disabled = false;
+          renderDownloadWavBtn.disabled = false;
+          copyClipSummaryBtn.disabled = false;
+          syncTrimUi();
+        } catch (err) {
+          showErr("Could not decode this audio file. Please try a standard MP3, WAV, or OGG audio file.");
+        }
+      }
+
+      function buildTrimmedWavBlob() {
+        if (!decodedBuffer) return null;
+        const sr = decodedBuffer.sampleRate;
+        const numCh = decodedBuffer.numberOfChannels;
+        const totalDur = decodedBuffer.duration;
+
+        let startS = Math.max(0, Math.min(totalDur - 0.1, parseFloat(startSecInput.value) || 0));
+        let endS = Math.max(startS + 0.1, Math.min(totalDur, parseFloat(endSecInput.value) || totalDur));
+        const clipDur = endS - startS;
+
+        const startSample = Math.floor(startS * sr);
+        const endSample = Math.min(decodedBuffer.length, Math.floor(endS * sr));
+        const frameCount = Math.max(1, endSample - startSample);
+
+        const fadeInSamples = Math.min(frameCount, Math.floor((parseFloat(fadeInSlider.value) || 0) * sr));
+        const fadeOutSamples = Math.min(frameCount, Math.floor((parseFloat(fadeOutSlider.value) || 0) * sr));
+
+        const channelSlices = [];
+        for (let c = 0; c < numCh; c++) {
+          const fullCh = decodedBuffer.getChannelData(c);
+          const outCh = new Float32Array(frameCount);
+          for (let i = 0; i < frameCount; i++) {
+            let sampleVal = fullCh[startSample + i] || 0;
+            if (fadeInSamples > 0 && i < fadeInSamples) {
+              sampleVal *= i / fadeInSamples;
+            }
+            if (fadeOutSamples > 0 && i >= frameCount - fadeOutSamples) {
+              const remIdx = frameCount - 1 - i;
+              sampleVal *= remIdx / fadeOutSamples;
+            }
+            outCh[i] = Math.max(-1, Math.min(1, sampleVal));
+          }
+          channelSlices.push(outCh);
+        }
+
+        const bytesPerSample = 2; // 16-bit PCM
+        const blockAlign = numCh * bytesPerSample;
+        const byteRate = sr * blockAlign;
+        const dataByteLength = frameCount * blockAlign;
+        const wavBuffer = new ArrayBuffer(44 + dataByteLength);
+        const view = new DataView(wavBuffer);
+
+        function writeAscii(offset, str) {
+          for (let k = 0; k < str.length; k++) {
+            view.setUint8(offset + k, str.charCodeAt(k));
+          }
+        }
+
+        writeAscii(0, "RIFF");
+        view.setUint32(4, 36 + dataByteLength, true);
+        writeAscii(8, "WAVE");
+        writeAscii(12, "fmt ");
+        view.setUint32(16, 16, true); // PCM chunk size
+        view.setUint16(20, 1, true); // PCM format = 1
+        view.setUint16(22, numCh, true);
+        view.setUint32(24, sr, true);
+        view.setUint32(28, byteRate, true);
+        view.setUint16(32, blockAlign, true);
+        view.setUint16(34, 16, true); // bits per sample
+        writeAscii(36, "data");
+        view.setUint32(40, dataByteLength, true);
+
+        let writePos = 44;
+        for (let i = 0; i < frameCount; i++) {
+          for (let c = 0; c < numCh; c++) {
+            const s = channelSlices[c][i];
+            const pcm16 = s < 0 ? Math.max(-32768, Math.round(s * 32768)) : Math.min(32767, Math.round(s * 32767));
+            view.setInt16(writePos, pcm16, true);
+            writePos += 2;
+          }
+        }
+
+        return {
+          blob: new Blob([wavBuffer], { type: "audio/wav" }),
+          clipDur: clipDur
+        };
+      }
+
+      loadSampleToneBtn.addEventListener("click", function () {
+        clearErr();
+        stopPreviewAudio();
+        const sr = 44100;
+        const dur = 10.0;
+        const totalSamples = sr * dur;
+        const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+        const tmpCtx = new AudioCtxClass();
+        const buf = tmpCtx.createBuffer(2, totalSamples, sr);
+        tmpCtx.close().catch(function () {});
+
+        const notes = [261.63, 329.63, 392.00, 523.25];
+        for (let ch = 0; ch < 2; ch++) {
+          const data = buf.getChannelData(ch);
+          for (let i = 0; i < totalSamples; i++) {
+            const t = i / sr;
+            const noteIdx = Math.min(notes.length - 1, Math.floor(t / 2.5));
+            const localT = t % 2.5;
+            const env = Math.min(1, localT / 0.08) * Math.max(0, 1 - Math.max(0, localT - 2.0) / 0.5);
+            const freq = notes[noteIdx];
+            data[i] = Math.sin(2 * Math.PI * freq * t) * 0.25 * env;
+          }
+        }
+
+        decodedBuffer = buf;
+        sourceFileName = "sample-chime-10s";
+        startSecInput.max = "10.00";
+        endSecInput.max = "10.00";
+        startSecInput.value = "1.0";
+        endSecInput.value = "6.0";
+
+        waveFileLabel.textContent = "sample-chime-10s (10.00s)";
+        origDurationVal.textContent = "10.00s";
+        audioSpecVal.textContent = "44,100 Hz \u2022 2 ch";
+        previewSelectionBtn.disabled = false;
+        renderDownloadWavBtn.disabled = false;
+        copyClipSummaryBtn.disabled = false;
+        syncTrimUi();
+      });
+
+      audioDropzone.addEventListener("click", function () { audioFileInput.click(); });
+      audioDropzone.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          audioFileInput.click();
+        }
+      });
+      audioDropzone.addEventListener("dragover", function (e) {
+        e.preventDefault();
+        audioDropzone.classList.add("dragover");
+      });
+      audioDropzone.addEventListener("dragleave", function () {
+        audioDropzone.classList.remove("dragover");
+      });
+      audioDropzone.addEventListener("drop", function (e) {
+        e.preventDefault();
+        audioDropzone.classList.remove("dragover");
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          const f = e.dataTransfer.files[0];
+          f.arrayBuffer().then(function (ab) {
+            loadAudioFromArrayBuffer(ab, f.name.replace(/\.[^.]+$/, ""));
+          });
+        }
+      });
+
+      audioFileInput.addEventListener("change", function () {
+        if (audioFileInput.files && audioFileInput.files[0]) {
+          const f = audioFileInput.files[0];
+          f.arrayBuffer().then(function (ab) {
+            loadAudioFromArrayBuffer(ab, f.name.replace(/\.[^.]+$/, ""));
+          });
+        }
+      });
+
+      audioWaveformCanvas.addEventListener("click", function (e) {
+        if (!decodedBuffer) return;
+        const rect = audioWaveformCanvas.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / (rect.width || 1)));
+        const clickedSec = ratio * decodedBuffer.duration;
+        startSecInput.value = clickedSec.toFixed(1);
+        if (parseFloat(endSecInput.value) <= clickedSec) {
+          endSecInput.value = Math.min(decodedBuffer.duration, clickedSec + 2.0).toFixed(1);
+        }
+        syncTrimUi();
+      });
+
+      previewSelectionBtn.addEventListener("click", function () {
+        if (!decodedBuffer) return;
+        stopPreviewAudio();
+        const startS = Math.max(0, parseFloat(startSecInput.value) || 0);
+        const endS = Math.max(startS + 0.1, Math.min(decodedBuffer.duration, parseFloat(endSecInput.value) || decodedBuffer.duration));
+        const dur = endS - startS;
+
+        try {
+          const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+          if (!previewCtx) previewCtx = new AudioCtxClass();
+          if (previewCtx.state === "suspended") previewCtx.resume();
+
+          previewSrcNode = previewCtx.createBufferSource();
+          previewSrcNode.buffer = decodedBuffer;
+          previewSrcNode.connect(previewCtx.destination);
+          previewSrcNode.start(0, startS, dur);
+
+          previewSelectionBtn.disabled = true;
+          stopPreviewBtn.disabled = false;
+
+          previewStopTimer = setTimeout(function () {
+            stopPreviewAudio();
+          }, Math.ceil(dur * 1000) + 120);
+        } catch (e) {}
+      });
+
+      stopPreviewBtn.addEventListener("click", stopPreviewAudio);
+
+      renderDownloadWavBtn.addEventListener("click", function () {
+        const res = buildTrimmedWavBlob();
+        if (!res) return;
+        if (lastBlobUrl) URL.revokeObjectURL(lastBlobUrl);
+        lastBlobUrl = URL.createObjectURL(res.blob);
+        trimmedAudioPlayer.src = lastBlobUrl;
+        trimmedAudioPlayer.style.display = "block";
+
+        const link = document.createElement("a");
+        link.href = lastBlobUrl;
+        link.download = `${sourceFileName}-trimmed.wav`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+
+      copyClipSummaryBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyClipSummaryBtn.textContent;
+          copyClipSummaryBtn.textContent = "Copied!";
+          setTimeout(function () { copyClipSummaryBtn.textContent = orig; }, 1800);
+        });
+      });
+
+      resetAudioCutterBtn.addEventListener("click", function () {
+        stopPreviewAudio();
+        decodedBuffer = null;
+        audioFileInput.value = "";
+        trimmedAudioPlayer.src = "";
+        trimmedAudioPlayer.style.display = "none";
+        previewSelectionBtn.disabled = true;
+        renderDownloadWavBtn.disabled = true;
+        copyClipSummaryBtn.disabled = true;
+        waveFileLabel.textContent = "No audio loaded";
+        origDurationVal.textContent = "0.00s";
+        audioSpecVal.textContent = "—";
+        clipStatusTitle.textContent = "Load Audio or Test Chime";
+        startSecInput.value = "0.0";
+        endSecInput.value = "0.0";
+        syncTrimUi();
+      });
+
+      [startSecInput, endSecInput, fadeInSlider, fadeOutSlider].forEach(function (el) {
+        el.addEventListener("input", syncTrimUi);
+        el.addEventListener("change", syncTrimUi);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      drawWaveform();
+    });
+  </script>
+</body>
+</html>

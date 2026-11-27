@@ -1,0 +1,1013 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Coordinates Distance Finder (Haversine Lat/Lon Calculator) — PureWebKits</title>
+  <meta name="description" content="Calculate the great-circle distance in kilometers, miles, and nautical miles, plus initial compass bearing and midpoint between two GPS latitude/longitude coordinates online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/coordinates-distance-finder.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Coordinates Distance Finder Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.08fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .point-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .point-box-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--primary-dark);
+    }
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 11.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input {
+      width: 100%;
+      height: 40px;
+      padding: 0 11px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #FFFFFF;
+      outline: none;
+    }
+    .std-input:focus { border-color: var(--primary); }
+
+    .quick-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .geo-chip {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 7px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .geo-chip:hover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary-dark);
+    }
+
+    .geo-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .geo-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .geo-hero-title { font-size: 16px; font-weight: 800; }
+    .geo-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .geo-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 22px;
+      font-weight: 800;
+      color: #38BDF8;
+      white-space: nowrap;
+      text-align: right;
+    }
+    .geo-hero-num.error { color: #FCA5A5; font-size: 13.5px; text-align: left; white-space: normal; }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-main);
+      word-break: break-word;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Coordinates Distance Finder Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Coordinates Distance Finder</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate great-circle distance (km, mi, nmi), initial bearing & midpoint in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Enter decimal degrees for Point A and Point B (Latitude −90 to +90, Longitude −180 to +180):</div>
+          <div class="topbar-actions">
+            <button type="button" id="swapCoordsBtn" class="btn-sec">Swap Points</button>
+            <button type="button" id="resetGeoBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="point-box">
+              <div class="point-box-header">
+                <span>Point A (Origin)</span>
+                <span id="pointALabel" style="color:var(--text-muted); font-weight:700;">New Delhi, IN</span>
+              </div>
+              <div class="two-col-fields">
+                <div class="field-group">
+                  <label for="lat1Input" class="field-label">Latitude A (°)</label>
+                  <input type="number" id="lat1Input" class="std-input" min="-90" max="90" step="any" value="28.6139" />
+                </div>
+                <div class="field-group">
+                  <label for="lon1Input" class="field-label">Longitude A (°)</label>
+                  <input type="number" id="lon1Input" class="std-input" min="-180" max="180" step="any" value="77.2090" />
+                </div>
+              </div>
+            </div>
+
+            <div class="point-box">
+              <div class="point-box-header">
+                <span>Point B (Destination)</span>
+                <span id="pointBLabel" style="color:var(--text-muted); font-weight:700;">Mumbai, IN</span>
+              </div>
+              <div class="two-col-fields">
+                <div class="field-group">
+                  <label for="lat2Input" class="field-label">Latitude B (°)</label>
+                  <input type="number" id="lat2Input" class="std-input" min="-90" max="90" step="any" value="19.0760" />
+                </div>
+                <div class="field-group">
+                  <label for="lon2Input" class="field-label">Longitude B (°)</label>
+                  <input type="number" id="lon2Input" class="std-input" min="-180" max="180" step="any" value="72.8777" />
+                </div>
+              </div>
+            </div>
+
+            <div class="quick-chips" aria-label="Sample city coordinate pairs">
+              <button type="button" class="geo-chip" data-route="del_bom">New Delhi ↔ Mumbai</button>
+              <button type="button" class="geo-chip" data-route="nyc_lon">New York ↔ London</button>
+              <button type="button" class="geo-chip" data-route="tyo_syd">Tokyo ↔ Sydney</button>
+              <button type="button" class="geo-chip" data-route="dxb_sin">Dubai ↔ Singapore</button>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="geo-hero-box">
+              <div>
+                <div class="geo-hero-kicker">Great-Circle Distance</div>
+                <div class="geo-hero-title" id="geoSummaryTitle">Haversine Surface Distance</div>
+                <div class="geo-hero-sub" id="geoSubCaption">Point A → Point B (Earth R = 6,371 km)</div>
+              </div>
+              <div class="geo-hero-num" id="distanceKmDisplay">1,148.03 km</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Statute Miles (mi)</div>
+                <div class="metric-val" id="distanceMiVal">713.35 mi</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Nautical Miles (nmi)</div>
+                <div class="metric-val" id="distanceNmiVal">619.89 nmi</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Initial Forward Bearing</div>
+                <div class="metric-val" id="bearingVal">203.2° (SSW)</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Geographic Midpoint</div>
+                <div class="metric-val" id="midpointVal">23.8657°, 74.9628°</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyGeoBtn" class="btn-primary">Copy Distance Report</button>
+              <button type="button" id="downloadGeoBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Haversine Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to GPS Coordinates Distance, the Haversine Formula, Bearing & Midpoint</h2>
+
+      <h3>Why Great-Circle (Haversine) Distance Is Used Instead of Flat-Grid Geometry</h3>
+      <p>
+        Because the Earth is curved rather than a flat plane, applying ordinary 2D Euclidean distance to latitude and longitude degrees produces inaccurate results—especially at higher latitudes where lines of longitude converge toward the poles. To measure the shortest surface path between two GPS points, navigation systems, aviation planners, logistics tools, and GIS applications use the <strong>Haversine formula</strong>, which computes the <strong>great-circle distance</strong> along a spherical Earth model of mean radius <code>R = 6,371 km</code> (<code>3,958.761 miles</code> or <code>3,440.065 nautical miles</code>). Alongside distance, calculating the <strong>initial forward azimuth (bearing)</strong> and spherical <strong>geographic midpoint</strong> helps visualize route direction and halfway coordinates. A browser-based <strong>Coordinates Distance Finder</strong> performs all trigonometry 100% locally in your browser—with zero server uploads or map tracking.
+      </p>
+
+      <h3>How to Find Distance Between Two Coordinates in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter Latitude & Longitude for Point A and Point B:</strong> Input signed decimal degrees—positive for <strong>North (N)</strong> and <strong>East (E)</strong>, negative for <strong>South (S)</strong> and <strong>West (W)</strong>—or click a sample route chip.</li>
+        <li><strong>Inspect Kilometers, Miles, Nautical Miles & Bearing:</strong> Review the great-circle distance in <code>km</code>, <code>mi</code>, and <code>nmi</code>, plus the initial compass bearing and midpoint coordinates (or click <strong>Swap Points</strong> to reverse direction).</li>
+        <li><strong>Copy or Export:</strong> Click <strong>Copy Distance Report</strong> to copy the full coordinate report to your clipboard, or click <strong>Download .txt</strong> to save it locally.</li>
+      </ol>
+
+      <h3>Haversine Great-Circle Distance Formula</h3>
+      <p>
+        Converting decimal degrees to radians (<code>φ = lat × π/180</code>, <code>λ = lon × π/180</code>) with <code>Δφ = φ₂ − φ₁</code> and <code>Δλ = λ₂ − λ₁</code>:
+      </p>
+      <div class="formula-box">
+        a = sin²(Δφ / 2) + cos(φ₁) × cos(φ₂) × sin²(Δλ / 2)<br />
+        c = 2 × atan2(√a, √(1 − a))  |  Distance d = R × c  (R = 6,371 km)
+      </div>
+
+      <h3>Helpful Tips When Working With GPS Coordinates</h3>
+      <ul>
+        <li><strong>Use Signed Decimal Degrees:</strong> For example, New York City (<code>40.7128° N, 74.0060° W</code>) is entered as Latitude <code>40.7128</code> and Longitude <code>-74.0060</code>.</li>
+        <li><strong>Remember Straight-Line Distance vs. Driving Distance:</strong> Great-circle distance measures the direct "as-the-crow-flies" arc over the Earth's surface, which is shorter than road driving routes.</li>
+        <li><strong>Watch Opposite Direction Bearings:</strong> Reversing Point A and Point B keeps the distance identical while shifting the initial bearing by roughly <code>180°</code> on short routes (and along the reverse great-circle arc on long routes).</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Between <strong>New Delhi</strong> (<code>28.6139°, 77.2090°</code>) and <strong>Mumbai</strong> (<code>19.0760°, 72.8777°</code>), the Haversine distance is approximately <code>1,148.03 km</code> (<code>713.35 mi</code> / <code>619.89 nmi</code>) on an initial heading of <code>203.2° (SSW)</code>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="geo-table-heading">
+      <h2 id="geo-table-heading">Geodesic Constants, Coordinate Bounds & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to check coordinate ranges, Earth radius constants, and distance conversions.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Parameter / Constant</th>
+              <th>Value / Range</th>
+              <th>Role</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Latitude (φ) Range</strong></td>
+              <td><code>−90.0°</code> (South) to <code>+90.0°</code> (North)</td>
+              <td>North–South coordinate</td>
+              <td><code>0°</code> = Equator</td>
+            </tr>
+            <tr>
+              <td><strong>Longitude (λ) Range</strong></td>
+              <td><code>−180.0°</code> (West) to <code>+180.0°</code> (East)</td>
+              <td>East–West coordinate</td>
+              <td><code>0°</code> = Prime Meridian</td>
+            </tr>
+            <tr>
+              <td><strong>Mean Earth Radius (km)</strong></td>
+              <td><code>6,371.0088 km</code> (<code>6,371 km</code>)</td>
+              <td>Standard spherical radius</td>
+              <td>IUGG mean Earth radius</td>
+            </tr>
+            <tr>
+              <td><strong>Kilometers → Statute Miles</strong></td>
+              <td><code>1 km = 0.621371192 mi</code></td>
+              <td>Imperial distance unit</td>
+              <td><code>1 mi = 1.609344 km</code></td>
+            </tr>
+            <tr>
+              <td><strong>Kilometers → Nautical Miles</strong></td>
+              <td><code>1 km = 0.539956803 nmi</code></td>
+              <td>Aviation & marine unit</td>
+              <td><code>1 nmi = 1.852 km</code> (exact)</td>
+            </tr>
+            <tr>
+              <td><strong>1° of Latitude</strong></td>
+              <td><code>~111.19 km</code> (<code>~69.09 mi</code>)</td>
+              <td>Meridional arc length</td>
+              <td>Nearly constant globally</td>
+            </tr>
+            <tr>
+              <td><strong>1° of Longitude at Equator</strong></td>
+              <td><code>~111.32 km</code> (scales by <code>cos(φ)</code>)</td>
+              <td>Parallel arc length</td>
+              <td>Shrinks to <code>0 km</code> at poles</td>
+            </tr>
+            <tr>
+              <td><strong>Initial Forward Bearing</strong></td>
+              <td><code>0°</code> (N), <code>90°</code> (E), <code>180°</code> (S), <code>270°</code> (W)</td>
+              <td>Starting compass azimuth</td>
+              <td>Measured clockwise from true North</td>
+            </tr>
+            <tr>
+              <td><strong>Geographic Midpoint</strong></td>
+              <td>Halfway point along great-circle arc</td>
+              <td>Spherical center coordinate</td>
+              <td>Computed via 3D Cartesian vectors</td>
+            </tr>
+            <tr>
+              <td><strong>Swap Points Button</strong></td>
+              <td>Exchanges Point A and Point B</td>
+              <td>Reverses route direction</td>
+              <td>Updates bearing & summary</td>
+            </tr>
+            <tr>
+              <td><strong>Sample Route Chips</strong></td>
+              <td>4 intercity routes</td>
+              <td>One-click coordinate presets</td>
+              <td>Delhi–Mumbai, NYC–London, etc.</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports full distance report</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Haversine & Spherical Trigonometry — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your GPS coordinates stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero location tracking or server logging</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Navigation, Unit, Time & Everyday Utilities</h2>
+      <p>Calculating speed/distance/time, converting metric & imperial units, or checking world clocks? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="speed-distance-time-calculator.html"><span>Speed Distance Time Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="metric-imperial-converter.html"><span>Metric & Imperial Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="us-zip-code-timezone-finder.html"><span>US ZIP & Timezone Finder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="world-clock.html"><span>World Clock</span><span class="arrow">→</span></a>
+        <a class="related-link" href="time-zone-converter.html"><span>Time Zone Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="global-shipping-cost-estimator.html"><span>Global Shipping Estimator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="country-code-lookup.html"><span>Country Code Lookup</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How do I enter South or West coordinates?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Use a minus sign (<code>-</code>) for <strong>South</strong> latitudes and <strong>West</strong> longitudes—for example, Sydney (<code>33.8688° S, 151.2093° E</code>) is entered as Latitude <code>-33.8688</code> and Longitude <code>151.2093</code>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Why is the initial bearing different from the final arrival bearing on long flights?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            A great-circle path crosses meridians at continuously changing angles on a curved sphere, so the compass heading at departure (<strong>Initial Forward Bearing</strong>) differs from the heading upon arrival on long east–west routes.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my GPS coordinates sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All Haversine and bearing calculations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Coordinates Distance Finder free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Coordinates Distance Finder Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const ROUTES = {
+        del_bom: { aName: "New Delhi, IN", lat1: "28.6139", lon1: "77.2090", bName: "Mumbai, IN", lat2: "19.0760", lon2: "72.8777" },
+        nyc_lon: { aName: "New York, US", lat1: "40.7128", lon1: "-74.0060", bName: "London, UK", lat2: "51.5074", lon2: "-0.1278" },
+        tyo_syd: { aName: "Tokyo, JP", lat1: "35.6762", lon1: "139.6503", bName: "Sydney, AU", lat2: "-33.8688", lon2: "151.2093" },
+        dxb_sin: { aName: "Dubai, AE", lat1: "25.2048", lon1: "55.2708", bName: "Singapore, SG", lat2: "1.3521", lon2: "103.8198" }
+      };
+
+      const COMPASS_16 = [
+        "N", "NNE", "NE", "ENE",
+        "E", "ESE", "SE", "SSE",
+        "S", "SSW", "SW", "WSW",
+        "W", "WNW", "NW", "NNW"
+      ];
+
+      const pointALabel = document.getElementById("pointALabel");
+      const pointBLabel = document.getElementById("pointBLabel");
+      const lat1Input = document.getElementById("lat1Input");
+      const lon1Input = document.getElementById("lon1Input");
+      const lat2Input = document.getElementById("lat2Input");
+      const lon2Input = document.getElementById("lon2Input");
+
+      const swapCoordsBtn = document.getElementById("swapCoordsBtn");
+      const resetGeoBtn = document.getElementById("resetGeoBtn");
+      const geoChips = document.querySelectorAll(".geo-chip");
+
+      const geoSummaryTitle = document.getElementById("geoSummaryTitle");
+      const geoSubCaption = document.getElementById("geoSubCaption");
+      const distanceKmDisplay = document.getElementById("distanceKmDisplay");
+
+      const distanceMiVal = document.getElementById("distanceMiVal");
+      const distanceNmiVal = document.getElementById("distanceNmiVal");
+      const bearingVal = document.getElementById("bearingVal");
+      const midpointVal = document.getElementById("midpointVal");
+
+      const copyGeoBtn = document.getElementById("copyGeoBtn");
+      const downloadGeoBtn = document.getElementById("downloadGeoBtn");
+
+      let latestSummaryText = "";
+
+      function toRad(deg) { return (deg * Math.PI) / 180; }
+      function toDeg(rad) { return (rad * 180) / Math.PI; }
+
+      function compassCardinal(deg) {
+        const idx = Math.round(((deg % 360) + 360) % 360 / 22.5) % 16;
+        return COMPASS_16[idx];
+      }
+
+      function setError(msg) {
+        distanceKmDisplay.className = "geo-hero-num error";
+        distanceKmDisplay.textContent = msg;
+        geoSummaryTitle.textContent = "Invalid Coordinates";
+        geoSubCaption.textContent = "Latitude: \u221290 to +90 \u2022 Longitude: \u2212180 to +180";
+        distanceMiVal.textContent = "—";
+        distanceNmiVal.textContent = "—";
+        bearingVal.textContent = "—";
+        midpointVal.textContent = "—";
+        latestSummaryText = "";
+      }
+
+      function calculateDistance() {
+        const lat1 = parseFloat(lat1Input.value);
+        const lon1 = parseFloat(lon1Input.value);
+        const lat2 = parseFloat(lat2Input.value);
+        const lon2 = parseFloat(lon2Input.value);
+
+        if (
+          !Number.isFinite(lat1) || lat1 < -90 || lat1 > 90 ||
+          !Number.isFinite(lon1) || lon1 < -180 || lon1 > 180 ||
+          !Number.isFinite(lat2) || lat2 < -90 || lat2 > 90 ||
+          !Number.isFinite(lon2) || lon2 < -180 || lon2 > 180
+        ) {
+          setError("Check coordinate bounds");
+          return;
+        }
+
+        const R_KM = 6371;
+        const phi1 = toRad(lat1);
+        const phi2 = toRad(lat2);
+        const dPhi = toRad(lat2 - lat1);
+        const dLambda = toRad(lon2 - lon1);
+
+        const sinHalfDPhi = Math.sin(dPhi / 2);
+        const sinHalfDLam = Math.sin(dLambda / 2);
+        const a = sinHalfDPhi * sinHalfDPhi + Math.cos(phi1) * Math.cos(phi2) * sinHalfDLam * sinHalfDLam;
+        const c = 2 * Math.atan2(Math.sqrt(Math.min(1, a)), Math.sqrt(Math.max(0, 1 - a)));
+
+        const distKm = R_KM * c;
+        const distMi = distKm * 0.621371192;
+        const distNmi = distKm / 1.852;
+
+        // Initial forward bearing
+        const y = Math.sin(dLambda) * Math.cos(phi2);
+        const x = Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(dLambda);
+        const bearingDeg = ((toDeg(Math.atan2(y, x)) % 360) + 360) % 360;
+        const cardinal = compassCardinal(bearingDeg);
+
+        // Geographic midpoint
+        const bx = Math.cos(phi2) * Math.cos(dLambda);
+        const by = Math.cos(phi2) * Math.sin(dLambda);
+        const phiMid = Math.atan2(
+          Math.sin(phi1) + Math.sin(phi2),
+          Math.sqrt((Math.cos(phi1) + bx) * (Math.cos(phi1) + bx) + by * by)
+        );
+        const lamMid = toRad(lon1) + Math.atan2(by, Math.cos(phi1) + bx);
+        const midLat = toDeg(phiMid);
+        let midLon = ((toDeg(lamMid) + 540) % 360) - 180;
+
+        distanceKmDisplay.className = "geo-hero-num";
+        distanceKmDisplay.textContent = `${distKm.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} km`;
+        geoSummaryTitle.textContent = "Haversine Surface Distance";
+        geoSubCaption.textContent = `(${lat1.toFixed(4)}\u00b0, ${lon1.toFixed(4)}\u00b0) \u2192 (${lat2.toFixed(4)}\u00b0, ${lon2.toFixed(4)}\u00b0)`;
+
+        distanceMiVal.textContent = `${distMi.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} mi`;
+        distanceNmiVal.textContent = `${distNmi.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} nmi`;
+        bearingVal.textContent = `${bearingDeg.toFixed(1)}\u00b0 (${cardinal})`;
+        midpointVal.textContent = `${midLat.toFixed(4)}\u00b0, ${midLon.toFixed(4)}\u00b0`;
+
+        latestSummaryText = [
+          "PureWebKits Coordinates Distance Report",
+          "----------------------------------------",
+          `Point A: ${lat1.toFixed(6)}, ${lon1.toFixed(6)}`,
+          `Point B: ${lat2.toFixed(6)}, ${lon2.toFixed(6)}`,
+          `Great-Circle Distance: ${distKm.toFixed(2)} km | ${distMi.toFixed(2)} miles | ${distNmi.toFixed(2)} nautical miles`,
+          `Initial Bearing: ${bearingDeg.toFixed(1)} deg (${cardinal}) | Midpoint: ${midLat.toFixed(5)}, ${midLon.toFixed(5)}`
+        ].join("\n");
+      }
+
+      [lat1Input, lon1Input, lat2Input, lon2Input].forEach(function (el) {
+        el.addEventListener("input", function () {
+          pointALabel.textContent = "Custom Coordinates";
+          pointBLabel.textContent = "Custom Coordinates";
+          calculateDistance();
+        });
+      });
+
+      geoChips.forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          const key = chip.getAttribute("data-route");
+          const r = ROUTES[key];
+          if (r) {
+            pointALabel.textContent = r.aName;
+            pointBLabel.textContent = r.bName;
+            lat1Input.value = r.lat1;
+            lon1Input.value = r.lon1;
+            lat2Input.value = r.lat2;
+            lon2Input.value = r.lon2;
+            calculateDistance();
+          }
+        });
+      });
+
+      swapCoordsBtn.addEventListener("click", function () {
+        const tmpLat = lat1Input.value;
+        const tmpLon = lon1Input.value;
+        const tmpLbl = pointALabel.textContent;
+
+        lat1Input.value = lat2Input.value;
+        lon1Input.value = lon2Input.value;
+        pointALabel.textContent = pointBLabel.textContent;
+
+        lat2Input.value = tmpLat;
+        lon2Input.value = tmpLon;
+        pointBLabel.textContent = tmpLbl;
+
+        calculateDistance();
+      });
+
+      resetGeoBtn.addEventListener("click", function () {
+        const r = ROUTES.del_bom;
+        pointALabel.textContent = r.aName;
+        pointBLabel.textContent = r.bName;
+        lat1Input.value = r.lat1;
+        lon1Input.value = r.lon1;
+        lat2Input.value = r.lat2;
+        lon2Input.value = r.lon2;
+        calculateDistance();
+      });
+
+      copyGeoBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyGeoBtn.textContent;
+          copyGeoBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyGeoBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadGeoBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "coordinates-distance-report.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateDistance();
+    });
+  </script>
+</body>
+</html>

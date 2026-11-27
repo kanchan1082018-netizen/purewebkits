@@ -1,0 +1,1038 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Page Numbers & Legal Bates Stamps to PDF Online | PureWebKits</title>
+  <meta name="description" content="Add page numbers (Page 1 of N) or sequential legal Bates stamps (EXHIBIT-0001) to any PDF online for free. Choose position, font size, and skip cover page 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/add-page-numbers-pdf.html" />
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1060px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Dropzone */
+    .dropzone {
+      border: 2px dashed #93C5FD;
+      background: #F8FAFC;
+      border-radius: 13px;
+      padding: 38px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .dropzone:hover, .dropzone.dragover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+    }
+    .drop-title { font-size: 16.5px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
+    .drop-sub { font-size: 13.5px; color: var(--text-muted); margin-bottom: 14px; }
+    .btn-primary {
+      display: inline-block;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 9px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .err-banner {
+      display: none;
+      margin-top: 14px;
+      padding: 12px 15px;
+      border-radius: 9px;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: var(--danger);
+      font-size: 13.5px;
+      font-weight: 700;
+    }
+
+    /* Workspace */
+    .num-workspace { display: none; }
+    .file-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .file-badge-pill {
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 13.5px;
+      font-weight: 800;
+      padding: 7px 14px;
+      border-radius: 8px;
+    }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .config-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .controls-col { display: flex; flex-direction: column; gap: 14px; }
+    .row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .row-3col { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 10px; }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-group label { font-size: 12.5px; font-weight: 700; color: var(--text-main); }
+    .std-input, .std-select {
+      height: 41px;
+      padding: 0 11px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #FFFFFF;
+    }
+    .color-inp {
+      width: 100%;
+      height: 41px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 2px;
+      background: #FFFFFF;
+      cursor: pointer;
+    }
+    .chk-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Live Page Stamp Preview Mockup */
+    .preview-col {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .mock-sheet {
+      width: 210px;
+      height: 272px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+      position: relative;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+    }
+    .mock-line { height: 7px; background: #E2E8F0; border-radius: 4px; width: 100%; }
+    .mock-stamp {
+      position: absolute;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      font-weight: 800;
+      color: #0F172A;
+      background: rgba(239, 246, 255, 0.9);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px dashed #93C5FD;
+    }
+
+    .btn-apply-pdf {
+      width: 100%;
+      background: var(--success);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 14.5px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .btn-apply-pdf:hover { background: #047857; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .config-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .row-2col, .row-3col { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Add Page / Bates Numbers to PDF -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Add Page Numbers & Legal Bates Stamps to PDF Online</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Stamp sequential page numbers or legal Bates IDs onto PDFs locally in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Upload a PDF file to add page or Bates numbers">
+          <div class="drop-title">Drag & drop a PDF file here, or click to select</div>
+          <div class="drop-sub">Supports standard page numbers (Page 1 of N) and legal Bates stamping (EXHIBIT-0001)</div>
+          <span class="btn-primary">Choose PDF File</span>
+          <input type="file" id="numPdfInput" accept="application/pdf,.pdf" style="display:none;" />
+        </div>
+
+        <div id="errBanner" class="err-banner" role="alert"></div>
+
+        <div id="numWorkspace" class="num-workspace" aria-live="polite">
+          <div class="file-topbar">
+            <div id="fileBadgePill" class="file-badge-pill">document.pdf • 10 Pages</div>
+            <button type="button" id="changePdfBtn" class="btn-sec">Change PDF</button>
+          </div>
+
+          <div class="config-grid">
+            <div class="controls-col">
+              <div class="row-2col">
+                <div class="field-group">
+                  <label for="formatModeSelect">Numbering Format</label>
+                  <select id="formatModeSelect" class="std-select">
+                    <option value="page_of" selected>Page 1 of N (Standard)</option>
+                    <option value="slash">1 / N (Compact)</option>
+                    <option value="num_only">1, 2, 3... (Number Only)</option>
+                    <option value="bates">Legal Bates Stamp (Prefix + Zero-Pad)</option>
+                  </select>
+                </div>
+
+                <div class="field-group">
+                  <label for="posSelect">Page Margin Position</label>
+                  <select id="posSelect" class="std-select">
+                    <option value="bottom-right" selected>Bottom Right</option>
+                    <option value="bottom-center">Bottom Center</option>
+                    <option value="bottom-left">Bottom Left</option>
+                    <option value="top-right">Top Right</option>
+                    <option value="top-center">Top Center</option>
+                    <option value="top-left">Top Left</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="batesOptionsRow" class="row-3col" style="display:none;">
+                <div class="field-group">
+                  <label for="batesPrefixInput">Bates Prefix</label>
+                  <input type="text" id="batesPrefixInput" class="std-input" value="EXHIBIT-A-" placeholder="e.g. CASE-2026-" />
+                </div>
+                <div class="field-group">
+                  <label for="startNumInput">Start Number</label>
+                  <input type="number" id="startNumInput" class="std-input" min="1" max="999999" value="1" />
+                </div>
+                <div class="field-group">
+                  <label for="padDigitsSelect">Zero Digits</label>
+                  <select id="padDigitsSelect" class="std-select">
+                    <option value="3">3 Digits (001)</option>
+                    <option value="4" selected>4 Digits (0001)</option>
+                    <option value="5">5 Digits (00001)</option>
+                    <option value="6">6 Digits (000001)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row-2col">
+                <div class="field-group">
+                  <label for="fontSizeSelect">Font Size</label>
+                  <select id="fontSizeSelect" class="std-select">
+                    <option value="9">9 pt (Subtle Footnote)</option>
+                    <option value="11" selected>11 pt (Standard Legal)</option>
+                    <option value="13">13 pt (Medium Bold)</option>
+                    <option value="16">16 pt (Large Stamp)</option>
+                  </select>
+                </div>
+
+                <div class="field-group">
+                  <label for="stampColorInput">Stamp Text Color</label>
+                  <input type="color" id="stampColorInput" class="color-inp" value="#0F172A" />
+                </div>
+              </div>
+
+              <label class="chk-box" for="skipCoverChk">
+                <input type="checkbox" id="skipCoverChk" />
+                <span>Skip Page 1 (Do not number Cover / Title Page)</span>
+              </label>
+
+              <button type="button" id="applyNumbersBtn" class="btn-apply-pdf">Add Numbers & Download PDF</button>
+            </div>
+
+            <!-- Live Position & Format Preview -->
+            <div class="preview-col">
+              <div style="font-size:12.5px;font-weight:800;text-transform:uppercase;color:var(--text-muted);">Live Margin Stamp Preview</div>
+              <div class="mock-sheet">
+                <div class="mock-line" style="width:70%;"></div>
+                <div class="mock-line"></div>
+                <div class="mock-line" style="width:92%;"></div>
+                <div class="mock-line" style="width:84%;"></div>
+                <div class="mock-line"></div>
+                <div id="mockStampEl" class="mock-stamp" style="bottom:10px;right:12px;">Page 1 of 10</div>
+              </div>
+              <div id="sampleSeqTxt" style="font-size:12px;font-weight:700;color:var(--primary);text-align:center;">
+                First Stamped Page: "Page 1 of 10"
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Legal Bates Stamping, Zero-Padding & PDF Coordinate Placement Work</h2>
+
+      <h3>Why Law Firms, Courts & Researchers Rely on Sequential Page and Bates Numbering</h3>
+      <p>
+        When compiling merged contracts, discovery exhibits, medical records, or academic appendices into a single PDF packet, unnumbered pages make cross-referencing nearly impossible during hearings, audits, or peer reviews. In legal litigation and regulatory compliance, <strong>Bates numbering</strong> (named after Edwin G. Bates' 19th-century automatic numbering machine) assigns a unique, zero-padded alphanumeric identifier—such as <code>EXHIBIT-A-0001</code> through <code>EXHIBIT-A-0250</code>—to every single page across an entire production set. Using <code>pdf-lib</code> vector typography directly in your browser, our tool stamps crisp, searchable Helvetica text at exact margin coordinates while preserving 100% of your underlying document resolution.
+      </p>
+
+      <h3>How to Add Page or Bates Numbers to a PDF in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Upload Your PDF Document:</strong> Drag any single-page or multi-page <code>.pdf</code> file into the dropzone above—your file stays 100% locally in browser memory.</li>
+        <li><strong>Choose Format, Margin Position & Options:</strong> Pick <em>Page 1 of N</em>, <em>1 / N</em>, <em>Number Only</em>, or <em>Legal Bates Stamp</em> (with custom prefix and zero-padding), select any of the 6 corner/center positions, and optionally skip Page 1.</li>
+        <li><strong>Download Numbered PDF:</strong> Click <em>Add Numbers & Download PDF</em> to save the stamped PDF immediately.</li>
+      </ol>
+
+      <h3>Bates Zero-Padding & PDF Point Coordinate Formulas + Worked Example</h3>
+      <p>
+        PDF pages measure coordinates in typographic points (<code>72 points = 1 inch</code>) starting from the bottom-left origin <code>(0, 0)</code>:
+      </p>
+      <div class="formula-box">
+        Bates Label = Prefix + padStart( Start + k, Digits, "0" )  |  Right Margin X = PageWidth − TextWidth − 28 pt
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Suppose you stamp a <strong>12-page discovery exhibit</strong> with prefix <code>DEF-</code>, Start Number <code>1</code>, and <strong>4 Zero Digits</strong> in the Bottom Right corner (<code>28 pt</code> margin).</p>
+        <p>Page 1 receives <code>DEF-0001</code>, Page 2 receives <code>DEF-0002</code>, and Page 12 receives <code>DEF-0012</code>.</p>
+        <p>Because the stamps are embedded as native vector text rather than rasterized pixels, opposing counsel can search <code>"DEF-0012"</code> directly with <code>Ctrl + F</code>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="bates-table-heading">
+      <h2 id="bates-table-heading">Legal Bates Numbering & Academic Pagination Standards (16 Formats)</h2>
+      <p>Use this legal and publishing reference table to pick the standard numbering format and margin position for your document.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Document Type / Standard</th>
+              <th>Recommended Format</th>
+              <th>Preferred Position</th>
+              <th>Formatting & Compliance Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Litigation Discovery Production</strong></td>
+              <td><span class="limit-badge">Bates: PARTY-00001</span></td>
+              <td>Bottom Right</td>
+              <td>5- or 6-digit zero-padding prevents sorting errors</td>
+            </tr>
+            <tr>
+              <td><strong>Court Exhibits & Appendix Bundle</strong></td>
+              <td><span class="limit-badge">Bates: EXH-A-0001</span></td>
+              <td>Bottom Right / Top Right</td>
+              <td>Matches court brief exhibit citations</td>
+            </tr>
+            <tr>
+              <td><strong>Merged Multi-Part Contracts</strong></td>
+              <td><span class="limit-badge">Page 1 of N</span></td>
+              <td>Bottom Center</td>
+              <td>Proves no pages were removed after signing</td>
+            </tr>
+            <tr>
+              <td><strong>Academic Thesis & Dissertation</strong></td>
+              <td><span class="limit-badge">1, 2, 3... (Skip Page 1)</span></td>
+              <td>Bottom Center / Top Right</td>
+              <td>Enable <em>Skip Page 1</em> to leave title page clean</td>
+            </tr>
+            <tr>
+              <td><strong>Business Proposals & Pitch Decks</strong></td>
+              <td><span class="limit-badge">1 / N (Skip Page 1)</span></td>
+              <td>Bottom Right</td>
+              <td>Clean modern footer pagination</td>
+            </tr>
+            <tr>
+              <td><strong>Medical & Insurance Claim Records</strong></td>
+              <td><span class="limit-badge">Bates: MED-0001</span></td>
+              <td>Bottom Right</td>
+              <td>Helps adjusters & attorneys reference exact pages</td>
+            </tr>
+            <tr>
+              <td><strong>Real Estate Closing Packets</strong></td>
+              <td><span class="limit-badge">Page 1 of N</span></td>
+              <td>Bottom Center</td>
+              <td>Standard title company verification format</td>
+            </tr>
+            <tr>
+              <td><strong>Government Tender & Bid Submissions</strong></td>
+              <td><span class="limit-badge">Page 1 of N</span></td>
+              <td>Bottom Right</td>
+              <td>Mandatory sequential page numbering for bids</td>
+            </tr>
+            <tr>
+              <td><strong>4-Digit Bates Padding (0001–9999)</strong></td>
+              <td>Up to 9,999 Pages</td>
+              <td>Standard Cases</td>
+              <td>Most common law firm default</td>
+            </tr>
+            <tr>
+              <td><strong>6-Digit Bates Padding (000001)</strong></td>
+              <td>Up to 999,999 Pages</td>
+              <td>Large Corporate Discovery</td>
+              <td>Handles massive multi-volume document sets</td>
+            </tr>
+            <tr>
+              <td><strong>Standard Margin Clearance</strong></td>
+              <td>28 pt (~0.39 inches)</td>
+              <td>All 6 Positions</td>
+              <td>Avoids printer non-printable edge clipping</td>
+            </tr>
+            <tr>
+              <td><strong>Standard Legal Stamp Font Size</strong></td>
+              <td>10 pt – 12 pt Helvetica</td>
+              <td>Clean Sans-Serif</td>
+              <td>Crisp readability without overlapping body text</td>
+            </tr>
+            <tr>
+              <td><strong>High-Contrast Bates Ink Color</strong></td>
+              <td>#0F172A Black or #1D4ED8 Blue</td>
+              <td>Blue distinguishes stamp</td>
+              <td>Blue ink makes Bates IDs stand out on black text</td>
+            </tr>
+            <tr>
+              <td><strong>Searchable Vector Text Output</strong></td>
+              <td>Native PDF Font Glyph</td>
+              <td><code>Ctrl + F</code> Indexable</td>
+              <td>Works in Adobe Acrobat, Chrome & e-discovery tools</td>
+            </tr>
+            <tr>
+              <td><strong>Rotated Page Compatibility</strong></td>
+              <td>MediaBox-Aware Placement</td>
+              <td>Portrait & Landscape</td>
+              <td>Adapts automatically to each page's dimensions</td>
+            </tr>
+            <tr>
+              <td><strong>Client & Case Confidentiality</strong></td>
+              <td>100% Browser Memory</td>
+              <td><span class="limit-badge">Zero Server Upload</span></td>
+              <td>Privileged legal files never leave your computer</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related PDF Assembly, Security & Legal Tools</h2>
+      <p>Need to merge exhibits before numbering, reorder pages, add a confidential watermark, or password-protect your PDF? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="merge-pdf.html"><span>Merge PDF Exhibits</span><span class="arrow">→</span></a>
+        <a class="related-link" href="organize-pdf-pages.html"><span>Reorder / Delete Pages</span><span class="arrow">→</span></a>
+        <a class="related-link" href="split-pdf.html"><span>Split PDF Pages</span><span class="arrow">→</span></a>
+        <a class="related-link" href="rotate-pdf.html"><span>Rotate PDF Pages</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compress-pdf.html"><span>Compress PDF Size</span><span class="arrow">→</span></a>
+        <a class="related-link" href="jpg-to-pdf.html"><span>JPG / PNG to PDF</span><span class="arrow">→</span></a>
+        <a class="related-link" href="pdf-to-jpg.html"><span>PDF to JPG Extractor</span><span class="arrow">→</span></a>
+        <a class="related-link" href="invoice-generator.html"><span>PDF Invoice Generator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is Bates numbering and how do I configure it here?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Bates numbering</strong> stamps every page of a legal or medical PDF with a sequential, zero-padded ID (such as <code>PLAINTIFF-0001</code>, <code>PLAINTIFF-0002</code>). Select <strong>Legal Bates Stamp</strong> in the <em>Numbering Format</em> dropdown, enter your custom prefix, starting number, and digit count (3 to 6 digits), and download your stamped PDF.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How do I skip numbering on the cover page or title page?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Check the <strong>Skip Page 1 (Do not number Cover / Title Page)</strong> box—Page 1 will remain completely untouched, and numbering will begin cleanly on Page 2.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are the added page and Bates numbers searchable with Ctrl+F?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Yes. Our tool draws true vector PDF text using <code>pdf-lib</code> standard fonts, so every stamped Bates number or page number is 100% text-searchable in Adobe Acrobat, web browsers, and legal e-discovery software.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my privileged legal exhibits or confidential PDFs uploaded to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All PDF reading, coordinate calculation, and vector text stamping execute 100% locally inside your browser. Your confidential files never leave your computer.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side PDF Page & Legal Bates Numbering Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const dropzone = document.getElementById("dropzone");
+      const numPdfInput = document.getElementById("numPdfInput");
+      const errBanner = document.getElementById("errBanner");
+      const numWorkspace = document.getElementById("numWorkspace");
+      const fileBadgePill = document.getElementById("fileBadgePill");
+      const changePdfBtn = document.getElementById("changePdfBtn");
+
+      const formatModeSelect = document.getElementById("formatModeSelect");
+      const posSelect = document.getElementById("posSelect");
+      const batesOptionsRow = document.getElementById("batesOptionsRow");
+      const batesPrefixInput = document.getElementById("batesPrefixInput");
+      const startNumInput = document.getElementById("startNumInput");
+      const padDigitsSelect = document.getElementById("padDigitsSelect");
+      const fontSizeSelect = document.getElementById("fontSizeSelect");
+      const stampColorInput = document.getElementById("stampColorInput");
+      const skipCoverChk = document.getElementById("skipCoverChk");
+      const applyNumbersBtn = document.getElementById("applyNumbersBtn");
+
+      const mockStampEl = document.getElementById("mockStampEl");
+      const sampleSeqTxt = document.getElementById("sampleSeqTxt");
+
+      let currentBuffer = null;
+      let baseFileName = "document";
+      let totalPages = 10;
+
+      function showErr(msg) {
+        errBanner.textContent = msg;
+        errBanner.style.display = "block";
+      }
+
+      function hideErr() {
+        errBanner.style.display = "none";
+      }
+
+      function hexToRgbNorm(hex) {
+        const clean = (hex || "#0F172A").replace("#", "");
+        const r = parseInt(clean.slice(0, 2), 16) / 255;
+        const g = parseInt(clean.slice(2, 4), 16) / 255;
+        const b = parseInt(clean.slice(4, 6), 16) / 255;
+        return { r: r || 0, g: g || 0, b: b || 0 };
+      }
+
+      function buildLabel(seqIndex, effectiveTotal) {
+        const mode = formatModeSelect.value;
+        const startNum = Math.max(1, parseInt(startNumInput.value, 10) || 1);
+        const currentNum = startNum + seqIndex;
+
+        if (mode === "bates") {
+          const prefix = batesPrefixInput.value || "";
+          const digits = parseInt(padDigitsSelect.value, 10) || 4;
+          return prefix + String(currentNum).padStart(digits, "0");
+        }
+        if (mode === "slash") {
+          return (seqIndex + 1) + " / " + effectiveTotal;
+        }
+        if (mode === "num_only") {
+          return String(seqIndex + 1);
+        }
+        return "Page " + (seqIndex + 1) + " of " + effectiveTotal;
+      }
+
+      function updateMockPreview() {
+        const isBates = formatModeSelect.value === "bates";
+        batesOptionsRow.style.display = isBates ? "grid" : "none";
+
+        const effectiveTotal = skipCoverChk.checked ? Math.max(1, totalPages - 1) : totalPages;
+        const sampleFirst = buildLabel(0, effectiveTotal);
+        mockStampEl.textContent = sampleFirst;
+        mockStampEl.style.color = stampColorInput.value || "#0F172A";
+        sampleSeqTxt.textContent = 'First Stamped Page: "' + sampleFirst + '"';
+
+        // Reset position styles
+        mockStampEl.style.top = "auto";
+        mockStampEl.style.bottom = "auto";
+        mockStampEl.style.left = "auto";
+        mockStampEl.style.right = "auto";
+        mockStampEl.style.transform = "none";
+
+        const pos = posSelect.value;
+        if (pos.startsWith("bottom")) mockStampEl.style.bottom = "10px";
+        else mockStampEl.style.top = "10px";
+
+        if (pos.endsWith("right")) mockStampEl.style.right = "12px";
+        else if (pos.endsWith("left")) mockStampEl.style.left = "12px";
+        else {
+          mockStampEl.style.left = "50%";
+          mockStampEl.style.transform = "translateX(-50%)";
+        }
+      }
+
+      async function loadPdfFile(file) {
+        hideErr();
+        if (!file || (!file.name.toLowerCase().endsWith(".pdf") && file.type !== "application/pdf")) {
+          showErr("Please select a valid .PDF document.");
+          return;
+        }
+        if (!window.PDFLib) {
+          showErr("PDF library is still loading. Please check internet connection and refresh.");
+          return;
+        }
+
+        try {
+          const buf = await file.arrayBuffer();
+          const doc = await PDFLib.PDFDocument.load(buf, { ignoreEncryption: false });
+          totalPages = doc.getPageCount();
+          currentBuffer = buf;
+          baseFileName = file.name.replace(/\.pdf$/i, "") || "document";
+
+          fileBadgePill.textContent = file.name + " • " + totalPages + (totalPages === 1 ? " Page" : " Pages");
+          dropzone.style.display = "none";
+          numWorkspace.style.display = "block";
+          updateMockPreview();
+        } catch (err) {
+          showErr("Unable to read this PDF. If it is password-protected, please unlock it first.");
+        }
+      }
+
+      dropzone.addEventListener("click", function () { numPdfInput.click(); });
+      dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+      dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+      dropzone.addEventListener("drop", function (e) {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          loadPdfFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      numPdfInput.addEventListener("change", function (e) {
+        if (e.target.files && e.target.files[0]) loadPdfFile(e.target.files[0]);
+        e.target.value = "";
+      });
+
+      changePdfBtn.addEventListener("click", function () {
+        currentBuffer = null;
+        numWorkspace.style.display = "none";
+        dropzone.style.display = "block";
+        hideErr();
+      });
+
+      [formatModeSelect, posSelect, padDigitsSelect, fontSizeSelect, skipCoverChk].forEach(function (el) {
+        el.addEventListener("change", updateMockPreview);
+      });
+      [batesPrefixInput, startNumInput, stampColorInput].forEach(function (el) {
+        el.addEventListener("input", updateMockPreview);
+      });
+
+      applyNumbersBtn.addEventListener("click", async function () {
+        if (!currentBuffer) return;
+        applyNumbersBtn.disabled = true;
+        applyNumbersBtn.textContent = "Stamping Pages...";
+
+        try {
+          const pdfDoc = await PDFLib.PDFDocument.load(currentBuffer);
+          const font = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
+          const pages = pdfDoc.getPages();
+          const fontSize = parseInt(fontSizeSelect.value, 10) || 11;
+          const pos = posSelect.value;
+          const skipFirst = skipCoverChk.checked;
+          const rgbNorm = hexToRgbNorm(stampColorInput.value);
+          const textColor = PDFLib.rgb(rgbNorm.r, rgbNorm.g, rgbNorm.b);
+
+          const effectiveTotal = skipFirst ? Math.max(1, pages.length - 1) : pages.length;
+          let seq = 0;
+
+          for (let i = 0; i < pages.length; i++) {
+            if (skipFirst && i === 0) continue;
+
+            const page = pages[i];
+            const { width, height } = page.getSize();
+            const label = buildLabel(seq, effectiveTotal);
+            const textWidth = font.widthOfTextAtSize(label, fontSize);
+            const margin = 28;
+
+            let x = width - textWidth - margin;
+            let y = margin;
+
+            if (pos.endsWith("left")) x = margin;
+            else if (pos.endsWith("center")) x = (width - textWidth) / 2;
+
+            if (pos.startsWith("top")) y = height - margin - fontSize;
+
+            page.drawText(label, {
+              x: Math.max(10, x),
+              y: Math.max(10, y),
+              size: fontSize,
+              font: font,
+              color: textColor
+            });
+
+            seq++;
+          }
+
+          const outBytes = await pdfDoc.save({ useObjectStreams: true });
+          const blob = new Blob([outBytes], { type: "application/pdf" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = baseFileName + "-numbered.pdf";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        } catch (err) {
+          showErr("Failed to stamp PDF: " + (err && err.message ? err.message : "Unexpected error."));
+        } finally {
+          applyNumbersBtn.disabled = false;
+          applyNumbersBtn.textContent = "Add Numbers & Download PDF";
+        }
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      updateMockPreview();
+    });
+  </script>
+</body>
+</html>

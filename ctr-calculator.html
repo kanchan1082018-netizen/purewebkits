@@ -1,0 +1,975 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Click-Through Rate (CTR) Calculator (Clicks, Impressions & Target Simulator) — PureWebKits</title>
+  <meta name="description" content="Calculate Click-Through Rate (CTR %) from total clicks and impressions, model target CTR lift, and estimate cost-per-click (CPC) or CPM metrics online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/click-through-rate-ctr-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* CTR Calculator Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .ctr-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .ctr-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .ctr-hero-title { font-size: 16px; font-weight: 800; }
+    .ctr-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .ctr-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 24px;
+      font-weight: 800;
+      color: #34D399;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive CTR Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Click-Through Rate (CTR) Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate CTR %, target CTR click lift, CPC & CPM in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="CTR calculation mode">
+            <button type="button" class="mode-btn active" id="calcCtrModeBtn" data-mode="calc_ctr">Calculate CTR (%)</button>
+            <button type="button" class="mode-btn" id="targetClicksModeBtn" data-mode="target_clicks">Target CTR Simulator</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample (2,700 / 50,000)</button>
+            <button type="button" id="resetCtrBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="impressionsInput" class="field-label">Total Impressions / Views</label>
+                <input type="number" id="impressionsInput" class="std-input" min="0" step="1000" value="50000" />
+              </div>
+
+              <div class="field-group" id="clicksFieldGroup">
+                <label for="clicksCountInput" class="field-label">Total Clicks</label>
+                <input type="number" id="clicksCountInput" class="std-input" min="0" step="50" value="2700" />
+              </div>
+
+              <div class="field-group" id="targetCtrFieldGroup" style="display: none;">
+                <label for="targetCtrPctInput" class="field-label">Target CTR (%)</label>
+                <input type="number" id="targetCtrPctInput" class="std-input" min="0" max="100" step="0.25" value="6.50" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="ctrCurrency" class="field-label">Optional Spend Currency</label>
+                <select id="ctrCurrency" class="std-select">
+                  <option value="$" selected>USD ($)</option>
+                  <option value="₹">INR (₹)</option>
+                  <option value="€">EUR (€)</option>
+                  <option value="£">GBP (£)</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="optionalSpendInput" class="field-label">Optional Ad Spend (for CPC/CPM)</label>
+                <input type="number" id="optionalSpendInput" class="std-input" min="0" step="50" value="675" />
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="ctr-hero-box">
+              <div>
+                <div class="ctr-hero-kicker" id="ctrHeroKicker">Click-Through Rate (CTR)</div>
+                <div class="ctr-hero-title" id="ctrSummaryTitle">2,700 Clicks / 50,000 Impressions</div>
+                <div class="ctr-hero-sub" id="ctrSubCaption">1 click per 18.52 impressions</div>
+              </div>
+              <div class="ctr-hero-num" id="ctrPrimaryDisplay">5.40%</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key" id="m1Key">Clicks per 1,000 Impr.</div>
+                <div class="metric-val" id="m1Val">54.00 clicks / 1k</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key" id="m2Key">Impressions per Click</div>
+                <div class="metric-val" id="m2Val">18.52 impressions</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key" id="m3Key">Effective CPC</div>
+                <div class="metric-val" id="m3Val">$0.25 / click</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key" id="m4Key">Effective CPM (per 1k)</div>
+                <div class="metric-val" id="m4Val">$13.50 / 1k impr.</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyCtrBtn" class="btn-primary">Copy CTR Report</button>
+              <button type="button" id="downloadCtrBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Formulas & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Click-Through Rate (CTR), Thumbnail & Ad Testing, CPC & CPM</h2>
+
+      <h3>What Click-Through Rate Measures Across Search, YouTube, Email, and Paid Ads</h3>
+      <p>
+        <strong>Click-Through Rate (CTR)</strong> is the percentage of people who click a link, search result, video thumbnail, email call-to-action, or digital ad out of the total number of times it is displayed (<strong>impressions</strong>). Mathematically, <code>CTR (%) = (Total Clicks / Total Impressions) × 100</code>. Because CTR links impression reach directly to downstream traffic without changing your ad budget or organic ranking position, small improvements in headline clarity, thumbnail contrast, or search snippet relevance can generate substantial extra clicks—and for paid campaigns on a fixed CPM (cost per 1,000 impressions), a higher CTR lowers your effective <strong>Cost Per Click (CPC)</strong> automatically. A browser-based <strong>Click-Through Rate (CTR) Calculator</strong> computes CTR %, target-CTR click projections, CPC, and CPM 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Calculate or Simulate CTR in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Choose Mode:</strong> Stay in <strong>Calculate CTR (%)</strong> to measure current performance from clicks and impressions, or switch to <strong>Target CTR Simulator</strong> to forecast how many clicks a target CTR % would produce.</li>
+        <li><strong>Enter Impressions, Clicks (or Target CTR) & Optional Ad Spend:</strong> Input your impression and click counts (or click <strong>Load Sample (2,700 / 50,000)</strong>), plus optional ad spend if you want CPC and CPM calculated.</li>
+        <li><strong>Review Ratios & Export:</strong> Check clicks per 1,000 impressions, impressions per click, CPC, and CPM, then click <strong>Copy CTR Report</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>CTR, Target Clicks, CPC & CPM Formulas</h3>
+      <p>
+        Let <code>C</code> be total clicks, <code>I</code> be total impressions, and <code>S</code> be optional ad spend:
+      </p>
+      <div class="formula-box">
+        CTR (%) = (C / I) × 100  |  Projected Clicks = I × (Target CTR% / 100)<br />
+        Effective CPC = S / C  |  Effective CPM = (S / I) × 1,000  |  CPC = CPM / (10 × CTR%)
+      </div>
+
+      <h3>Helpful Tips for Improving CTR Ethically & Accurately</h3>
+      <ul>
+        <li><strong>Evaluate CTR Alongside Retention & Conversion Rate:</strong> Clickbait headlines or misleading thumbnails may spike CTR briefly while hurting watch time, bounce rate, or conversions—always judge CTR together with post-click engagement.</li>
+        <li><strong>Segment by Channel & Placement:</strong> Branded search ads, non-branded search, display banners, email newsletters, and video browse feeds each have very different baseline CTR norms.</li>
+        <li><strong>Wait for Meaningful Impression Volume:</strong> Early CTR percentages on fewer than a few hundred impressions fluctuate widely due to small sample size.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Generating <code>2,700 clicks</code> from <code>50,000 impressions</code> yields a CTR of <code>(2,700 / 50,000) × 100 = 5.40%</code> (<code>54.00</code> clicks per 1,000 impressions, or <code>1</code> click every <code>18.52</code> impressions). With <code>$675</code> in ad spend, effective CPC is <code>$0.25</code> and CPM is <code>$13.50</code>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="ctr-table-heading">
+      <h2 id="ctr-table-heading">CTR Formulas, Impression Ratios & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to check CTR equations, click-per-thousand ratios, and paid media relationships.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Metric / Benchmark</th>
+              <th>Formula / Value</th>
+              <th>Role</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Click-Through Rate (CTR %)</strong></td>
+              <td><code>(Clicks / Impressions) × 100</code></td>
+              <td>Primary engagement ratio</td>
+              <td><code>2,700 / 50,000 = 5.40%</code></td>
+            </tr>
+            <tr>
+              <td><strong>1.00% CTR</strong></td>
+              <td><code>10</code> clicks per <code>1,000</code> impressions</td>
+              <td><code>1</code> click per <code>100</code> impressions</td>
+              <td>Common display / broad feed baseline</td>
+            </tr>
+            <tr>
+              <td><strong>2.50% CTR</strong></td>
+              <td><code>25</code> clicks per <code>1,000</code> impressions</td>
+              <td><code>1</code> click per <code>40</code> impressions</td>
+              <td>Mid-tier search / email benchmark</td>
+            </tr>
+            <tr>
+              <td><strong>5.00% CTR</strong></td>
+              <td><code>50</code> clicks per <code>1,000</code> impressions</td>
+              <td><code>1</code> click per <code>20</code> impressions</td>
+              <td>Strong organic / video CTR</td>
+            </tr>
+            <tr>
+              <td><strong>10.00% CTR</strong></td>
+              <td><code>100</code> clicks per <code>1,000</code> impressions</td>
+              <td><code>1</code> click per <code>10</code> impressions</td>
+              <td>High-intent branded search / top video</td>
+            </tr>
+            <tr>
+              <td><strong>Target CTR Simulator</strong></td>
+              <td><code>Impressions × (Target CTR% / 100)</code></td>
+              <td>Forecasts total clicks at goal CTR</td>
+              <td>Switch mode in top bar</td>
+            </tr>
+            <tr>
+              <td><strong>Clicks per 1,000 Impr.</strong></td>
+              <td><code>CTR (%) × 10</code></td>
+              <td>Normalized click density</td>
+              <td><code>5.40% × 10 = 54.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Impressions per Click</strong></td>
+              <td><code>Impressions / Clicks</code></td>
+              <td>Views needed per click</td>
+              <td><code>18.52</code> impressions at <code>5.40%</code></td>
+            </tr>
+            <tr>
+              <td><strong>Effective CPC</strong></td>
+              <td><code>Ad Spend / Clicks</code></td>
+              <td>Average cost per click</td>
+              <td><code>$675 / 2,700 = $0.25</code></td>
+            </tr>
+            <tr>
+              <td><strong>Effective CPM</strong></td>
+              <td><code>(Ad Spend / Impressions) × 1,000</code></td>
+              <td>Cost per 1,000 impressions</td>
+              <td><code>($675 / 50,000) × 1,000 = $13.50</code></td>
+            </tr>
+            <tr>
+              <td><strong>CPC – CPM – CTR Identity</strong></td>
+              <td><code>CPC = CPM / (10 × CTR%)</code></td>
+              <td>Connects CPM & CTR to CPC</td>
+              <td>Higher CTR lowers CPC at fixed CPM</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports CTR report</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript CTR & Paid Funnel Calculator — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your analytics and spend metrics stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero campaign metrics transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Marketing, Analytics, Percentage & SEO Utilities</h2>
+      <p>Calculating ROAS & CPA, percentages, Open Graph tags, or word counts? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="roas-cpa-calculator.html"><span>ROAS & CPA Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="open-graph-generator.html"><span>Open Graph Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="sales-tax-calculator.html"><span>Sales Tax Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="billable-hours-calculator.html"><span>Billable Hours Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How is Click-Through Rate (CTR) calculated?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            CTR is calculated by dividing total clicks by total impressions and multiplying by 100: <code>CTR (%) = (Total Clicks / Total Impressions) × 100</code>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How does the Target CTR Simulator mode work?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Switch to <strong>Target CTR Simulator</strong> at the top of the studio, enter your impression volume and a goal CTR %, and the tool calculates how many total clicks that CTR would generate.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my impressions, clicks, or ad spend numbers sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Click-Through Rate (CTR) Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side CTR Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const calcCtrModeBtn = document.getElementById("calcCtrModeBtn");
+      const targetClicksModeBtn = document.getElementById("targetClicksModeBtn");
+
+      const impressionsInput = document.getElementById("impressionsInput");
+      const clicksFieldGroup = document.getElementById("clicksFieldGroup");
+      const clicksCountInput = document.getElementById("clicksCountInput");
+      const targetCtrFieldGroup = document.getElementById("targetCtrFieldGroup");
+      const targetCtrPctInput = document.getElementById("targetCtrPctInput");
+
+      const ctrCurrency = document.getElementById("ctrCurrency");
+      const optionalSpendInput = document.getElementById("optionalSpendInput");
+
+      const ctrHeroKicker = document.getElementById("ctrHeroKicker");
+      const ctrSummaryTitle = document.getElementById("ctrSummaryTitle");
+      const ctrSubCaption = document.getElementById("ctrSubCaption");
+      const ctrPrimaryDisplay = document.getElementById("ctrPrimaryDisplay");
+
+      const m1Key = document.getElementById("m1Key");
+      const m1Val = document.getElementById("m1Val");
+      const m2Key = document.getElementById("m2Key");
+      const m2Val = document.getElementById("m2Val");
+      const m3Key = document.getElementById("m3Key");
+      const m3Val = document.getElementById("m3Val");
+      const m4Key = document.getElementById("m4Key");
+      const m4Val = document.getElementById("m4Val");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetCtrBtn = document.getElementById("resetCtrBtn");
+      const copyCtrBtn = document.getElementById("copyCtrBtn");
+      const downloadCtrBtn = document.getElementById("downloadCtrBtn");
+
+      let mode = "calc_ctr";
+      let latestSummaryText = "";
+
+      function fmtCurr(sym, amt) {
+        const safe = Number.isFinite(amt) ? amt : 0;
+        const locale = sym === "₹" ? "en-IN" : "en-US";
+        const formatted = safe.toLocaleString(locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        return `${sym}${formatted}`;
+      }
+
+      function clearCtrOutput(msg) {
+        ctrPrimaryDisplay.textContent = "—";
+        ctrSubCaption.textContent = msg;
+        m1Val.textContent = "—";
+        m2Val.textContent = "—";
+        m3Val.textContent = "—";
+        m4Val.textContent = "—";
+        latestSummaryText = "";
+      }
+
+      function calculateCtr() {
+        const isCalcCtr = mode === "calc_ctr";
+        calcCtrModeBtn.classList.toggle("active", isCalcCtr);
+        targetClicksModeBtn.classList.toggle("active", !isCalcCtr);
+        clicksFieldGroup.style.display = isCalcCtr ? "flex" : "none";
+        targetCtrFieldGroup.style.display = !isCalcCtr ? "flex" : "none";
+
+        const impr = parseFloat(impressionsInput.value);
+        const sym = ctrCurrency.value;
+        const spendRaw = optionalSpendInput.value.trim();
+        const spend = spendRaw === "" ? NaN : parseFloat(spendRaw);
+
+        if (!Number.isFinite(impr) || impr < 0) {
+          clearCtrOutput("Enter valid non-negative impressions");
+          return;
+        }
+
+        let clicks = 0;
+        let ctrPct = 0;
+
+        if (isCalcCtr) {
+          clicks = parseFloat(clicksCountInput.value);
+          if (!Number.isFinite(clicks) || clicks < 0) {
+            clearCtrOutput("Enter valid non-negative clicks and impressions");
+            return;
+          }
+          ctrPct = impr > 0 ? (clicks / impr) * 100 : 0;
+          ctrHeroKicker.textContent = "Click-Through Rate (CTR)";
+          ctrSummaryTitle.textContent = `${clicks.toLocaleString("en-US")} Clicks / ${impr.toLocaleString("en-US")} Impressions`;
+          ctrPrimaryDisplay.textContent = `${ctrPct.toFixed(2)}%`;
+        } else {
+          ctrPct = parseFloat(targetCtrPctInput.value);
+          if (!Number.isFinite(ctrPct) || ctrPct < 0) {
+            clearCtrOutput("Enter valid non-negative impressions and target CTR %");
+            return;
+          }
+          clicks = impr * (ctrPct / 100);
+          ctrHeroKicker.textContent = "Projected Clicks at Target CTR";
+          ctrSummaryTitle.textContent = `${ctrPct.toFixed(2)}% Target CTR on ${impr.toLocaleString("en-US")} Impr.`;
+          ctrPrimaryDisplay.textContent = `${Math.round(clicks).toLocaleString("en-US")} clicks`;
+        }
+
+        const clicksPer1k = ctrPct * 10;
+        const imprPerClick = clicks > 0 ? (impr / clicks) : 0;
+
+        ctrSubCaption.textContent = clicks > 0
+          ? `1 click per ${imprPerClick.toFixed(2)} impressions`
+          : "0 clicks recorded";
+
+        m1Key.textContent = "Clicks per 1,000 Impr.";
+        m1Val.textContent = `${clicksPer1k.toFixed(2)} clicks / 1k`;
+
+        m2Key.textContent = "Impressions per Click";
+        m2Val.textContent = clicks > 0 ? `${imprPerClick.toFixed(2)} impressions` : "N/A";
+
+        m3Key.textContent = "Effective CPC";
+        m4Key.textContent = "Effective CPM (per 1k)";
+
+        let cpcStr = "Not entered";
+        let cpmStr = "Not entered";
+        if (Number.isFinite(spend) && spend > 0) {
+          cpcStr = clicks > 0 ? `${fmtCurr(sym, spend / clicks)} / click` : "N/A";
+          cpmStr = impr > 0 ? `${fmtCurr(sym, (spend / impr) * 1000)} / 1k impr.` : "N/A";
+        }
+        m3Val.textContent = cpcStr;
+        m4Val.textContent = cpmStr;
+
+        latestSummaryText = [
+          "PureWebKits Click-Through Rate (CTR) Report",
+          "--------------------------------------------",
+          `Impressions: ${impr.toLocaleString("en-US")} | Clicks: ${clicks.toLocaleString("en-US", { maximumFractionDigits: 2 })} | CTR: ${ctrPct.toFixed(2)}%`,
+          `Clicks per 1,000 Impressions: ${clicksPer1k.toFixed(2)} | Impressions per Click: ${clicks > 0 ? imprPerClick.toFixed(2) : "N/A"}`,
+          `Effective CPC: ${cpcStr} | Effective CPM: ${cpmStr}`
+        ].join("\n");
+      }
+
+      calcCtrModeBtn.addEventListener("click", function () { mode = "calc_ctr"; calculateCtr(); });
+      targetClicksModeBtn.addEventListener("click", function () { mode = "target_clicks"; calculateCtr(); });
+
+      [
+        impressionsInput,
+        clicksCountInput,
+        targetCtrPctInput,
+        ctrCurrency,
+        optionalSpendInput
+      ].forEach(function (el) {
+        el.addEventListener("input", calculateCtr);
+        el.addEventListener("change", calculateCtr);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        mode = "calc_ctr";
+        impressionsInput.value = "50000";
+        clicksCountInput.value = "2700";
+        targetCtrPctInput.value = "6.50";
+        ctrCurrency.value = "$";
+        optionalSpendInput.value = "675";
+        calculateCtr();
+      });
+
+      resetCtrBtn.addEventListener("click", function () {
+        impressionsInput.value = "";
+        clicksCountInput.value = "";
+        optionalSpendInput.value = "";
+        calculateCtr();
+      });
+
+      copyCtrBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyCtrBtn.textContent;
+          copyCtrBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyCtrBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadCtrBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "ctr-report.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateCtr();
+    });
+  </script>
+</body>
+</html>

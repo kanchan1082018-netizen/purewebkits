@@ -1,0 +1,984 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Crypto Profit & Loss Calculator (Fees, ROI & Break-Even) — PureWebKits</title>
+  <meta name="description" content="Calculate cryptocurrency trade profit or loss (PnL), return on investment (ROI %), buy/sell trading fees, and break-even exit price online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/crypto-profit-loss-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Crypto Profit Loss Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .pnl-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .pnl-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .pnl-hero-title { font-size: 16px; font-weight: 800; }
+    .pnl-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .pnl-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 22px;
+      font-weight: 800;
+      color: #38BDF8;
+      white-space: nowrap;
+      text-align: right;
+    }
+    .pnl-hero-num.profit { color: #34D399; }
+    .pnl-hero-num.loss { color: #FCA5A5; }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Crypto Profit & Loss Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Crypto Profit & Loss Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate net PnL, ROI %, trading fees & break-even price in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="Position direction">
+            <button type="button" class="mode-btn active" id="buyLongBtn" data-dir="long">Buy / Long</button>
+            <button type="button" class="mode-btn" id="sellShortBtn" data-dir="short">Sell / Short</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample (0.25 BTC)</button>
+            <button type="button" id="resetPnlBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="pnlCurrency" class="field-label">Quote Currency Symbol</label>
+                <select id="pnlCurrency" class="std-select">
+                  <option value="$" selected>USD ($)</option>
+                  <option value="₹">INR (₹)</option>
+                  <option value="€">EUR (€)</option>
+                  <option value="£">GBP (£)</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="coinQtyInput" class="field-label">Quantity (Coins / Tokens)</label>
+                <input type="number" id="coinQtyInput" class="std-input" min="0" step="0.01" value="0.25" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="buyPriceInput" class="field-label">Entry / Buy Price</label>
+                <input type="number" id="buyPriceInput" class="std-input" min="0" step="100" value="60000" />
+              </div>
+
+              <div class="field-group">
+                <label for="sellPriceInput" class="field-label">Exit / Sell Price</label>
+                <input type="number" id="sellPriceInput" class="std-input" min="0" step="100" value="66000" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="entryFeePctInput" class="field-label">Entry Fee (%)</label>
+                <input type="number" id="entryFeePctInput" class="std-input" min="0" max="20" step="0.05" value="0.1" />
+              </div>
+
+              <div class="field-group">
+                <label for="exitFeePctInput" class="field-label">Exit Fee (%)</label>
+                <input type="number" id="exitFeePctInput" class="std-input" min="0" max="20" step="0.05" value="0.1" />
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="pnl-hero-box">
+              <div>
+                <div class="pnl-hero-kicker">Net Profit / Loss (After Fees)</div>
+                <div class="pnl-hero-title" id="pnlSummaryTitle">ROI: +9.78%</div>
+                <div class="pnl-hero-sub" id="pnlSubCaption">Cost: $15,000.00 • Proceeds: $16,500.00</div>
+              </div>
+              <div class="pnl-hero-num profit" id="netPnlDisplay">+$1,468.50</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Gross PnL (Before Fees)</div>
+                <div class="metric-val" id="grossPnlVal">+$1,500.00</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Total Trading Fees</div>
+                <div class="metric-val" id="totalFeesVal">$31.50</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Break-Even Exit Price</div>
+                <div class="metric-val" id="breakEvenPriceVal">$60,126.13</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Total Outlay (Cost + Entry Fee)</div>
+                <div class="metric-val" id="totalOutlayVal">$15,015.00</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyPnlBtn" class="btn-primary">Copy PnL Summary</button>
+              <button type="button" id="downloadPnlBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Fee-Adjusted PnL & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Crypto Profit & Loss (PnL), ROI %, Trading Fees & Break-Even Price</h2>
+
+      <h3>Why Trading Fees and Break-Even Price Matter in Crypto Trades</h3>
+      <p>
+        Calculating a cryptocurrency trade's true performance requires looking past raw price movement alone. Both entry and exit orders on spot or margin venues can incur percentage <strong>trading fees</strong> (maker or taker fees), which reduce net proceeds on a winning trade and increase net loss on a losing trade. Computing <strong>gross PnL</strong>, <strong>total fees</strong>, <strong>net PnL</strong>, <strong>Return on Investment (ROI %)</strong>, and the exact <strong>break-even exit price</strong> needed to cover both entry and exit fees gives you an honest picture of trade outcomes. A browser-based <strong>Crypto Profit & Loss Calculator</strong> runs these calculations 100% locally in your browser using JavaScript—with zero server uploads.
+      </p>
+
+      <h3>How to Calculate Crypto Profit or Loss in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Select Buy / Long or Sell / Short:</strong> Choose <strong>Buy / Long</strong> for buying low and selling higher, or <strong>Sell / Short</strong> for short-selling high and buying back lower (or click <strong>Load Sample (0.25 BTC)</strong>).</li>
+        <li><strong>Enter Quantity, Entry Price, Exit Price & Fees:</strong> Type your coin quantity, entry price, exit price, and optional entry/exit fee percentages.</li>
+        <li><strong>Review Net PnL, Break-Even & Export:</strong> Inspect net PnL, ROI %, gross PnL, total fees, and break-even price, then click <strong>Copy PnL Summary</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Net PnL, ROI % & Break-Even Price Formulas</h3>
+      <p>
+        For quantity <code>Q</code>, entry price <code>P_in</code>, exit price <code>P_out</code>, entry fee rate <code>f_in = Fee_in% / 100</code>, and exit fee rate <code>f_out = Fee_out% / 100</code>:
+      </p>
+      <div class="formula-box">
+        Buy / Long: Gross = (P_out − P_in) × Q • Fees = P_in·Q·f_in + P_out·Q·f_out • Break-Even = P_in × (1 + f_in) / (1 − f_out)<br />
+        Sell / Short: Gross = (P_in − P_out) × Q • Fees = P_in·Q·f_in + P_out·Q·f_out • Break-Even = P_in × (1 − f_in) / (1 + f_out)
+      </div>
+
+      <h3>Helpful Tips When Tracking Crypto Trades</h3>
+      <ul>
+        <li><strong>Include Both Entry and Exit Fees:</strong> Even a small <code>0.10%</code> fee on both sides adds up over frequent trades and shifts the break-even exit price slightly above entry.</li>
+        <li><strong>Track Taxes Separately by Jurisdiction:</strong> Capital gains rules, holding periods, and reporting requirements vary by country.</li>
+        <li><strong>Educational Math Tool Only:</strong> This calculator is for arithmetic and trade modeling and does not constitute financial or investment advice.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Buying <code>0.25</code> coins at <code>$60,000</code> (<code>$15,000.00</code> cost, <code>$15.00</code> entry fee at <code>0.1%</code>) and selling at <code>$66,000</code> (<code>$16,500.00</code> proceeds, <code>$16.50</code> exit fee at <code>0.1%</code>) yields <code>+$1,500.00</code> gross PnL, <code>$31.50</code> total fees, and <code>+$1,468.50</code> net PnL (<code>+9.78%</code> net ROI on total outlay).</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="pnl-table-heading">
+      <h2 id="pnl-table-heading">Crypto PnL Formulas, Fee Rules & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to verify PnL equations, fee deductions, and export options.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Metric / Rule</th>
+              <th>Formula / Value</th>
+              <th>Role</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Entry Cost</strong></td>
+              <td><code>Quantity × Entry Price</code></td>
+              <td>Initial position value</td>
+              <td><code>0.25 × $60,000 = $15,000.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Exit Proceeds</strong></td>
+              <td><code>Quantity × Exit Price</code></td>
+              <td>Closing position value</td>
+              <td><code>0.25 × $66,000 = $16,500.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Gross PnL (Long)</strong></td>
+              <td><code>(Exit − Entry) × Quantity</code></td>
+              <td>Pre-fee long profit/loss</td>
+              <td><code>+$1,500.00</code> in sample</td>
+            </tr>
+            <tr>
+              <td><strong>Gross PnL (Short)</strong></td>
+              <td><code>(Entry − Exit) × Quantity</code></td>
+              <td>Pre-fee short profit/loss</td>
+              <td>Positive when exit < entry</td>
+            </tr>
+            <tr>
+              <td><strong>Entry Fee</strong></td>
+              <td><code>Entry Cost × (Entry Fee% / 100)</code></td>
+              <td>Fee paid at entry</td>
+              <td><code>$15.00</code> at <code>0.1%</code> on <code>$15,000</code></td>
+            </tr>
+            <tr>
+              <td><strong>Exit Fee</strong></td>
+              <td><code>Exit Proceeds × (Exit Fee% / 100)</code></td>
+              <td>Fee paid at exit</td>
+              <td><code>$16.50</code> at <code>0.1%</code> on <code>$16,500</code></td>
+            </tr>
+            <tr>
+              <td><strong>Total Trading Fees</strong></td>
+              <td><code>Entry Fee + Exit Fee</code></td>
+              <td>Combined round-trip fees</td>
+              <td><code>$31.50</code> in sample</td>
+            </tr>
+            <tr>
+              <td><strong>Net PnL</strong></td>
+              <td><code>Gross PnL − Total Fees</code></td>
+              <td>Final profit or loss after fees</td>
+              <td><code>+$1,468.50</code> in sample</td>
+            </tr>
+            <tr>
+              <td><strong>Net ROI (%)</strong></td>
+              <td><code>(Net PnL / Total Outlay) × 100</code></td>
+              <td>Percentage return on outlay</td>
+              <td><code>+9.78%</code> in sample</td>
+            </tr>
+            <tr>
+              <td><strong>Break-Even Exit Price</strong></td>
+              <td>Fee-adjusted zero-net-PnL price</td>
+              <td>Target exit to cover fees</td>
+              <td><code>$60,126.13</code> in sample</td>
+            </tr>
+            <tr>
+              <td><strong>Total Outlay</strong></td>
+              <td><code>Entry Cost + Entry Fee</code></td>
+              <td>Total cash deployed at open</td>
+              <td><code>$15,015.00</code> in sample</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports PnL summary</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Trade PnL & Break-Even Model — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your trade figures stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero trade data sent to any server</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Trading, Finance, Percentage & Everyday Calculators</h2>
+      <p>Simulating leveraged positions, percentages, currency conversions, or net worth? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="crypto-leverage-calculator.html"><span>Crypto Leverage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="net-worth-calculator.html"><span>Net Worth Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="sip-ppf-calculator.html"><span>SIP & PPF Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="dividend-yield-calculator.html"><span>Dividend Yield Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="simple-interest-calculator.html"><span>Simple Interest Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How does the calculator compute Net PnL after trading fees?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            It calculates gross profit or loss from entry and exit prices and quantity, computes entry and exit fees from their respective percentages, and subtracts total fees (<code>Net PnL = Gross PnL − Total Fees</code>).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Why is the Break-Even Exit Price slightly higher than the Entry Price on a Buy/Long trade?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Because exiting at the exact entry price would still leave entry and exit trading fees uncovered—the price must rise slightly above entry so the gain covers both fees.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my trade prices or quantities sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Crypto Profit & Loss Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Crypto Profit & Loss Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const buyLongBtn = document.getElementById("buyLongBtn");
+      const sellShortBtn = document.getElementById("sellShortBtn");
+      const pnlCurrency = document.getElementById("pnlCurrency");
+      const coinQtyInput = document.getElementById("coinQtyInput");
+      const buyPriceInput = document.getElementById("buyPriceInput");
+      const sellPriceInput = document.getElementById("sellPriceInput");
+      const entryFeePctInput = document.getElementById("entryFeePctInput");
+      const exitFeePctInput = document.getElementById("exitFeePctInput");
+
+      const pnlSummaryTitle = document.getElementById("pnlSummaryTitle");
+      const pnlSubCaption = document.getElementById("pnlSubCaption");
+      const netPnlDisplay = document.getElementById("netPnlDisplay");
+
+      const grossPnlVal = document.getElementById("grossPnlVal");
+      const totalFeesVal = document.getElementById("totalFeesVal");
+      const breakEvenPriceVal = document.getElementById("breakEvenPriceVal");
+      const totalOutlayVal = document.getElementById("totalOutlayVal");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetPnlBtn = document.getElementById("resetPnlBtn");
+      const copyPnlBtn = document.getElementById("copyPnlBtn");
+      const downloadPnlBtn = document.getElementById("downloadPnlBtn");
+
+      let direction = "long";
+      let latestSummaryText = "";
+
+      function fmtCurr(sym, amt) {
+        const safe = Number.isFinite(amt) ? amt : 0;
+        const locale = sym === "₹" ? "en-IN" : "en-US";
+        const absStr = Math.abs(safe).toLocaleString(locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        return safe < 0 ? `-${sym}${absStr}` : `${sym}${absStr}`;
+      }
+
+      function fmtSigned(sym, amt) {
+        const safe = Number.isFinite(amt) ? amt : 0;
+        const locale = sym === "₹" ? "en-IN" : "en-US";
+        const absStr = Math.abs(safe).toLocaleString(locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        if (safe > 0) return `+${sym}${absStr}`;
+        if (safe < 0) return `-${sym}${absStr}`;
+        return `${sym}0.00`;
+      }
+
+      function clearPnlOutput(msg) {
+        netPnlDisplay.className = "pnl-hero-num";
+        netPnlDisplay.textContent = "—";
+        pnlSubCaption.textContent = msg;
+        grossPnlVal.textContent = "—";
+        totalFeesVal.textContent = "—";
+        breakEvenPriceVal.textContent = "—";
+        totalOutlayVal.textContent = "—";
+        latestSummaryText = "";
+      }
+
+      function calculatePnl() {
+        const isLong = direction === "long";
+        buyLongBtn.classList.toggle("active", isLong);
+        sellShortBtn.classList.toggle("active", !isLong);
+
+        const sym = pnlCurrency.value;
+        const qty = parseFloat(coinQtyInput.value);
+        const entryP = parseFloat(buyPriceInput.value);
+        const exitP = parseFloat(sellPriceInput.value);
+        const entryFeePct = parseFloat(entryFeePctInput.value);
+        const exitFeePct = parseFloat(exitFeePctInput.value);
+
+        if (
+          !Number.isFinite(qty) || qty < 0 ||
+          !Number.isFinite(entryP) || entryP < 0 ||
+          !Number.isFinite(exitP) || exitP < 0 ||
+          !Number.isFinite(entryFeePct) || entryFeePct < 0 ||
+          !Number.isFinite(exitFeePct) || exitFeePct < 0
+        ) {
+          clearPnlOutput("Enter valid non-negative quantity, prices, and fees");
+          return;
+        }
+
+        const entryCost = qty * entryP;
+        const exitProceeds = qty * exitP;
+        const entryFee = entryCost * (entryFeePct / 100);
+        const exitFee = exitProceeds * (exitFeePct / 100);
+        const totalFees = entryFee + exitFee;
+
+        const grossPnl = isLong ? (exitP - entryP) * qty : (entryP - exitP) * qty;
+        const netPnl = grossPnl - totalFees;
+        const totalOutlay = entryCost + entryFee;
+        const roiPct = totalOutlay > 0 ? (netPnl / totalOutlay) * 100 : 0;
+
+        const fIn = entryFeePct / 100;
+        const fOut = exitFeePct / 100;
+        let breakEven = entryP;
+        if (entryP > 0) {
+          if (isLong) {
+            breakEven = (1 - fOut) > 0 ? entryP * ((1 + fIn) / (1 - fOut)) : entryP;
+          } else {
+            breakEven = (1 + fOut) > 0 ? entryP * ((1 - fIn) / (1 + fOut)) : entryP;
+          }
+        }
+
+        const roiSign = roiPct > 0 ? "+" : "";
+        pnlSummaryTitle.textContent = `ROI: ${roiSign}${roiPct.toFixed(2)}%`;
+        pnlSubCaption.textContent = `Cost: ${fmtCurr(sym, entryCost)} \u2022 Proceeds: ${fmtCurr(sym, exitProceeds)}`;
+
+        netPnlDisplay.className = netPnl > 0 ? "pnl-hero-num profit" : (netPnl < 0 ? "pnl-hero-num loss" : "pnl-hero-num");
+        netPnlDisplay.textContent = fmtSigned(sym, netPnl);
+
+        grossPnlVal.textContent = fmtSigned(sym, grossPnl);
+        totalFeesVal.textContent = fmtCurr(sym, totalFees);
+        breakEvenPriceVal.textContent = fmtCurr(sym, breakEven);
+        totalOutlayVal.textContent = fmtCurr(sym, totalOutlay);
+
+        latestSummaryText = [
+          "PureWebKits Crypto Profit & Loss Summary",
+          "-----------------------------------------",
+          `Side: ${isLong ? "Buy / Long" : "Sell / Short"} | Quantity: ${qty} | Entry: ${fmtCurr(sym, entryP)} | Exit: ${fmtCurr(sym, exitP)}`,
+          `Entry Cost: ${fmtCurr(sym, entryCost)} | Exit Proceeds: ${fmtCurr(sym, exitProceeds)} | Total Outlay: ${fmtCurr(sym, totalOutlay)}`,
+          `Gross PnL: ${fmtSigned(sym, grossPnl)} | Total Fees (${entryFeePct}% + ${exitFeePct}%): ${fmtCurr(sym, totalFees)}`,
+          `Net PnL: ${fmtSigned(sym, netPnl)} | Net ROI: ${roiSign}${roiPct.toFixed(2)}% | Break-Even Price: ${fmtCurr(sym, breakEven)}`
+        ].join("\n");
+      }
+
+      buyLongBtn.addEventListener("click", function () { direction = "long"; calculatePnl(); });
+      sellShortBtn.addEventListener("click", function () { direction = "short"; calculatePnl(); });
+
+      [
+        pnlCurrency,
+        coinQtyInput,
+        buyPriceInput,
+        sellPriceInput,
+        entryFeePctInput,
+        exitFeePctInput
+      ].forEach(function (el) {
+        el.addEventListener("input", calculatePnl);
+        el.addEventListener("change", calculatePnl);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        direction = "long";
+        pnlCurrency.value = "$";
+        coinQtyInput.value = "0.25";
+        buyPriceInput.value = "60000";
+        sellPriceInput.value = "66000";
+        entryFeePctInput.value = "0.1";
+        exitFeePctInput.value = "0.1";
+        calculatePnl();
+      });
+
+      resetPnlBtn.addEventListener("click", function () {
+        coinQtyInput.value = "";
+        buyPriceInput.value = "";
+        sellPriceInput.value = "";
+        entryFeePctInput.value = "0";
+        exitFeePctInput.value = "0";
+        calculatePnl();
+      });
+
+      copyPnlBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyPnlBtn.textContent;
+          copyPnlBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyPnlBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadPnlBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "crypto-profit-loss-summary.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculatePnl();
+    });
+  </script>
+</body>
+</html>

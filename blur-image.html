@@ -1,0 +1,993 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Blur & Face Pixelate Privacy Tool Online — Censor Photos Free | PureWebKits</title>
+  <meta name="description" content="Blur faces, pixelate license plates, and censor sensitive numbers on JPG, PNG, and WebP images online for free. Drag to redact regions 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/blur-image.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Dropzone */
+    .dropzone {
+      border: 2px dashed #93C5FD;
+      background: #F8FAFC;
+      border-radius: 13px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .dropzone:hover, .dropzone.dragover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+    }
+    .drop-title { font-size: 16.5px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
+    .drop-sub { font-size: 13.5px; color: var(--text-muted); margin-bottom: 14px; }
+    .btn-primary {
+      display: inline-block;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 9px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Blur Workspace */
+    .blur-workspace { display: none; }
+    .toolbar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .mode-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .mode-btn {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 13px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+    }
+    .mode-btn.active, .mode-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+    .action-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 13px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .strength-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+    }
+    .strength-bar label { font-size: 13px; font-weight: 700; white-space: nowrap; }
+    .strength-bar input[type="range"] { flex: 1; accent-color: var(--primary); cursor: pointer; }
+    .str-pill {
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 6px;
+      min-width: 54px;
+      text-align: center;
+    }
+
+    .hint-strip {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .canvas-stage {
+      background: #0F172A;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      touch-action: none;
+    }
+    .edit-canvas {
+      max-width: 100%;
+      max-height: 450px;
+      border-radius: 6px;
+      cursor: crosshair;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .export-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .region-pill {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--primary);
+      background: var(--primary-soft);
+      padding: 7px 14px;
+      border-radius: 8px;
+    }
+    .export-right { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .fmt-select {
+      height: 40px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-weight: 700;
+      background: #FFFFFF;
+      color: var(--text-main);
+    }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Image Blur / Face Pixelate Privacy Tool -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Image Blur & Face Pixelate Privacy Tool — Censor Photos Free</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Pixelate faces, blur license plates & redact ID numbers locally in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Upload an image to blur or pixelate">
+          <div class="drop-title">Drag & drop a photo or screenshot here, or click to select</div>
+          <div class="drop-sub">Supports JPG, PNG, and WebP — drag boxes over faces, car plates, or sensitive numbers</div>
+          <span class="btn-primary">Choose Image File</span>
+          <input type="file" id="blurFileInput" accept="image/*" style="display:none;" />
+        </div>
+
+        <div id="blurWorkspace" class="blur-workspace">
+          <div class="toolbar-row">
+            <div class="mode-pills" role="group" aria-label="Privacy Censor Style">
+              <button type="button" class="mode-btn active" data-bstyle="pixelate">Mosaic Pixelate (Recommended)</button>
+              <button type="button" class="mode-btn" data-bstyle="blur">Smooth Gaussian Blur</button>
+              <button type="button" class="mode-btn" data-bstyle="blackout">Solid Blackout Bar</button>
+            </div>
+
+            <div class="action-btns">
+              <button type="button" id="undoBoxBtn" class="btn-sec">Undo Last Box</button>
+              <button type="button" id="clearBoxesBtn" class="btn-sec">Clear All</button>
+              <button type="button" id="newImgBtn" class="btn-sec">New Image</button>
+            </div>
+          </div>
+
+          <div class="strength-bar">
+            <label for="intensityRange">Pixel Block / Blur Intensity:</label>
+            <input type="range" id="intensityRange" min="6" max="42" step="2" value="18" />
+            <span id="intensityPill" class="str-pill">18 px</span>
+          </div>
+
+          <div class="hint-strip">
+            Click and drag across any face, number plate, or sensitive text below to censor multiple regions:
+          </div>
+
+          <div class="canvas-stage">
+            <canvas id="editCanvas" class="edit-canvas"></canvas>
+          </div>
+
+          <div class="export-bar">
+            <div id="regionCountPill" class="region-pill">0 Censored Regions Applied</div>
+            <div class="export-right">
+              <select id="exportFmtSelect" class="fmt-select" aria-label="Export Image Format">
+                <option value="image/jpeg" selected>Download as JPG (.jpg)</option>
+                <option value="image/png">Download as PNG (.png)</option>
+                <option value="image/webp">Download as WebP (.webp)</option>
+              </select>
+              <button type="button" id="downloadBlurredBtn" class="btn-primary">Download Censored Image</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Block Mosaic Pixelation, Gaussian Blur & Irreversible Redaction Work</h2>
+
+      <h3>Protecting Bystander Faces, License Plates & Sensitive IDs Before Sharing Online</h3>
+      <p>
+        Sharing photos on social media, public forums, YouTube thumbnails, or customer support tickets frequently exposes private details—such as children's faces in school photos, vehicle license plates in street shots, or partial Aadhaar/PAN/bank account numbers on document screenshots. Under global privacy regulations including <strong>GDPR (Europe)</strong> and India's <strong>Digital Personal Data Protection (DPDP) Act</strong>, anonymizing personally identifiable information (PII) before public publication protects both individuals and publishers. Unlike reversible sticker overlays that can sometimes be stripped from layered project files, our HTML5 Canvas engine overwrites the selected pixel matrix directly with averaged mosaic blocks, blurred convolution samples, or solid blackout bars—ensuring the original facial or text pixels cannot be reconstructed from the exported file.
+      </p>
+
+      <h3>How to Blur or Pixelate Faces & Text in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Upload Your Photo or Screenshot:</strong> Drag any JPG, PNG, or WebP image into the workspace above—your photo remains 100% locally in browser memory.</li>
+        <li><strong>Drag Over Sensitive Regions:</strong> Choose <em>Mosaic Pixelate</em>, <em>Smooth Gaussian Blur</em>, or <em>Solid Blackout Bar</em>, then click and drag rectangular boxes over as many faces, plates, or text lines as needed.</li>
+        <li><strong>Adjust Intensity & Download:</strong> Tune the pixel block size (<code>18 px</code> is ideal for faces) and click <em>Download Censored Image</em>.</li>
+      </ol>
+
+      <h3>Block Mosaic Downsampling Formula + Worked Example</h3>
+      <p>
+        Mosaic pixelation divides a selected region of width <code>W</code> and height <code>H</code> into square grid cells of block size <code>B</code> pixels, replacing all <code>B²</code> pixels in each cell with their mean RGB color:
+      </p>
+      <div class="formula-box">
+        Mosaic Grid Cells = ⌈ W / B ⌉ × ⌈ H / B ⌉  |  Cell Color = (1 / B²) Σ RGB(x, y)
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Suppose you select a <strong>180 × 216 px</strong> face region using a block size of <strong>B = 18 px</strong>.</p>
+        <p>The region collapses into just <code>(180 / 18) × (216 / 18) = 10 × 12 = 120</code> uniform color squares.</p>
+        <p>Because <code>38,880</code> individual skin and eye pixels are averaged down to <code>120</code> flat blocks (a <strong>324× information reduction</strong>), facial recognition algorithms and human viewers cannot recover the original identity.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="blur-table-heading">
+      <h2 id="blur-table-heading">Privacy Redaction Methods, Block Sizes & Compliance Guide (16 Scenarios)</h2>
+      <p>Use this digital privacy reference table to select the safest anonymization style and pixel block size for different content types.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Sensitive Content Type</th>
+              <th>Best Censor Mode</th>
+              <th>Recommended Intensity</th>
+              <th>Privacy & Security Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Human Faces (Group / Street Photos)</strong></td>
+              <td><span class="limit-badge">Mosaic Pixelate</span></td>
+              <td>16 px – 24 px blocks</td>
+              <td>Prevents facial recognition while keeping scene natural</td>
+            </tr>
+            <tr>
+              <td><strong>Children / Minor Faces (School Events)</strong></td>
+              <td><span class="limit-badge">Mosaic Pixelate / Blur</span></td>
+              <td>20 px – 30 px</td>
+              <td>Strong anonymization for public social sharing</td>
+            </tr>
+            <tr>
+              <td><strong>Vehicle License Plates</strong></td>
+              <td><span class="limit-badge">Mosaic Pixelate</span></td>
+              <td>14 px – 20 px</td>
+              <td>Breaks alphanumeric character outlines completely</td>
+            </tr>
+            <tr>
+              <td><strong>Aadhaar / SSN / Passport Numbers</strong></td>
+              <td><span class="limit-badge">Solid Blackout Bar</span></td>
+              <td>100% Opaque #0F172A</td>
+              <td>Zero character-shape leakage on high-contrast digits</td>
+            </tr>
+            <tr>
+              <td><strong>Bank Account / Credit Card Digits</strong></td>
+              <td><span class="limit-badge">Solid Blackout Bar</span></td>
+              <td>100% Opaque Bar</td>
+              <td>Safest redaction method for financial screenshots</td>
+            </tr>
+            <tr>
+              <td><strong>Home Address & Phone Numbers</strong></td>
+              <td><span class="limit-badge">Solid Blackout / Pixelate</span></td>
+              <td>18 px+ or Solid Bar</td>
+              <td>Recommended before posting shipping label photos</td>
+            </tr>
+            <tr>
+              <td><strong>Email Addresses & API Keys in Tutorials</strong></td>
+              <td><span class="limit-badge">Smooth Gaussian Blur</span></td>
+              <td>16 px – 24 px blur</td>
+              <td>Clean aesthetic for developer blog screenshots</td>
+            </tr>
+            <tr>
+              <td><strong>Medical Reports & Patient Names</strong></td>
+              <td><span class="limit-badge">Solid Blackout Bar</span></td>
+              <td>100% Opaque Bar</td>
+              <td>Meets HIPAA / GDPR clinical redaction standards</td>
+            </tr>
+            <tr>
+              <td><strong>Legal Contracts & Court Exhibits</strong></td>
+              <td><span class="limit-badge">Solid Blackout Bar</span></td>
+              <td>100% Opaque Bar</td>
+              <td>Standard legal redaction appearance</td>
+            </tr>
+            <tr>
+              <td><strong>Background Clutter / Whiteboards</strong></td>
+              <td><span class="limit-badge">Smooth Gaussian Blur</span></td>
+              <td>20 px – 32 px blur</td>
+              <td>Creates DSLR depth-of-field bokeh look</td>
+            </tr>
+            <tr>
+              <td><strong>Multi-Region Selection</strong></td>
+              <td>Unlimited Boxes</td>
+              <td>Click & Drag Multiple</td>
+              <td>Censor multiple faces & plates in one pass</td>
+            </tr>
+            <tr>
+              <td><strong>Undo Mistaken Box</strong></td>
+              <td><code>Undo Last Box</code></td>
+              <td>Non-Destructive Canvas</td>
+              <td>Re-renders cleanly from original source pixels</td>
+            </tr>
+            <tr>
+              <td><strong>Swirl / Spiral Distortion Warning</strong></td>
+              <td>Avoided Intentionally</td>
+              <td>Use Pixelate / Blackout</td>
+              <td>Geometric swirls can be mathematically reversed</td>
+            </tr>
+            <tr>
+              <td><strong>EXIF Metadata Hygiene</strong></td>
+              <td>Stripped on Export</td>
+              <td>Canvas Re-Encoding</td>
+              <td>Also removes hidden GPS tags automatically</td>
+            </tr>
+            <tr>
+              <td><strong>Full Native Resolution Export</strong></td>
+              <td>1:1 Source Dimensions</td>
+              <td>JPG / PNG / WebP</td>
+              <td>Unblurred areas retain 100% original sharpness</td>
+            </tr>
+            <tr>
+              <td><strong>Document & Face Privacy</strong></td>
+              <td>100% Browser Memory</td>
+              <td><span class="limit-badge">Zero Server Upload</span></td>
+              <td>Uncensored originals never leave your device</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Image Privacy, Watermarking & Cropping Tools</h2>
+      <p>Removing hidden GPS metadata, adding diagonal KYC watermarks, cropping out sensitive edges, or compressing images? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="exif-metadata-remover.html"><span>EXIF Metadata Remover</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-watermark.html"><span>Bulk Image Watermark</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-cropper.html"><span>Image Cropper</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compress-image-to-exact-kb.html"><span>Compress Image to KB</span><span class="arrow">→</span></a>
+        <a class="related-link" href="grayscale-image.html"><span>Grayscale / B&W Filter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="rotate-flip-image.html"><span>Rotate & Flip Image</span><span class="arrow">→</span></a>
+        <a class="related-link" href="png-to-jpg.html"><span>PNG to JPG Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="jpg-to-pdf.html"><span>JPG to PDF Converter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Which is safer for hiding sensitive text or ID numbers: Pixelate, Blur, or Solid Blackout?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            For high-contrast text, passwords, or ID numbers, <strong>Solid Blackout Bar</strong> is 100% irreversible because every pixel in the box is overwritten with solid dark color. For human faces and vehicle license plates, <strong>Mosaic Pixelate</strong> (at 18 px or higher) provides strong anonymization while blending naturally into the photo.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I blur or pixelate multiple faces on the same photo?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Yes. Simply click and drag across the first face, release, and then click and drag across as many additional faces, license plates, or text fields as you want. Use <strong>Undo Last Box</strong> if you need to redo any selection.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Does this tool work on mobile touchscreens as well as desktop mice?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Yes. Our interactive canvas supports both mouse drag events and single-finger touch gestures on iPhone, iPad, and Android browsers.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is my uncensored photo ever uploaded to a cloud server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. Uploading your uncensored photo to an external server would defeat the purpose of privacy redaction—so all pixelation and blurring run 100% locally inside your browser.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Face Pixelate, Gaussian Blur & Redaction Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const dropzone = document.getElementById("dropzone");
+      const blurFileInput = document.getElementById("blurFileInput");
+      const blurWorkspace = document.getElementById("blurWorkspace");
+      const editCanvas = document.getElementById("editCanvas");
+
+      const modeBtns = document.querySelectorAll(".mode-btn");
+      const undoBoxBtn = document.getElementById("undoBoxBtn");
+      const clearBoxesBtn = document.getElementById("clearBoxesBtn");
+      const newImgBtn = document.getElementById("newImgBtn");
+
+      const intensityRange = document.getElementById("intensityRange");
+      const intensityPill = document.getElementById("intensityPill");
+      const regionCountPill = document.getElementById("regionCountPill");
+      const exportFmtSelect = document.getElementById("exportFmtSelect");
+      const downloadBlurredBtn = document.getElementById("downloadBlurredBtn");
+
+      let sourceImg = null;
+      let baseFileName = "censored-image";
+      let regions = []; // Array of { x, y, w, h, style, strength } in native image coordinates
+      let activeStyle = "pixelate";
+
+      let isDrawing = false;
+      let startPt = { x: 0, y: 0 };
+      let activeDraftRect = null;
+
+      function applyRegionEffect(ctx, r) {
+        const rx = Math.max(0, Math.round(r.x));
+        const ry = Math.max(0, Math.round(r.y));
+        const rw = Math.min(ctx.canvas.width - rx, Math.round(r.w));
+        const rh = Math.min(ctx.canvas.height - ry, Math.round(r.h));
+        if (rw < 2 || rh < 2) return;
+
+        if (r.style === "blackout") {
+          ctx.fillStyle = "#0F172A";
+          ctx.fillRect(rx, ry, rw, rh);
+        } else if (r.style === "blur") {
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(rx, ry, rw, rh);
+          ctx.clip();
+          ctx.filter = "blur(" + r.strength + "px)";
+          ctx.drawImage(sourceImg, 0, 0, ctx.canvas.width, ctx.canvas.height);
+          ctx.restore();
+        } else {
+          // Mosaic Pixelate
+          const block = Math.max(4, r.strength);
+          const imgData = ctx.getImageData(rx, ry, rw, rh);
+          const d = imgData.data;
+
+          for (let y = 0; y < rh; y += block) {
+            for (let x = 0; x < rw; x += block) {
+              let sumR = 0, sumG = 0, sumB = 0, count = 0;
+              const maxY = Math.min(rh, y + block);
+              const maxX = Math.min(rw, x + block);
+
+              for (let py = y; py < maxY; py++) {
+                for (let px = x; px < maxX; px++) {
+                  const idx = (py * rw + px) * 4;
+                  sumR += d[idx];
+                  sumG += d[idx + 1];
+                  sumB += d[idx + 2];
+                  count++;
+                }
+              }
+
+              const avgR = Math.round(sumR / count);
+              const avgG = Math.round(sumG / count);
+              const avgB = Math.round(sumB / count);
+
+              for (let py = y; py < maxY; py++) {
+                for (let px = x; px < maxX; px++) {
+                  const idx = (py * rw + px) * 4;
+                  d[idx] = avgR;
+                  d[idx + 1] = avgG;
+                  d[idx + 2] = avgB;
+                }
+              }
+            }
+          }
+          ctx.putImageData(imgData, rx, ry);
+        }
+      }
+
+      function renderCompositeCanvas(targetCanvas, includeDraftGuide) {
+        if (!sourceImg) return;
+        const nw = sourceImg.naturalWidth || sourceImg.width;
+        const nh = sourceImg.naturalHeight || sourceImg.height;
+        targetCanvas.width = nw;
+        targetCanvas.height = nh;
+
+        const ctx = targetCanvas.getContext("2d");
+        ctx.clearRect(0, 0, nw, nh);
+        ctx.drawImage(sourceImg, 0, 0, nw, nh);
+
+        regions.forEach(function (reg) {
+          applyRegionEffect(ctx, reg);
+        });
+
+        if (includeDraftGuide && activeDraftRect && activeDraftRect.w > 2 && activeDraftRect.h > 2) {
+          applyRegionEffect(ctx, activeDraftRect);
+          ctx.save();
+          ctx.strokeStyle = "#38BDF8";
+          ctx.lineWidth = Math.max(2, Math.round(nw * 0.003));
+          ctx.setLineDash([8, 6]);
+          ctx.strokeRect(activeDraftRect.x, activeDraftRect.y, activeDraftRect.w, activeDraftRect.h);
+          ctx.restore();
+        }
+
+        regionCountPill.textContent = regions.length + " Censored Region" + (regions.length === 1 ? "" : "s") + " Applied";
+      }
+
+      function getCanvasNativeCoords(e) {
+        const rect = editCanvas.getBoundingClientRect();
+        const clientX = (e.touches && e.touches.length) ? e.touches[0].clientX : e.clientX;
+        const clientY = (e.touches && e.touches.length) ? e.touches[0].clientY : e.clientY;
+        const scaleX = editCanvas.width / rect.width;
+        const scaleY = editCanvas.height / rect.height;
+        return {
+          x: Math.max(0, Math.min(editCanvas.width, (clientX - rect.left) * scaleX)),
+          y: Math.max(0, Math.min(editCanvas.height, (clientY - rect.top) * scaleY))
+        };
+      }
+
+      function onPointerDown(e) {
+        if (!sourceImg) return;
+        e.preventDefault();
+        isDrawing = true;
+        startPt = getCanvasNativeCoords(e);
+        activeDraftRect = null;
+      }
+
+      function onPointerMove(e) {
+        if (!isDrawing) return;
+        e.preventDefault();
+        const cur = getCanvasNativeCoords(e);
+        activeDraftRect = {
+          x: Math.min(startPt.x, cur.x),
+          y: Math.min(startPt.y, cur.y),
+          w: Math.abs(cur.x - startPt.x),
+          h: Math.abs(cur.y - startPt.y),
+          style: activeStyle,
+          strength: parseInt(intensityRange.value, 10) || 18
+        };
+        renderCompositeCanvas(editCanvas, true);
+      }
+
+      function onPointerUp() {
+        if (!isDrawing) return;
+        isDrawing = false;
+        if (activeDraftRect && activeDraftRect.w >= 6 && activeDraftRect.h >= 6) {
+          regions.push(activeDraftRect);
+        }
+        activeDraftRect = null;
+        renderCompositeCanvas(editCanvas, false);
+      }
+
+      editCanvas.addEventListener("mousedown", onPointerDown);
+      editCanvas.addEventListener("touchstart", onPointerDown, { passive: false });
+      window.addEventListener("mousemove", onPointerMove);
+      window.addEventListener("touchmove", onPointerMove, { passive: false });
+      window.addEventListener("mouseup", onPointerUp);
+      window.addEventListener("touchend", onPointerUp);
+
+      modeBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          modeBtns.forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          activeStyle = btn.getAttribute("data-bstyle");
+        });
+      });
+
+      intensityRange.addEventListener("input", function () {
+        intensityPill.textContent = intensityRange.value + " px";
+      });
+
+      undoBoxBtn.addEventListener("click", function () {
+        if (!regions.length) return;
+        regions.pop();
+        renderCompositeCanvas(editCanvas, false);
+      });
+
+      clearBoxesBtn.addEventListener("click", function () {
+        regions = [];
+        renderCompositeCanvas(editCanvas, false);
+      });
+
+      function handleImageLoad(file) {
+        if (!file || !file.type.startsWith("image/")) return;
+        baseFileName = file.name.replace(/\.[^/.]+$/, "") || "censored-image";
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          const img = new Image();
+          img.onload = function () {
+            sourceImg = img;
+            regions = [];
+            dropzone.style.display = "none";
+            blurWorkspace.style.display = "block";
+            renderCompositeCanvas(editCanvas, false);
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      dropzone.addEventListener("click", function () { blurFileInput.click(); });
+      dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+      dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+      dropzone.addEventListener("drop", function (e) {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleImageLoad(e.dataTransfer.files[0]);
+        }
+      });
+
+      blurFileInput.addEventListener("change", function (e) {
+        if (e.target.files && e.target.files[0]) handleImageLoad(e.target.files[0]);
+        e.target.value = "";
+      });
+
+      newImgBtn.addEventListener("click", function () {
+        sourceImg = null;
+        regions = [];
+        blurWorkspace.style.display = "none";
+        dropzone.style.display = "block";
+      });
+
+      downloadBlurredBtn.addEventListener("click", function () {
+        if (!sourceImg) return;
+        const outCanvas = document.createElement("canvas");
+        renderCompositeCanvas(outCanvas, false);
+        const mime = exportFmtSelect.value;
+        const ext = mime === "image/png" ? "png" : (mime === "image/webp" ? "webp" : "jpg");
+
+        outCanvas.toBlob(function (blob) {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = baseFileName + "-censored." + ext;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, mime, 0.93);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

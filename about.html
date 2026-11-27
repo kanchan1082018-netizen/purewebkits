@@ -1,0 +1,584 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About PureWebKits — Free Client-Side Online Utility Suite</title>
+  <meta name="description" content="Learn about PureWebKits, our mission to build fast, privacy-first client-side web utilities across images, PDFs, developer tools, cards, and calculators, and how we keep tool access free." />
+  <link rel="canonical" href="https://PureWebKits.com/about.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--primary); }
+
+    /* Hero */
+    .page-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .hero-inner { max-width: 840px; margin: 0 auto; }
+    .page-hero h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      color: var(--text-main);
+    }
+    .page-hero p {
+      color: var(--text-muted);
+      font-size: 15.5px;
+      margin-bottom: 18px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 52px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+      box-shadow: 0 6px 20px rgba(15, 23, 42, 0.03);
+    }
+    .content-card h2 {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 14px;
+      color: var(--text-main);
+    }
+    .content-card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin: 22px 0 8px;
+      color: var(--text-main);
+    }
+    .content-card p {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 12px;
+    }
+    .content-card ol, .content-card ul {
+      padding-left: 20px;
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 14px;
+    }
+    .content-card li { margin-bottom: 8px; }
+    code {
+      background: #F1F5F9;
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-size: 13.5px;
+      color: #0F172A;
+    }
+
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 16px 0;
+    }
+    .pillar-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .pillar-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--primary-dark);
+      background: var(--primary-soft);
+      padding: 3px 9px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+    .pillar-box h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
+      font-weight: 800;
+    }
+    .pillar-box p {
+      margin: 0;
+      font-size: 13.5px;
+      line-height: 1.55;
+    }
+
+    /* Reference Table */
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th {
+      background: #F1F5F9;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-main);
+    }
+    td {
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    tr:last-child td { border-bottom: none; }
+    .badge-pill {
+      display: inline-block;
+      background: #EFF6FF;
+      color: #1D4ED8;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+
+    /* Related Links & Accordion FAQs */
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .quick-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 15px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .quick-link:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%;
+      background: #F8FAFC;
+      border: none;
+      padding: 16px 18px;
+      text-align: left;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .faq-icon {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      transition: transform 0.2s ease;
+    }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none;
+      padding: 16px 18px;
+      background: #FFFFFF;
+      border-top: 1px solid var(--border);
+      font-size: 14.5px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px 40px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+      gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 880px) {
+      .pillars-grid, .links-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .pillars-grid, .links-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html" class="active">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="page-hero">
+    <div class="hero-inner">
+      <h1>About PureWebKits</h1>
+      <p>
+        Building fast, practical, and privacy-respecting browser utilities for students, creators, developers, freelancers, and everyday teams.
+      </p>
+      <div class="trust-pill">
+        <span class="trust-dot" aria-hidden="true"></span>
+        100% Client-Side Execution: Processed locally in your browser with zero server uploads
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <article class="content-card">
+      <h2>Our Mission & Why We Built PureWebKits</h2>
+      <p>
+        Everyday digital tasks—such as compressing an image to an exact kilobyte size for an application form, formatting JSON, calculating loan EMIs or business margins, trimming an audio clip, or designing a resume, visiting card, student ID card, or invitation card—should never require installing heavy software, creating mandatory accounts, or uploading sensitive files to unknown servers.
+      </p>
+      <p>
+        <strong>PureWebKits</strong> was created to bring a comprehensive collection of free, browser-based utilities under one clean, accessible roof. Every tool page combines an interactive workspace with clear step-by-step instructions, transparent formulas, and practical reference tables so users can complete tasks quickly and understand how the numbers or outputs work.
+      </p>
+
+      <div class="pillars-grid">
+        <div class="pillar-box">
+          <span class="pillar-tag">Privacy First</span>
+          <h3>Local Browser Processing</h3>
+          <p>Tool inputs, images, documents, and calculations run directly in your browser using JavaScript, HTML5 Canvas, and Web APIs with zero file uploads to our servers.</p>
+        </div>
+
+        <div class="pillar-box">
+          <span class="pillar-tag">Speed & Simplicity</span>
+          <h3>Zero Sign-Up Friction</h3>
+          <p>Open any tool, enter your data or upload a file, preview results immediately, and print or download your output without paywalls or registration walls.</p>
+        </div>
+
+        <div class="pillar-box">
+          <span class="pillar-tag">Helpful Guidance</span>
+          <h3>Clear How-To Documentation</h3>
+          <p>Each utility pairs practical usage steps, formulas, and reference tables with clean navigation so both first-time visitors and repeat users get accurate results.</p>
+        </div>
+      </div>
+
+      <h3>What You Can Do Across PureWebKits</h3>
+      <p>
+        Our catalog spans 16 organized categories covering everyday workflows:
+      </p>
+      <ul>
+        <li><strong>Image, Card & Document Tools:</strong> Compress images to exact KB, resize photos/signatures, remove photo backgrounds, build resumes, design student ID cards, visiting cards, and inviting cards, and create receipts or invoices.</li>
+        <li><strong>Developer, Text & Productivity Tools:</strong> Format and validate JSON, encode/decode Base64, generate passwords, count words/characters, create QR codes, and plan podcast episodes or social hashtags.</li>
+        <li><strong>Finance, Tax & Utility Calculators:</strong> Calculate loan EMIs, percentages, business margins, PayPal and Stripe fees, EV charging time/cost, regional taxes, and unit conversions.</li>
+      </ul>
+
+      <h3>How We Keep PureWebKits Free</h3>
+      <p>
+        Keeping hundreds of browser tools free to use requires ongoing hosting, maintenance, and continuous improvement. PureWebKits supports free access through responsible display advertising (such as <strong>Google AdSense</strong>) while keeping our client-side tool execution separate from ad delivery and maintaining clear <a href="privacy-policy.html" style="color:var(--primary); font-weight:700; text-decoration:underline;">Privacy</a> and <a href="cookies.html" style="color:var(--primary); font-weight:700; text-decoration:underline;">Cookie</a> policies.
+      </p>
+    </article>
+
+    <!-- Platform Standards Table -->
+    <section class="content-card" aria-labelledby="standards-heading">
+      <h2 id="standards-heading">PureWebKits Design & Quality Standards</h2>
+      <p>How we structure and maintain our tools for reliability, clarity, and user trust.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Standard</th>
+              <th>How It Works on PureWebKits</th>
+              <th>Benefit to Users</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Client-Side Execution</strong></td>
+              <td>Runs directly in the user's browser via standard web APIs</td>
+              <td><span class="badge-pill">Fast & Private</span></td>
+            </tr>
+            <tr>
+              <td><strong>No Mandatory Accounts</strong></td>
+              <td>Immediate access to tools without login or sign-up gates</td>
+              <td>Saves time on quick tasks</td>
+            </tr>
+            <tr>
+              <td><strong>Clear Documentation</strong></td>
+              <td>Step-by-step guides, formulas, tables & FAQs on tool pages</td>
+              <td>Transparent & educational</td>
+            </tr>
+            <tr>
+              <td><strong>Policy Transparency</strong></td>
+              <td>Dedicated Privacy Policy, Cookie Policy, Terms & Disclaimer</td>
+              <td>AdSense-friendly clarity</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Quick Links -->
+    <section class="content-card" aria-labelledby="about-links-heading">
+      <h2 id="about-links-heading">Explore Tools & Policies</h2>
+      <p>Jump straight into our tool directory or review our site policies and contact channels:</p>
+      <div class="links-grid">
+        <a class="quick-link" href="index.html"><span>All Tools Directory</span><span>→</span></a>
+        <a class="quick-link" href="privacy-policy.html"><span>Privacy Policy</span><span>→</span></a>
+        <a class="quick-link" href="cookies.html"><span>Cookie Policy</span><span>→</span></a>
+        <a class="quick-link" href="contact.html"><span>Contact Us</span><span>→</span></a>
+      </div>
+    </section>
+
+    <!-- Accordion FAQs -->
+    <section class="content-card" aria-labelledby="about-faq-heading">
+      <h2 id="about-faq-heading">Frequently Asked Questions About PureWebKits</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Are PureWebKits utilities free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes.</strong> Our browser utilities are free to use with no account registration required.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Where does file and calculation processing take place?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Processing occurs client-side inside your web browser rather than uploading your files or inputs to remote servers for processing.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. How can I suggest a new tool or report a bug?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Visit our <a href="contact.html" style="color:var(--primary); font-weight:700; text-decoration:underline;">Contact Us</a> page to share feedback, report an issue, or request a new utility.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are calculator and tax estimates financial or legal advice?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            No. Calculators and planning utilities are provided for informational and estimation convenience—please verify official rules, rates, or professional advice as outlined in our <a href="disclaimer.html" style="color:var(--primary); font-weight:700; text-decoration:underline;">Disclaimer</a>.
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Dark Navy 5-Column Footer -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1117 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Color Picker Online — HEX, RGB, HSL, CMYK Converter & Image Eyedropper | PureWebKits</title>
+  <meta name="description" content="Free online color picker and HEX, RGB, HSL, CMYK converter. Pick colors from any image, generate complementary color palettes, and check WCAG contrast ratios 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/color-picker.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --success-soft: #ECFDF5;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Top Action Bar */
+    .picker-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 22px;
+    }
+    .picker-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 16px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    /* Main 2-Column Picker Grid */
+    .cp-grid {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* Left Column: Swatch Preview + Native Picker + WCAG Contrast */
+    .swatch-preview {
+      width: 100%;
+      height: 150px;
+      border-radius: 12px;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      background: #2563EB;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 16px;
+      transition: background-color 0.12s ease;
+    }
+    .swatch-hex-big {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      color: #FFFFFF;
+    }
+    .swatch-sub-txt {
+      font-size: 13px;
+      font-weight: 700;
+      color: #FFFFFF;
+      opacity: 0.92;
+    }
+
+    .native-picker-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+    .native-color-input {
+      width: 46px;
+      height: 38px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+    }
+    .native-picker-lbl { font-size: 13.5px; font-weight: 700; color: var(--text-main); }
+
+    .contrast-box {
+      margin-top: 14px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .contrast-title { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .contrast-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .contrast-chip {
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      font-size: 12.5px;
+      font-weight: 800;
+      border: 1px solid rgba(15, 23, 42, 0.1);
+    }
+
+    /* Right Column: Color Format Codes */
+    .codes-col { display: flex; flex-direction: column; gap: 12px; }
+    .code-row {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .code-info { flex: 1; }
+    .code-lbl { font-size: 11.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .code-input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      outline: none;
+      margin-top: 2px;
+    }
+    .copy-mini-btn {
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 7px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+    }
+    .copy-mini-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* Shades & Harmonies Strip */
+    .palette-section {
+      margin-top: 22px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+    .palette-heading { font-size: 14px; font-weight: 800; margin-bottom: 10px; }
+    .shades-strip {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .shade-btn {
+      height: 46px;
+      border-radius: 8px;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      cursor: pointer;
+      font-size: 10.5px;
+      font-weight: 800;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 4px;
+      transition: transform 0.12s ease;
+    }
+    .shade-btn:hover { transform: translateY(-2px); }
+
+    /* Image Pixel Picker Box */
+    .img-picker-box {
+      display: none;
+      margin-top: 18px;
+      padding: 16px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-align: center;
+    }
+    .img-picker-note { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
+    .pixel-canvas {
+      max-width: 100%;
+      max-height: 320px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      cursor: crosshair;
+    }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .color-dot { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: middle; margin-right: 7px; border: 1px solid rgba(0,0,0,0.15); }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .cp-grid { grid-template-columns: 1fr; }
+      .shades-strip { grid-template-columns: repeat(5, 1fr); }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Color Picker -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Color Picker Online — HEX, RGB, HSL, CMYK & Image Eyedropper</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Convert color codes, generate tints/shades & sample image pixels locally in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="picker-topbar">
+          <div class="picker-actions">
+            <button type="button" id="randomColorBtn" class="btn-sec">Random Color</button>
+            <button type="button" id="eyeDropperBtn" class="btn-sec" style="display:none;">Screen Eyedropper</button>
+            <label class="btn-sec" for="imgSampleInput">
+              + Pick Color from Image
+              <input type="file" id="imgSampleInput" accept="image/*" style="display:none;" />
+            </label>
+          </div>
+          <button type="button" id="copyHexMainBtn" class="btn-primary">Copy HEX Code</button>
+        </div>
+
+        <div class="cp-grid">
+          <!-- Left: Swatch Preview + Native Picker + WCAG Contrast -->
+          <div>
+            <div id="swatchPreview" class="swatch-preview">
+              <div id="swatchHexBig" class="swatch-hex-big">#2563EB</div>
+              <div id="swatchSubTxt" class="swatch-sub-txt">rgb(37, 99, 235) • hsl(221, 83%, 53%)</div>
+            </div>
+
+            <div class="native-picker-row">
+              <input type="color" id="nativeColorInput" class="native-color-input" value="#2563EB" aria-label="Choose Color" />
+              <label for="nativeColorInput" class="native-picker-lbl">Click swatch to open visual color wheel & spectrum picker</label>
+            </div>
+
+            <div class="contrast-box">
+              <div class="contrast-title">WCAG 2.1 Text Readability Contrast</div>
+              <div class="contrast-pair">
+                <div id="whiteContrastChip" class="contrast-chip">White Text: 5.17:1 (AA)</div>
+                <div id="blackContrastChip" class="contrast-chip">Black Text: 4.06:1 (AA)</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Editable HEX, RGB, HSL, CMYK & CSS Variable Rows -->
+          <div class="codes-col">
+            <div class="code-row">
+              <div class="code-info">
+                <div class="code-lbl">HEX Code (Editable)</div>
+                <input type="text" id="hexCodeInput" class="code-input" value="#2563EB" />
+              </div>
+              <button type="button" class="copy-mini-btn" data-copy="hexCodeInput">Copy</button>
+            </div>
+
+            <div class="code-row">
+              <div class="code-info">
+                <div class="code-lbl">RGB (Red, Green, Blue)</div>
+                <input type="text" id="rgbCodeInput" class="code-input" value="rgb(37, 99, 235)" readonly />
+              </div>
+              <button type="button" class="copy-mini-btn" data-copy="rgbCodeInput">Copy</button>
+            </div>
+
+            <div class="code-row">
+              <div class="code-info">
+                <div class="code-lbl">HSL (Hue, Saturation, Lightness)</div>
+                <input type="text" id="hslCodeInput" class="code-input" value="hsl(221, 83%, 53%)" readonly />
+              </div>
+              <button type="button" class="copy-mini-btn" data-copy="hslCodeInput">Copy</button>
+            </div>
+
+            <div class="code-row">
+              <div class="code-info">
+                <div class="code-lbl">CMYK (Print Ink Percentages)</div>
+                <input type="text" id="cmykCodeInput" class="code-input" value="cmyk(84%, 58%, 0%, 8%)" readonly />
+              </div>
+              <button type="button" class="copy-mini-btn" data-copy="cmykCodeInput">Copy</button>
+            </div>
+
+            <div class="code-row">
+              <div class="code-info">
+                <div class="code-lbl">CSS Custom Variable</div>
+                <input type="text" id="cssVarInput" class="code-input" value="--brand-color: #2563EB;" readonly />
+              </div>
+              <button type="button" class="copy-mini-btn" data-copy="cssVarInput">Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Image Pixel Sampler Canvas -->
+        <div id="imgPickerBox" class="img-picker-box">
+          <div class="img-picker-note">Click anywhere on your uploaded image below to sample its exact pixel color:</div>
+          <canvas id="pixelCanvas" class="pixel-canvas"></canvas>
+        </div>
+
+        <!-- Tints, Shades & Harmonies -->
+        <div class="palette-section">
+          <div class="palette-heading">Lighter Tints & Darker Shades (Click any swatch to select & copy)</div>
+          <div id="shadesStrip" class="shades-strip"></div>
+
+          <div class="palette-heading">Color Harmonies (Complementary, Analogous & Triadic)</div>
+          <div id="harmoniesStrip" class="shades-strip" style="grid-template-columns: repeat(5, 1fr); margin-bottom:0;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How HEX, RGB, HSL & CMYK Color Models and WCAG Contrast Work</h2>
+
+      <h3>Choosing the Right Color Model for Web UI vs. Print Design</h3>
+      <p>
+        Digital screens and printed materials produce colors using fundamentally different physics. Screens emit light using the additive <strong>RGB (Red, Green, Blue)</strong> model, where each channel ranges from <code>0</code> to <code>255</code>—and web developers write those three byte values in base-16 hexadecimal notation as a 6-digit <strong>HEX code</strong> (such as <code>#2563EB</code>). Designers prefer <strong>HSL (Hue, Saturation, Lightness)</strong> when building UI themes because adjusting Lightness creates consistent hover states and dark-mode palettes without shifting the underlying hue. Conversely, commercial printing presses mix subtractive <strong>CMYK (Cyan, Magenta, Yellow, Key/Black)</strong> inks on paper, making RGB-to-CMYK conversion essential before sending brochures or business cards to press.
+      </p>
+
+      <h3>How to Pick & Convert Colors in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Select or Paste Any Color:</strong> Click the color wheel swatch, type any 3-digit or 6-digit HEX code (e.g., <code>#FF5733</code>), or click <em>+ Pick Color from Image</em> to sample pixels directly from a logo or screenshot.</li>
+        <li><strong>Copy Converted Formats:</strong> Copy clean <code>HEX</code>, <code>rgb()</code>, <code>hsl()</code>, <code>cmyk()</code>, or CSS variable snippets with one click.</li>
+        <li><strong>Verify Accessibility & Harmonies:</strong> Check the WCAG 2.1 contrast ratio against white and black text, or click any generated tint, shade, or complementary swatch.</li>
+      </ol>
+
+      <h3>RGB-to-HEX & WCAG Contrast Ratio Formulas + Worked Example</h3>
+      <p>
+        Each two-character pair in a 6-digit HEX code converts a decimal RGB channel (<code>0–255</code>) into hexadecimal (<code>00–FF</code>):
+      </p>
+      <div class="formula-box">
+        HEX = # + Hex(R) + Hex(G) + Hex(B)  |  WCAG Contrast Ratio = ( L<sub>lighter</sub> + 0.05 ) / ( L<sub>darker</sub> + 0.05 )
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Suppose a brand primary blue has RGB values <strong>R = 37, G = 99, B = 235</strong>.</p>
+        <p>Converting each channel to base-16: <code>37 = 2×16 + 5 → 25</code>, <code>99 = 6×16 + 3 → 63</code>, and <code>235 = 14×16 + 11 → EB</code>, giving <strong>#2563EB</strong>.</p>
+        <p>Against pure white text (<code>#FFFFFF</code>, luminance <code>1.0</code>), this blue achieves a <strong>5.17:1 contrast ratio</strong>—passing WCAG 2.1 Level AA (minimum <code>4.5:1</code>) for accessible body text and buttons.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="color-table-heading">
+      <h2 id="color-table-heading">Standard Web, UI & Brand Color Reference Chart (16 Essential Swatches)</h2>
+      <p>Use this quick UI design cheat sheet to copy industry-standard HEX, RGB, and HSL codes for modern websites and apps.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Color Name</th>
+              <th>HEX Code</th>
+              <th>RGB Value</th>
+              <th>HSL Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="color-dot" style="background:#0F172A;"></span><strong>Slate Dark (Text)</strong></td>
+              <td><span class="limit-badge">#0F172A</span></td>
+              <td>rgb(15, 23, 42)</td>
+              <td>hsl(222, 47%, 11%)</td>
+            </tr>
+            <tr>
+              <td><span class="color-dot" style="background:#475569;"></span><strong>Slate Muted</strong></td>
+              <td><span class="limit-badge">#475569</span></td>
+              <td>rgb(71, 85, 105)</td>
+              <td>hsl(215, 19%, 35%)</td>
+            </tr>
+            <tr>
+              <td><span class="color-dot" style="background:#FFFFFF;"></span><strong>Pure White</strong></td>
+              <td><span class="limit-badge">#FFFFFF</span></td>
+              <td>rgb(255, 255, 255)</td>
+              <td>hsl(0, 0%, 100%)</td>
+            </tr>
+            <tr>
+              <td><span class="color-dot" style="background:#000000;"></span><strong>Pure Black</strong></td>
+              <td><span class="limit-badge">#000000</span></td>
+              <td>rgb(0, 0, 0)</td>
+              <td>hsl(0, 0%, 0%)</td>
+            </tr>
+            <tr>
+              <td><span class="color-dot" style="background:#2563EB;"></span><strong>Royal Brand Blue</strong></td>
+              <td><span class="limit-badge">#2563EB</span></td>
+              <td>rgb(37, 99, 235)</td>
+              <td>hsl(221, 83%, 53%)</td>
+            </tr>
+            <tr>
+              <td><span class="color-dot" style="background:#0EA5E9;"></span><strong>Sky Cyan</strong></td>
+              <td><span class="limit-badge">#0EA5E9</span></td>
+              <td>rgb(14, 165, 233)</td>
+              <td>hsl(199, 89%, 48%)</td>
+            </tr>
+            <tr>
+              <td><span class="color-dot" style="background:#14B8A6;"></span><strong>Modern Teal</strong></td>
+              <td><span class="limit-badge">#14B8A6</span></td>
+              <td>rgb(20, 184, 166)</td>
+              <td>hsl(173, 80%, 40%)</td>
+            </tr>
+            <tr>
+              <td><span class="color-dot" style="background:#10B981;"></span><strong>Emerald Success</strong></td>
+              <td><span class="limit-badge">#10B981</span></td>
+              <td>rgb(16, 185, 129)</td>
+              <td>hsl(160, 84%, 39%)</td>
+            </tr>
+            <tr>
+              <td><span class="color-dot" style="background:#22C55E;"></span><strong>Vibrant Green</strong></td>
+              <td><span class="limit-badge">#22C55E</span></td>
+              <td>rgb(34, 197, 94)</td>
+              <td>hsl(142, 71%, 45%)</td>
+            </tr>
+            <tr>
+              <td><span class="color-dot" style="background:#EAB308;"></span><strong>Solar Yellow</strong></td>
+              <td><span class="limit-badge">#EAB308</span></td>
+              <td>rgb(234, 179, 8)</td>
+              <td>hsl(45, 93%, 47%)</td>
+            </tr>
+            <tr>
+              <td><span class="color-dot" style="background:#F59E0B;"></span><strong>Amber Warning</strong></td>
+              <td><span class="limit-badge">#F59E0B</span></td>
+              <td>rgb(245, 158, 11)</td>
+              <td>hsl(38, 92%, 50%)</td>
+            </tr>
+            <tr>
+              <td><span class="color-dot" style="background:#F97316;"></span><strong>Bright Orange</strong></td>
+              <td><span class="limit-badge">#F97316</span></td>
+              <td>rgb(249, 115, 22)</td>
+              <td>hsl(25, 95%, 53%)</td>
+            </tr>
+            <tr>
+              <td><span class="color-dot" style="background:#EF4444;"></span><strong>Crimson Error</strong></td>
+              <td><span class="limit-badge">#EF4444</span></td>
+              <td>rgb(239, 68, 68)</td>
+              <td>hsl(0, 84%, 60%)</td>
+            </tr>
+            <tr>
+              <td><span class="color-dot" style="background:#EC4899;"></span><strong>Vivid Pink</strong></td>
+              <td><span class="limit-badge">#EC4899</span></td>
+              <td>rgb(236, 72, 153)</td>
+              <td>hsl(330, 81%, 60%)</td>
+            </tr>
+            <tr>
+              <td><span class="color-dot" style="background:#8B5CF6;"></span><strong>Electric Violet</strong></td>
+              <td><span class="limit-badge">#8B5CF6</span></td>
+              <td>rgb(139, 92, 246)</td>
+              <td>hsl(258, 90%, 66%)</td>
+            </tr>
+            <tr>
+              <td><span class="color-dot" style="background:#6366F1;"></span><strong>Indigo Accent</strong></td>
+              <td><span class="limit-badge">#6366F1</span></td>
+              <td>rgb(99, 102, 241)</td>
+              <td>hsl(239, 84%, 67%)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Image, Design & Developer Utilities</h2>
+      <p>Converting images to WebP, resizing graphics by exact pixels, or formatting JSON & Base64 strings? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="webp-converter.html"><span>WebP Image Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-resizer.html"><span>Image Resizer</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compress-image-to-exact-kb.html"><span>Compress Image to KB</span><span class="arrow">→</span></a>
+        <a class="related-link" href="jpg-to-png.html"><span>JPG to PNG Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="base64-encode-decode.html"><span>Base64 Encoder/Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="invoice-generator.html"><span>PDF Invoice Generator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How do I extract an exact HEX color code from a logo or screenshot?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Click <strong>+ Pick Color from Image</strong> in the top toolbar to load any PNG, JPG, or WebP image locally onto the canvas, then click any pixel on the image. Our tool reads the exact RGB pixel values and converts them to HEX, HSL, and CMYK instantaneously.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. What is a good WCAG contrast ratio for readable website text?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Under <strong>WCAG 2.1 accessibility guidelines</strong>, normal body text requires a minimum contrast ratio of <strong>4.5:1 (Level AA)</strong> and <strong>7.0:1 (Level AAA)</strong> against its background, while large headings (18pt+ or 14pt+ bold) require at least <strong>3.0:1</strong>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. What is the difference between 3-digit shorthand HEX (#F0A) and 6-digit HEX (#FF00AA)?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            A 3-digit CSS HEX code is shorthand where each digit is doubled—so <code>#26E</code> expands to <code>#2266EE</code>. You can type either 3-digit or 6-digit HEX codes into our HEX input box above and it will convert automatically.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my uploaded logos or brand images sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All image pixel sampling, color-space conversions, and contrast calculations run 100% locally inside your web browser using HTML5 Canvas and JavaScript. Your images never leave your device.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Color Space & Image Eyedropper Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const swatchPreview = document.getElementById("swatchPreview");
+      const swatchHexBig = document.getElementById("swatchHexBig");
+      const swatchSubTxt = document.getElementById("swatchSubTxt");
+      const nativeColorInput = document.getElementById("nativeColorInput");
+      const whiteContrastChip = document.getElementById("whiteContrastChip");
+      const blackContrastChip = document.getElementById("blackContrastChip");
+
+      const hexCodeInput = document.getElementById("hexCodeInput");
+      const rgbCodeInput = document.getElementById("rgbCodeInput");
+      const hslCodeInput = document.getElementById("hslCodeInput");
+      const cmykCodeInput = document.getElementById("cmykCodeInput");
+      const cssVarInput = document.getElementById("cssVarInput");
+
+      const randomColorBtn = document.getElementById("randomColorBtn");
+      const eyeDropperBtn = document.getElementById("eyeDropperBtn");
+      const imgSampleInput = document.getElementById("imgSampleInput");
+      const imgPickerBox = document.getElementById("imgPickerBox");
+      const pixelCanvas = document.getElementById("pixelCanvas");
+      const copyHexMainBtn = document.getElementById("copyHexMainBtn");
+
+      const shadesStrip = document.getElementById("shadesStrip");
+      const harmoniesStrip = document.getElementById("harmoniesStrip");
+
+      if ("EyeDropper" in window) {
+        eyeDropperBtn.style.display = "inline-flex";
+        eyeDropperBtn.addEventListener("click", async function () {
+          try {
+            const dropper = new window.EyeDropper();
+            const result = await dropper.open();
+            if (result && result.sRGBHex) {
+              applyHexColor(result.sRGBHex);
+            }
+          } catch (e) {}
+        });
+      }
+
+      function normalizeHex(val) {
+        let h = String(val || "").trim().replace(/^#/, "");
+        if (/^[0-9a-fA-F]{3}$/.test(h)) {
+          h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+        }
+        if (/^[0-9a-fA-F]{6}$/.test(h)) {
+          return "#" + h.toUpperCase();
+        }
+        return null;
+      }
+
+      function hexToRgb(hex) {
+        const clean = hex.replace("#", "");
+        return {
+          r: parseInt(clean.slice(0, 2), 16),
+          g: parseInt(clean.slice(2, 4), 16),
+          b: parseInt(clean.slice(4, 6), 16)
+        };
+      }
+
+      function rgbToHex(r, g, b) {
+        const toH = (n) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, "0");
+        return ("#" + toH(r) + toH(g) + toH(b)).toUpperCase();
+      }
+
+      function rgbToHsl(r, g, b) {
+        r /= 255; g /= 255; b /= 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h = 0, s = 0, l = (max + min) / 2;
+
+        if (max !== min) {
+          const d = max - min;
+          s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+          switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+          }
+          h /= 6;
+        }
+        return {
+          h: Math.round(h * 360),
+          s: Math.round(s * 100),
+          l: Math.round(l * 100)
+        };
+      }
+
+      function hslToHex(h, s, l) {
+        h = ((h % 360) + 360) % 360;
+        s = Math.max(0, Math.min(100, s)) / 100;
+        l = Math.max(0, Math.min(100, l)) / 100;
+        const c = (1 - Math.abs(2 * l - 1)) * s;
+        const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+        const m = l - c / 2;
+        let r1 = 0, g1 = 0, b1 = 0;
+
+        if (h < 60) { r1 = c; g1 = x; b1 = 0; }
+        else if (h < 120) { r1 = x; g1 = c; b1 = 0; }
+        else if (h < 180) { r1 = 0; g1 = c; b1 = x; }
+        else if (h < 240) { r1 = 0; g1 = x; b1 = c; }
+        else if (h < 300) { r1 = x; g1 = 0; b1 = c; }
+        else { r1 = c; g1 = 0; b1 = x; }
+
+        return rgbToHex((r1 + m) * 255, (g1 + m) * 255, (b1 + m) * 255);
+      }
+
+      function rgbToCmyk(r, g, b) {
+        if (r === 0 && g === 0 && b === 0) return { c: 0, m: 0, y: 0, k: 100 };
+        const c1 = 1 - r / 255;
+        const m1 = 1 - g / 255;
+        const y1 = 1 - b / 255;
+        const k = Math.min(c1, m1, y1);
+        return {
+          c: Math.round(((c1 - k) / (1 - k)) * 100),
+          m: Math.round(((m1 - k) / (1 - k)) * 100),
+          y: Math.round(((y1 - k) / (1 - k)) * 100),
+          k: Math.round(k * 100)
+        };
+      }
+
+      function getRelativeLuminance(r, g, b) {
+        const srgb = [r, g, b].map(function (v) {
+          v /= 255;
+          return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+        });
+        return 0.2126 * srgb[0] + 0.7152 * srgb[1] + 0.0722 * srgb[2];
+      }
+
+      function getTextContrastColor(r, g, b) {
+        const lum = getRelativeLuminance(r, g, b);
+        return lum > 0.35 ? "#0F172A" : "#FFFFFF";
+      }
+
+      function makeSwatchBtn(hexStr, labelOverride) {
+        const rgb = hexToRgb(hexStr);
+        const txtColor = getTextContrastColor(rgb.r, rgb.g, rgb.b);
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "shade-btn";
+        btn.style.backgroundColor = hexStr;
+        btn.style.color = txtColor;
+        btn.textContent = labelOverride || hexStr;
+        btn.title = "Click to select " + hexStr;
+        btn.addEventListener("click", function () {
+          applyHexColor(hexStr);
+        });
+        return btn;
+      }
+
+      function applyHexColor(rawHex, skipHexInputOverwrite) {
+        const hex = normalizeHex(rawHex);
+        if (!hex) return;
+
+        const { r, g, b } = hexToRgb(hex);
+        const { h, s, l } = rgbToHsl(r, g, b);
+        const { c, m, y, k } = rgbToCmyk(r, g, b);
+
+        const rgbStr = "rgb(" + r + ", " + g + ", " + b + ")";
+        const hslStr = "hsl(" + h + ", " + s + "%, " + l + "%)";
+        const cmykStr = "cmyk(" + c + "%, " + m + "%, " + y + "%, " + k + "%)";
+
+        swatchPreview.style.backgroundColor = hex;
+        const heroTxtColor = getTextContrastColor(r, g, b);
+        swatchHexBig.style.color = heroTxtColor;
+        swatchSubTxt.style.color = heroTxtColor;
+        swatchHexBig.textContent = hex;
+        swatchSubTxt.textContent = rgbStr + " • " + hslStr;
+
+        nativeColorInput.value = hex;
+        if (!skipHexInputOverwrite) hexCodeInput.value = hex;
+        rgbCodeInput.value = rgbStr;
+        hslCodeInput.value = hslStr;
+        cmykCodeInput.value = cmykStr;
+        cssVarInput.value = "--brand-color: " + hex + ";";
+
+        // WCAG 2.1 Contrast Ratios
+        const lum = getRelativeLuminance(r, g, b);
+        const whiteRatio = (1.0 + 0.05) / (lum + 0.05);
+        const blackRatio = (lum + 0.05) / (0.0 + 0.05);
+
+        whiteContrastChip.style.backgroundColor = hex;
+        whiteContrastChip.style.color = "#FFFFFF";
+        whiteContrastChip.textContent = "White Text: " + whiteRatio.toFixed(2) + ":1 (" + (whiteRatio >= 4.5 ? "AA Pass" : "Low") + ")";
+
+        blackContrastChip.style.backgroundColor = hex;
+        blackContrastChip.style.color = "#000000";
+        blackContrastChip.textContent = "Black Text: " + blackRatio.toFixed(2) + ":1 (" + (blackRatio >= 4.5 ? "AA Pass" : "Low") + ")";
+
+        // 9 Tints & Shades
+        shadesStrip.innerHTML = "";
+        const lightnessStops = [92, 82, 72, 62, 52, 42, 32, 22, 14];
+        lightnessStops.forEach(function (lStop) {
+          shadesStrip.appendChild(makeSwatchBtn(hslToHex(h, s, lStop)));
+        });
+
+        // 5 Color Harmonies
+        harmoniesStrip.innerHTML = "";
+        const harmonyList = [
+          { hex: hex, lbl: "Base " + hex },
+          { hex: hslToHex(h + 180, s, l), lbl: "Complement" },
+          { hex: hslToHex(h + 30, s, l), lbl: "Analogous +30°" },
+          { hex: hslToHex(h - 30, s, l), lbl: "Analogous -30°" },
+          { hex: hslToHex(h + 120, s, l), lbl: "Triadic" }
+        ];
+        harmonyList.forEach(function (item) {
+          harmoniesStrip.appendChild(makeSwatchBtn(item.hex, item.lbl));
+        });
+      }
+
+      nativeColorInput.addEventListener("input", function () {
+        applyHexColor(nativeColorInput.value);
+      });
+
+      hexCodeInput.addEventListener("input", function () {
+        const valid = normalizeHex(hexCodeInput.value);
+        if (valid) applyHexColor(valid, true);
+      });
+
+      randomColorBtn.addEventListener("click", function () {
+        const randHex = "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0").toUpperCase();
+        applyHexColor(randHex);
+      });
+
+      copyHexMainBtn.addEventListener("click", async function () {
+        try {
+          await navigator.clipboard.writeText(hexCodeInput.value);
+          const orig = copyHexMainBtn.textContent;
+          copyHexMainBtn.textContent = "Copied " + hexCodeInput.value + "!";
+          setTimeout(function () { copyHexMainBtn.textContent = orig; }, 1400);
+        } catch (e) {}
+      });
+
+      document.querySelectorAll(".copy-mini-btn").forEach(function (btn) {
+        btn.addEventListener("click", async function () {
+          const inp = document.getElementById(btn.getAttribute("data-copy"));
+          if (!inp) return;
+          try {
+            await navigator.clipboard.writeText(inp.value);
+            const orig = btn.textContent;
+            btn.textContent = "Copied!";
+            setTimeout(function () { btn.textContent = orig; }, 1300);
+          } catch (e) {}
+        });
+      });
+
+      // Image Pixel Sampler
+      imgSampleInput.addEventListener("change", function (e) {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          const img = new Image();
+          img.onload = function () {
+            const maxW = 760;
+            const scale = img.width > maxW ? maxW / img.width : 1;
+            pixelCanvas.width = Math.round(img.width * scale);
+            pixelCanvas.height = Math.round(img.height * scale);
+            const ctx = pixelCanvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, pixelCanvas.width, pixelCanvas.height);
+            imgPickerBox.style.display = "block";
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+        e.target.value = "";
+      });
+
+      pixelCanvas.addEventListener("click", function (e) {
+        const rect = pixelCanvas.getBoundingClientRect();
+        const scaleX = pixelCanvas.width / rect.width;
+        const scaleY = pixelCanvas.height / rect.height;
+        const x = Math.floor((e.clientX - rect.left) * scaleX);
+        const y = Math.floor((e.clientY - rect.top) * scaleY);
+        const ctx = pixelCanvas.getContext("2d");
+        const pixel = ctx.getImageData(x, y, 1, 1).data;
+        applyHexColor(rgbToHex(pixel[0], pixel[1], pixel[2]));
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      applyHexColor("#2563EB");
+    });
+  </script>
+</body>
+</html>

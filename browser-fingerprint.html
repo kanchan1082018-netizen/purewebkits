@@ -1,0 +1,995 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Browser Fingerprint Inspector (Canvas, WebGL, Hardware & Entropy) — PureWebKits</title>
+  <meta name="description" content="Inspect your browser fingerprint attributes, Canvas 2D hash, WebGL renderer/vendor, hardware concurrency, timezone, screen metrics, and uniqueness entropy online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/browser-fingerprint-inspector.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1120px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Fingerprint Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .fp-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .fp-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .fp-hash-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: clamp(16px, 2.5vw, 22px);
+      font-weight: 800;
+      color: #38BDF8;
+      word-break: break-all;
+      margin-top: 2px;
+    }
+    .fp-sub {
+      font-size: 12.5px;
+      color: #CBD5E1;
+      margin-top: 2px;
+    }
+    .fp-entropy-badge {
+      background: rgba(52, 211, 153, 0.14);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      color: #34D399;
+      border-radius: 10px;
+      padding: 10px 14px;
+      text-align: right;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .fp-entropy-num {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .fp-entropy-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: #A7F3D0;
+    }
+
+    /* Attribute Cards Grid */
+    .attr-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .attr-card {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .attr-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .attr-name {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .attr-bits {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      background: var(--primary-soft);
+      padding: 1px 7px;
+      border-radius: 999px;
+    }
+    .attr-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      word-break: break-word;
+      line-height: 1.4;
+    }
+
+    /* Canvas Sample Preview Bar */
+    .canvas-sample-bar {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .canvas-sample-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    #fpSampleCanvas {
+      width: 140px;
+      height: 36px;
+      border-radius: 6px;
+      border: 1px solid #CBD5E1;
+      background: #FFFFFF;
+    }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 900px) {
+      .attr-grid { grid-template-columns: 1fr 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+      .attr-grid { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Browser Fingerprint Inspector Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Browser Fingerprint Inspector</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Audit your browser signals, Canvas 2D hash, WebGL GPU & uniqueness entropy locally
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">
+            Computed locally via Web APIs — no telemetry or fingerprint data is ever sent to any server:
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="rescanFpBtn" class="btn-primary">Re-Scan Signals</button>
+            <button type="button" id="copyFpBtn" class="btn-sec">Copy Fingerprint JSON</button>
+            <button type="button" id="downloadFpBtn" class="btn-sec">Download .txt</button>
+          </div>
+        </div>
+
+        <div class="fp-hero-box">
+          <div>
+            <div class="fp-kicker">Composite Browser Fingerprint Hash (FNV-1a / SHA-256 Digest)</div>
+            <div class="fp-hash-code" id="fpHashDisplay">Computing fingerprint...</div>
+            <div class="fp-sub" id="fpSummaryCaption">Inspecting 12 browser & hardware signal groups in memory</div>
+          </div>
+          <div class="fp-entropy-badge">
+            <div class="fp-entropy-num" id="fpEntropyBitsVal">— bits</div>
+            <div class="fp-entropy-lbl" id="fpUniquenessLabel">Est. Uniqueness</div>
+          </div>
+        </div>
+
+        <div class="attr-grid" id="fpAttributesGrid"></div>
+
+        <div class="canvas-sample-bar">
+          <div class="canvas-sample-left">
+            <canvas id="fpSampleCanvas" width="140" height="36" aria-label="Canvas Fingerprint Test Render"></canvas>
+            <div>
+              <div class="field-label">Canvas 2D Rendering Probe</div>
+              <div style="font-size:12px; color:var(--text-muted);" id="canvasProbeDesc">Renders anti-aliased text & geometry to hash sub-pixel raster differences</div>
+            </div>
+          </div>
+          <div style="font-size:12px; font-weight:700; color:var(--text-muted);" id="privacyNoteBadge">
+            Zero cookies set • Zero external requests
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Browser Fingerprinting & Privacy Defense -->
+    <article class="content-card">
+      <h2>Complete User Guide to Browser Fingerprinting, Canvas/WebGL Signals & Privacy Hardening</h2>
+
+      <h3>How Browser Fingerprinting Combines Everyday Web APIs Into an Identifier</h3>
+      <p>
+        Even when you block third-party cookies or browse in an incognito window, a web browser exposes dozens of technical attributes through standard JavaScript APIs—including your <strong>User-Agent / Client Hints</strong>, <strong>screen resolution and device pixel ratio</strong>, <strong>time zone and locale preferences</strong>, <strong>CPU core count (<code>navigator.hardwareConcurrency</code>)</strong>, <strong>touch support</strong>, <strong>Do Not Track / Global Privacy Control flags</strong>, and subtle rendering differences in <strong>HTML5 Canvas 2D</strong> and <strong>WebGL graphics drivers</strong>. When combined into a single composite signature, these signals can carry tens of bits of identifying entropy—meaning <code>2<sup>H</sup></code> possible combinations. Because all of these checks run directly inside your browser sandbox, you can inspect what scripts can see about your environment without ever transmitting a single byte to an external server. A browser-based <strong>Browser Fingerprint Inspector</strong> runs 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Inspect & Export Your Browser Attributes in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Review Your Composite Hash & Entropy Score:</strong> When the page loads, the inspector reads your browser and hardware attributes locally and displays a composite hash alongside estimated signal entropy in <strong>bits</strong>.</li>
+        <li><strong>Inspect Individual Signal Cards & Canvas Probe:</strong> Scan each of the 12 attribute cards (User Agent, Platform/Hints, Screen & DPR, Timezone & Locale, Hardware Concurrency, Memory, Touch & Pointer, Color Scheme, Cookies & DNT/GPC, Canvas 2D Hash, WebGL Renderer, and Audio/Storage APIs).</li>
+        <li><strong>Re-Scan After Changing Window Size or Export Report:</strong> Resize your window or toggle dark/light theme and click <strong>Re-Scan Signals</strong> to see how viewport or preference signals change, then export via <strong>Copy Fingerprint JSON</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Signal Entropy & Combinatorial Space Formula</h3>
+      <p>
+        Summing estimated entropy bits <code>b<sub>k</sub></code> across independent signal categories gives total approximate entropy <code>H</code>:
+      </p>
+      <div class="formula-box">
+        Total Estimated Entropy (H) = Σ b<sub>k</sub> (bits)  |  Distinct Combinations = 2<sup>H</sup><br />
+        Example: 32 bits → ~4.29 billion combinations • 40 bits → ~1.10 trillion combinations
+      </div>
+
+      <h3>Helpful Tips for Minimizing Unnecessary Fingerprinting Exposure</h3>
+      <ul>
+        <li><strong>Use Privacy-Hardened Browsers When Needed:</strong> Browsers such as Firefox (with ResistFingerprinting / Enhanced Tracking Protection), Brave (Shields), or Tor Browser standardize or jitter high-entropy signals like Canvas, WebGL, and screen metrics.</li>
+        <li><strong>Avoid Exotic Window Sizes or Niche Extensions When Testing Consistency:</strong> Standard viewport sizes and clean profiles blend into larger user cohorts.</li>
+        <li><strong>Remember Legitimate Uses vs. Tracking:</strong> Security tools and fraud-prevention systems sometimes inspect device signals to detect automated bots or session hijacking, while ad trackers use them to link visits across sites.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Combining screen resolution + DPR (<code>~4.5 bits</code>), timezone + locale (<code>~5.5 bits</code>), WebGL GPU string (<code>~6.0 bits</code>), Canvas 2D hash (<code>~6.0 bits</code>), and user-agent/hardware hints (<code>~8.0 bits</code>) yields roughly <code>30–36 bits</code> of combined entropy—illustrating why multiple small attributes add up quickly.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="fp-table-heading">
+      <h2 id="fp-table-heading">Browser Fingerprint Signal Categories, Entropy & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to understand each browser attribute group and how privacy settings affect it.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Signal Category</th>
+              <th>Browser API / Source</th>
+              <th>Stability</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>User-Agent & Platform</strong></td>
+              <td><code>navigator.userAgent</code> / <code>userAgentData</code></td>
+              <td>Moderate (updates with browser)</td>
+              <td>May be reduced in modern browsers</td>
+            </tr>
+            <tr>
+              <td><strong>Screen & Pixel Ratio</strong></td>
+              <td><code>screen.width/height</code> & <code>devicePixelRatio</code></td>
+              <td>High on fixed monitors</td>
+              <td>Changes on external display switch</td>
+            </tr>
+            <tr>
+              <td><strong>Viewport & Color Depth</strong></td>
+              <td><code>window.innerWidth/Height</code> & <code>colorDepth</code></td>
+              <td>Dynamic with window resize</td>
+              <td>Usually <code>24-bit</code> color depth</td>
+            </tr>
+            <tr>
+              <td><strong>Timezone & Locale</strong></td>
+              <td><code>Intl.DateTimeFormat().resolvedOptions()</code></td>
+              <td>High unless traveling/VPN</td>
+              <td>Reveals IANA zone & language</td>
+            </tr>
+            <tr>
+              <td><strong>CPU Threads</strong></td>
+              <td><code>navigator.hardwareConcurrency</code></td>
+              <td>High on same device</td>
+              <td>Sometimes capped for privacy</td>
+            </tr>
+            <tr>
+              <td><strong>Device Memory</strong></td>
+              <td><code>navigator.deviceMemory</code></td>
+              <td>Moderate (bucketed GB value)</td>
+              <td>Exposed in Chromium browsers</td>
+            </tr>
+            <tr>
+              <td><strong>Touch & Input Media</strong></td>
+              <td><code>maxTouchPoints</code> & <code>matchMedia</code></td>
+              <td>High per device type</td>
+              <td>Detects touch & fine/coarse pointer</td>
+            </tr>
+            <tr>
+              <td><strong>Prefers Color Scheme</strong></td>
+              <td><code>matchMedia('(prefers-color-scheme: dark)')</code></td>
+              <td>User preference dependent</td>
+              <td>Light, Dark, or No Preference</td>
+            </tr>
+            <tr>
+              <td><strong>Cookies & Privacy Signals</strong></td>
+              <td><code>cookieEnabled</code>, <code>doNotTrack</code>, <code>globalPrivacyControl</code></td>
+              <td>Browser setting dependent</td>
+              <td>Shows local privacy flags</td>
+            </tr>
+            <tr>
+              <td><strong>Canvas 2D Hash</strong></td>
+              <td>Offscreen <code><canvas></code> text & arc draw</td>
+              <td>High on unspoofed GPUs</td>
+              <td>Computed locally via hash digest</td>
+            </tr>
+            <tr>
+              <td><strong>WebGL Renderer</strong></td>
+              <td><code>WebGLRenderingContext</code> parameters</td>
+              <td>High on dedicated/integrated GPUs</td>
+              <td>May be masked by privacy browsers</td>
+            </tr>
+            <tr>
+              <td><strong>Storage & Audio APIs</strong></td>
+              <td><code>localStorage</code>, <code>indexedDB</code>, <code>AudioContext</code></td>
+              <td>Environment dependent</td>
+              <td>Checks availability & sample rate</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Web API & Digest Inspector — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — All browser attributes and hashes stay strictly inside your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero fingerprint telemetry transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser inspection with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Privacy, Security, Hardware & Developer Utilities</h2>
+      <p>Testing password strength, inspecting your screen for dead pixels, testing your microphone, or formatting JSON? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="password-strength-tester.html"><span>Password Strength Tester</span><span class="arrow">→</span></a>
+        <a class="related-link" href="dead-pixel-test.html"><span>Dead Pixel Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="microphone-test.html"><span>Microphone Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="keyboard-test.html"><span>Keyboard Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Does this Browser Fingerprint Inspector send my fingerprint to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>No.</strong> Every check runs 100% client-side in your browser's JavaScript runtime and is never transmitted to any server or stored externally.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Why might WebGL Renderer or Canvas Hash show generic or spoofed values?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Privacy-focused browsers (like Brave Shields or Firefox anti-fingerprinting modes) and virtualized environments intentionally mask or randomize WebGL/Canvas outputs to make cross-site tracking harder.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Does opening a private/incognito window hide my browser fingerprint?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Incognito/private mode clears cookies and local storage when closed, but unless your browser also normalizes or jitters hardware/screen/API signals, your underlying browser attributes remain largely similar.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Browser Fingerprint Inspector free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Browser Fingerprint & Web API Inspector Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const rescanFpBtn = document.getElementById("rescanFpBtn");
+      const copyFpBtn = document.getElementById("copyFpBtn");
+      const downloadFpBtn = document.getElementById("downloadFpBtn");
+
+      const fpHashDisplay = document.getElementById("fpHashDisplay");
+      const fpSummaryCaption = document.getElementById("fpSummaryCaption");
+      const fpEntropyBitsVal = document.getElementById("fpEntropyBitsVal");
+      const fpUniquenessLabel = document.getElementById("fpUniquenessLabel");
+      const fpAttributesGrid = document.getElementById("fpAttributesGrid");
+      const fpSampleCanvas = document.getElementById("fpSampleCanvas");
+      const canvasProbeDesc = document.getElementById("canvasProbeDesc");
+
+      let latestReportText = "";
+
+      function fnv1aHex(str) {
+        let h1 = 0x811c9dc5;
+        let h2 = 0x01000193;
+        for (let i = 0; i < str.length; i++) {
+          const code = str.charCodeAt(i);
+          h1 ^= code;
+          h1 = Math.imul(h1, 0x01000193);
+          h2 ^= (code + i);
+          h2 = Math.imul(h2, 0x85ebca6b);
+        }
+        return ((h1 >>> 0).toString(16).padStart(8, "0") + (h2 >>> 0).toString(16).padStart(8, "0")).toUpperCase();
+      }
+
+      async function sha256Hex(str) {
+        if (window.crypto && window.crypto.subtle) {
+          try {
+            const buf = new TextEncoder().encode(str);
+            const digest = await window.crypto.subtle.digest("SHA-256", buf);
+            return Array.from(new Uint8Array(digest)).map(function (b) {
+              return b.toString(16).padStart(2, "0");
+            }).join("").toUpperCase();
+          } catch (e) {
+            // Fallback below
+          }
+        }
+        return fnv1aHex(str).repeat(4);
+      }
+
+      function computeCanvasFingerprint() {
+        try {
+          const ctx = fpSampleCanvas.getContext("2d");
+          if (!ctx) return { hash: "UNSUPPORTED", dataUrl: "" };
+          ctx.clearRect(0, 0, fpSampleCanvas.width, fpSampleCanvas.height);
+          ctx.fillStyle = "#F8FAFC";
+          ctx.fillRect(0, 0, fpSampleCanvas.width, fpSampleCanvas.height);
+
+          ctx.strokeStyle = "#2563EB";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(18, 18, 10, 0, Math.PI * 1.65);
+          ctx.stroke();
+
+          ctx.fillStyle = "rgba(37, 99, 235, 0.25)";
+          ctx.fillRect(8, 8, 20, 20);
+
+          ctx.fillStyle = "#0F172A";
+          ctx.font = "700 13px Arial, sans-serif";
+          ctx.fillText("PureWebKits\uD83D\uDD10", 36, 23);
+
+          const dataUrl = fpSampleCanvas.toDataURL();
+          return { hash: fnv1aHex(dataUrl), dataUrl: dataUrl };
+        } catch (e) {
+          return { hash: "BLOCKED / RESTRICTED", dataUrl: "" };
+        }
+      }
+
+      function computeWebGlInfo() {
+        try {
+          const canvas = document.createElement("canvas");
+          const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+          if (!gl) return { renderer: "WebGL Unavailable", vendor: "—", masked: false };
+
+          let renderer = gl.getParameter(gl.RENDERER) || "Unknown Renderer";
+          let vendor = gl.getParameter(gl.VENDOR) || "Unknown Vendor";
+          const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+          if (dbg) {
+            renderer = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || renderer;
+            vendor = gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) || vendor;
+          }
+          const masked = /swiftshader|llvmpipe|angle.*swiftshader|mesa offscreen/i.test(renderer);
+          return { renderer: String(renderer), vendor: String(vendor), masked: masked };
+        } catch (e) {
+          return { renderer: "WebGL Restricted", vendor: "—", masked: true };
+        }
+      }
+
+      async function inspectBrowserFingerprint() {
+        const ua = navigator.userAgent || "Unknown";
+        const platform = (navigator.userAgentData && navigator.userAgentData.platform)
+          ? navigator.userAgentData.platform
+          : (navigator.platform || "Unknown");
+        const lang = navigator.language || "Unknown";
+        const langs = Array.isArray(navigator.languages) ? navigator.languages.join(", ") : lang;
+
+        let tz = "UTC";
+        try {
+          tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+        } catch (e) {}
+        const tzOffsetMin = new Date().getTimezoneOffset();
+
+        const cores = navigator.hardwareConcurrency || "Not reported";
+        const memGb = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : "Not reported";
+
+        const touchPts = navigator.maxTouchPoints || 0;
+        const finePointer = window.matchMedia && window.matchMedia("(pointer: fine)").matches;
+        const touchSummary = `${touchPts} touch pts \u2022 ${finePointer ? "Fine pointer" : "Coarse/No pointer"}`;
+
+        let scheme = "No preference";
+        if (window.matchMedia) {
+          if (window.matchMedia("(prefers-color-scheme: dark)").matches) scheme = "Dark";
+          else if (window.matchMedia("(prefers-color-scheme: light)").matches) scheme = "Light";
+        }
+
+        const cookiesOn = navigator.cookieEnabled ? "Enabled" : "Disabled";
+        const dnt = navigator.doNotTrack || window.doNotTrack || "Not set";
+        const gpc = navigator.globalPrivacyControl ? "Active (True)" : "Not set";
+
+        const dpr = window.devicePixelRatio || 1;
+        const screenSummary = `${window.screen.width}\u00D7${window.screen.height} (${window.screen.colorDepth}-bit) @${dpr}x`;
+        const viewportSummary = `${window.innerWidth}\u00D7${window.innerHeight}`;
+
+        const canvasInfo = computeCanvasFingerprint();
+        const webglInfo = computeWebGlInfo();
+
+        const hasLocalStorage = (function () {
+          try { return typeof window.localStorage !== "undefined"; } catch (e) { return false; }
+        })();
+        const hasAudioCtx = Boolean(window.AudioContext || window.webkitAudioContext);
+        const envSummary = `LocalStorage: ${hasLocalStorage ? "Yes" : "No"} \u2022 AudioCtx: ${hasAudioCtx ? "Yes" : "No"}`;
+
+        const attributes = [
+          { name: "User-Agent", bits: 6.5, value: ua },
+          { name: "Platform & Language", bits: 3.5, value: `${platform} \u2022 ${langs}` },
+          { name: "Screen & Pixel Ratio", bits: 4.5, value: screenSummary },
+          { name: "Viewport Size", bits: 2.5, value: viewportSummary },
+          { name: "Timezone & Offset", bits: 5.5, value: `${tz} (UTC${tzOffsetMin <= 0 ? "+" : "-"}${Math.abs(tzOffsetMin / 60)})` },
+          { name: "Hardware Concurrency", bits: 3.0, value: `${cores} logical cores` },
+          { name: "Device Memory", bits: 2.0, value: memGb },
+          { name: "Touch & Pointer", bits: 2.5, value: touchSummary },
+          { name: "Color Scheme Pref", bits: 1.5, value: scheme },
+          { name: "Cookies & Privacy Flags", bits: 2.0, value: `Cookies: ${cookiesOn} \u2022 DNT: ${dnt} \u2022 GPC: ${gpc}` },
+          { name: "Canvas 2D Hash", bits: 6.0, value: canvasInfo.hash },
+          { name: "WebGL Renderer", bits: 6.0, value: `${webglInfo.renderer} (${webglInfo.vendor})` }
+        ];
+
+        const totalBits = attributes.reduce(function (sum, a) { return sum + a.bits; }, 0);
+        const fingerprintPayload = {
+          userAgent: ua,
+          platform: platform,
+          languages: langs,
+          timezone: tz,
+          screen: screenSummary,
+          viewport: viewportSummary,
+          hardwareConcurrency: cores,
+          deviceMemory: memGb,
+          touch: touchSummary,
+          colorScheme: scheme,
+          cookies: cookiesOn,
+          dnt: dnt,
+          gpc: gpc,
+          canvasHash: canvasInfo.hash,
+          webglRenderer: webglInfo.renderer,
+          webglVendor: webglInfo.vendor,
+          apis: envSummary
+        };
+
+        const fullDigest = await sha256Hex(JSON.stringify(fingerprintPayload));
+        fpHashDisplay.textContent = fullDigest.slice(0, 32);
+        fpSummaryCaption.textContent = `Full SHA-256 Prefix (32 chars) \u2022 ${attributes.length} signal categories \u2022 ${envSummary}`;
+
+        fpEntropyBitsVal.textContent = `~${totalBits.toFixed(1)} bits`;
+        const combos = Math.pow(2, totalBits);
+        fpUniquenessLabel.textContent = combos >= 1e9
+          ? `1 in ${(combos / 1e9).toFixed(1)}B space`
+          : `1 in ${Math.round(combos).toLocaleString("en-US")} space`;
+
+        canvasProbeDesc.textContent = `Canvas Hash: ${canvasInfo.hash} \u2022 WebGL: ${webglInfo.masked ? "Masked / Software" : "Hardware / Standard"}`;
+
+        fpAttributesGrid.innerHTML = "";
+        attributes.forEach(function (attr) {
+          const card = document.createElement("div");
+          card.className = "attr-card";
+          card.innerHTML = `
+            <div class="attr-top">
+              <span class="attr-name">${attr.name}</span>
+              <span class="attr-bits">+${attr.bits.toFixed(1)}b</span>
+            </div>
+            <div class="attr-value">${attr.value}</div>
+          `;
+          fpAttributesGrid.appendChild(card);
+        });
+
+        latestReportText = [
+          "PureWebKits Browser Fingerprint Inspection Report (Local)",
+          "----------------------------------------------------------",
+          `Composite Fingerprint ID (SHA-256): ${fullDigest}`,
+          `Estimated Entropy: ~${totalBits.toFixed(1)} bits`,
+          "",
+          ...attributes.map(function (a) {
+            return `${a.name} (+${a.bits.toFixed(1)} bits): ${a.value}`;
+          }),
+          `Environment APIs: ${envSummary}`,
+          "",
+          "JSON Snapshot:",
+          JSON.stringify(fingerprintPayload, null, 2)
+        ].join("\n");
+      }
+
+      rescanFpBtn.addEventListener("click", inspectBrowserFingerprint);
+
+      copyFpBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        const jsonPartIdx = latestReportText.indexOf("JSON Snapshot:\n");
+        const toCopy = jsonPartIdx !== -1
+          ? latestReportText.slice(jsonPartIdx + "JSON Snapshot:\n".length)
+          : latestReportText;
+        navigator.clipboard.writeText(toCopy).then(function () {
+          const orig = copyFpBtn.textContent;
+          copyFpBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyFpBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadFpBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        const blob = new Blob([latestReportText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "browser-fingerprint-report.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      inspectBrowserFingerprint();
+    });
+  </script>
+</body>
+</html>

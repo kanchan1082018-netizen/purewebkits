@@ -1,0 +1,1030 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Credit Card Payoff Calculator (Debt-Free Date, APR & Interest) — PureWebKits</title>
+  <meta name="description" content="Calculate how many months to pay off your credit card balance, total interest paid, payoff date, or required monthly payment for a target payoff timeline online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/credit-card-payoff-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Credit Card Payoff Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .cc-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .cc-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .cc-hero-title { font-size: 16px; font-weight: 800; }
+    .cc-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .cc-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 22px;
+      font-weight: 800;
+      color: #38BDF8;
+      white-space: nowrap;
+      text-align: right;
+    }
+    .cc-hero-num.error { color: #FCA5A5; font-size: 13.5px; text-align: left; white-space: normal; }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Credit Card Payoff Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Credit Card Payoff Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate months to debt-free, total interest paid & target monthly payment in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="Credit card payoff mode">
+            <button type="button" class="mode-btn active" id="fixedPayModeBtn" data-mode="fixed_pay">Fixed Monthly Payment</button>
+            <button type="button" class="mode-btn" id="targetMonthsModeBtn" data-mode="target_months">Target Payoff Months</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample ($5,000 @ 21.9%)</button>
+            <button type="button" id="resetCcBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="ccCurrency" class="field-label">Currency Symbol</label>
+                <select id="ccCurrency" class="std-select">
+                  <option value="$" selected>USD ($)</option>
+                  <option value="₹">INR (₹)</option>
+                  <option value="€">EUR (€)</option>
+                  <option value="£">GBP (£)</option>
+                  <option value="AED ">AED</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="ccBalanceInput" class="field-label">Current Card Balance</label>
+                <input type="number" id="ccBalanceInput" class="std-input" min="0" step="250" value="5000" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="ccAprInput" class="field-label">Annual Interest Rate / APR (%)</label>
+                <input type="number" id="ccAprInput" class="std-input" min="0" max="100" step="0.5" value="21.9" />
+              </div>
+
+              <div class="field-group" id="monthlyPayGroup">
+                <label for="ccMonthlyPayInput" class="field-label">Planned Monthly Payment</label>
+                <input type="number" id="ccMonthlyPayInput" class="std-input" min="1" step="25" value="250" />
+              </div>
+
+              <div class="field-group" id="targetMonthsGroup" style="display: none;">
+                <label for="ccTargetMonthsInput" class="field-label">Target Payoff Months</label>
+                <input type="number" id="ccTargetMonthsInput" class="std-input" min="1" max="360" step="1" value="24" />
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="cc-hero-box">
+              <div>
+                <div class="cc-hero-kicker" id="ccHeroKicker">Time to Debt-Free</div>
+                <div class="cc-hero-title" id="ccSummaryTitle">Total Interest: $1,236.93</div>
+                <div class="cc-hero-sub" id="ccSubCaption">Total Paid: $6,236.93 • First-Month Interest: $91.25</div>
+              </div>
+              <div class="cc-hero-num" id="ccPrimaryDisplay">25 Months</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Total Interest Paid</div>
+                <div class="metric-val" id="totalInterestVal">$1,236.93</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Total Amount Repaid</div>
+                <div class="metric-val" id="totalRepaidVal">$6,236.93</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">First-Month Interest Charge</div>
+                <div class="metric-val" id="firstMonthIntVal">$91.25 / mo</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Estimated Debt-Free Date</div>
+                <div class="metric-val" id="payoffDateVal">Dec 2028</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyCcBtn" class="btn-primary">Copy Payoff Plan</button>
+              <button type="button" id="downloadCcBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, APR Amortization Math & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Credit Card Payoff Timelines, APR Interest & Debt-Reduction Planning</h2>
+
+      <h3>Why Paying More Than the Minimum Cuts Years Off Credit Card Debt</h3>
+      <p>
+        Revolving credit card balances carry some of the highest interest rates in consumer finance—often ranging from <code>18% to 30%+ APR</code> (and even higher in certain emerging markets). Each billing cycle, your card issuer multiplies your unpaid balance by the monthly periodic rate (<code>r = APR / 12</code>) to compute that month's interest charge; only the portion of your payment <em>above</em> that interest charge reduces your principal balance. If your monthly payment is less than or equal to the first month's accrued interest, the balance will never shrink. Committing to a fixed monthly payment above the minimum—or working backward from a target debt-free date—accelerates principal reduction dramatically and saves hundreds or thousands in cumulative interest. A browser-based <strong>Credit Card Payoff Calculator</strong> computes payoff duration, total interest, and target monthly payments 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Plan Your Credit Card Payoff in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Choose Payoff Mode:</strong> Select <strong>Fixed Monthly Payment</strong> to find out how many months it takes to reach a zero balance, or switch to <strong>Target Payoff Months</strong> to calculate the required monthly payment for a chosen deadline.</li>
+        <li><strong>Enter Balance, APR & Payment (or Target Months):</strong> Input your <strong>Current Card Balance</strong>, <strong>Annual Interest Rate / APR (%)</strong>, and planned monthly payment or target months (or click <strong>Load Sample ($5,000 @ 21.9%)</strong>).</li>
+        <li><strong>Review Interest Cost, Debt-Free Date & Export:</strong> Inspect total interest paid, total repaid, first-month interest, and estimated payoff month/year, then click <strong>Copy Payoff Plan</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Credit Card Amortization & Payoff Formulas</h3>
+      <p>
+        For starting balance <code>B</code>, monthly periodic rate <code>r = (APR / 100) / 12</code>, monthly payment <code>P</code> (where <code>P > B × r</code>), and target months <code>N</code>:
+      </p>
+      <div class="formula-box">
+        Months to Payoff N = −ln(1 − (B × r) / P) / ln(1 + r)<br />
+        Required Payment P for N Months = (B × r) / (1 − (1 + r)<sup>−N</sup>)  |  Total Interest = Total Repaid − B
+      </div>
+
+      <h3>Helpful Tips for Paying Off Revolving Credit Card Debt Faster</h3>
+      <ul>
+        <li><strong>Stop Adding New Purchases to the Card While Paying It Down:</strong> New charges immediately increase your average daily balance and reset your interest-free grace period.</li>
+        <li><strong>Use the Avalanche or Snowball Strategy Across Multiple Cards:</strong> Pay minimums on all cards and direct extra cash either to the highest-APR balance first (<strong>Debt Avalanche</strong>, minimizing total interest) or the smallest balance first (<strong>Debt Snowball</strong>, building quick momentum).</li>
+        <li><strong>Check for Annual Fees or Promotional Balance Transfer Terms:</strong> Factor any card annual fees or transfer fees into your repayment budget.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Paying <code>$250/month</code> toward a <code>$5,000</code> credit card balance at <code>21.9% APR</code> (<code>$91.25</code> interest in month 1) pays off the card in <code>25 months</code> (24 payments of <code>$250</code> plus a final partial payment), with <code>$1,236.93</code> in total interest and <code>$6,236.93</code> total repaid.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="cc-table-heading">
+      <h2 id="cc-table-heading">Credit Card Payoff Formulas, APR Periodic Rates & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to verify monthly periodic interest rates, payoff formulas, and repayment benchmarks.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Term / Benchmark</th>
+              <th>Formula / Value</th>
+              <th>Role</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Monthly Periodic Rate (r)</strong></td>
+              <td><code>(APR % / 100) / 12</code></td>
+              <td>Monthly interest multiplier</td>
+              <td><code>21.9% / 12 = 1.825% / mo</code></td>
+            </tr>
+            <tr>
+              <td><strong>First-Month Interest</strong></td>
+              <td><code>Balance × r</code></td>
+              <td>Interest accrued in Month 1</td>
+              <td><code>$5,000 × 1.825% = $91.25</code></td>
+            </tr>
+            <tr>
+              <td><strong>Minimum Viable Payment</strong></td>
+              <td>Must exceed <code>Balance × r</code></td>
+              <td>Prevents infinite / growing debt</td>
+              <td><code>> $91.25/mo</code> in sample</td>
+            </tr>
+            <tr>
+              <td><strong>15% APR Benchmark</strong></td>
+              <td><code>1.25% / month</code> periodic rate</td>
+              <td>Lower-rate credit union / prime card</td>
+              <td><code>$62.50/mo</code> interest on <code>$5,000</code></td>
+            </tr>
+            <tr>
+              <td><strong>21.9% APR Benchmark</strong></td>
+              <td><code>1.825% / month</code> periodic rate</td>
+              <td>Typical standard credit card APR</td>
+              <td>Default sample rate</td>
+            </tr>
+            <tr>
+              <td><strong>29.99% APR Benchmark</strong></td>
+              <td><code>2.499% / month</code> periodic rate</td>
+              <td>Store / penalty APR tier</td>
+              <td><code>$124.96/mo</code> interest on <code>$5,000</code></td>
+            </tr>
+            <tr>
+              <td><strong>0% Promotional APR</strong></td>
+              <td><code>Months = ceil(Balance / Payment)</code></td>
+              <td>Zero-interest intro period</td>
+              <td><code>$0.00</code> total interest</td>
+            </tr>
+            <tr>
+              <td><strong>Fixed Monthly Payment Mode</strong></td>
+              <td>Simulates month-by-month amortization</td>
+              <td>Finds exact payoff months & final payment</td>
+              <td>Default studio mode</td>
+            </tr>
+            <tr>
+              <td><strong>Target Payoff Months Mode</strong></td>
+              <td><code>P = (B × r) / (1 − (1 + r)<sup>−N</sup>)</code></td>
+              <td>Finds required monthly payment</td>
+              <td>Switch mode in top bar</td>
+            </tr>
+            <tr>
+              <td><strong>Total Interest Paid</strong></td>
+              <td><code>Total Repaid − Initial Balance</code></td>
+              <td>Cumulative financing cost</td>
+              <td><code>$1,236.93</code> in sample</td>
+            </tr>
+            <tr>
+              <td><strong>Estimated Debt-Free Date</strong></td>
+              <td>Current Month + Payoff Months</td>
+              <td>Projected payoff month & year</td>
+              <td>Updates dynamically</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports payoff plan</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Amortization & Payoff Modeler — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your balance, APR, and payment amounts stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero debt or personal data transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Debt, Loan, Personal Finance & Everyday Calculators</h2>
+      <p>Calculating loan EMIs, net worth, simple interest, or retirement savings? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="emi-calculator.html"><span>EMI Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="net-worth-calculator.html"><span>Net Worth Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="simple-interest-calculator.html"><span>Simple Interest Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="retirement-savings-calculator.html"><span>Retirement Savings Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="sip-ppf-calculator.html"><span>SIP & PPF Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="income-tax-calculator.html"><span>Income Tax Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Why does the calculator warn me if my monthly payment is too low?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            If your monthly payment is less than or equal to the first month's interest charge (<code>Balance × APR / 12</code>), your payment will never cover the accruing interest and the balance cannot be paid off.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How can I find out what monthly payment is needed to be debt-free in 12 or 24 months?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Switch to <strong>Target Payoff Months</strong> at the top of the studio, enter your target number of months (such as <code>12</code> or <code>24</code>), and the calculator displays the exact monthly payment required.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my credit card balance or APR figures sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Credit Card Payoff Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Credit Card Payoff Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+      const fixedPayModeBtn = document.getElementById("fixedPayModeBtn");
+      const targetMonthsModeBtn = document.getElementById("targetMonthsModeBtn");
+
+      const ccCurrency = document.getElementById("ccCurrency");
+      const ccBalanceInput = document.getElementById("ccBalanceInput");
+      const ccAprInput = document.getElementById("ccAprInput");
+
+      const monthlyPayGroup = document.getElementById("monthlyPayGroup");
+      const ccMonthlyPayInput = document.getElementById("ccMonthlyPayInput");
+
+      const targetMonthsGroup = document.getElementById("targetMonthsGroup");
+      const ccTargetMonthsInput = document.getElementById("ccTargetMonthsInput");
+
+      const ccHeroKicker = document.getElementById("ccHeroKicker");
+      const ccSummaryTitle = document.getElementById("ccSummaryTitle");
+      const ccSubCaption = document.getElementById("ccSubCaption");
+      const ccPrimaryDisplay = document.getElementById("ccPrimaryDisplay");
+
+      const totalInterestVal = document.getElementById("totalInterestVal");
+      const totalRepaidVal = document.getElementById("totalRepaidVal");
+      const firstMonthIntVal = document.getElementById("firstMonthIntVal");
+      const payoffDateVal = document.getElementById("payoffDateVal");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetCcBtn = document.getElementById("resetCcBtn");
+      const copyCcBtn = document.getElementById("copyCcBtn");
+      const downloadCcBtn = document.getElementById("downloadCcBtn");
+
+      let mode = "fixed_pay";
+      let latestSummaryText = "";
+
+      function fmtCurr(sym, amt) {
+        const safe = Number.isFinite(amt) ? amt : 0;
+        const locale = sym === "₹" ? "en-IN" : "en-US";
+        const formatted = safe.toLocaleString(locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        return `${sym}${formatted}`;
+      }
+
+      function formatPayoffDate(monthsAhead) {
+        const now = new Date();
+        const totalMonths = now.getFullYear() * 12 + now.getMonth() + Math.max(0, Math.round(monthsAhead));
+        const yr = Math.floor(totalMonths / 12);
+        const mo = totalMonths % 12;
+        return `${MONTHS_SHORT[mo]} ${yr}`;
+      }
+
+      function clearCcOutput(errTitle, subMsg) {
+        ccPrimaryDisplay.className = "cc-hero-num error";
+        ccPrimaryDisplay.textContent = errTitle;
+        ccSummaryTitle.textContent = "Adjust Payment or APR";
+        ccSubCaption.textContent = subMsg;
+        totalInterestVal.textContent = "—";
+        totalRepaidVal.textContent = "—";
+        firstMonthIntVal.textContent = "—";
+        payoffDateVal.textContent = "—";
+        latestSummaryText = "";
+      }
+
+      function calculatePayoff() {
+        const isFixedPay = mode === "fixed_pay";
+        fixedPayModeBtn.classList.toggle("active", isFixedPay);
+        targetMonthsModeBtn.classList.toggle("active", !isFixedPay);
+        monthlyPayGroup.style.display = isFixedPay ? "flex" : "none";
+        targetMonthsGroup.style.display = !isFixedPay ? "flex" : "none";
+
+        const sym = ccCurrency.value;
+        const balance = parseFloat(ccBalanceInput.value);
+        const apr = parseFloat(ccAprInput.value);
+
+        if (
+          !Number.isFinite(balance) || balance < 0 ||
+          !Number.isFinite(apr) || apr < 0
+        ) {
+          clearCcOutput("CHECK INPUTS", "Enter valid non-negative balance and APR (%)");
+          return;
+        }
+
+        const r = (apr / 100) / 12;
+        const firstInterest = balance * r;
+
+        if (balance === 0) {
+          ccPrimaryDisplay.className = "cc-hero-num";
+          ccPrimaryDisplay.textContent = isFixedPay ? "0 Months" : `${sym}0.00 / mo`;
+          ccSummaryTitle.textContent = `Total Interest: ${fmtCurr(sym, 0)}`;
+          ccSubCaption.textContent = "Balance is already paid off";
+          totalInterestVal.textContent = fmtCurr(sym, 0);
+          totalRepaidVal.textContent = fmtCurr(sym, 0);
+          firstMonthIntVal.textContent = `${fmtCurr(sym, 0)} / mo`;
+          payoffDateVal.textContent = formatPayoffDate(0);
+          latestSummaryText = "PureWebKits Credit Card Payoff Plan: Balance is $0.00.";
+          return;
+        }
+
+        if (isFixedPay) {
+          const pay = parseFloat(ccMonthlyPayInput.value);
+          if (!Number.isFinite(pay) || pay <= 0) {
+            clearCcOutput("ENTER PAYMENT", "Enter a positive monthly payment amount");
+            return;
+          }
+          if (pay <= firstInterest + 1e-6) {
+            clearCcOutput(
+              `>${fmtCurr(sym, firstInterest)} NEEDED`,
+              `Month 1 interest is ${fmtCurr(sym, firstInterest)}; payment must exceed monthly interest`
+            );
+            return;
+          }
+
+          // Simulate exact month-by-month amortization up to 1,200 months
+          let rem = balance;
+          let months = 0;
+          let totalInterest = 0;
+          let totalPaid = 0;
+
+          while (rem > 1e-6 && months < 1200) {
+            const interest = rem * r;
+            const due = rem + interest;
+            const actualPay = Math.min(pay, due);
+            totalInterest += interest;
+            totalPaid += actualPay;
+            rem = due - actualPay;
+            months++;
+          }
+
+          const yrsStr = months >= 12 ? ` (${(months / 12).toFixed(1)} yrs)` : "";
+          const payoffDateStr = formatPayoffDate(months);
+
+          ccHeroKicker.textContent = "Time to Debt-Free";
+          ccSummaryTitle.textContent = `Total Interest: ${fmtCurr(sym, totalInterest)}`;
+          ccSubCaption.textContent = `Total Paid: ${fmtCurr(sym, totalPaid)} \u2022 First-Month Interest: ${fmtCurr(sym, firstInterest)}`;
+          ccPrimaryDisplay.className = "cc-hero-num";
+          ccPrimaryDisplay.textContent = `${months} ${months === 1 ? "Month" : "Months"}${yrsStr}`;
+
+          totalInterestVal.textContent = fmtCurr(sym, totalInterest);
+          totalRepaidVal.textContent = fmtCurr(sym, totalPaid);
+          firstMonthIntVal.textContent = `${fmtCurr(sym, firstInterest)} / mo`;
+          payoffDateVal.textContent = payoffDateStr;
+
+          latestSummaryText = [
+            "PureWebKits Credit Card Payoff Plan",
+            "------------------------------------",
+            `Card Balance: ${fmtCurr(sym, balance)} | APR: ${apr}% | Monthly Payment: ${fmtCurr(sym, pay)}`,
+            `Payoff Duration: ${months} months${yrsStr} (Est. Debt-Free: ${payoffDateStr})`,
+            `First-Month Interest: ${fmtCurr(sym, firstInterest)} | Total Interest Paid: ${fmtCurr(sym, totalInterest)} | Total Repaid: ${fmtCurr(sym, totalPaid)}`
+          ].join("\n");
+        } else {
+          const targetMonths = parseInt(ccTargetMonthsInput.value, 10);
+          if (!Number.isFinite(targetMonths) || targetMonths < 1 || targetMonths > 600) {
+            clearCcOutput("CHECK MONTHS", "Enter a target payoff timeline between 1 and 600 months");
+            return;
+          }
+
+          const reqPay = r === 0
+            ? balance / targetMonths
+            : (balance * r) / (1 - Math.pow(1 + r, -targetMonths));
+          const totalPaid = reqPay * targetMonths;
+          const totalInterest = Math.max(0, totalPaid - balance);
+          const payoffDateStr = formatPayoffDate(targetMonths);
+
+          ccHeroKicker.textContent = "Required Monthly Payment";
+          ccSummaryTitle.textContent = `Total Interest: ${fmtCurr(sym, totalInterest)}`;
+          ccSubCaption.textContent = `Payoff in ${targetMonths} mos (${payoffDateStr}) \u2022 Total Paid: ${fmtCurr(sym, totalPaid)}`;
+          ccPrimaryDisplay.className = "cc-hero-num";
+          ccPrimaryDisplay.textContent = `${fmtCurr(sym, reqPay)} / mo`;
+
+          totalInterestVal.textContent = fmtCurr(sym, totalInterest);
+          totalRepaidVal.textContent = fmtCurr(sym, totalPaid);
+          firstMonthIntVal.textContent = `${fmtCurr(sym, firstInterest)} / mo`;
+          payoffDateVal.textContent = payoffDateStr;
+
+          latestSummaryText = [
+            "PureWebKits Credit Card Target Payoff Plan",
+            "-------------------------------------------",
+            `Card Balance: ${fmtCurr(sym, balance)} | APR: ${apr}% | Target Timeline: ${targetMonths} months (${payoffDateStr})`,
+            `Required Monthly Payment: ${fmtCurr(sym, reqPay)} / mo`,
+            `First-Month Interest: ${fmtCurr(sym, firstInterest)} | Total Interest Paid: ${fmtCurr(sym, totalInterest)} | Total Repaid: ${fmtCurr(sym, totalPaid)}`
+          ].join("\n");
+        }
+      }
+
+      fixedPayModeBtn.addEventListener("click", function () { mode = "fixed_pay"; calculatePayoff(); });
+      targetMonthsModeBtn.addEventListener("click", function () { mode = "target_months"; calculatePayoff(); });
+
+      [
+        ccCurrency,
+        ccBalanceInput,
+        ccAprInput,
+        ccMonthlyPayInput,
+        ccTargetMonthsInput
+      ].forEach(function (el) {
+        el.addEventListener("input", calculatePayoff);
+        el.addEventListener("change", calculatePayoff);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        mode = "fixed_pay";
+        ccCurrency.value = "$";
+        ccBalanceInput.value = "5000";
+        ccAprInput.value = "21.9";
+        ccMonthlyPayInput.value = "250";
+        ccTargetMonthsInput.value = "24";
+        calculatePayoff();
+      });
+
+      resetCcBtn.addEventListener("click", function () {
+        ccBalanceInput.value = "";
+        ccMonthlyPayInput.value = "";
+        calculatePayoff();
+      });
+
+      copyCcBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyCcBtn.textContent;
+          copyCcBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyCcBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadCcBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "credit-card-payoff-plan.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculatePayoff();
+    });
+  </script>
+</body>
+</html>

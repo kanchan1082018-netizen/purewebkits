@@ -1,0 +1,1876 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Compressor to Exact KB — Free Online Photo Size Reducer | PureWebKits</title>
+  <meta name="description" content="Compress JPG, PNG, and WebP images to an exact KB size (20KB, 50KB, 100KB, or custom) 100% client-side in your browser. Zero uploads, instant download for visa, passport, and exam forms." />
+  <meta name="keywords" content="compress image to exact kb, reduce photo size in kb, image compressor 50kb, 20kb photo compressor, online image size reducer, PureWebKits" />
+  <link rel="canonical" href="https://PureWebKits.com/compress-image-to-exact-kb.html" />
+  <meta property="og:title" content="Image Compressor to Exact KB — Free Online Photo Size Reducer | PureWebKits" />
+  <meta property="og:description" content="Reduce photo file size to an exact KB target like 20KB, 50KB, or 100KB privately in your browser. Supports JPEG, PNG, and WebP." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://PureWebKits.com/compress-image-to-exact-kb.html" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "PureWebKits Image Compressor to Exact KB",
+    "operatingSystem": "All",
+    "applicationCategory": "MultimediaApplication",
+    "url": "https://PureWebKits.com/compress-image-to-exact-kb.html",
+    "description": "Free 100% client-side online image compressor that reduces JPEG, PNG, and WebP photos to an exact target KB size using binary search compression directly in the browser.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "PureWebKits",
+      "url": "https://PureWebKits.com"
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How accurately does this tool hit the exact KB target size?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Our compressor runs a multi-step JavaScript binary search algorithm inside your browser. It tests quality levels and, when needed for extreme reductions (like 5 MB down to 20 KB), proportionally scales dimensions so the final file lands just under your target KB while retaining maximum sharpness."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I choose JPEG, PNG, or WebP for exact KB compression?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "For portraits, passport photos, and online exam or visa forms with strict KB limits, choose .JPEG because lossy JPEG compression lets you hit small targets like 20 KB or 50 KB without heavily shrinking dimensions. Choose .PNG only when you need lossless graphics or transparent backgrounds, and .WEBP for fast modern websites."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Are my photos uploaded to any server during compression?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. PureWebKits processes every image 100% client-side using your browser's native HTML5 Canvas API. Your ID cards, passport photos, and personal files never leave your device."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Will this compressed image pass government, visa, and exam portals?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Most portals such as US Visa DS-160, SSC, UPSC, IBPS, and GATE validate file format (.jpeg/.jpg) and maximum file size in KB. Always verify the portal's required pixel dimensions and ensure your background and lighting meet official guidelines."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does the exact KB image compressor work on mobile phones?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. The tool is fully responsive and works seamlessly in Chrome, Safari, Firefox, and Edge on Android, iPhone, iPad, Windows, and macOS without installing any app."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-light: #EFF6FF;
+      --primary-border: #BFDBFE;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --text-main: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #64748B;
+      --bg-page: #F8FAFC;
+      --bg-card: #FFFFFF;
+      --border: #E2E8F0;
+      --success: #059669;
+      --success-bg: #ECFDF5;
+      --success-border: #A7F3D0;
+      --warning: #D97706;
+      --warning-bg: #FFFBEB;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.06);
+      --shadow-lg: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    /* Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid #E2E8F0;
+      display: flex;
+      align-items: center;
+    }
+
+    .header-inner {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-logo svg {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .nav-links a {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: color 0.15s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+      color: var(--text-main);
+    }
+
+    /* Main Container */
+    .main-container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 36px 20px 64px;
+    }
+
+    /* Block 1: Hero + Interactive Tool */
+    .tool-hero {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .tool-hero h1 {
+      margin: 0 0 12px;
+      font-size: clamp(1.75rem, 3.2vw, 2.45rem);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .trust-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid var(--success-border);
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 28px;
+      margin-bottom: 44px;
+    }
+
+    /* Upload Zone */
+    .drop-zone {
+      border: 2px dashed #CBD5E1;
+      border-radius: var(--radius-md);
+      background: #F8FAFC;
+      padding: 40px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.drag-over {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .drop-zone-icon {
+      width: 52px;
+      height: 52px;
+      margin: 0 auto 14px;
+      border-radius: 12px;
+      background: #DBEAFE;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .drop-zone-title {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 0 0 6px;
+    }
+
+    .drop-zone-sub {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      margin: 0 0 16px;
+    }
+
+    .upload-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .upload-btn:hover {
+      background: var(--primary-hover);
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    /* Controls Grid */
+    .controls-panel {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .control-group-label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+
+    .presets-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .preset-btn {
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      background: #FFFFFF;
+      color: var(--text-main);
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .preset-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .preset-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .custom-kb-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .kb-input-wrap {
+      position: relative;
+      flex: 1;
+      max-width: 240px;
+    }
+
+    .kb-input {
+      width: 100%;
+      padding: 10px 44px 10px 14px;
+      border: 1px solid #CBD5E1;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .kb-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+    }
+
+    .kb-unit {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .compress-trigger-btn {
+      padding: 10px 18px;
+      background: var(--navy);
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.93rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .compress-trigger-btn:hover:not(:disabled) {
+      background: #0F172A;
+    }
+
+    .compress-trigger-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Format Selector */
+    .format-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .format-radio {
+      position: relative;
+    }
+
+    .format-radio input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .format-label {
+      display: flex;
+      flex-direction: column;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: #FFFFFF;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      height: 100%;
+    }
+
+    .format-radio input:checked + .format-label {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      box-shadow: 0 0 0 1px var(--primary);
+    }
+
+    .format-ext {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .format-radio input:checked + .format-label .format-ext {
+      color: var(--primary);
+    }
+
+    .format-desc {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      line-height: 1.3;
+      margin-top: 2px;
+    }
+
+    /* Results & Side-by-Side Preview */
+    .results-section {
+      display: none;
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .results-section.visible {
+      display: block;
+    }
+
+    .status-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 14px 18px;
+      border-radius: var(--radius-sm);
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      margin-bottom: 20px;
+    }
+
+    .status-banner.processing {
+      background: var(--primary-light);
+      border-color: var(--primary-border);
+      color: var(--primary);
+    }
+
+    .status-banner.warning {
+      background: var(--warning-bg);
+      border-color: #FDE68A;
+      color: #92400E;
+    }
+
+    .status-text {
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .stat-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.03em;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .stat-value.highlight {
+      color: var(--success);
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+
+    .preview-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: #FFFFFF;
+    }
+
+    .preview-header {
+      padding: 10px 16px;
+      background: #F8FAFC;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    .preview-badge {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: #E2E8F0;
+      color: var(--text-main);
+    }
+
+    .preview-badge.compressed {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .preview-img-wrap {
+      height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      background-image: linear-gradient(45deg, #f1f5f9 25%, transparent 25%),
+        linear-gradient(-45deg, #f1f5f9 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #f1f5f9 75%),
+        linear-gradient(-45deg, transparent 75%, #f1f5f9 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
+
+    .preview-img-wrap img {
+      max-height: 100%;
+      max-width: 100%;
+      object-fit: contain;
+      border-radius: 4px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .preview-meta {
+      padding: 10px 16px;
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .download-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 28px;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    .download-btn:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .reset-btn {
+      padding: 12px 18px;
+      background: #FFFFFF;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .reset-btn:hover {
+      background: #F8FAFC;
+      color: var(--text-main);
+    }
+
+    /* Content Sections (Blocks 2, 3, 4) */
+    .content-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .content-section h2 {
+      margin: 0 0 18px;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.015em;
+    }
+
+    .content-section h3 {
+      margin: 22px 0 10px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .content-section p {
+      margin: 0 0 14px;
+      color: var(--text-secondary);
+      font-size: 0.98rem;
+    }
+
+    .steps-list {
+      margin: 0 0 20px;
+      padding-left: 20px;
+      color: var(--text-secondary);
+    }
+
+    .steps-list li {
+      margin-bottom: 8px;
+    }
+
+    .formula-box {
+      background: #F8FAFC;
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: 16px 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .example-box {
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      margin-top: 16px;
+    }
+
+    .example-box strong {
+      color: var(--text-main);
+    }
+
+    /* Block 3: Table */
+    .table-responsive {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+
+    table.requirements-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.93rem;
+      text-align: left;
+      min-width: 640px;
+    }
+
+    table.requirements-table thead {
+      background: #F1F5F9;
+    }
+
+    table.requirements-table th {
+      padding: 12px 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      border-bottom: 1px solid var(--border);
+    }
+
+    table.requirements-table td {
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    table.requirements-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    table.requirements-table tbody tr:hover {
+      background: #F8FAFC;
+    }
+
+    .table-action-btn {
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--primary);
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .table-action-btn:hover {
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+
+    /* Block 4A: Related Tools */
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .related-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: #FFFFFF;
+      transition: all 0.15s ease;
+    }
+
+    .related-card:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .related-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .related-desc {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+
+    /* Block 4B: FAQ Accordion */
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .faq-item {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .faq-question {
+      width: 100%;
+      background: #FFFFFF;
+      border: none;
+      padding: 16px 20px;
+      text-align: left;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .faq-question:hover {
+      background: #F8FAFC;
+    }
+
+    .faq-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+      color: var(--text-muted);
+    }
+
+    .faq-item.open .faq-icon {
+      transform: rotate(180deg);
+      color: var(--primary);
+    }
+
+    .faq-answer {
+      display: none;
+      padding: 0 20px 18px;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.65;
+    }
+
+    .faq-item.open .faq-answer {
+      display: block;
+    }
+
+    /* Footer */
+    .site-footer {
+      background: var(--navy);
+      color: #CBD5E1;
+      padding-top: 52px;
+    }
+
+    .footer-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px 44px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+      gap: 32px;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #FFFFFF;
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .footer-brand-desc {
+      font-size: 0.88rem;
+      color: #94A3B8;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .footer-col h4 {
+      margin: 0 0 14px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .footer-links {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .footer-links a {
+      font-size: 0.88rem;
+      color: #94A3B8;
+      transition: color 0.15s ease;
+    }
+
+    .footer-links a:hover {
+      color: #FFFFFF;
+    }
+
+    .footer-bottom {
+      background: var(--navy-dark);
+      padding: 18px 24px;
+      text-align: center;
+      font-size: 0.86rem;
+      color: #94A3B8;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* Responsive */
+    @media (max-width: 960px) {
+      .controls-panel {
+        grid-template-columns: 1fr;
+      }
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .related-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 680px) {
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: #FFFFFF;
+        border-bottom: 1px solid var(--border);
+        flex-direction: column;
+        padding: 16px 24px;
+        gap: 14px;
+        align-items: flex-start;
+      }
+      .nav-links.open {
+        display: flex;
+      }
+      .mobile-menu-btn {
+        display: inline-flex;
+      }
+      .tool-card,
+      .content-section {
+        padding: 20px 16px;
+      }
+      .preview-grid {
+        grid-template-columns: 1fr;
+      }
+      .format-options {
+        grid-template-columns: 1fr;
+      }
+      .related-grid {
+        grid-template-columns: 1fr;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+      .download-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M16 2L28 9V23L16 30L4 23V9L16 2Z" fill="#2563EB"/>
+          <path d="M16 2L28 9L16 16L4 9L16 2Z" fill="#60A5FA"/>
+          <path d="M16 16L28 9V23L16 30V16Z" fill="#1D4ED8"/>
+          <path d="M16 16L4 9V23L16 30V16Z" fill="#3B82F6"/>
+        </svg>
+        <span>PureWebKits</span>
+      </a>
+
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation menu" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <nav class="nav-links" id="navLinks">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <!-- Block 1: Above the Fold Tool -->
+    <section class="tool-hero">
+      <h1>Image Compressor to Exact KB — Free Online Photo Size Reducer</h1>
+      <div class="trust-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
+        <span>100% Client-Side: Your photos never leave your device</span>
+      </div>
+    </section>
+
+    <section class="tool-card" aria-label="Exact KB Image Compressor">
+      <!-- Drag & Drop / File Upload Zone -->
+      <div class="drop-zone" id="dropZone" tabindex="0" role="button" aria-label="Upload image by clicking or dragging and dropping">
+        <div class="drop-zone-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+        </div>
+        <p class="drop-zone-title" id="dropZoneTitle">Drag &amp; Drop your image here</p>
+        <p class="drop-zone-sub">Supports JPG, JPEG, PNG, and WebP • Instant browser processing</p>
+        <button type="button" class="upload-btn" id="selectFileBtn">Choose Image File</button>
+        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" />
+      </div>
+
+      <!-- Compression Controls -->
+      <div class="controls-panel">
+        <div>
+          <span class="control-group-label">1. Target Size in KB (Presets or Custom)</span>
+          <div class="presets-row" id="presetGroup">
+            <button type="button" class="preset-btn" data-kb="20">20 KB</button>
+            <button type="button" class="preset-btn active" data-kb="50">50 KB</button>
+            <button type="button" class="preset-btn" data-kb="100">100 KB</button>
+            <button type="button" class="preset-btn" data-kb="200">200 KB</button>
+          </div>
+          <div class="custom-kb-row">
+            <div class="kb-input-wrap">
+              <input type="number" id="targetKbInput" class="kb-input" value="50" min="5" max="10000" step="1" aria-label="Target Size in KB" />
+              <span class="kb-unit">KB</span>
+            </div>
+            <button type="button" id="recompressBtn" class="compress-trigger-btn" disabled>Compress Now</button>
+          </div>
+        </div>
+
+        <div>
+          <span class="control-group-label">2. Output Format</span>
+          <div class="format-options">
+            <label class="format-radio">
+              <input type="radio" name="outputFormat" value="image/jpeg" checked />
+              <span class="format-label">
+                <span class="format-ext">.JPEG</span>
+                <span class="format-desc">Best for exact KB &amp; photos</span>
+              </span>
+            </label>
+            <label class="format-radio">
+              <input type="radio" name="outputFormat" value="image/png" />
+              <span class="format-label">
+                <span class="format-ext">.PNG</span>
+                <span class="format-desc">Lossless / transparent support</span>
+              </span>
+            </label>
+            <label class="format-radio">
+              <input type="radio" name="outputFormat" value="image/webp" />
+              <span class="format-label">
+                <span class="format-ext">.WEBP</span>
+                <span class="format-desc">Modern web optimization</span>
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Preview & Compression Stats -->
+      <div class="results-section" id="resultsSection">
+        <div class="status-banner" id="statusBanner">
+          <div class="status-text" id="statusText">Ready</div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Original Size</div>
+            <div class="stat-value" id="statOriginalSize">—</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Compressed Size</div>
+            <div class="stat-value highlight" id="statCompressedSize">—</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Space Saved</div>
+            <div class="stat-value highlight" id="statSaved">—</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Output Format</div>
+            <div class="stat-value" id="statFormat">JPEG</div>
+          </div>
+        </div>
+
+        <div class="preview-grid">
+          <div class="preview-card">
+            <div class="preview-header">
+              <span>Original Image</span>
+              <span class="preview-badge" id="origBadge">—</span>
+            </div>
+            <div class="preview-img-wrap">
+              <img id="origPreviewImg" alt="Original uploaded image preview" />
+            </div>
+            <div class="preview-meta">
+              <span id="origDimensions">—</span>
+              <span id="origType">—</span>
+            </div>
+          </div>
+
+          <div class="preview-card">
+            <div class="preview-header">
+              <span>Compressed Preview</span>
+              <span class="preview-badge compressed" id="compBadge">—</span>
+            </div>
+            <div class="preview-img-wrap">
+              <img id="compPreviewImg" alt="Compressed output image preview" />
+            </div>
+            <div class="preview-meta">
+              <span id="compDimensions">—</span>
+              <span id="compQualityInfo">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="download-actions">
+          <button type="button" class="download-btn" id="downloadBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span id="downloadBtnText">Download Compressed .JPEG</span>
+          </button>
+          <button type="button" class="reset-btn" id="resetBtn">Compress Another Photo</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Block 2: 300-Word Step-by-Step How to Use, Formula & Worked Example -->
+    <section class="content-section">
+      <h2>How to Use the Exact KB Image Compressor</h2>
+      <p>Online applications for passports, government exams, and visas enforce strict file size caps. This tool uses an intelligent client-side binary search algorithm inside your browser's HTML5 Canvas to shrink your photo just below your exact KB limit while preserving sharp facial details.</p>
+
+      <ol class="steps-list">
+        <li><strong>Upload Your Photo:</strong> Drag and drop any JPG, PNG, or WebP file into the upload box above, or click <em>Choose Image File</em>.</li>
+        <li><strong>Set Your Target KB:</strong> Click a quick preset (<strong>20 KB</strong>, <strong>50 KB</strong>, <strong>100 KB</strong>, or <strong>200 KB</strong>) or type any custom KB target.</li>
+        <li><strong>Choose Output Format:</strong> Select <strong>.JPEG</strong> for photographs and official portals (best for hitting small KB targets), <strong>.PNG</strong> for lossless graphics or transparent backgrounds, or <strong>.WEBP</strong> for lightweight web images.</li>
+        <li><strong>Inspect &amp; Download:</strong> Compare the side-by-side preview and savings, then click <em>Download Compressed Image</em>.</li>
+      </ol>
+
+      <h3>Client-Side Compression: JPEG vs. PNG</h3>
+      <p>JPEG uses lossy compression, allowing our binary search engine to fine-tune quality from 98% down to 5% (and proportionally adjust dimensions only if necessary) to hit tiny targets like 20 KB without making text or faces unreadable. PNG is lossless and preserves transparency; because PNG ignores quality sliders, hitting a strict KB limit in PNG automatically scales image dimensions until the file fits under your target.</p>
+
+      <div class="formula-box">
+        Compression Ratio = Original Size (KB) / Compressed Size (KB) &nbsp;|&nbsp; Space Saved (%) = (1 − Compressed / Original) × 100
+      </div>
+
+      <div class="example-box">
+        <strong>Worked Example (Exam Form Upload):</strong> Suppose your smartphone captures a <strong>1.8 MB (1,843.2 KB)</strong> portrait photo, and an exam portal requires a JPEG under <strong>50 KB</strong>. Entering <code>50</code> KB and selecting <code>.JPEG</code> runs a binary search across quality levels, delivering a crisp <strong>48.5 KB</strong> file. Using the formula: <em>Compression Ratio = 1843.2 / 48.5 = 38.0×</em>, saving <strong>97.4%</strong> of the original file size in under one second.
+      </div>
+    </section>
+
+    <!-- Block 3: 18-Row Reference Data Table -->
+    <section class="content-section">
+      <h2>Standard Photo &amp; Signature File Size Requirements for Online Forms (Global &amp; Exam Presets)</h2>
+      <p>Click <em>Use Target</em> next to any requirement below to automatically set your target KB in the compressor above.</p>
+      <div class="table-responsive">
+        <table class="requirements-table">
+          <thead>
+            <tr>
+              <th>Portal / Use Case</th>
+              <th>Document Type</th>
+              <th>Allowed Size Range</th>
+              <th>Recommended Format</th>
+              <th>Quick Preset</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>US Visa (DS-160 / DV Lottery)</td><td>Digital Photo</td><td>Up to 240 KB</td><td>.JPEG</td><td><button type="button" class="table-action-btn" data-set-kb="230" data-set-fmt="image/jpeg">Use 230 KB</button></td></tr>
+            <tr><td>UK Passport Online</td><td>Digital Photo</td><td>50 KB – 10 MB</td><td>.JPEG</td><td><button type="button" class="table-action-btn" data-set-kb="200" data-set-fmt="image/jpeg">Use 200 KB</button></td></tr>
+            <tr><td>Canada IRCC Visa &amp; PR</td><td>Photo / Scan</td><td>Up to 4 MB (60 KB+ photo)</td><td>.JPEG</td><td><button type="button" class="table-action-btn" data-set-kb="200" data-set-fmt="image/jpeg">Use 200 KB</button></td></tr>
+            <tr><td>India SSC (CGL / CHSL / MTS)</td><td>Passport Photo</td><td>20 KB – 50 KB</td><td>.JPEG</td><td><button type="button" class="table-action-btn" data-set-kb="48" data-set-fmt="image/jpeg">Use 48 KB</button></td></tr>
+            <tr><td>India SSC Exams</td><td>Signature Scan</td><td>10 KB – 20 KB</td><td>.JPEG</td><td><button type="button" class="table-action-btn" data-set-kb="18" data-set-fmt="image/jpeg">Use 18 KB</button></td></tr>
+            <tr><td>UPSC Civil Services</td><td>Photograph</td><td>20 KB – 300 KB</td><td>.JPEG</td><td><button type="button" class="table-action-btn" data-set-kb="100" data-set-fmt="image/jpeg">Use 100 KB</button></td></tr>
+            <tr><td>IBPS PO / Clerk / RRB</td><td>Photograph</td><td>20 KB – 50 KB</td><td>.JPEG</td><td><button type="button" class="table-action-btn" data-set-kb="48" data-set-fmt="image/jpeg">Use 48 KB</button></td></tr>
+            <tr><td>IBPS Banking Exams</td><td>Signature / Thumb</td><td>10 KB – 20 KB</td><td>.JPEG</td><td><button type="button" class="table-action-btn" data-set-kb="18" data-set-fmt="image/jpeg">Use 18 KB</button></td></tr>
+            <tr><td>GATE / JAM Application</td><td>Candidate Photo</td><td>5 KB – 200 KB</td><td>.JPEG</td><td><button type="button" class="table-action-btn" data-set-kb="100" data-set-fmt="image/jpeg">Use 100 KB</button></td></tr>
+            <tr><td>NEET UG / JEE Main (NTA)</td><td>Passport Photo</td><td>10 KB – 200 KB</td><td>.JPEG</td><td><button type="button" class="table-action-btn" data-set-kb="100" data-set-fmt="image/jpeg">Use 100 KB</button></td></tr>
+            <tr><td>NEET UG / JEE Main (NTA)</td><td>Signature</td><td>4 KB – 30 KB</td><td>.JPEG</td><td><button type="button" class="table-action-btn" data-set-kb="25" data-set-fmt="image/jpeg">Use 25 KB</button></td></tr>
+            <tr><td>PAN Card (NSDL / UTIITSL)</td><td>Photo &amp; Signature</td><td>Up to 50 KB</td><td>.JPEG</td><td><button type="button" class="table-action-btn" data-set-kb="48" data-set-fmt="image/jpeg">Use 48 KB</button></td></tr>
+            <tr><td>Indian Passport Seva</td><td>Supporting Document</td><td>Up to 1 MB (100–300 KB ideal)</td><td>.JPEG</td><td><button type="button" class="table-action-btn" data-set-kb="200" data-set-fmt="image/jpeg">Use 200 KB</button></td></tr>
+            <tr><td>SBI PO / Clerk Portal</td><td>Photograph</td><td>20 KB – 50 KB</td><td>.JPEG</td><td><button type="button" class="table-action-btn" data-set-kb="48" data-set-fmt="image/jpeg">Use 48 KB</button></td></tr>
+            <tr><td>Schengen / EU ETIAS Photo</td><td>Digital Portrait</td><td>Up to 500 KB</td><td>.JPEG</td><td><button type="button" class="table-action-btn" data-set-kb="200" data-set-fmt="image/jpeg">Use 200 KB</button></td></tr>
+            <tr><td>Australia ImmiAccount</td><td>Identity Photo</td><td>Up to 500 KB</td><td>.JPEG</td><td><button type="button" class="table-action-btn" data-set-kb="200" data-set-fmt="image/jpeg">Use 200 KB</button></td></tr>
+            <tr><td>WebP Blog Hero Banner</td><td>Web Article Image</td><td>Under 100 KB</td><td>.WEBP</td><td><button type="button" class="table-action-btn" data-set-kb="95" data-set-fmt="image/webp">Use 95 KB</button></td></tr>
+            <tr><td>Transparent Brand Logo</td><td>Website Icon / Badge</td><td>Under 50 KB</td><td>.PNG</td><td><button type="button" class="table-action-btn" data-set-kb="48" data-set-fmt="image/png">Use 48 KB</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Block 4: Internal Linking Hub & 5 Accordion FAQs -->
+    <section class="content-section">
+      <h2>Related Image &amp; Exam Tools</h2>
+      <div class="related-grid">
+        <a href="signature-resizer.html" class="related-card">
+          <div class="related-title">Signature Resizer</div>
+          <div class="related-desc">Resize exam signatures to 10KB–20KB cleanly.</div>
+        </a>
+        <a href="jpg-to-png.html" class="related-card">
+          <div class="related-title">JPG to PNG Converter</div>
+          <div class="related-desc">Convert JPEG photos into lossless PNG files.</div>
+        </a>
+        <a href="png-to-jpg.html" class="related-card">
+          <div class="related-title">PNG to JPG Converter</div>
+          <div class="related-desc">Turn heavy PNG screenshots into light JPGs.</div>
+        </a>
+        <a href="webp-to-jpg.html" class="related-card">
+          <div class="related-title">WebP to JPG Converter</div>
+          <div class="related-desc">Convert WebP images for universal form uploads.</div>
+        </a>
+        <a href="image-to-webp.html" class="related-card">
+          <div class="related-title">Image to WebP</div>
+          <div class="related-desc">Optimize photos into modern WebP for fast pages.</div>
+        </a>
+        <a href="image-resizer.html" class="related-card">
+          <div class="related-title">Image Resizer</div>
+          <div class="related-desc">Change exact pixel width &amp; height in seconds.</div>
+        </a>
+        <a href="image-cropper.html" class="related-card">
+          <div class="related-title">Image Cropper</div>
+          <div class="related-desc">Crop passport &amp; visa photos to exact ratios.</div>
+        </a>
+        <a href="image-dpi-changer.html" class="related-card">
+          <div class="related-title">Image DPI Changer</div>
+          <div class="related-desc">Set 200 DPI or 300 DPI metadata for printing.</div>
+        </a>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-list" id="faqList">
+        <div class="faq-item open">
+          <button type="button" class="faq-question" aria-expanded="true">
+            <span>How accurately does this tool hit the exact KB target size?</span>
+            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="faq-answer">
+            Our compressor runs a multi-step JavaScript binary search algorithm inside your browser. It tests quality levels and, when needed for extreme reductions (like 5 MB down to 20 KB), proportionally scales dimensions so the final file lands just under your target KB while retaining maximum sharpness.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            <span>Should I choose JPEG, PNG, or WebP for exact KB compression?</span>
+            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="faq-answer">
+            For portraits, passport photos, and online exam or visa forms with strict KB limits, choose <strong>.JPEG</strong> because lossy JPEG compression lets you hit small targets like 20 KB or 50 KB without heavily shrinking dimensions. Choose <strong>.PNG</strong> only when you need lossless graphics or transparent backgrounds, and <strong>.WEBP</strong> for fast modern websites.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            <span>Are my photos uploaded to any server during compression?</span>
+            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="faq-answer">
+            No. PureWebKits processes every image 100% client-side using your browser's native HTML5 Canvas API. Your ID cards, passport photos, and personal files never leave your device.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            <span>Will this compressed image pass government, visa, and exam portals?</span>
+            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="faq-answer">
+            Yes. Most portals such as US Visa DS-160, SSC, UPSC, IBPS, and GATE validate file format (<code>.jpeg</code>/<code>.jpg</code>) and maximum file size in KB. Always verify the portal's required pixel dimensions and ensure your background and lighting meet official guidelines.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            <span>Does the exact KB image compressor work on mobile phones?</span>
+            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="faq-answer">
+            Yes. The tool is fully responsive and works seamlessly in Chrome, Safari, Firefox, and Edge on Android, iPhone, iPad, Windows, and macOS without installing any app.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M16 2L28 9V23L16 30L4 23V9L16 2Z" fill="#2563EB"/>
+            <path d="M16 2L28 9L16 16L4 9L16 2Z" fill="#60A5FA"/>
+            <path d="M16 16L28 9V23L16 30V16Z" fill="#1D4ED8"/>
+            <path d="M16 16L4 9V23L16 30V16Z" fill="#3B82F6"/>
+          </svg>
+          <span>PureWebKits</span>
+        </div>
+        <p class="footer-brand-desc">Fast, private, 100% client-side online tools for images, documents, developers, and everyday calculations. Zero uploads, zero sign-ups.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image &amp; PDF</h4>
+        <ul class="footer-links">
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="image-resizer.html">Image Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="png-to-jpg.html">PNG to JPG</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer &amp; Text</h4>
+        <ul class="footer-links">
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="base64-encoder.html">Base64 Encoder</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="case-converter.html">Case Converter</a></li>
+          <li><a href="uuid-generator.html">UUID Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance &amp; Country</h4>
+        <ul class="footer-links">
+          <li><a href="emi-calculator.html">Loan EMI Calculator</a></li>
+          <li><a href="gst-calculator.html">GST Calculator</a></li>
+          <li><a href="percentage-calculator.html">Percentage Calculator</a></li>
+          <li><a href="age-calculator.html">Age Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company &amp; Legal</h4>
+        <ul class="footer-links">
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      &copy; 2026 PureWebKits.com. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      // Mobile Header Navigation Toggle
+      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      const navLinks = document.getElementById('navLinks');
+      mobileMenuBtn.addEventListener('click', () => {
+        const isOpen = navLinks.classList.toggle('open');
+        mobileMenuBtn.setAttribute('aria-expanded', String(isOpen));
+      });
+
+      // FAQ Accordion Logic
+      const faqItems = document.querySelectorAll('.faq-item');
+      faqItems.forEach((item) => {
+        const btn = item.querySelector('.faq-question');
+        btn.addEventListener('click', () => {
+          const wasOpen = item.classList.contains('open');
+          faqItems.forEach((other) => {
+            other.classList.remove('open');
+            other.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+          });
+          if (!wasOpen) {
+            item.classList.add('open');
+            btn.setAttribute('aria-expanded', 'true');
+          }
+        });
+      });
+
+      // Tool DOM Elements
+      const dropZone = document.getElementById('dropZone');
+      const dropZoneTitle = document.getElementById('dropZoneTitle');
+      const selectFileBtn = document.getElementById('selectFileBtn');
+      const fileInput = document.getElementById('fileInput');
+      const presetBtns = document.querySelectorAll('.preset-btn');
+      const targetKbInput = document.getElementById('targetKbInput');
+      const recompressBtn = document.getElementById('recompressBtn');
+      const formatRadios = document.querySelectorAll('input[name="outputFormat"]');
+      const tableActionBtns = document.querySelectorAll('.table-action-btn');
+
+      const resultsSection = document.getElementById('resultsSection');
+      const statusBanner = document.getElementById('statusBanner');
+      const statusText = document.getElementById('statusText');
+
+      const statOriginalSize = document.getElementById('statOriginalSize');
+      const statCompressedSize = document.getElementById('statCompressedSize');
+      const statSaved = document.getElementById('statSaved');
+      const statFormat = document.getElementById('statFormat');
+
+      const origBadge = document.getElementById('origBadge');
+      const compBadge = document.getElementById('compBadge');
+      const origPreviewImg = document.getElementById('origPreviewImg');
+      const compPreviewImg = document.getElementById('compPreviewImg');
+      const origDimensions = document.getElementById('origDimensions');
+      const origType = document.getElementById('origType');
+      const compDimensions = document.getElementById('compDimensions');
+      const compQualityInfo = document.getElementById('compQualityInfo');
+
+      const downloadBtn = document.getElementById('downloadBtn');
+      const downloadBtnText = document.getElementById('downloadBtnText');
+      const resetBtn = document.getElementById('resetBtn');
+
+      // Application State
+      let currentFile = null;
+      let loadedImage = null;
+      let originalObjectUrl = null;
+      let compressedObjectUrl = null;
+      let compressedBlob = null;
+      let isProcessing = false;
+      let compressJobId = 0;
+
+      // Utility Formatters
+      function formatSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        const kb = bytes / 1024;
+        if (kb < 1024) return kb.toFixed(2) + ' KB';
+        return (kb / 1024).toFixed(2) + ' MB';
+      }
+
+      function getSelectedFormat() {
+        const checked = document.querySelector('input[name="outputFormat"]:checked');
+        return checked ? checked.value : 'image/jpeg';
+      }
+
+      function getFormatExtension(mime) {
+        if (mime === 'image/png') return 'png';
+        if (mime === 'image/webp') return 'webp';
+        return 'jpeg';
+      }
+
+      function updateDownloadLabel() {
+        const ext = getFormatExtension(getSelectedFormat()).toUpperCase();
+        downloadBtnText.textContent = 'Download Compressed .' + ext;
+        statFormat.textContent = ext;
+      }
+
+      function syncPresetButtons(val) {
+        presetBtns.forEach((btn) => {
+          btn.classList.toggle('active', Number(btn.dataset.kb) === Number(val));
+        });
+      }
+
+      // Canvas to Blob Promisified
+      function canvasToBlob(canvas, mime, quality) {
+        return new Promise((resolve) => {
+          canvas.toBlob((blob) => resolve(blob), mime, quality);
+        });
+      }
+
+      // Render Image onto Canvas at given dimensions
+      function renderToCanvas(img, width, height, mime) {
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(width));
+        canvas.height = Math.max(1, Math.round(height));
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        // JPEG lacks alpha channel; fill white background to prevent black transparency
+        if (mime === 'image/jpeg') {
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        return canvas;
+      }
+
+      /**
+       * Core Exact-KB Binary Search Engine
+       * Guarantees output <= targetBytes whenever physically achievable while keeping peak sharpness.
+       */
+      async function compressToExactKB(img, targetKB, mime) {
+        const targetBytes = Math.max(1024, Math.floor(targetKB * 1024));
+        const origW = img.naturalWidth || img.width;
+        const origH = img.naturalHeight || img.height;
+
+        // PNG is lossless & ignores quality param -> use binary search on dimension scale
+        if (mime === 'image/png') {
+          const fullCanvas = renderToCanvas(img, origW, origH, mime);
+          const fullBlob = await canvasToBlob(fullCanvas, mime);
+          if (fullBlob.size <= targetBytes) {
+            return { blob: fullBlob, width: origW, height: origH, note: 'Lossless 100% scale' };
+          }
+
+          let low = 0.05;
+          let high = 1.0;
+          let bestBlob = null;
+          let bestW = origW;
+          let bestH = origH;
+
+          for (let i = 0; i < 12; i++) {
+            const mid = (low + high) / 2;
+            const w = Math.max(16, Math.round(origW * mid));
+            const h = Math.max(16, Math.round(origH * mid));
+            const c = renderToCanvas(img, w, h, mime);
+            const b = await canvasToBlob(c, mime);
+
+            if (b.size <= targetBytes) {
+              bestBlob = b;
+              bestW = w;
+              bestH = h;
+              low = mid;
+            } else {
+              high = mid;
+            }
+          }
+
+          if (!bestBlob) {
+            const minW = Math.max(16, Math.round(origW * 0.05));
+            const minH = Math.max(16, Math.round(origH * 0.05));
+            const c = renderToCanvas(img, minW, minH, mime);
+            bestBlob = await canvasToBlob(c, mime);
+            bestW = minW;
+            bestH = minH;
+          }
+
+          const pct = Math.round((bestW / origW) * 100);
+          return { blob: bestBlob, width: bestW, height: bestH, note: `PNG scaled to ${pct}%` };
+        }
+
+        // Lossy JPEG / WebP: First binary search quality at 100% dimensions
+        async function binarySearchQuality(scale) {
+          const w = Math.max(16, Math.round(origW * scale));
+          const h = Math.max(16, Math.round(origH * scale));
+          const canvas = renderToCanvas(img, w, h, mime);
+
+          // Check max quality (0.98) first
+          const maxBlob = await canvasToBlob(canvas, mime, 0.98);
+          if (maxBlob.size <= targetBytes) {
+            return { blob: maxBlob, width: w, height: h, quality: 0.98, fits: true };
+          }
+
+          // Check minimum acceptable visual quality (0.10)
+          const minBlob = await canvasToBlob(canvas, mime, 0.10);
+          if (minBlob.size > targetBytes) {
+            return { blob: minBlob, width: w, height: h, quality: 0.10, fits: false };
+          }
+
+          let lowQ = 0.10;
+          let highQ = 0.98;
+          let best = { blob: minBlob, width: w, height: h, quality: 0.10, fits: true };
+
+          for (let i = 0; i < 11; i++) {
+            const midQ = (lowQ + highQ) / 2;
+            const blob = await canvasToBlob(canvas, mime, midQ);
+            if (blob.size <= targetBytes) {
+              best = { blob, width: w, height: h, quality: midQ, fits: true };
+              lowQ = midQ;
+            } else {
+              highQ = midQ;
+            }
+          }
+          return best;
+        }
+
+        // Try original dimensions first
+        let result = await binarySearchQuality(1.0);
+        if (result.fits) {
+          return {
+            blob: result.blob,
+            width: result.width,
+            height: result.height,
+            note: `Quality ${Math.round(result.quality * 100)}% (Full Res)`
+          };
+        }
+
+        // If target KB is very small relative to huge dimensions, binary search scale + quality
+        let lowScale = 0.08;
+        let highScale = 0.95;
+        let bestScaled = result;
+
+        for (let step = 0; step < 8; step++) {
+          const midScale = (lowScale + highScale) / 2;
+          const attempt = await binarySearchQuality(midScale);
+          if (attempt.fits) {
+            bestScaled = attempt;
+            lowScale = midScale;
+          } else {
+            highScale = midScale;
+          }
+        }
+
+        // Fallback if still slightly over at lowScale
+        if (!bestScaled.fits) {
+          const w = Math.max(16, Math.round(origW * 0.08));
+          const h = Math.max(16, Math.round(origH * 0.08));
+          const c = renderToCanvas(img, w, h, mime);
+          const b = await canvasToBlob(c, mime, 0.05);
+          bestScaled = { blob: b, width: w, height: h, quality: 0.05, fits: b.size <= targetBytes };
+        }
+
+        const scalePct = Math.round((bestScaled.width / origW) * 100);
+        return {
+          blob: bestScaled.blob,
+          width: bestScaled.width,
+          height: bestScaled.height,
+          note: `Quality ${Math.round(bestScaled.quality * 100)}% (${scalePct}% scale)`
+        };
+      }
+
+      async function runCompression() {
+        if (!loadedImage || !currentFile) return;
+
+        const jobId = ++compressJobId;
+        isProcessing = true;
+        const targetKB = Math.max(5, Math.min(10000, Number(targetKbInput.value) || 50));
+        targetKbInput.value = targetKB;
+        const mime = getSelectedFormat();
+        updateDownloadLabel();
+
+        resultsSection.classList.add('visible');
+        statusBanner.className = 'status-banner processing';
+        statusText.textContent = `Compressing image to ${targetKB} KB...`;
+
+        try {
+          const res = await compressToExactKB(loadedImage, targetKB, mime);
+          if (jobId !== compressJobId) return; // Ignore stale runs
+
+          compressedBlob = res.blob;
+          if (compressedObjectUrl) URL.revokeObjectURL(compressedObjectUrl);
+          compressedObjectUrl = URL.createObjectURL(compressedBlob);
+
+          compPreviewImg.src = compressedObjectUrl;
+
+          const origBytes = currentFile.size;
+          const compBytes = compressedBlob.size;
+          const compKB = (compBytes / 1024).toFixed(2);
+          const savedPct = ((1 - compBytes / origBytes) * 100);
+
+          statOriginalSize.textContent = formatSize(origBytes);
+          statCompressedSize.textContent = formatSize(compBytes);
+          statSaved.textContent = savedPct >= 0 ? savedPct.toFixed(1) + '%' : '0%';
+
+          origBadge.textContent = formatSize(origBytes);
+          compBadge.textContent = formatSize(compBytes);
+          compDimensions.textContent = `${res.width} × ${res.height} px`;
+          compQualityInfo.textContent = res.note;
+
+          if (compBytes <= targetKB * 1024) {
+            statusBanner.className = 'status-banner';
+            statusText.textContent = `Success! Compressed to ${compKB} KB (just under your ${targetKB} KB target).`;
+          } else {
+            statusBanner.className = 'status-banner warning';
+            statusText.textContent = `Closest achievable size: ${compKB} KB. Try .JPEG format or a slightly higher KB target.`;
+          }
+        } catch (err) {
+          statusBanner.className = 'status-banner warning';
+          statusText.textContent = 'Could not compress this image. Please try another JPG, PNG, or WebP file.';
+        } finally {
+          isProcessing = false;
+        }
+      }
+
+      function handleFileSelection(file) {
+        if (!file) return;
+        const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+          alert('Please upload a valid JPG, JPEG, PNG, or WebP image.');
+          return;
+        }
+
+        currentFile = file;
+        dropZoneTitle.textContent = `Loaded: ${file.name}`;
+        recompressBtn.disabled = false;
+
+        if (originalObjectUrl) URL.revokeObjectURL(originalObjectUrl);
+        originalObjectUrl = URL.createObjectURL(file);
+
+        const img = new Image();
+        img.onload = () => {
+          loadedImage = img;
+          origPreviewImg.src = originalObjectUrl;
+          origDimensions.textContent = `${img.naturalWidth} × ${img.naturalHeight} px`;
+          origType.textContent = file.type.replace('image/', '').toUpperCase();
+          runCompression();
+        };
+        img.onerror = () => {
+          alert('Unable to read the selected image file.');
+        };
+        img.src = originalObjectUrl;
+      }
+
+      // Event Listeners: Upload & Drag/Drop
+      selectFileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fileInput.click();
+      });
+
+      dropZone.addEventListener('click', () => fileInput.click());
+      dropZone.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          fileInput.click();
+        }
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          handleFileSelection(e.target.files[0]);
+        }
+      });
+
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+      });
+
+      dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('drag-over');
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleFileSelection(e.dataTransfer.files[0]);
+        }
+      });
+
+      // Presets & Custom KB Input
+      presetBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const kb = Number(btn.dataset.kb);
+          targetKbInput.value = kb;
+          syncPresetButtons(kb);
+          if (loadedImage) runCompression();
+        });
+      });
+
+      targetKbInput.addEventListener('input', () => {
+        syncPresetButtons(targetKbInput.value);
+      });
+
+      targetKbInput.addEventListener('change', () => {
+        if (loadedImage) runCompression();
+      });
+
+      recompressBtn.addEventListener('click', () => {
+        if (loadedImage) runCompression();
+      });
+
+      formatRadios.forEach((radio) => {
+        radio.addEventListener('change', () => {
+          updateDownloadLabel();
+          if (loadedImage) runCompression();
+        });
+      });
+
+      // Reference Table Quick Apply Buttons
+      tableActionBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const kb = Number(btn.dataset.setKb);
+          const fmt = btn.dataset.setFmt;
+          targetKbInput.value = kb;
+          syncPresetButtons(kb);
+          const targetRadio = document.querySelector(`input[name="outputFormat"][value="${fmt}"]`);
+          if (targetRadio) targetRadio.checked = true;
+          updateDownloadLabel();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          if (loadedImage) runCompression();
+        });
+      });
+
+      // Download Button
+      downloadBtn.addEventListener('click', () => {
+        if (!compressedBlob || !currentFile) return;
+        const ext = getFormatExtension(getSelectedFormat());
+        const baseName = currentFile.name.replace(/\.[^/.]+$/, '');
+        const kbLabel = Math.round(compressedBlob.size / 1024);
+        const downloadName = `${baseName}-compressed-${kbLabel}kb.${ext}`;
+
+        const a = document.createElement('a');
+        const url = URL.createObjectURL(compressedBlob);
+        a.href = url;
+        a.download = downloadName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
+
+      // Reset Button
+      resetBtn.addEventListener('click', () => {
+        currentFile = null;
+        loadedImage = null;
+        compressedBlob = null;
+        fileInput.value = '';
+        recompressBtn.disabled = true;
+        dropZoneTitle.textContent = 'Drag & Drop your image here';
+        resultsSection.classList.remove('visible');
+        if (originalObjectUrl) URL.revokeObjectURL(originalObjectUrl);
+        if (compressedObjectUrl) URL.revokeObjectURL(compressedObjectUrl);
+        originalObjectUrl = null;
+        compressedObjectUrl = null;
+      });
+
+      // Initial Label Sync
+      updateDownloadLabel();
+    })();
+  </script>
+</body>
+</html>

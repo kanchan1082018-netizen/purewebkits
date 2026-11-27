@@ -1,0 +1,1025 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Affiliate Commission Calculator (Payouts, Traffic & EPC) — PureWebKits</title>
+  <meta name="description" content="Calculate affiliate marketing commissions, Earnings Per Click (EPC), required clicks or traffic for a monthly income target, and recurring SaaS commission growth online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/affiliate-commission-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Affiliate Commission Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .aff-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .aff-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .aff-hero-title { font-size: 16px; font-weight: 800; }
+    .aff-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .aff-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 23px;
+      font-weight: 800;
+      color: #34D399;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Affiliate Commission Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Affiliate Commission Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Estimate affiliate payouts, Earnings Per Click (EPC) & income targets in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="Affiliate calculation mode">
+            <button type="button" class="mode-btn active" id="estEarningsModeBtn" data-mode="earnings">Estimate Earnings</button>
+            <button type="button" class="mode-btn" id="incomeGoalModeBtn" data-mode="goal">Reverse Income Goal</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample (10k Clicks)</button>
+            <button type="button" id="resetAffBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="affCurrency" class="field-label">Currency Symbol</label>
+                <select id="affCurrency" class="std-select">
+                  <option value="$" selected>USD ($)</option>
+                  <option value="₹">INR (₹)</option>
+                  <option value="€">EUR (€)</option>
+                  <option value="£">GBP (£)</option>
+                  <option value="AED ">AED</option>
+                </select>
+              </div>
+
+              <div class="field-group" id="trafficFieldGroup">
+                <label for="affClicksInput" class="field-label">Monthly Affiliate Clicks</label>
+                <input type="number" id="affClicksInput" class="std-input" min="0" step="500" value="10000" />
+              </div>
+
+              <div class="field-group" id="goalFieldGroup" style="display: none;">
+                <label for="targetMonthlyIncomeInput" class="field-label">Target Monthly Commission</label>
+                <input type="number" id="targetMonthlyIncomeInput" class="std-input" min="0" step="250" value="3000" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="affCvrPctInput" class="field-label">Conversion Rate (%)</label>
+                <input type="number" id="affCvrPctInput" class="std-input" min="0.01" max="100" step="0.25" value="2.5" />
+              </div>
+
+              <div class="field-group">
+                <label for="avgOrderValueInput" class="field-label">Average Order Value (AOV)</label>
+                <input type="number" id="avgOrderValueInput" class="std-input" min="0" step="10" value="80" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="commRatePctInput" class="field-label">Commission Rate (%)</label>
+                <input type="number" id="commRatePctInput" class="std-input" min="0" max="100" step="1" value="15" />
+              </div>
+
+              <div class="field-group">
+                <label for="refundRatePctInput" class="field-label">Refund / Cancellation Rate (%)</label>
+                <input type="number" id="refundRatePctInput" class="std-input" min="0" max="100" step="1" value="5" />
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="aff-hero-box">
+              <div>
+                <div class="aff-hero-kicker" id="affHeroKicker">Net Monthly Commission</div>
+                <div class="aff-hero-title" id="affSummaryTitle">250 Sales • $12.00 / Sale</div>
+                <div class="aff-hero-sub" id="affSubCaption">Annualized: $34,200.00 / yr • Net EPC: $0.29</div>
+              </div>
+              <div class="aff-hero-num" id="affPrimaryDisplay">$2,850.00</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key" id="m1Key">Earnings Per Click (EPC)</div>
+                <div class="metric-val" id="m1Val">$0.29 / click</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key" id="m2Key">Commission Per Sale (Net)</div>
+                <div class="metric-val" id="m2Val">$11.40 / sale</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key" id="m3Key">Attributed Sales Volume</div>
+                <div class="metric-val" id="m3Val">$20,000.00 (250 orders)</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key" id="m4Key">Annualized Net Payout</div>
+                <div class="metric-val" id="m4Val">$34,200.00 / yr</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyAffBtn" class="btn-primary">Copy Commission Forecast</button>
+              <button type="button" id="downloadAffBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, EPC Math & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Affiliate Commissions, Earnings Per Click (EPC) & Traffic Goal Planning</h2>
+
+      <h3>How Conversion Rate, Commission %, and Earnings Per Click (EPC) Drive Affiliate Revenue</h3>
+      <p>
+        Whether you monetize a content website, YouTube channel, newsletter, or review hub through e-commerce affiliate networks or SaaS partner programs, your monthly payout is governed by four levers: qualified <strong>affiliate clicks</strong>, merchant <strong>conversion rate (CVR %)</strong>, <strong>average order value (AOV)</strong>, and your <strong>commission percentage</strong> (adjusted for typical <strong>refund or cancellation rates</strong>). Combining those ratios into a single north-star metric—<strong>Earnings Per Click (EPC)</strong>, calculated as <code>Net Commission / Total Clicks</code>—allows creators to compare two very different partner offers on equal footing: for instance, a high-ticket SaaS program converting at <code>1.5%</code> with a <code>30%</code> commission can easily outperform a physical product converting at <code>5%</code> with a <code>3%</code> commission. A browser-based <strong>Affiliate Commission Calculator</strong> models both forward earnings and reverse traffic goals 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Forecast Affiliate Earnings or Traffic Goals in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Select Mode:</strong> Stay in <strong>Estimate Earnings</strong> to project monthly/annual payouts from your click volume, or switch to <strong>Reverse Income Goal</strong> to see how many monthly clicks and orders are needed to reach a target income.</li>
+        <li><strong>Enter Traffic/Goal, Conversion Rate, AOV & Commission %:</strong> Fill in your expected <strong>Conversion Rate (%)</strong>, <strong>Average Order Value (AOV)</strong>, <strong>Commission Rate (%)</strong>, and estimated <strong>Refund / Cancellation Rate (%)</strong>.</li>
+        <li><strong>Review EPC, Per-Sale Payout & Export:</strong> Inspect net EPC, net payout per sale, gross sales volume, and annualized income, then click <strong>Copy Commission Forecast</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Affiliate Payout, Net EPC & Reverse Traffic Formulas</h3>
+      <p>
+        Let <code>Clicks</code> be monthly outbound link clicks, <code>CVR = Conversion% / 100</code>, <code>AOV</code> be average order value, <code>Comm = Commission% / 100</code>, and <code>Ref = Refund% / 100</code>:
+      </p>
+      <div class="formula-box">
+        Net Commission / Sale = AOV × Comm × (1 − Ref)  |  Net EPC = CVR × Net Commission / Sale<br />
+        Monthly Commission = Clicks × Net EPC  |  Required Clicks for Goal = Target Income / Net EPC
+      </div>
+
+      <h3>Helpful Tips for Optimizing Affiliate Conversions & EPC</h3>
+      <ul>
+        <li><strong>Account for Refund Windows & Cookie Attribution:</strong> Many programs hold commissions for <code>30 to 60 days</code> to deduct returns or canceled trials—including a realistic <code>3%–10%</code> refund buffer keeps forecasts grounded.</li>
+        <li><strong>Compare EPC Across Programs:</strong> Track outbound clicks per page and compare EPC rather than looking only at headline commission percentages.</li>
+        <li><strong>Disclose Affiliate Relationships Clearly:</strong> Always include clear affiliate disclosures in compliance with platform rules and applicable advertising guidelines.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Sending <code>10,000</code> monthly clicks at a <code>2.5%</code> conversion rate generates <code>250</code> orders. At an <code>$80</code> AOV and <code>15%</code> commission (<code>$12.00</code> gross per sale), deducting a <code>5%</code> refund rate yields <code>$11.40</code> net per sale, <code>$0.29</code> net EPC, and <code>$2,850.00/month</code> (<code>$34,200.00/year</code>).</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="aff-table-heading">
+      <h2 id="aff-table-heading">Affiliate Marketing Formulas, Benchmarks & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to check affiliate commission formulas, EPC metrics, and calculator modes.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Metric / Program Type</th>
+              <th>Formula / Typical Range</th>
+              <th>Role</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Physical E-Commerce</strong></td>
+              <td><code>1% – 10%</code> commission</td>
+              <td>High volume, lower margin</td>
+              <td>Often higher CVR on trusted brands</td>
+            </tr>
+            <tr>
+              <td><strong>SaaS & Software Partners</strong></td>
+              <td><code>20% – 40%</code> commission</td>
+              <td>Higher payout per referral</td>
+              <td>Lower CVR, strong EPC</td>
+            </tr>
+            <tr>
+              <td><strong>Digital Courses & Info</strong></td>
+              <td><code>30% – 50%</code> commission</td>
+              <td>High-margin digital delivery</td>
+              <td>Watch refund window buffers</td>
+            </tr>
+            <tr>
+              <td><strong>Gross Commission / Sale</strong></td>
+              <td><code>AOV × (Commission% / 100)</code></td>
+              <td>Pre-refund payout per order</td>
+              <td><code>$80 × 15% = $12.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Net Commission / Sale</strong></td>
+              <td><code>Gross / Sale × (1 − Refund%)</code></td>
+              <td>Refund-adjusted payout</td>
+              <td><code>$12.00 × 0.95 = $11.40</code></td>
+            </tr>
+            <tr>
+              <td><strong>Earnings Per Click (EPC)</strong></td>
+              <td><code>Net Commission / Total Clicks</code></td>
+              <td>Revenue efficiency per click</td>
+              <td><code>$2,850 / 10,000 = $0.285</code></td>
+            </tr>
+            <tr>
+              <td><strong>Attributed Orders</strong></td>
+              <td><code>Clicks × (CVR% / 100)</code></td>
+              <td>Converted referrals</td>
+              <td><code>10,000 × 2.5% = 250</code></td>
+            </tr>
+            <tr>
+              <td><strong>Attributed Sales Volume</strong></td>
+              <td><code>Attributed Orders × AOV</code></td>
+              <td>Gross merchant GMV driven</td>
+              <td><code>250 × $80 = $20,000.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Net Monthly Commission</strong></td>
+              <td><code>Attributed Orders × Net / Sale</code></td>
+              <td>Projected monthly payout</td>
+              <td><code>$2,850.00 / mo</code> in sample</td>
+            </tr>
+            <tr>
+              <td><strong>Annualized Net Payout</strong></td>
+              <td><code>Net Monthly Commission × 12</code></td>
+              <td>12-month run-rate projection</td>
+              <td><code>$34,200.00 / yr</code> in sample</td>
+            </tr>
+            <tr>
+              <td><strong>Reverse Income Goal Mode</strong></td>
+              <td><code>Required Clicks = Goal / Net EPC</code></td>
+              <td>Traffic planner for target income</td>
+              <td>Switch mode in top bar</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports commission forecast</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Affiliate & EPC Modeler — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your traffic and commission numbers stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero affiliate metrics transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Creator, Marketing, Finance & Everyday Calculators</h2>
+      <p>Calculating CTR, ROAS & CPA, percentages, or billable hours? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="click-through-rate-ctr-calculator.html"><span>CTR Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="roas-cpa-calculator.html"><span>ROAS & CPA Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="billable-hours-calculator.html"><span>Billable Hours Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="income-tax-calculator.html"><span>Income Tax Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="open-graph-generator.html"><span>Open Graph Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is Earnings Per Click (EPC) in affiliate marketing?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>EPC</strong> is your average commission earned per outbound affiliate click (<code>Net Commission / Total Clicks</code>), allowing you to compare offers with different conversion rates and commission percentages side by side.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How does the Reverse Income Goal mode work?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Switch to <strong>Reverse Income Goal</strong> at the top of the studio, enter your target monthly commission along with conversion rate, AOV, and commission %, and the calculator computes how many monthly clicks and orders are needed to hit that goal.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my traffic or commission numbers sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Affiliate Commission Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Affiliate Commission Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const estEarningsModeBtn = document.getElementById("estEarningsModeBtn");
+      const incomeGoalModeBtn = document.getElementById("incomeGoalModeBtn");
+
+      const affCurrency = document.getElementById("affCurrency");
+      const trafficFieldGroup = document.getElementById("trafficFieldGroup");
+      const affClicksInput = document.getElementById("affClicksInput");
+      const goalFieldGroup = document.getElementById("goalFieldGroup");
+      const targetMonthlyIncomeInput = document.getElementById("targetMonthlyIncomeInput");
+
+      const affCvrPctInput = document.getElementById("affCvrPctInput");
+      const avgOrderValueInput = document.getElementById("avgOrderValueInput");
+      const commRatePctInput = document.getElementById("commRatePctInput");
+      const refundRatePctInput = document.getElementById("refundRatePctInput");
+
+      const affHeroKicker = document.getElementById("affHeroKicker");
+      const affSummaryTitle = document.getElementById("affSummaryTitle");
+      const affSubCaption = document.getElementById("affSubCaption");
+      const affPrimaryDisplay = document.getElementById("affPrimaryDisplay");
+
+      const m1Key = document.getElementById("m1Key");
+      const m1Val = document.getElementById("m1Val");
+      const m2Key = document.getElementById("m2Key");
+      const m2Val = document.getElementById("m2Val");
+      const m3Key = document.getElementById("m3Key");
+      const m3Val = document.getElementById("m3Val");
+      const m4Key = document.getElementById("m4Key");
+      const m4Val = document.getElementById("m4Val");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetAffBtn = document.getElementById("resetAffBtn");
+      const copyAffBtn = document.getElementById("copyAffBtn");
+      const downloadAffBtn = document.getElementById("downloadAffBtn");
+
+      let mode = "earnings";
+      let latestSummaryText = "";
+
+      function fmtCurr(sym, amt) {
+        const safe = Number.isFinite(amt) ? amt : 0;
+        const locale = sym === "₹" ? "en-IN" : "en-US";
+        const formatted = safe.toLocaleString(locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        return `${sym}${formatted}`;
+      }
+
+      function clearAffOutput(msg) {
+        affPrimaryDisplay.textContent = "—";
+        affSubCaption.textContent = msg;
+        m1Val.textContent = "—";
+        m2Val.textContent = "—";
+        m3Val.textContent = "—";
+        m4Val.textContent = "—";
+        latestSummaryText = "";
+      }
+
+      function calculateAffiliate() {
+        const isEarnings = mode === "earnings";
+        estEarningsModeBtn.classList.toggle("active", isEarnings);
+        incomeGoalModeBtn.classList.toggle("active", !isEarnings);
+        trafficFieldGroup.style.display = isEarnings ? "flex" : "none";
+        goalFieldGroup.style.display = !isEarnings ? "flex" : "none";
+
+        const sym = affCurrency.value;
+        const cvrPct = parseFloat(affCvrPctInput.value);
+        const aov = parseFloat(avgOrderValueInput.value);
+        const commPct = parseFloat(commRatePctInput.value);
+        const refPct = parseFloat(refundRatePctInput.value) || 0;
+
+        if (
+          !Number.isFinite(cvrPct) || cvrPct <= 0 || cvrPct > 100 ||
+          !Number.isFinite(aov) || aov < 0 ||
+          !Number.isFinite(commPct) || commPct < 0 || commPct > 100 ||
+          refPct < 0 || refPct >= 100
+        ) {
+          clearAffOutput("Enter valid conversion rate (>0%), AOV, commission %, and refund %");
+          return;
+        }
+
+        const grossPerSale = aov * (commPct / 100);
+        const netPerSale = grossPerSale * (1 - refPct / 100);
+        const netEpc = (cvrPct / 100) * netPerSale;
+
+        if (isEarnings) {
+          const clicks = parseFloat(affClicksInput.value);
+          if (!Number.isFinite(clicks) || clicks < 0) {
+            clearAffOutput("Enter valid non-negative monthly clicks");
+            return;
+          }
+
+          const salesCount = clicks * (cvrPct / 100);
+          const gmv = salesCount * aov;
+          const monthlyNet = salesCount * netPerSale;
+          const annualNet = monthlyNet * 12;
+
+          affHeroKicker.textContent = "Net Monthly Commission";
+          affSummaryTitle.textContent = `${salesCount.toLocaleString("en-US", { maximumFractionDigits: 1 })} Sales \u2022 ${fmtCurr(sym, grossPerSale)} / Sale`;
+          affSubCaption.textContent = `Annualized: ${fmtCurr(sym, annualNet)} / yr \u2022 Net EPC: ${fmtCurr(sym, netEpc)}`;
+          affPrimaryDisplay.textContent = fmtCurr(sym, monthlyNet);
+
+          m1Key.textContent = "Earnings Per Click (EPC)";
+          m1Val.textContent = `${fmtCurr(sym, netEpc)} / click`;
+
+          m2Key.textContent = "Commission Per Sale (Net)";
+          m2Val.textContent = `${fmtCurr(sym, netPerSale)} / sale`;
+
+          m3Key.textContent = "Attributed Sales Volume";
+          m3Val.textContent = `${fmtCurr(sym, gmv)} (${Math.round(salesCount).toLocaleString("en-US")} orders)`;
+
+          m4Key.textContent = "Annualized Net Payout";
+          m4Val.textContent = `${fmtCurr(sym, annualNet)} / yr`;
+
+          latestSummaryText = [
+            "PureWebKits Affiliate Commission Forecast",
+            "------------------------------------------",
+            `Monthly Clicks: ${clicks.toLocaleString("en-US")} | CVR: ${cvrPct}% | Orders: ${salesCount.toFixed(1)}`,
+            `AOV: ${fmtCurr(sym, aov)} | Commission: ${commPct}% | Refund Buffer: ${refPct}%`,
+            `Net Per Sale: ${fmtCurr(sym, netPerSale)} | Net EPC: ${fmtCurr(sym, netEpc)}`,
+            `Net Monthly Commission: ${fmtCurr(sym, monthlyNet)} | Annualized Payout: ${fmtCurr(sym, annualNet)}`
+          ].join("\n");
+        } else {
+          const goal = parseFloat(targetMonthlyIncomeInput.value);
+          if (!Number.isFinite(goal) || goal < 0) {
+            clearAffOutput("Enter valid non-negative target monthly commission");
+            return;
+          }
+
+          if (netEpc <= 0) {
+            clearAffOutput("AOV, CVR, and Commission % must be greater than 0 to compute required clicks");
+            return;
+          }
+
+          const reqClicks = Math.ceil(goal / netEpc);
+          const reqOrders = Math.ceil(goal / netPerSale);
+          const reqDailyClicks = reqClicks / 30;
+
+          affHeroKicker.textContent = "Required Monthly Clicks";
+          affSummaryTitle.textContent = `Goal: ${fmtCurr(sym, goal)} / mo (${reqOrders.toLocaleString("en-US")} orders)`;
+          affSubCaption.textContent = `~${Math.ceil(reqDailyClicks).toLocaleString("en-US")} clicks/day \u2022 Net EPC: ${fmtCurr(sym, netEpc)}`;
+          affPrimaryDisplay.textContent = `${reqClicks.toLocaleString("en-US")} clicks`;
+
+          m1Key.textContent = "Earnings Per Click (EPC)";
+          m1Val.textContent = `${fmtCurr(sym, netEpc)} / click`;
+
+          m2Key.textContent = "Commission Per Sale (Net)";
+          m2Val.textContent = `${fmtCurr(sym, netPerSale)} / sale`;
+
+          m3Key.textContent = "Orders Needed / Month";
+          m3Val.textContent = `${reqOrders.toLocaleString("en-US")} orders`;
+
+          m4Key.textContent = "Daily Click Pace (30d)";
+          m4Val.textContent = `${reqDailyClicks.toFixed(1)} clicks / day`;
+
+          latestSummaryText = [
+            "PureWebKits Affiliate Income Goal Plan",
+            "---------------------------------------",
+            `Target Monthly Commission: ${fmtCurr(sym, goal)} | Net EPC: ${fmtCurr(sym, netEpc)}`,
+            `AOV: ${fmtCurr(sym, aov)} | CVR: ${cvrPct}% | Commission: ${commPct}% | Refund Buffer: ${refPct}%`,
+            `Required Monthly Clicks: ${reqClicks.toLocaleString("en-US")} (~${reqDailyClicks.toFixed(1)}/day) | Orders Needed: ${reqOrders.toLocaleString("en-US")}`
+          ].join("\n");
+        }
+      }
+
+      estEarningsModeBtn.addEventListener("click", function () { mode = "earnings"; calculateAffiliate(); });
+      incomeGoalModeBtn.addEventListener("click", function () { mode = "goal"; calculateAffiliate(); });
+
+      [
+        affCurrency,
+        affClicksInput,
+        targetMonthlyIncomeInput,
+        affCvrPctInput,
+        avgOrderValueInput,
+        commRatePctInput,
+        refundRatePctInput
+      ].forEach(function (el) {
+        el.addEventListener("input", calculateAffiliate);
+        el.addEventListener("change", calculateAffiliate);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        mode = "earnings";
+        affCurrency.value = "$";
+        affClicksInput.value = "10000";
+        targetMonthlyIncomeInput.value = "3000";
+        affCvrPctInput.value = "2.5";
+        avgOrderValueInput.value = "80";
+        commRatePctInput.value = "15";
+        refundRatePctInput.value = "5";
+        calculateAffiliate();
+      });
+
+      resetAffBtn.addEventListener("click", function () {
+        affClicksInput.value = "";
+        targetMonthlyIncomeInput.value = "";
+        avgOrderValueInput.value = "";
+        calculateAffiliate();
+      });
+
+      copyAffBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyAffBtn.textContent;
+          copyAffBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyAffBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadAffBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "affiliate-commission-forecast.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateAffiliate();
+    });
+  </script>
+</body>
+</html>

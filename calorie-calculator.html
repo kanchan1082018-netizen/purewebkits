@@ -1,0 +1,971 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Daily Calorie Intake & Macro Calculator — PureWebKits</title>
+  <meta name="description" content="Estimate daily calorie intake needs for maintenance, weight loss, or muscle gain with optional macro targets online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/calorie-intake-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Calorie Intake Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .unit-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      align-self: flex-start;
+    }
+    .unit-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .unit-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .cal-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .cal-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .cal-hero-title { font-size: 16px; font-weight: 800; }
+    .cal-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .cal-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 26px;
+      font-weight: 800;
+      color: #38BDF8;
+      white-space: nowrap;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Calorie Intake Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Calorie Intake Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Estimate daily calorie targets for maintenance, weight loss, or gain in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Enter your profile, activity level, and goal to estimate daily calorie intake:</div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample Profile</button>
+            <button type="button" id="resetCalBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="unit-pills" role="tablist" aria-label="Measurement units">
+              <button type="button" class="unit-btn active" id="metricBtn" data-unit="metric">Metric (kg / cm)</button>
+              <button type="button" class="unit-btn" id="imperialBtn" data-unit="imperial">Imperial (lb / in)</button>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="sexSelect" class="field-label">Sex (Formula Constant)</label>
+                <select id="sexSelect" class="std-select">
+                  <option value="male" selected>Male (+5)</option>
+                  <option value="female">Female (−161)</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="ageInput" class="field-label">Age (Years)</label>
+                <input type="number" id="ageInput" class="std-input" min="10" max="110" value="28" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="weightInput" class="field-label" id="weightLabel">Weight (kg)</label>
+                <input type="number" id="weightInput" class="std-input" min="20" max="400" step="0.1" value="70" />
+              </div>
+
+              <div class="field-group">
+                <label for="heightInput" class="field-label" id="heightLabel">Height (cm)</label>
+                <input type="number" id="heightInput" class="std-input" min="80" max="260" step="0.1" value="175" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="activitySelect" class="field-label">Activity Level</label>
+                <select id="activitySelect" class="std-select">
+                  <option value="1.2">Sedentary (× 1.2)</option>
+                  <option value="1.375" selected>Lightly Active (× 1.375)</option>
+                  <option value="1.55">Moderately Active (× 1.55)</option>
+                  <option value="1.725">Very Active (× 1.725)</option>
+                  <option value="1.9">Extra Active (× 1.9)</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="goalSelect" class="field-label">Goal Adjustment</label>
+                <select id="goalSelect" class="std-select">
+                  <option value="0.8">Weight Loss (−20%)</option>
+                  <option value="1" selected>Maintain Weight (0%)</option>
+                  <option value="1.15">Weight / Muscle Gain (+15%)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="cal-hero-box">
+              <div>
+                <div class="cal-hero-kicker">Daily Target Intake</div>
+                <div class="cal-hero-title" id="goalTitleDisplay">Maintain Weight</div>
+                <div class="cal-hero-sub" id="bmrReferenceSub">Resting BMR: 1,674 kcal/day</div>
+              </div>
+              <div class="cal-hero-num" id="targetCaloriesDisplay">2,301 kcal/day</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Maintenance (TDEE)</div>
+                <div class="metric-val" id="tdeeDisplay">2,301 kcal/day</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Balanced Protein (~25%)</div>
+                <div class="metric-val" id="proteinMacroDisplay">144 g/day</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Balanced Carbs (~45%)</div>
+                <div class="metric-val" id="carbsMacroDisplay">259 g/day</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Balanced Fats (~30%)</div>
+                <div class="metric-val" id="fatsMacroDisplay">77 g/day</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyCalBtn" class="btn-primary">Copy Calorie Plan</button>
+              <button type="button" id="downloadCalBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Daily Calorie Intake, TDEE Adjustments, and Balanced Macros</h2>
+
+      <h3>How Daily Calorie Needs Connect Resting Metabolism, Movement, and Goals</h3>
+      <p>
+        Estimating your daily calorie intake starts with understanding how much energy your body uses at rest—your <strong>Basal Metabolic Rate (BMR)</strong>—and how much additional energy you spend through daily movement and exercise—captured by your <strong>Total Daily Energy Expenditure (TDEE)</strong>. From that maintenance baseline, adjusting calories moderately up or down provides a structured starting point for weight maintenance, gradual weight loss, or lean weight gain. Pairing calorie targets with general macronutrient splits (protein, carbohydrates, and dietary fats) helps turn a single daily number into practical meal planning. All calculations run 100% client-side in your browser using JavaScript, keeping your personal measurements private on your device.
+      </p>
+
+      <h3>How to Estimate Your Daily Calorie Intake in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter Your Measurements & Units:</strong> Choose <strong>Metric (kg / cm)</strong> or <strong>Imperial (lb / in)</strong> and fill in sex constant, age, weight, and height, or click <strong>Load Sample Profile</strong>.</li>
+        <li><strong>Select Activity Level & Goal:</strong> Pick the activity multiplier matching your weekly routine and choose whether you want to maintain weight, aim for a moderate deficit (<code>−20%</code>), or aim for a moderate surplus (<code>+15%</code>).</li>
+        <li><strong>Review Targets & Export Summary:</strong> Check your daily target calories, maintenance TDEE, and sample 25%/45%/30% macro figures, then click <strong>Copy Calorie Plan</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Mifflin-St Jeor & Goal Intake Formulas</h3>
+      <p>
+        Using metric weight <code>W</code> (kg), height <code>H</code> (cm), age <code>A</code> (years), activity factor <code>AF</code>, and goal multiplier <code>GM</code>:
+      </p>
+      <div class="formula-box">
+        BMR = (10 × W) + (6.25 × H) − (5 × A) + Offset (+5 Male / −161 Female)<br />
+        TDEE = BMR × AF  |  Target Intake = TDEE × GM
+      </div>
+
+      <h3>General Nutrition Context & Safe Habits</h3>
+      <ul>
+        <li><strong>Aim for Gradual Adjustments Rather Than Extremes:</strong> Moderate shifts like <code>−20%</code> or <code>+15%</code> are easier to sustain than severe restrictions; consult a qualified healthcare provider or registered dietitian for individualized medical nutrition advice.</li>
+        <li><strong>Observe Trends Over 2–3 Weeks:</strong> Formula estimates are starting points—track how your body responds over multiple weeks before making big changes.</li>
+        <li><strong>Prioritize Whole Foods & Hydration:</strong> Balance protein, fiber-rich carbohydrates, healthy fats, and daily water intake alongside your calorie target.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> A 28-year-old male (<code>70 kg</code>, <code>175 cm</code>) with a resting BMR of roughly <code>1,674 kcal/day</code> and a Lightly Active multiplier of <code>1.375</code> has an estimated maintenance TDEE of about <code>2,301 kcal/day</code>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="calorie-table-heading">
+      <h2 id="calorie-table-heading">Calorie Intake Multipliers, Macro Energy & Reference Table (16 Rules)</h2>
+      <p>Use this reference table to review activity factors, goal adjustments, and macronutrient calorie densities.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Factor / Metric</th>
+              <th>Formula / Value</th>
+              <th>Role</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Sedentary</strong></td>
+              <td><code>× 1.2</code></td>
+              <td>Activity multiplier</td>
+              <td>Minimal structured exercise</td>
+            </tr>
+            <tr>
+              <td><strong>Lightly Active</strong></td>
+              <td><code>× 1.375</code></td>
+              <td>Activity multiplier</td>
+              <td>Light exercise 1–3 days/week</td>
+            </tr>
+            <tr>
+              <td><strong>Moderately Active</strong></td>
+              <td><code>× 1.55</code></td>
+              <td>Activity multiplier</td>
+              <td>Moderate exercise 3–5 days/week</td>
+            </tr>
+            <tr>
+              <td><strong>Very Active</strong></td>
+              <td><code>× 1.725</code></td>
+              <td>Activity multiplier</td>
+              <td>Hard exercise 6–7 days/week</td>
+            </tr>
+            <tr>
+              <td><strong>Extra Active</strong></td>
+              <td><code>× 1.9</code></td>
+              <td>Activity multiplier</td>
+              <td>Strenuous labor or heavy daily training</td>
+            </tr>
+            <tr>
+              <td><strong>Weight Loss Goal</strong></td>
+              <td><code>0.80 × TDEE</code></td>
+              <td>~20% below maintenance</td>
+              <td>General reference; adjust gradually</td>
+            </tr>
+            <tr>
+              <td><strong>Maintain Weight</strong></td>
+              <td><code>1.00 × TDEE</code></td>
+              <td>Matches estimated TDEE</td>
+              <td>Baseline energy balance target</td>
+            </tr>
+            <tr>
+              <td><strong>Weight / Muscle Gain</strong></td>
+              <td><code>1.15 × TDEE</code></td>
+              <td>~15% above maintenance</td>
+              <td>General reference; pair with training</td>
+            </tr>
+            <tr>
+              <td><strong>Protein Energy Density</strong></td>
+              <td><code>4 kcal per gram</code></td>
+              <td>Sample 25% calorie share</td>
+              <td><code>(0.25 × Calories) / 4</code></td>
+            </tr>
+            <tr>
+              <td><strong>Carbohydrate Density</strong></td>
+              <td><code>4 kcal per gram</code></td>
+              <td>Sample 45% calorie share</td>
+              <td><code>(0.45 × Calories) / 4</code></td>
+            </tr>
+            <tr>
+              <td><strong>Fat Energy Density</strong></td>
+              <td><code>9 kcal per gram</code></td>
+              <td>Sample 30% calorie share</td>
+              <td><code>(0.30 × Calories) / 9</code></td>
+            </tr>
+            <tr>
+              <td><strong>Unit Conversion</strong></td>
+              <td><code>0.45359237 kg/lb</code></td>
+              <td><code>2.54 cm/in</code></td>
+              <td>Exact metric/imperial conversion</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports calorie & macro plan</td>
+              <td>Save locally for meal tracking</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Math — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — All calculations run locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Your inputs stay strictly on your device</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Health, Fitness & Everyday Calculators</h2>
+      <p>Checking BMR, body fat percentage, or daily hydration? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="bmr-calculator.html"><span>BMR & Calorie Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="body-fat-calculator.html"><span>Body Fat Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="bmi-calculator.html"><span>BMI Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="water-intake-calculator.html"><span>Water Intake Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="ideal-weight-calculator.html"><span>Ideal Weight Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="energy-converter.html"><span>Energy Converter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How are the sample protein, carb, and fat grams calculated?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            They use a balanced sample split of <strong>25% protein</strong> (<code>4 kcal/g</code>), <strong>45% carbohydrates</strong> (<code>4 kcal/g</code>), and <strong>30% fats</strong> (<code>9 kcal/g</code>) applied to your daily target calories.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I switch between metric and imperial units?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> Click <strong>Metric (kg / cm)</strong> or <strong>Imperial (lb / in)</strong> to convert weight and height values automatically.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my profile inputs sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Calorie Intake Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Calorie Intake & Macro Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const metricBtn = document.getElementById("metricBtn");
+      const imperialBtn = document.getElementById("imperialBtn");
+      const sexSelect = document.getElementById("sexSelect");
+      const ageInput = document.getElementById("ageInput");
+      const weightInput = document.getElementById("weightInput");
+      const heightInput = document.getElementById("heightInput");
+      const weightLabel = document.getElementById("weightLabel");
+      const heightLabel = document.getElementById("heightLabel");
+      const activitySelect = document.getElementById("activitySelect");
+      const goalSelect = document.getElementById("goalSelect");
+
+      const goalTitleDisplay = document.getElementById("goalTitleDisplay");
+      const bmrReferenceSub = document.getElementById("bmrReferenceSub");
+      const targetCaloriesDisplay = document.getElementById("targetCaloriesDisplay");
+      const tdeeDisplay = document.getElementById("tdeeDisplay");
+      const proteinMacroDisplay = document.getElementById("proteinMacroDisplay");
+      const carbsMacroDisplay = document.getElementById("carbsMacroDisplay");
+      const fatsMacroDisplay = document.getElementById("fatsMacroDisplay");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetCalBtn = document.getElementById("resetCalBtn");
+      const copyCalBtn = document.getElementById("copyCalBtn");
+      const downloadCalBtn = document.getElementById("downloadCalBtn");
+
+      let unitSystem = "metric";
+      let latestSummaryText = "";
+
+      function fmtKcal(n) {
+        return Math.round(n).toLocaleString("en-US") + " kcal/day";
+      }
+
+      function switchUnitSystem(newUnit) {
+        if (unitSystem === newUnit) return;
+        const wVal = parseFloat(weightInput.value);
+        const hVal = parseFloat(heightInput.value);
+
+        if (newUnit === "imperial") {
+          if (Number.isFinite(wVal) && wVal > 0) weightInput.value = (wVal / 0.45359237).toFixed(1);
+          if (Number.isFinite(hVal) && hVal > 0) heightInput.value = (hVal / 2.54).toFixed(1);
+          weightLabel.textContent = "Weight (lb)";
+          heightLabel.textContent = "Height (in)";
+        } else {
+          if (Number.isFinite(wVal) && wVal > 0) weightInput.value = (wVal * 0.45359237).toFixed(1);
+          if (Number.isFinite(hVal) && hVal > 0) heightInput.value = (hVal * 2.54).toFixed(1);
+          weightLabel.textContent = "Weight (kg)";
+          heightLabel.textContent = "Height (cm)";
+        }
+
+        unitSystem = newUnit;
+        metricBtn.classList.toggle("active", unitSystem === "metric");
+        imperialBtn.classList.toggle("active", unitSystem === "imperial");
+        calculateCalorieIntake();
+      }
+
+      function calculateCalorieIntake() {
+        const age = parseFloat(ageInput.value);
+        let weightKg = parseFloat(weightInput.value);
+        let heightCm = parseFloat(heightInput.value);
+        const mult = parseFloat(activitySelect.value) || 1.2;
+        const goalMult = parseFloat(goalSelect.value) || 1;
+        const offset = sexSelect.value === "female" ? -161 : 5;
+
+        if (!Number.isFinite(age) || age <= 0 || !Number.isFinite(weightKg) || weightKg <= 0 || !Number.isFinite(heightCm) || heightCm <= 0) {
+          targetCaloriesDisplay.textContent = "—";
+          tdeeDisplay.textContent = "—";
+          proteinMacroDisplay.textContent = "—";
+          carbsMacroDisplay.textContent = "—";
+          fatsMacroDisplay.textContent = "—";
+          bmrReferenceSub.textContent = "Enter valid age, weight, and height";
+          latestSummaryText = "";
+          return;
+        }
+
+        if (unitSystem === "imperial") {
+          weightKg = weightKg * 0.45359237;
+          heightCm = heightCm * 2.54;
+        }
+
+        const bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * age) + offset;
+        const tdee = bmr * mult;
+        const targetCal = tdee * goalMult;
+
+        const proteinGrams = Math.round((targetCal * 0.25) / 4);
+        const carbsGrams = Math.round((targetCal * 0.45) / 4);
+        const fatsGrams = Math.round((targetCal * 0.30) / 9);
+
+        const goalLabel = goalSelect.options[goalSelect.selectedIndex].text;
+        goalTitleDisplay.textContent = goalLabel.replace(/\s*\(.*\)$/, "");
+        bmrReferenceSub.textContent = `Resting BMR: ${fmtKcal(bmr)}`;
+        targetCaloriesDisplay.textContent = fmtKcal(targetCal);
+        tdeeDisplay.textContent = fmtKcal(tdee);
+
+        proteinMacroDisplay.textContent = `${proteinGrams} g/day`;
+        carbsMacroDisplay.textContent = `${carbsGrams} g/day`;
+        fatsMacroDisplay.textContent = `${fatsGrams} g/day`;
+
+        latestSummaryText = [
+          "PureWebKits Daily Calorie & Macro Estimate",
+          "-----------------------------------------",
+          `Sex: ${sexSelect.value === "female" ? "Female" : "Male"} | Age: ${age} yrs`,
+          `Activity Multiplier: x${mult} | Goal: ${goalLabel}`,
+          `Estimated Resting BMR: ${fmtKcal(bmr)}`,
+          `Estimated Maintenance (TDEE): ${fmtKcal(tdee)}`,
+          `Daily Target Intake: ${fmtKcal(targetCal)}`,
+          `Sample Balanced Macros (25P / 45C / 30F): Protein ${proteinGrams}g • Carbs ${carbsGrams}g • Fats ${fatsGrams}g`
+        ].join("\n");
+      }
+
+      metricBtn.addEventListener("click", function () { switchUnitSystem("metric"); });
+      imperialBtn.addEventListener("click", function () { switchUnitSystem("imperial"); });
+
+      [sexSelect, ageInput, weightInput, heightInput, activitySelect, goalSelect].forEach(function (el) {
+        el.addEventListener("input", calculateCalorieIntake);
+        el.addEventListener("change", calculateCalorieIntake);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        unitSystem = "metric";
+        metricBtn.classList.add("active");
+        imperialBtn.classList.remove("active");
+        weightLabel.textContent = "Weight (kg)";
+        heightLabel.textContent = "Height (cm)";
+        sexSelect.value = "male";
+        ageInput.value = "28";
+        weightInput.value = "70";
+        heightInput.value = "175";
+        activitySelect.value = "1.375";
+        goalSelect.value = "1";
+        calculateCalorieIntake();
+      });
+
+      resetCalBtn.addEventListener("click", function () {
+        ageInput.value = "";
+        weightInput.value = "";
+        heightInput.value = "";
+        calculateCalorieIntake();
+      });
+
+      copyCalBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyCalBtn.textContent;
+          copyCalBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyCalBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadCalBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "calorie-intake-plan.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateCalorieIntake();
+    });
+  </script>
+</body>
+</html>

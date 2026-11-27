@@ -1,0 +1,1023 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Color Palette Generator from Image — Extract HEX & CSS Schemes | PureWebKits</title>
+  <meta name="description" content="Extract dominant color palettes, HEX codes, RGB values, and CSS variables from any photo or logo online for free. Export downloadable PNG palette cards 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/color-palette-extractor.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Controls Topbar */
+    .pal-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .count-pills { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .cnt-btn {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+    }
+    .cnt-btn.active, .cnt-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+    .btn-primary {
+      display: inline-block;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 16px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    /* Dropzone */
+    .dropzone {
+      border: 2px dashed #93C5FD;
+      background: #F8FAFC;
+      border-radius: 13px;
+      padding: 36px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .dropzone:hover, .dropzone.dragover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+    }
+    .drop-title { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+    .drop-sub { font-size: 13.5px; color: var(--text-muted); margin-bottom: 14px; }
+
+    /* Palette Workspace */
+    .pal-workspace { display: none; }
+    .pal-grid {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .img-preview-card {
+      background: #0F172A;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+    .img-preview-card img {
+      max-width: 100%;
+      max-height: 310px;
+      border-radius: 8px;
+      object-fit: contain;
+    }
+
+    /* Proportional Color Strip */
+    .prop-strip {
+      height: 26px;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      margin-bottom: 14px;
+    }
+    .swatches-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .swatch-card {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 11px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .swatch-card:hover { border-color: var(--primary); background: #FFFFFF; }
+    .swatch-left { display: flex; align-items: center; gap: 10px; }
+    .swatch-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      border: 1px solid rgba(15, 23, 42, 0.14);
+      flex-shrink: 0;
+    }
+    .swatch-hex { font-family: ui-monospace, monospace; font-size: 13.5px; font-weight: 800; color: var(--text-main); }
+    .swatch-rgb { font-size: 11.5px; color: var(--text-muted); }
+    .swatch-pct {
+      font-size: 11.5px;
+      font-weight: 800;
+      color: var(--primary);
+      background: var(--primary-soft);
+      padding: 2px 7px;
+      border-radius: 5px;
+    }
+
+    /* CSS Variables Export Box */
+    .css-export-box {
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+    .css-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .css-pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      padding: 14px;
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px;
+      line-height: 1.55;
+      overflow-x: auto;
+    }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .pal-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .swatches-grid, .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Color Palette Generator from Image -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Color Palette Generator from Image — Extract HEX & CSS Schemes</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Extract dominant colors, HEX/RGB swatches & CSS variables locally in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="pal-topbar">
+          <div class="count-pills">
+            <span style="font-size:13px;font-weight:700;">Palette Size:</span>
+            <button type="button" class="cnt-btn active" data-k="6">6 Colors</button>
+            <button type="button" class="cnt-btn" data-k="8">8 Colors</button>
+            <button type="button" class="cnt-btn" data-k="10">10 Colors</button>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="button" id="loadSamplePalBtn" class="btn-sec">Load Sample Image</button>
+            <label class="btn-primary" for="palImgInput">
+              + Upload Photo / Logo
+              <input type="file" id="palImgInput" accept="image/*" style="display:none;" />
+            </label>
+          </div>
+        </div>
+
+        <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Upload an image to extract color palette">
+          <div class="drop-title">Drag & drop any photo, brand logo, or UI screenshot here</div>
+          <div class="drop-sub">Analyzes pixel clusters locally to extract dominant HEX codes, percentages & CSS variables</div>
+          <span class="btn-primary">Choose Image File</span>
+        </div>
+
+        <div id="palWorkspace" class="pal-workspace" aria-live="polite">
+          <div class="pal-grid">
+            <div class="img-preview-card">
+              <img id="sourcePreviewImg" alt="Uploaded Source Image" />
+            </div>
+
+            <div>
+              <div style="font-size:12.5px;font-weight:800;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">
+                Dominant Color Distribution (Click any swatch to copy HEX)
+              </div>
+              <div id="propStrip" class="prop-strip"></div>
+              <div id="swatchesGrid" class="swatches-grid"></div>
+            </div>
+          </div>
+
+          <div class="css-export-box">
+            <div class="css-header">
+              <span style="font-size:13.5px;font-weight:800;">Ready-to-Use CSS Custom Variables (:root)</span>
+              <div style="display:flex;gap:8px;">
+                <button type="button" id="downloadCardBtn" class="btn-sec">Download PNG Palette Card</button>
+                <button type="button" id="copyCssBtn" class="btn-primary">Copy CSS Variables</button>
+              </div>
+            </div>
+            <pre id="cssVarsPre" class="css-pre"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How K-Means Color Quantization & Dominant Brand Palette Extraction Work</h2>
+
+      <h3>Turning Inspiration Photos & Brand Logos into Cohesive UI Color Systems</h3>
+      <p>
+        Every great brand identity, website theme, or illustration relies on a harmonious set of <strong>dominant, secondary, and accent colors</strong>. However, a standard 12-megapixel photograph contains hundreds of thousands of subtle pixel variations caused by lighting gradients and camera sensor noise. Our browser-based <strong>Color Palette Generator</strong> samples your uploaded image onto an offscreen HTML5 Canvas and runs an iterative <strong>K-Means clustering color quantization</strong> algorithm—grouping visually similar RGB pixels around their nearest cluster centroids and ranking them by pixel coverage percentage. Within milliseconds, you receive clean 6-digit HEX codes, RGB triplets, a ready-to-paste CSS <code>:root</code> variable block, and a downloadable PNG swatch card.
+      </p>
+
+      <h3>How to Extract a Color Palette from Any Image in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Upload a Photo or Logo:</strong> Drop any JPG, PNG, WebP, or SVG image into the upload zone above (or click <em>Load Sample Image</em> to test immediately).</li>
+        <li><strong>Choose Palette Swatch Count:</strong> Select <em>6 Colors</em>, <em>8 Colors</em>, or <em>10 Colors</em> at the top to refine primary and accent extraction.</li>
+        <li><strong>Copy HEX / CSS or Save PNG Card:</strong> Click any individual color swatch to copy its HEX code, copy the full CSS variable snippet, or click <em>Download PNG Palette Card</em>.</li>
+      </ol>
+
+      <h3>3D Euclidean RGB Color Distance Formula + Worked Example</h3>
+      <p>
+        To assign each sampled pixel <code>(R<sub>1</sub>, G<sub>1</sub>, B<sub>1</sub>)</code> to its closest palette centroid <code>(R<sub>2</sub>, G<sub>2</sub>, B<sub>2</sub>)</code>, the clustering engine minimizes 3D Euclidean color distance:
+      </p>
+      <div class="formula-box">
+        Color Distance (ΔE<sub>RGB</sub>) = √[ (R<sub>2</sub> − R<sub>1</sub>)² + (G<sub>2</sub> − G<sub>1</sub>)² + (B<sub>2</sub> − B<sub>1</sub>)² ]
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Suppose an image pixel has <strong>RGB(35, 102, 232)</strong> and two candidate palette centroids are <strong>Brand Blue RGB(37, 99, 235)</strong> and <strong>Slate Dark RGB(15, 23, 42)</strong>.</p>
+        <p>Distance to Brand Blue = <code>√[ (37−35)² + (99−102)² + (235−232)² ] = √(4 + 9 + 9) = 4.69</code>.</p>
+        <p>Distance to Slate Dark = <code>√[ (15−35)² + (23−102)² + (42−232)² ] = 206.74</code> → The pixel joins the <strong>Brand Blue (#2563EB)</strong> cluster.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="pal-table-heading">
+      <h2 id="pal-table-heading">UI Design Color Proportions (60-30-10 Rule) & Palette Roles (16 Guidelines)</h2>
+      <p>Use this UI/UX color system reference chart to apply your extracted image palette cleanly across websites and mobile apps.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Palette Role / Rule</th>
+              <th>Recommended Share</th>
+              <th>UI Elements Assigned</th>
+              <th>Design Best Practice</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>60-30-10 Rule: Dominant Neutral</strong></td>
+              <td><span class="limit-badge">60% of Viewport</span></td>
+              <td>Page background, cards, whitespace</td>
+              <td>Keep light (#F8FAFC) or dark (#0F172A) for readability</td>
+            </tr>
+            <tr>
+              <td><strong>60-30-10 Rule: Secondary Brand</strong></td>
+              <td><span class="limit-badge">30% of Viewport</span></td>
+              <td>Navigation headers, footers, sidebars, icons</td>
+              <td>Supports brand identity without visual fatigue</td>
+            </tr>
+            <tr>
+              <td><strong>60-30-10 Rule: Primary Accent</strong></td>
+              <td><span class="limit-badge">10% of Viewport</span></td>
+              <td>Primary CTA buttons, active tabs, links, badges</td>
+              <td>Highest saturation swatch from your palette</td>
+            </tr>
+            <tr>
+              <td><strong>Primary Text Contrast</strong></td>
+              <td>WCAG AA (≥ 4.5:1)</td>
+              <td>Headings & body paragraphs</td>
+              <td>Verify readability using our Color Picker tool</td>
+            </tr>
+            <tr>
+              <td><strong>Border & Divider Tint</strong></td>
+              <td>10%–15% Opacity</td>
+              <td>Card outlines, table gridlines, input borders</td>
+              <td>Subtle neutral tone derived from dominant swatch</td>
+            </tr>
+            <tr>
+              <td><strong>Hover / Active State Shift</strong></td>
+              <td>-8% to -12% Lightness</td>
+              <td>Button hover, focused inputs, active pills</td>
+              <td>Darken primary accent slightly for tactile feedback</td>
+            </tr>
+            <tr>
+              <td><strong>Soft Background Tint</strong></td>
+              <td>92%–96% Lightness</td>
+              <td>Alert callouts, formula boxes, selected rows</td>
+              <td>Light pastel tint of your primary brand hue</td>
+            </tr>
+            <tr>
+              <td><strong>Semantic Success Color</strong></td>
+              <td>Green Hue (~145°–160°)</td>
+              <td>"Completed", "Verified", savings badges</td>
+              <td>Keep distinct from primary action buttons</td>
+            </tr>
+            <tr>
+              <td><strong>Semantic Warning Color</strong></td>
+              <td>Amber Hue (~38°–45°)</td>
+              <td>Caution banners, pending status pills</td>
+              <td>Pair with dark text for high legibility</td>
+            </tr>
+            <tr>
+              <td><strong>Semantic Danger / Error</strong></td>
+              <td>Red Hue (~0°–10°)</td>
+              <td>Validation errors, delete buttons</td>
+              <td>Reserve strictly for destructive/error states</td>
+            </tr>
+            <tr>
+              <td><strong>6-Color Palette Extraction</strong></td>
+              <td>Core Brand Set</td>
+              <td>Logos, flat illustrations, minimalist UI</td>
+              <td>Captures main hues without noisy midtones</td>
+            </tr>
+            <tr>
+              <td><strong>8-Color Palette Extraction</strong></td>
+              <td>Balanced Photo Set</td>
+              <td>Landscape & product photography themes</td>
+              <td>Includes both highlights and shadow tones</td>
+            </tr>
+            <tr>
+              <td><strong>10-Color Palette Extraction</strong></td>
+              <td>Full Gradient Spectrum</td>
+              <td>Complex artwork & editorial moodboards</td>
+              <td>Reveals subtle secondary accent shades</td>
+            </tr>
+            <tr>
+              <td><strong>CSS Custom Properties (<code>--var</code>)</strong></td>
+              <td>Global Theme Tokens</td>
+              <td><code>:root { --palette-1: #...; }</code></td>
+              <td>Instant paste into Tailwind/CSS stylesheets</td>
+            </tr>
+            <tr>
+              <td><strong>PNG Palette Swatch Card</strong></td>
+              <td>1200 × 420 px Export</td>
+              <td>Client brand guidelines & moodboards</td>
+              <td>Includes color bars + printed HEX labels</td>
+            </tr>
+            <tr>
+              <td><strong>Extraction Privacy</strong></td>
+              <td>100% Local Canvas</td>
+              <td><span class="limit-badge">Zero Server Upload</span></td>
+              <td>Proprietary brand assets stay on your device</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Color, Image & Web Design Utilities</h2>
+      <p>Picking individual pixel colors, checking WCAG contrast ratios, converting SVG vectors to PNG, or generating favicons? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="color-picker.html"><span>Color Picker & Contrast</span><span class="arrow">→</span></a>
+        <a class="related-link" href="favicon-generator.html"><span>Favicon Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="svg-to-png.html"><span>SVG to PNG Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-to-base64.html"><span>Image to Base64</span><span class="arrow">→</span></a>
+        <a class="related-link" href="grayscale-image.html"><span>Grayscale / B&W Filter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-cropper.html"><span>Image Cropper</span><span class="arrow">→</span></a>
+        <a class="related-link" href="webp-converter.html"><span>WebP Image Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compress-image-to-exact-kb.html"><span>Compress Image to KB</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How does this tool find the dominant colors in an uploaded photo?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Our script samples thousands of non-transparent pixels from your image on an HTML5 Canvas and runs a <strong>K-Means clustering algorithm</strong> in 3D RGB color space. Similar shades are grouped together, averaged into clean representative HEX values, and sorted from highest to lowest pixel percentage.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How do I copy a single HEX code or export the entire palette for a client?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Click any individual color card to copy its HEX code straight to your clipboard, click <strong>Copy CSS Variables</strong> for a ready-made <code>:root</code> stylesheet block, or click <strong>Download PNG Palette Card</strong> to save a visual swatch strip with printed HEX codes.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Does it ignore transparent backgrounds in PNG logos?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Yes. Pixels with alpha transparency (<code>alpha < 128</code>) are automatically skipped during sampling so transparent backgrounds never skew your logo's extracted brand colors.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my brand logos or moodboard images sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All pixel sampling, K-Means clustering, and PNG swatch card rendering run 100% locally inside your web browser. Your images never leave your device.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side K-Means Color Palette Extractor Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const cntBtns = document.querySelectorAll(".cnt-btn");
+      const loadSamplePalBtn = document.getElementById("loadSamplePalBtn");
+      const palImgInput = document.getElementById("palImgInput");
+      const dropzone = document.getElementById("dropzone");
+      const palWorkspace = document.getElementById("palWorkspace");
+      const sourcePreviewImg = document.getElementById("sourcePreviewImg");
+      const propStrip = document.getElementById("propStrip");
+      const swatchesGrid = document.getElementById("swatchesGrid");
+      const cssVarsPre = document.getElementById("cssVarsPre");
+      const copyCssBtn = document.getElementById("copyCssBtn");
+      const downloadCardBtn = document.getElementById("downloadCardBtn");
+
+      let loadedImg = null;
+      let paletteCount = 6;
+      let extractedPalette = [];
+
+      function rgbToHex(r, g, b) {
+        const h = (n) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, "0");
+        return ("#" + h(r) + h(g) + h(b)).toUpperCase();
+      }
+
+      function extractDominantColors(img, k) {
+        const sampleSize = 110;
+        const canvas = document.createElement("canvas");
+        canvas.width = sampleSize;
+        canvas.height = sampleSize;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, sampleSize, sampleSize);
+
+        const data = ctx.getImageData(0, 0, sampleSize, sampleSize).data;
+        const pixels = [];
+        for (let i = 0; i < data.length; i += 4) {
+          if (data[i + 3] >= 128) {
+            pixels.push([data[i], data[i + 1], data[i + 2]]);
+          }
+        }
+        if (pixels.length === 0) return [];
+
+        // Initialize K centroids evenly across sampled pixels
+        const centroids = [];
+        const step = Math.max(1, Math.floor(pixels.length / k));
+        for (let c = 0; c < k; c++) {
+          const idx = Math.min(pixels.length - 1, c * step);
+          centroids.push(pixels[idx].slice());
+        }
+
+        let counts = new Array(k).fill(0);
+
+        // Run 8 K-Means refinement iterations
+        for (let iter = 0; iter < 8; iter++) {
+          const sums = Array.from({ length: k }, function () { return [0, 0, 0]; });
+          counts = new Array(k).fill(0);
+
+          for (let p = 0; p < pixels.length; p++) {
+            const px = pixels[p];
+            let bestIdx = 0;
+            let bestDist = Infinity;
+
+            for (let c = 0; c < k; c++) {
+              const dr = px[0] - centroids[c][0];
+              const dg = px[1] - centroids[c][1];
+              const db = px[2] - centroids[c][2];
+              const dist = dr * dr + dg * dg + db * db;
+              if (dist < bestDist) {
+                bestDist = dist;
+                bestIdx = c;
+              }
+            }
+
+            sums[bestIdx][0] += px[0];
+            sums[bestIdx][1] += px[1];
+            sums[bestIdx][2] += px[2];
+            counts[bestIdx]++;
+          }
+
+          for (let c = 0; c < k; c++) {
+            if (counts[c] > 0) {
+              centroids[c][0] = sums[c][0] / counts[c];
+              centroids[c][1] = sums[c][1] / counts[c];
+              centroids[c][2] = sums[c][2] / counts[c];
+            }
+          }
+        }
+
+        const totalValid = pixels.length;
+        const results = [];
+        for (let c = 0; c < k; c++) {
+          if (counts[c] === 0) continue;
+          const r = Math.round(centroids[c][0]);
+          const g = Math.round(centroids[c][1]);
+          const b = Math.round(centroids[c][2]);
+          results.push({
+            hex: rgbToHex(r, g, b),
+            r: r,
+            g: g,
+            b: b,
+            pct: Math.max(1, Math.round((counts[c] / totalValid) * 100))
+          });
+        }
+
+        results.sort(function (a, b) { return b.pct - a.pct; });
+        return results;
+      }
+
+      function renderPaletteUI() {
+        if (!loadedImg) return;
+        extractedPalette = extractDominantColors(loadedImg, paletteCount);
+
+        propStrip.innerHTML = "";
+        swatchesGrid.innerHTML = "";
+        const cssLines = [":root {"];
+
+        extractedPalette.forEach(function (item, idx) {
+          // Proportional bar segment
+          const seg = document.createElement("div");
+          seg.style.width = item.pct + "%";
+          seg.style.backgroundColor = item.hex;
+          seg.title = item.hex + " (" + item.pct + "%)";
+          propStrip.appendChild(seg);
+
+          // Swatch card
+          const card = document.createElement("div");
+          card.className = "swatch-card";
+          card.title = "Click to copy " + item.hex;
+          card.innerHTML =
+            '<div class="swatch-left">' +
+              '<div class="swatch-box" style="background:' + item.hex + ';"></div>' +
+              '<div>' +
+                '<div class="swatch-hex">' + item.hex + '</div>' +
+                '<div class="swatch-rgb">rgb(' + item.r + ', ' + item.g + ', ' + item.b + ')</div>' +
+              '</div>' +
+            '</div>' +
+            '<span class="swatch-pct">' + item.pct + '%</span>';
+
+          card.addEventListener("click", async function () {
+            try {
+              await navigator.clipboard.writeText(item.hex);
+              const hexEl = card.querySelector(".swatch-hex");
+              hexEl.textContent = "Copied!";
+              setTimeout(function () { hexEl.textContent = item.hex; }, 1100);
+            } catch (e) {}
+          });
+
+          swatchesGrid.appendChild(card);
+          cssLines.push("  --palette-color-" + (idx + 1) + ": " + item.hex + "; /* " + item.pct + "% */");
+        });
+
+        cssLines.push("}");
+        cssVarsPre.textContent = cssLines.join("\n");
+      }
+
+      function handleImageFile(file) {
+        if (!file || !file.type.startsWith("image/")) return;
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          const img = new Image();
+          img.onload = function () {
+            loadedImg = img;
+            sourcePreviewImg.src = ev.target.result;
+            dropzone.style.display = "none";
+            palWorkspace.style.display = "block";
+            renderPaletteUI();
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      cntBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          cntBtns.forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          paletteCount = parseInt(btn.getAttribute("data-k"), 10) || 6;
+          renderPaletteUI();
+        });
+      });
+
+      dropzone.addEventListener("click", function () { palImgInput.click(); });
+      dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+      dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+      dropzone.addEventListener("drop", function (e) {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleImageFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      palImgInput.addEventListener("change", function (e) {
+        if (e.target.files && e.target.files[0]) handleImageFile(e.target.files[0]);
+        e.target.value = "";
+      });
+
+      loadSamplePalBtn.addEventListener("click", function () {
+        const sampleSvg =
+          '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260">' +
+          '<rect width="400" height="260" fill="#0F172A"/>' +
+          '<circle cx="110" cy="130" r="75" fill="#2563EB"/>' +
+          '<circle cx="215" cy="110" r="65" fill="#10B981"/>' +
+          '<circle cx="295" cy="155" r="55" fill="#F59E0B"/>' +
+          '<rect x="40" y="205" width="320" height="24" rx="12" fill="#EC4899"/>' +
+          '</svg>';
+        const img = new Image();
+        const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(sampleSvg);
+        img.onload = function () {
+          loadedImg = img;
+          sourcePreviewImg.src = url;
+          dropzone.style.display = "none";
+          palWorkspace.style.display = "block";
+          renderPaletteUI();
+        };
+        img.src = url;
+      });
+
+      copyCssBtn.addEventListener("click", async function () {
+        if (!cssVarsPre.textContent) return;
+        try {
+          await navigator.clipboard.writeText(cssVarsPre.textContent);
+          const orig = copyCssBtn.textContent;
+          copyCssBtn.textContent = "Copied CSS!";
+          setTimeout(function () { copyCssBtn.textContent = orig; }, 1400);
+        } catch (e) {}
+      });
+
+      downloadCardBtn.addEventListener("click", function () {
+        if (!extractedPalette.length) return;
+        const w = 1200;
+        const h = 380;
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(0, 0, w, h);
+
+        const colW = w / extractedPalette.length;
+        extractedPalette.forEach(function (item, i) {
+          const x = i * colW;
+          ctx.fillStyle = item.hex;
+          ctx.fillRect(x, 0, colW + 1, 290);
+
+          ctx.fillStyle = "#0F172A";
+          ctx.font = "800 20px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(item.hex, x + colW / 2, 330);
+
+          ctx.fillStyle = "#475569";
+          ctx.font = "600 14px sans-serif";
+          ctx.fillText(item.pct + "%", x + colW / 2, 355);
+        });
+
+        canvas.toBlob(function (blob) {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "color-palette-card.png";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, "image/png");
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,720 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Canadian Mortgage Payment Calculator — Free | PureWebKits</title>
+  <meta name="description" content="Calculate monthly or semi-monthly Canadian mortgage payments, CMHC insurance, amortization periods, and compound interest online for free. Canadian mortgage calculator tool 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/canadian-mortgage-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Canadian Mortgage Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col { display: flex; flex-direction: column; gap: 14px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .result-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .result-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .result-title { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .result-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--primary);
+      text-align: right;
+    }
+    .result-val.highlight { color: var(--success); font-size: 20px; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Canadian Mortgage Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Canadian Mortgage Payment Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate Canadian semi-annual compounding mortgage payments, CMHC insurance, and amortization schedules instantly in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Enter home price, down payment, interest rate, and payment frequency below:</div>
+          <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample Home ($600,000 CAD)</button>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="homePrice" class="field-label">Home Price ($ CAD)</label>
+              <input type="number" id="homePrice" class="std-input" value="600000" min="0" step="5000" placeholder="e.g. 600000" />
+            </div>
+            <div class="field-group">
+              <label for="downPayment" class="field-label">Down Payment ($ CAD)</label>
+              <input type="number" id="downPayment" class="std-input" value="60000" min="0" step="1000" placeholder="e.g. 60000" />
+            </div>
+            <div class="field-group">
+              <label for="interestRate" class="field-label">Interest Rate (Annual %)</label>
+              <input type="number" id="interestRate" class="std-input" value="5.5" min="0" max="25" step="0.1" placeholder="e.g. 5.5" />
+            </div>
+            <div class="field-group">
+              <label for="amortizationPeriod" class="field-label">Amortization Period (Years)</label>
+              <select id="amortizationPeriod" class="std-select">
+                <option value="15">15 Years</option>
+                <option value="20">20 Years</option>
+                <option value="25" selected>25 Years (Standard for Insured)</option>
+                <option value="30">30 Years</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label for="paymentFrequency" class="field-label">Payment Frequency</label>
+              <select id="paymentFrequency" class="std-select">
+                <option value="monthly" selected>Monthly (12 times/year)</option>
+                <option value="semi-monthly">Semi-Monthly (24 times/year)</option>
+                <option value="bi-weekly">Bi-Weekly (26 times/year)</option>
+                <option value="accelerated-bi-weekly">Accelerated Bi-Weekly</option>
+                <option value="weekly">Weekly (52 times/year)</option>
+                <option value="accelerated-weekly">Accelerated Weekly</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="result-item">
+              <div class="result-title">Scheduled Payment Amount</div>
+              <div id="resPaymentAmount" class="result-val highlight">$3,428 CAD</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">CMHC Mortgage Insurance</div>
+              <div id="resCmhcFee" class="result-val">$21,600 CAD</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Total Financed Mortgage</div>
+              <div id="resTotalMortgage" class="result-val">$561,600 CAD</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Total Interest Over Amortization</div>
+              <div id="resTotalInterest" class="result-val">$466,800 CAD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Comprehensive Guide to Canadian Mortgages, Semi-Annual Compounding, and CMHC Insurance</h2>
+
+      ### Why Canadian Mortgage Calculators Are Essential for Homebuyers in Canada
+      <p>
+        Purchasing residential real estate in Canada requires adhering to unique federal banking regulations, stress-test guidelines, and mortgage calculation standards that differ significantly from the United States. The most notable distinction in Canadian mortgage mathematics is **semi-annual compounding**. By Canadian federal law, mortgage interest must be compounded semi-annually (twice a year) rather than monthly. This means the effective annual interest rate is slightly lower than nominal rates quoted by lenders. Additionally, if your down payment is less than 20% of the home purchase price, Canadian federal regulations mandate **Mortgage Loan Insurance** (commonly provided by the Canada Mortgage and Housing Corporation or CMHC), which protects lenders against default and is added directly onto your financed mortgage principal. Furthermore, Canadian borrowers can choose from flexible payment frequencies—including standard monthly, semi-monthly, bi-weekly, or **Accelerated Bi-Weekly** and **Accelerated Weekly** options that pay the equivalent of one extra monthly payment each year, shaving years off your total amortization schedule. A professional **Canadian Mortgage Payment Calculator** enables homebuyers, real estate agents, and investors to input home values, down payment amounts, semi-annual interest rates, amortization periods (up to 30 years), and payment frequencies to forecast exact installment obligations and total borrowing costs instantly. Our browser-based utility calculates mortgage amortization and CMHC premiums locally in client memory without external server uploads, guaranteeing absolute data privacy and lightning-fast execution.
+      </p>
+
+      ### How to Calculate Your Canadian Mortgage Payment in 3 Easy Steps
+      <ol>
+        <li><strong>Enter Home Price & Down Payment:</strong> Input the total purchase price of the property and your planned down payment amount in Canadian Dollars (CAD).</li>
+        <li><strong>Configure Interest Rate & Amortization:</strong> Enter your lender's annual mortgage interest rate and select your total amortization period (25 years is standard for insured mortgages).</li>
+        <li><strong>Select Payment Frequency:</strong> Choose your preferred payment schedule (such as Monthly, Bi-Weekly, or Accelerated Bi-Weekly) to review exact installment figures and CMHC insurance premiums.</li>
+      </ol>
+
+      ### Canadian Semi-Annual Compounding Formula + Worked Example
+      <p>
+        Canadian mortgage payments are calculated by converting the nominal annual interest rate (compounded semi-annually) into an equivalent effective monthly interest rate:
+      </p>
+      <div class="formula-box">
+        $\text{Effective Monthly Rate} = \left(1 + \frac{\text{Annual Rate}}{2}\right)^{\frac{2}{12}} - 1$  |  $\text{Payment} = P \times \frac{r(1 + r)^n}{(1 + r)^n - 1}$
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Purchasing a **$600,000 CAD** home with a **$60,000 down payment** (10%) requires CMHC mortgage insurance of **$21,600**, resulting in a total financed mortgage of **$561,600 CAD**. At an annual interest rate of **5.5%** over a **25-year amortization**, the standard monthly mortgage payment is **$3,428 CAD**.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="canadamortgage-table-heading">
+      <h2 id="canadamortgage-table-heading">Canadian Mortgage Standards, CMHC Tiers & Rules (16 Rules)</h2>
+      <p>Use this reference table to understand Canadian mortgage insurance tiers, minimum down payment rules, and banking standards.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Mortgage Rule / Standard</th>
+              <th>Canadian Banking Requirement</th>
+              <th>Description & Financial Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Semi-Annual Compounding</strong></td>
+              <td>Federal Law Standard</td>
+              <td>Interest is compounded twice a year, establishing the effective borrowing rate</td>
+            </tr>
+            <tr>
+              <td><strong>Minimum Down Payment</strong></td>
+              <td>Sliding Scale (5% to 20%)</td>
+              <td>5% on the first $500k, 10% on the portion between $500k and $999,999; 20% for $1M+</td>
+            </tr>
+            <tr>
+              <td><strong>CMHC Mortgage Insurance</strong></td>
+              <td>Required if Down < 20%</td>
+              <td>Mandatory default insurance ranging from 2.8% to 4.0% of the insured loan amount</td>
+            </tr>
+            <tr>
+              <td><strong>Maximum Amortization</strong></td>
+              <td>25 Years (Insured) / 30 (Uninsured)</td>
+              <td>Maximum repayment timeline permitted for mortgages in Canada</td>
+            </tr>
+            <tr>
+              <td><strong>Mortgage Stress Test</strong></td>
+              <td>OSFI Guideline</td>
+              <td>Borrowers must qualify at the contract rate plus 2% or 5.25% (whichever is higher)</td>
+            </tr>
+            <tr>
+              <td><strong>Accelerated Payments</strong></td>
+              <td>Bi-Weekly / Weekly Option</td>
+              <td>Pays half (or quarter) of monthly payment every 2 weeks, equaling 1 extra payment per year</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Processing</strong></td>
+              <td colspan="2">JavaScript Execution — Zero Server Latency (100% browser calculation)</td>
+            </tr>
+            <tr>
+              <td><strong>Data Privacy</strong></td>
+              <td colspan="2"><span class="limit-badge">Zero Server Upload</span> — Private financial & property data remain secure</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Finance, Tax & Calculator Utilities</h2>
+      <p>Need Canadian tax calculators, US mortgage calculators, or currency converters? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="canadian-tax-calculator.html"><span>Canadian GST/HST Tax Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="us-mortgage-calculator.html"><span>US Mortgage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compound-interest-calculator.html"><span>Compound Interest Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="emi-calculator.html"><span>Loan EMI Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>3-in-1 Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Global Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Strong Password Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter & Validator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is semi-annual compounding in Canadian mortgages?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            By Canadian law, mortgage interest is calculated and compounded twice a year rather than monthly, which slightly reduces the effective annual interest rate compared to nominal monthly compounding.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. When is CMHC mortgage insurance required in Canada?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Down payment under 20%!</strong> If your down payment is less than 20% of the home purchase price, mortgage loan default insurance (such as CMHC) is legally required and added to your mortgage balance.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my financial and property data uploaded to an external server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All Canadian mortgage calculations run 100% locally inside your web browser using JavaScript. Your confidential financial data never leaves your computer.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Canadian mortgage calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> This utility is 100% free with no registration or download requirements.
+          </div>
+        </div>
+      </div>
+    </main>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Canadian Mortgage Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const homePrice = document.getElementById("homePrice");
+      const downPayment = document.getElementById("downPayment");
+      const interestRate = document.getElementById("interestRate");
+      const amortizationPeriod = document.getElementById("amortizationPeriod");
+      const paymentFrequency = document.getElementById("paymentFrequency");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+
+      const resPaymentAmount = document.getElementById("resPaymentAmount");
+      const resCmhcFee = document.getElementById("resCmhcFee");
+      const resTotalMortgage = document.getElementById("resTotalMortgage");
+      const resTotalInterest = document.getElementById("resTotalInterest");
+
+      function formatCurrency(val) {
+        if (isNaN(val) || !isFinite(val)) return "$0 CAD";
+        return "$" + Math.round(val).toLocaleString('en-US') + " CAD";
+      }
+
+      function getCmhcRate(downPercent) {
+        if (downPercent >= 20) return 0.0;
+        if (downPercent >= 15) return 0.028;
+        if (downPercent >= 10) return 0.040;
+        return 0.040; // 5% to 9.99% down
+      }
+
+      function calculateCanadianMortgage() {
+        const price = parseFloat(homePrice.value) || 0;
+        const down = parseFloat(downPayment.value) || 0;
+        const nominalRate = (parseFloat(interestRate.value) || 0) / 100;
+        const amortizationYears = parseInt(amortizationPeriod.value) || 25;
+        const freq = paymentFrequency.value;
+
+        const downPercent = (down / price) * 100;
+        const baseLoan = Math.max(0, price - down);
+
+        // CMHC insurance calculation if down payment < 20%
+        let cmhcRate = getCmhcRate(downPercent);
+        let cmhcFee = baseLoan * cmhcRate;
+        if (downPercent >= 20) cmhcFee = 0;
+
+        const totalLoan = baseLoan + cmhcFee;
+
+        // Canadian semi-annual compounding effective monthly rate:
+        // r_eff = (1 + nominalRate / 2)^(2 / 12) - 1
+        const effectiveMonthlyRate = Math.pow(1 + nominalRate / 2, 2 / 12) - 1;
+        const totalMonths = amortizationYears * 12;
+
+        // Standard monthly payment calculation
+        let monthlyPayment = 0;
+        if (effectiveMonthlyRate > 0) {
+          monthlyPayment = totalLoan * (effectiveMonthlyRate * Math.pow(1 + effectiveMonthlyRate, totalMonths)) / (Math.pow(1 + effectiveMonthlyRate, totalMonths) - 1);
+        } else {
+          monthlyPayment = totalLoan / totalMonths;
+        }
+
+        let scheduledPayment = monthlyPayment;
+        let paymentsPerYear = 12;
+
+        if (freq === 'semi-monthly') {
+          scheduledPayment = monthlyPayment / 2;
+          paymentsPerYear = 24;
+        } else if (freq === 'bi-weekly') {
+          scheduledPayment = (monthlyPayment * 12) / 26;
+          paymentsPerYear = 26;
+        } else if (freq === 'accelerated-bi-weekly') {
+          scheduledPayment = monthlyPayment / 2;
+          paymentsPerYear = 26;
+        } else if (freq === 'weekly') {
+          scheduledPayment = (monthlyPayment * 12) / 52;
+          paymentsPerYear = 52;
+        } else if (freq === 'accelerated-weekly') {
+          scheduledPayment = monthlyPayment / 4;
+          paymentsPerYear = 52;
+        }
+
+        const totalPaymentsCount = paymentsPerYear * amortizationYears;
+        const totalPaid = scheduledPayment * totalPaymentsCount;
+        const totalInterest = Math.max(0, totalPaid - totalLoan);
+
+        resPaymentAmount.textContent = formatCurrency(scheduledPayment);
+        resCmhcFee.textContent = formatCurrency(cmhcFee);
+        resTotalMortgage.textContent = formatCurrency(totalLoan);
+        resTotalInterest.textContent = formatCurrency(totalInterest);
+      }
+
+      [homePrice, downPayment, interestRate, amortizationPeriod, paymentFrequency].forEach(el => {
+        el.addEventListener("input", calculateCanadianMortgage);
+        el.addEventListener("change", calculateCanadianMortgage);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        homePrice.value = "600000";
+        downPayment.value = "60000";
+        interestRate.value = "5.5";
+        amortizationPeriod.value = "25";
+        paymentFrequency.value = "monthly";
+        calculateCanadianMortgage();
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateCanadianMortgage();
+    });
+  </script>
+</body>
+</html>

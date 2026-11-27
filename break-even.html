@@ -1,0 +1,923 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Break-Even Point Calculator (Units, Revenue & Contribution Margin) — PureWebKits</title>
+  <meta name="description" content="Calculate your exact business break-even point in units and revenue, contribution margin per unit, contribution margin ratio, and target profit sales volume online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/break-even-point-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Break-Even Point Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .bep-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .bep-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .bep-hero-title { font-size: 16px; font-weight: 800; }
+    .bep-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .bep-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 22px;
+      font-weight: 800;
+      color: #38BDF8;
+      white-space: nowrap;
+      text-align: right;
+    }
+    .bep-hero-num.error { color: #FCA5A5; font-size: 13.5px; text-align: left; white-space: normal; }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Break-Even Point Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Break-Even Point Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate break-even units, break-even revenue, contribution margin & target profit volume in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Enter fixed costs, selling price per unit, variable cost per unit, and optional target profit:</div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample ($15k Fixed)</button>
+            <button type="button" id="resetBepBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="bepCurrency" class="field-label">Currency Symbol</label>
+                <select id="bepCurrency" class="std-select">
+                  <option value="$" selected>USD ($)</option>
+                  <option value="₹">INR (₹)</option>
+                  <option value="€">EUR (€)</option>
+                  <option value="£">GBP (£)</option>
+                  <option value="AED ">AED</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="fixedCostsInput" class="field-label">Total Fixed Costs (Period)</label>
+                <input type="number" id="fixedCostsInput" class="std-input" min="0" step="500" value="15000" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="sellingPriceInput" class="field-label">Selling Price Per Unit</label>
+                <input type="number" id="sellingPriceInput" class="std-input" min="0" step="5" value="50" />
+              </div>
+
+              <div class="field-group">
+                <label for="variableCostInput" class="field-label">Variable Cost Per Unit</label>
+                <input type="number" id="variableCostInput" class="std-input" min="0" step="5" value="20" />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="targetProfitInput" class="field-label">Optional Target Operating Profit (for Sales Goal)</label>
+              <input type="number" id="targetProfitInput" class="std-input" min="0" step="500" value="6000" />
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="bep-hero-box">
+              <div>
+                <div class="bep-hero-kicker">Break-Even Point (Zero Profit / Loss)</div>
+                <div class="bep-hero-title" id="bepSummaryTitle">Break-Even Revenue: $25,000.00</div>
+                <div class="bep-hero-sub" id="bepSubCaption">Contribution Margin: $30.00 / unit (60.0%)</div>
+              </div>
+              <div class="bep-hero-num" id="bepUnitsDisplay">500 Units</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Break-Even Sales Revenue</div>
+                <div class="metric-val" id="bepRevenueVal">$25,000.00</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Contribution Margin / Unit</div>
+                <div class="metric-val" id="cmPerUnitVal">$30.00 / unit</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Contribution Margin Ratio</div>
+                <div class="metric-val" id="cmRatioVal">60.00%</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Target Profit Sales Goal</div>
+                <div class="metric-val" id="targetGoalVal">700 units ($35,000.00)</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyBepBtn" class="btn-primary">Copy Break-Even Report</button>
+              <button type="button" id="downloadBepBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Contribution Margin & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Break-Even Point Analysis, Contribution Margin & Target Profit Planning</h2>
+
+      <h3>How Fixed Costs, Variable Costs, and Contribution Margin Determine Your Break-Even Point</h3>
+      <p>
+        In managerial accounting, pricing strategy, and startup financial modeling, your <strong>Break-Even Point (BEP)</strong> is the exact sales volume—measured both in <strong>units sold</strong> and in <strong>top-line revenue</strong>—where total revenue equals total costs (<code>Fixed Costs + Total Variable Costs</code>), resulting in zero net operating profit and zero loss. Every unit sold above your variable production/fulfillment cost contributes its <strong>Contribution Margin per Unit</strong> (<code>Selling Price − Variable Cost</code>) toward paying down fixed overhead such as rent, salaries, software subscriptions, and equipment leases. Once cumulative contribution margin covers your period fixed costs, every subsequent unit sold generates operating profit equal to its contribution margin. A browser-based <strong>Break-Even Point Calculator</strong> runs these cost-volume-profit (CVP) equations 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Calculate Your Break-Even Point in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter Total Fixed Costs:</strong> Input your recurring fixed overhead for the period (monthly, quarterly, or annual) in <strong>Total Fixed Costs (Period)</strong> (or click <strong>Load Sample ($15k Fixed)</strong>).</li>
+        <li><strong>Enter Selling Price & Variable Cost Per Unit:</strong> Type your unit <strong>Selling Price</strong> and direct <strong>Variable Cost Per Unit</strong> (materials, packaging, payment processing, shipping, or direct fulfillment).</li>
+        <li><strong>Add Optional Target Profit & Export:</strong> Enter an optional <strong>Target Operating Profit</strong> to see the exact unit and revenue volume required to hit your profit goal, then click <strong>Copy Break-Even Report</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Cost-Volume-Profit (CVP) & Break-Even Formulas</h3>
+      <p>
+        Let <code>FC</code> be fixed costs, <code>P</code> be selling price per unit, <code>VC</code> be variable cost per unit, and <code>TP</code> be optional target profit:
+      </p>
+      <div class="formula-box">
+        Contribution Margin / Unit (CM) = P − VC  |  CM Ratio = CM / P<br />
+        Break-Even Units = FC / CM  |  Break-Even Revenue = FC / CM Ratio  |  Target Units = (FC + TP) / CM
+      </div>
+
+      <h3>Helpful Tips for Pricing & Cost Structure Decisions</h3>
+      <ul>
+        <li><strong>Selling Price Must Exceed Variable Cost Per Unit:</strong> If <code>Selling Price ≤ Variable Cost</code>, contribution margin is zero or negative and each additional sale increases losses rather than covering fixed overhead.</li>
+        <li><strong>Test Small Price or Variable Cost Improvements:</strong> Raising unit price by <code>10%</code> or trimming variable cost per unit expands contribution margin and lowers your break-even unit threshold faster than cutting minor fixed expenses.</li>
+        <li><strong>Match Time Periods Across Inputs:</strong> If you enter <em>monthly</em> fixed costs, your break-even units and revenue represent <em>monthly</em> sales targets.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> With <code>$15,000</code> in monthly fixed costs, a <code>$50</code> selling price, and <code>$20</code> variable cost per unit, contribution margin is <code>$30.00/unit</code> (<code>60.0%</code> CM ratio). Breaking even requires <code>$15,000 / $30 = 500 units</code> (<code>$25,000.00</code> in revenue), while earning <code>$6,000</code> in operating profit requires <code>($15,000 + $6,000) / $30 = 700 units</code> (<code>$35,000.00</code>).</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="bep-table-heading">
+      <h2 id="bep-table-heading">Break-Even Point Formulas, Cost Categories & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to classify fixed vs. variable costs and verify CVP formulas.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Metric / Cost Category</th>
+              <th>Formula / Examples</th>
+              <th>Role</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Fixed Costs (FC)</strong></td>
+              <td>Rent, salaries, insurance, SaaS tools</td>
+              <td>Constant regardless of unit volume</td>
+              <td><code>$15,000</code> in sample</td>
+            </tr>
+            <tr>
+              <td><strong>Variable Costs (VC)</strong></td>
+              <td>Materials, packaging, shipping, gateway fees</td>
+              <td>Scales directly per unit sold</td>
+              <td><code>$20 / unit</code> in sample</td>
+            </tr>
+            <tr>
+              <td><strong>Contribution Margin / Unit</strong></td>
+              <td><code>Selling Price − Variable Cost</code></td>
+              <td>Net cash contribution per unit</td>
+              <td><code>$50 − $20 = $30.00 / unit</code></td>
+            </tr>
+            <tr>
+              <td><strong>Contribution Margin Ratio</strong></td>
+              <td><code>(CM per Unit / Selling Price) × 100</code></td>
+              <td>Share of each sales dollar above VC</td>
+              <td><code>($30 / $50) × 100 = 60.00%</code></td>
+            </tr>
+            <tr>
+              <td><strong>Break-Even Units (Exact)</strong></td>
+              <td><code>Fixed Costs / CM per Unit</code></td>
+              <td>Exact unit threshold for $0 profit</td>
+              <td><code>$15,000 / $30 = 500 units</code></td>
+            </tr>
+            <tr>
+              <td><strong>Break-Even Units (Whole)</strong></td>
+              <td><code>ceil(Fixed Costs / CM per Unit)</code></td>
+              <td>Whole indivisible units needed</td>
+              <td>Rounds fractional units up</td>
+            </tr>
+            <tr>
+              <td><strong>Break-Even Revenue</strong></td>
+              <td><code>Fixed Costs / CM Ratio</code></td>
+              <td>Top-line sales needed to break even</td>
+              <td><code>$15,000 / 0.60 = $25,000.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Target Profit Units</strong></td>
+              <td><code>(Fixed Costs + Target Profit) / CM</code></td>
+              <td>Units required for profit goal</td>
+              <td><code>($15k + $6k) / $30 = 700 units</code></td>
+            </tr>
+            <tr>
+              <td><strong>Target Profit Revenue</strong></td>
+              <td><code>Target Profit Units × Selling Price</code></td>
+              <td>Revenue required for profit goal</td>
+              <td><code>700 × $50 = $35,000.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Zero Fixed Cost Case</strong></td>
+              <td><code>0 units</code> if <code>Price > Variable Cost</code></td>
+              <td>Immediate profitability on unit 1</td>
+              <td>Pure variable-cost model</td>
+            </tr>
+            <tr>
+              <td><strong>Negative / Zero CM Guard</strong></td>
+              <td>Prompts when <code>Price ≤ Variable Cost</code></td>
+              <td>Flags unprofitable unit pricing</td>
+              <td>Prevents invalid break-even</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports CVP break-even report</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Cost-Volume-Profit Calculator — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your pricing and cost figures stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero business cost data transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Business, Pricing, Finance & Everyday Calculators</h2>
+      <p>Calculating ROAS & CPA, Customer LTV, sales tax, or billable hours? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="roas-cpa-calculator.html"><span>ROAS & CPA Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="customer-lifetime-value-ltv-calculator.html"><span>Customer LTV Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="sales-tax-calculator.html"><span>Sales Tax Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="billable-hours-calculator.html"><span>Billable Hours Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="net-worth-calculator.html"><span>Net Worth Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="income-tax-calculator.html"><span>Income Tax Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is the difference between Contribution Margin and Gross Profit?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Contribution Margin</strong> subtracts <em>all</em> variable costs (including variable selling/shipping/payment fees) from selling price, showing the exact dollar amount each unit contributes toward covering fixed overhead.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How do I calculate the sales needed to reach a specific profit target?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Enter your desired profit in <strong>Optional Target Operating Profit</strong>—the calculator adds Target Profit to Fixed Costs and divides by Contribution Margin per Unit (<code>(Fixed Costs + Target Profit) / CM</code>).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my fixed costs, prices, or margins sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Break-Even Point Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Break-Even Point Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const bepCurrency = document.getElementById("bepCurrency");
+      const fixedCostsInput = document.getElementById("fixedCostsInput");
+      const sellingPriceInput = document.getElementById("sellingPriceInput");
+      const variableCostInput = document.getElementById("variableCostInput");
+      const targetProfitInput = document.getElementById("targetProfitInput");
+
+      const bepSummaryTitle = document.getElementById("bepSummaryTitle");
+      const bepSubCaption = document.getElementById("bepSubCaption");
+      const bepUnitsDisplay = document.getElementById("bepUnitsDisplay");
+
+      const bepRevenueVal = document.getElementById("bepRevenueVal");
+      const cmPerUnitVal = document.getElementById("cmPerUnitVal");
+      const cmRatioVal = document.getElementById("cmRatioVal");
+      const targetGoalVal = document.getElementById("targetGoalVal");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetBepBtn = document.getElementById("resetBepBtn");
+      const copyBepBtn = document.getElementById("copyBepBtn");
+      const downloadBepBtn = document.getElementById("downloadBepBtn");
+
+      let latestSummaryText = "";
+
+      function fmtCurr(sym, amt) {
+        const safe = Number.isFinite(amt) ? amt : 0;
+        const locale = sym === "₹" ? "en-IN" : "en-US";
+        const formatted = safe.toLocaleString(locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        return `${sym}${formatted}`;
+      }
+
+      function clearBepOutput(errBadge, msg) {
+        bepUnitsDisplay.className = "bep-hero-num error";
+        bepUnitsDisplay.textContent = errBadge;
+        bepSummaryTitle.textContent = "Adjust Price or Variable Cost";
+        bepSubCaption.textContent = msg;
+        bepRevenueVal.textContent = "—";
+        cmPerUnitVal.textContent = "—";
+        cmRatioVal.textContent = "—";
+        targetGoalVal.textContent = "—";
+        latestSummaryText = "";
+      }
+
+      function calculateBreakEven() {
+        const sym = bepCurrency.value;
+        const fc = parseFloat(fixedCostsInput.value);
+        const price = parseFloat(sellingPriceInput.value);
+        const vc = parseFloat(variableCostInput.value);
+        const targetProfit = parseFloat(targetProfitInput.value) || 0;
+
+        if (
+          !Number.isFinite(fc) || fc < 0 ||
+          !Number.isFinite(price) || price <= 0 ||
+          !Number.isFinite(vc) || vc < 0 ||
+          targetProfit < 0
+        ) {
+          clearBepOutput("CHECK INPUTS", "Enter valid fixed costs (\u22650), selling price (>0), and variable cost (\u22650)");
+          return;
+        }
+
+        const cmUnit = price - vc;
+        if (cmUnit <= 0) {
+          clearBepOutput(
+            "PRICE \u2264 VAR COST",
+            "Selling price per unit must exceed variable cost per unit to break even"
+          );
+          return;
+        }
+
+        const cmRatio = cmUnit / price;
+        const exactUnits = fc / cmUnit;
+        const wholeUnits = Math.ceil(exactUnits - 1e-9);
+        const bepRevenue = fc / cmRatio;
+
+        const targetUnitsExact = (fc + targetProfit) / cmUnit;
+        const targetUnitsWhole = Math.ceil(targetUnitsExact - 1e-9);
+        const targetRevenue = targetUnitsExact * price;
+
+        const unitsLabel = Number.isInteger(Math.round(exactUnits * 100) / 100) && Math.abs(exactUnits - Math.round(exactUnits)) < 1e-6
+          ? `${Math.round(exactUnits).toLocaleString("en-US")} Units`
+          : `${wholeUnits.toLocaleString("en-US")} Units (${exactUnits.toFixed(1)})`;
+
+        bepUnitsDisplay.className = "bep-hero-num";
+        bepUnitsDisplay.textContent = unitsLabel;
+        bepSummaryTitle.textContent = `Break-Even Revenue: ${fmtCurr(sym, bepRevenue)}`;
+        bepSubCaption.textContent = `Contribution Margin: ${fmtCurr(sym, cmUnit)} / unit (${(cmRatio * 100).toFixed(1)}%)`;
+
+        bepRevenueVal.textContent = fmtCurr(sym, bepRevenue);
+        cmPerUnitVal.textContent = `${fmtCurr(sym, cmUnit)} / unit`;
+        cmRatioVal.textContent = `${(cmRatio * 100).toFixed(2)}%`;
+        targetGoalVal.textContent = targetProfit > 0
+          ? `${targetUnitsWhole.toLocaleString("en-US")} units (${fmtCurr(sym, targetRevenue)})`
+          : "Enter target profit above";
+
+        latestSummaryText = [
+          "PureWebKits Break-Even Point Report",
+          "------------------------------------",
+          `Fixed Costs: ${fmtCurr(sym, fc)} | Selling Price: ${fmtCurr(sym, price)}/unit | Variable Cost: ${fmtCurr(sym, vc)}/unit`,
+          `Contribution Margin: ${fmtCurr(sym, cmUnit)}/unit (${(cmRatio * 100).toFixed(2)}% CM Ratio)`,
+          `Break-Even Point: ${unitsLabel} | Break-Even Revenue: ${fmtCurr(sym, bepRevenue)}`,
+          `Target Profit (${fmtCurr(sym, targetProfit)}): ${targetUnitsWhole.toLocaleString("en-US")} units (${fmtCurr(sym, targetRevenue)} revenue)`
+        ].join("\n");
+      }
+
+      [
+        bepCurrency,
+        fixedCostsInput,
+        sellingPriceInput,
+        variableCostInput,
+        targetProfitInput
+      ].forEach(function (el) {
+        el.addEventListener("input", calculateBreakEven);
+        el.addEventListener("change", calculateBreakEven);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        bepCurrency.value = "$";
+        fixedCostsInput.value = "15000";
+        sellingPriceInput.value = "50";
+        variableCostInput.value = "20";
+        targetProfitInput.value = "6000";
+        calculateBreakEven();
+      });
+
+      resetBepBtn.addEventListener("click", function () {
+        fixedCostsInput.value = "";
+        sellingPriceInput.value = "";
+        variableCostInput.value = "";
+        targetProfitInput.value = "0";
+        calculateBreakEven();
+      });
+
+      copyBepBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyBepBtn.textContent;
+          copyBepBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyBepBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadBepBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "break-even-point-report.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateBreakEven();
+    });
+  </script>
+</body>
+</html>

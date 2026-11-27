@@ -1,0 +1,917 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - PureWebKits</title>
+  <meta name="description" content="Get in touch with PureWebKits. Contact our support team for questions, new tool suggestions, bug reports, or partnership inquiries.">
+  <link rel="canonical" href="https://PureWebKits.com/contact">
+  <meta property="og:title" content="Contact Us - PureWebKits">
+  <meta property="og:description" content="Have a question, tool suggestion, or bug report? Contact PureWebKits at support@PureWebKits.com.">
+  <meta property="og:url" content="https://PureWebKits.com/contact">
+  <meta property="og:type" content="website">
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-light: #EFF6FF;
+      --bg-hero: #F4F7FB;
+      --bg-page: #FFFFFF;
+      --bg-footer: #182234;
+      --border-color: #E2E8F0;
+      --text-main: #0F172A;
+      --text-body: #475569;
+      --text-muted: #64748B;
+      --success-bg: #ECFDF5;
+      --success-border: #A7F3D0;
+      --success-text: #065F46;
+      --error-bg: #FEF2F2;
+      --error-border: #FECACA;
+      --error-text: #991B1B;
+      --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background-color: #FFFFFF;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+    }
+
+    .header-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-logo svg {
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-body);
+      transition: color 0.15s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .nav-links a.active {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 6px 8px;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    /* Hero Banner */
+    .hero-banner {
+      background-color: var(--bg-hero);
+      border-bottom: 1px solid var(--border-color);
+      padding: 56px 24px;
+      text-align: center;
+    }
+
+    .hero-content {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .hero-banner h1 {
+      font-size: 2.35rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.025em;
+      margin-bottom: 12px;
+    }
+
+    .hero-banner p {
+      font-size: 1.1rem;
+      color: var(--text-body);
+      line-height: 1.6;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 0 24px 48px;
+    }
+
+    .contact-container {
+      max-width: 960px;
+      margin: 40px auto;
+      display: grid;
+      grid-template-columns: 1fr 1.35fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    /* Left Column Info Cards */
+    .info-column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .info-card {
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .info-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .info-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background-color: var(--primary-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .info-card h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .info-card p {
+      font-size: 0.935rem;
+      color: var(--text-body);
+      line-height: 1.55;
+    }
+
+    .email-box {
+      margin-top: 14px;
+      padding: 10px 12px;
+      background-color: var(--bg-hero);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .email-address {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-main);
+      word-break: break-all;
+    }
+
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .copy-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .copy-btn.copied {
+      background-color: var(--success-bg);
+      border-color: var(--success-border);
+      color: var(--success-text);
+    }
+
+    .response-badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 4px 10px;
+      background-color: var(--primary-light);
+      color: var(--primary);
+      font-size: 0.82rem;
+      font-weight: 600;
+      border-radius: 999px;
+    }
+
+    /* Right Column Form Card */
+    .form-card {
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 32px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .form-card h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .form-subtitle {
+      font-size: 0.935rem;
+      color: var(--text-body);
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 11px 14px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .form-control.invalid {
+      border-color: #EF4444;
+    }
+
+    textarea.form-control {
+      min-height: 130px;
+      resize: vertical;
+    }
+
+    .field-error {
+      display: none;
+      font-size: 0.82rem;
+      color: #DC2626;
+      margin-top: 5px;
+    }
+
+    .field-error.visible {
+      display: block;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 12px 20px;
+      background-color: var(--primary);
+      color: #FFFFFF;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background-color 0.15s ease;
+      margin-top: 4px;
+    }
+
+    .submit-btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .form-status {
+      display: none;
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    .form-status.success {
+      display: block;
+      background-color: var(--success-bg);
+      border: 1px solid var(--success-border);
+      color: var(--success-text);
+    }
+
+    .form-status.error {
+      display: block;
+      background-color: var(--error-bg);
+      border: 1px solid var(--error-border);
+      color: var(--error-text);
+    }
+
+    /* Footer */
+    .site-footer {
+      background-color: var(--bg-footer);
+      color: #CBD5E1;
+      padding: 56px 24px 0;
+      margin-top: auto;
+    }
+
+    .footer-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.8fr repeat(4, 1fr);
+      gap: 40px;
+      padding-bottom: 48px;
+    }
+
+    .footer-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin-bottom: 14px;
+    }
+
+    .footer-brand svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .footer-desc {
+      font-size: 0.9rem;
+      color: #94A3B8;
+      line-height: 1.6;
+      max-width: 280px;
+    }
+
+    .footer-col h3 {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #FFFFFF;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 16px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-links a {
+      font-size: 0.9rem;
+      color: #94A3B8;
+      transition: color 0.15s ease;
+    }
+
+    .footer-links a:hover {
+      color: #FFFFFF;
+    }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 0.875rem;
+      color: #94A3B8;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 32px;
+      }
+
+      .footer-brand-col {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .contact-container {
+        grid-template-columns: 1fr;
+        margin: 28px auto;
+      }
+
+      .hero-banner {
+        padding: 40px 20px;
+      }
+
+      .hero-banner h1 {
+        font-size: 1.9rem;
+      }
+
+      .form-card {
+        padding: 24px;
+      }
+
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background-color: #FFFFFF;
+        border-bottom: 1px solid var(--border-color);
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px 24px;
+        gap: 16px;
+        box-shadow: var(--shadow-md);
+      }
+
+      .nav-links.open {
+        display: flex;
+      }
+
+      .mobile-menu-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M16 3L28 9.5V22.5L16 29L4 22.5V9.5L16 3Z" fill="#2563EB"/>
+          <path d="M16 3L28 9.5L16 16L4 9.5L16 3Z" fill="#60A5FA"/>
+          <path d="M16 16L28 9.5V22.5L16 29V16Z" fill="#1D4ED8"/>
+          <path d="M16 16L4 9.5V22.5L16 29V16Z" fill="#3B82F6"/>
+        </svg>
+        <span>PureWebKits</span>
+      </a>
+
+      <button type="button" class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <nav aria-label="Primary Navigation">
+        <ul class="nav-links" id="navLinks">
+          <li><a href="index.html">All Tools</a></li>
+          <li><a href="index.html#categories">Categories</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html" class="active" aria-current="page">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="hero-banner">
+    <div class="hero-content">
+      <h1>Contact Us</h1>
+      <p>Have a question, tool suggestion, or bug report? We'd love to hear from you.</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="contact-container">
+      <!-- Left Column: Contact Info Cards -->
+      <div class="info-column">
+        <div class="info-card">
+          <div class="info-card-header">
+            <div class="info-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+              </svg>
+            </div>
+            <h2>Direct Support Email</h2>
+          </div>
+          <p>Reach out directly to our team for general support, feedback, or partnership inquiries.</p>
+          <div class="email-box">
+            <span class="email-address" id="supportEmail">website1082018@gmail.com</span>
+            <button type="button" class="copy-btn" id="copyEmailBtn" aria-label="Copy support email address">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span id="copyBtnText">Copy Email</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-header">
+            <div class="info-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <h2>Response Time</h2>
+          </div>
+          <p>We review every message carefully and strive to reply to all inquiries as quickly as possible.</p>
+          <span class="response-badge">Within 24–48 business hours</span>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-header">
+            <div class="info-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+              </svg>
+            </div>
+            <h2>Tool Requests &amp; Feedback</h2>
+          </div>
+          <p>Looking for a specific utility, converter, or calculator? Select <strong>"Suggest a New Tool"</strong> or <strong>"Report a Bug"</strong> in the form and let us know what would make your workflow faster.</p>
+        </div>
+      </div>
+
+      <!-- Right Column: Interactive Contact Form -->
+      <div class="form-card">
+        <h2>Send Us a Message</h2>
+        <p class="form-subtitle">Fill out the form below and we will get back to you promptly.</p>
+
+        <form id="contactForm" novalidate>
+          <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input type="text" id="fullName" name="fullName" class="form-control" placeholder="Jane Doe" required>
+            <span class="field-error" id="fullNameError">Please enter your full name.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" class="form-control" placeholder="you@example.com" required>
+            <span class="field-error" id="emailError">Please enter a valid email address.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="subject">Subject</label>
+            <select id="subject" name="subject" class="form-control" required>
+              <option value="General Inquiry">General Inquiry</option>
+              <option value="Suggest a New Tool">Suggest a New Tool</option>
+              <option value="Report a Bug">Report a Bug</option>
+              <option value="Advertising / Partnership">Advertising / Partnership</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" class="form-control" placeholder="Tell us how we can help..." required></textarea>
+            <span class="field-error" id="messageError">Please enter a message (at least 10 characters).</span>
+          </div>
+
+          <button type="submit" class="submit-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+            Send Message
+          </button>
+
+          <div id="formStatus" class="form-status" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-brand-col">
+        <a href="index.html" class="footer-brand">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M16 3L28 9.5V22.5L16 29L4 22.5V9.5L16 3Z" fill="#2563EB"/>
+            <path d="M16 3L28 9.5L16 16L4 9.5L16 3Z" fill="#60A5FA"/>
+            <path d="M16 16L28 9.5V22.5L16 29V16Z" fill="#1D4ED8"/>
+            <path d="M16 16L4 9.5V22.5L16 29V16Z" fill="#3B82F6"/>
+          </svg>
+          <span>PureWebKits</span>
+        </a>
+        <p class="footer-desc">Fast, private, browser-based utilities for developers, writers, and everyday productivity. Zero sign-ups, 100% client-side.</p>
+      </div>
+
+      <div class="footer-col">
+        <h3>Categories</h3>
+        <ul class="footer-links">
+          <li><a href="index.html#categories">Text &amp; Writing</a></li>
+          <li><a href="index.html#categories">Developer Tools</a></li>
+          <li><a href="index.html#categories">Calculators</a></li>
+          <li><a href="index.html#categories">Converters</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h3>Popular Tools</h3>
+        <ul class="footer-links">
+          <li><a href="index.html">Word Counter</a></li>
+          <li><a href="index.html">JSON Formatter</a></li>
+          <li><a href="index.html">Password Generator</a></li>
+          <li><a href="index.html">Base64 Encoder</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h3>Company</h3>
+        <ul class="footer-links">
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="index.html">All Tools</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h3>Legal</h3>
+        <ul class="footer-links">
+          <li><a href="privacy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="cookies.html">Cookie Policy</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 PureWebKits.com. All rights reserved.</p>
+      <p>Built for speed and privacy in your browser.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      // Mobile navigation toggle
+      var mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      var navLinks = document.getElementById('navLinks');
+
+      if (mobileMenuBtn && navLinks) {
+        mobileMenuBtn.addEventListener('click', function () {
+          var isOpen = navLinks.classList.toggle('open');
+          mobileMenuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+      }
+
+      // One-click Copy Email button
+      var copyEmailBtn = document.getElementById('copyEmailBtn');
+      var copyBtnText = document.getElementById('copyBtnText');
+      var supportEmail = 'website1082018@gmail.com';
+
+      if (copyEmailBtn && copyBtnText) {
+        copyEmailBtn.addEventListener('click', function () {
+          function showCopiedFeedback() {
+            copyEmailBtn.classList.add('copied');
+            copyBtnText.textContent = 'Copied!';
+            setTimeout(function () {
+              copyEmailBtn.classList.remove('copied');
+              copyBtnText.textContent = 'Copy Email';
+            }, 2200);
+          }
+
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(supportEmail).then(showCopiedFeedback).catch(function () {
+              fallbackCopy(supportEmail, showCopiedFeedback);
+            });
+          } else {
+            fallbackCopy(supportEmail, showCopiedFeedback);
+          }
+        });
+      }
+
+      function fallbackCopy(text, callback) {
+        var tempInput = document.createElement('textarea');
+        tempInput.value = text;
+        tempInput.setAttribute('readonly', '');
+        tempInput.style.position = 'absolute';
+        tempInput.style.left = '-9999px';
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        try {
+          document.execCommand('copy');
+          callback();
+        } catch (err) {
+          // Silently fail if clipboard is completely blocked
+        }
+        document.body.removeChild(tempInput);
+      }
+
+      // Interactive Contact Form validation & submission
+      var contactForm = document.getElementById('contactForm');
+      var fullNameInput = document.getElementById('fullName');
+      var emailInput = document.getElementById('email');
+      var subjectSelect = document.getElementById('subject');
+      var messageInput = document.getElementById('message');
+
+      var fullNameError = document.getElementById('fullNameError');
+      var emailError = document.getElementById('emailError');
+      var messageError = document.getElementById('messageError');
+      var formStatus = document.getElementById('formStatus');
+
+      function isValidEmail(value) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      }
+
+      function clearFieldError(input, errorEl) {
+        input.classList.remove('invalid');
+        errorEl.classList.remove('visible');
+      }
+
+      fullNameInput.addEventListener('input', function () {
+        if (fullNameInput.value.trim().length > 0) {
+          clearFieldError(fullNameInput, fullNameError);
+        }
+      });
+
+      emailInput.addEventListener('input', function () {
+        if (isValidEmail(emailInput.value.trim())) {
+          clearFieldError(emailInput, emailError);
+        }
+      });
+
+      messageInput.addEventListener('input', function () {
+        if (messageInput.value.trim().length >= 10) {
+          clearFieldError(messageInput, messageError);
+        }
+      });
+
+      contactForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        var nameVal = fullNameInput.value.trim();
+        var emailVal = emailInput.value.trim();
+        var subjectVal = subjectSelect.value;
+        var messageVal = messageInput.value.trim();
+
+        var isValid = true;
+        formStatus.className = 'form-status';
+        formStatus.textContent = '';
+
+        if (nameVal.length === 0) {
+          fullNameInput.classList.add('invalid');
+          fullNameError.classList.add('visible');
+          isValid = false;
+        } else {
+          clearFieldError(fullNameInput, fullNameError);
+        }
+
+        if (!isValidEmail(emailVal)) {
+          emailInput.classList.add('invalid');
+          emailError.classList.add('visible');
+          isValid = false;
+        } else {
+          clearFieldError(emailInput, emailError);
+        }
+
+        if (messageVal.length < 10) {
+          messageInput.classList.add('invalid');
+          messageError.classList.add('visible');
+          isValid = false;
+        } else {
+          clearFieldError(messageInput, messageError);
+        }
+
+        if (!isValid) {
+          formStatus.className = 'form-status error';
+          formStatus.textContent = 'Please review the highlighted fields and try again.';
+          return;
+        }
+
+        var emailSubject = encodeURIComponent('[PureWebKits - ' + subjectVal + '] Message from ' + nameVal);
+        var emailBody = encodeURIComponent(
+          'Name: ' + nameVal + '\n' +
+          'Email: ' + emailVal + '\n' +
+          'Subject: ' + subjectVal + '\n\n' +
+          'Message:\n' + messageVal
+        );
+        var mailtoUrl = 'mailto:' + supportEmail + '?subject=' + emailSubject + '&body=' + emailBody;
+
+        // Open pre-filled email client without throwing navigation errors
+        var mailLink = document.createElement('a');
+        mailLink.href = mailtoUrl;
+        mailLink.style.display = 'none';
+        document.body.appendChild(mailLink);
+        mailLink.click();
+        document.body.removeChild(mailLink);
+
+        formStatus.className = 'form-status success';
+        formStatus.innerHTML = '<strong>Thank you, ' + escapeHtml(nameVal) + '!</strong> Your message has been prepared in your email client for <strong>' + supportEmail + '</strong>. If your email app did not open automatically, please copy our email address on the left.';
+
+        contactForm.reset();
+      });
+
+      function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(str));
+        return div.innerHTML;
+      }
+    })();
+  </script>
+</body>
+</html>

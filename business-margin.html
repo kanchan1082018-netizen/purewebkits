@@ -1,0 +1,943 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Business Margin Calculator (Gross Margin, Markup & Target Price) — PureWebKits</title>
+  <meta name="description" content="Calculate gross profit margin percentage, markup percentage, net profit, or target selling price from cost and revenue online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/business-margin-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Business Margin Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      flex-wrap: wrap;
+      gap: 2px;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 14px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 11.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .preset-chip {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      border-radius: 999px;
+      padding: 4px 11px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .preset-chip:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .mg-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .mg-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .mg-title { font-size: 15px; font-weight: 800; color: #CBD5E1; margin-top: 2px; }
+    .mg-sub { font-size: 12px; color: #94A3B8; margin-top: 2px; }
+    .mg-big-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 26px;
+      font-weight: 800;
+      color: #34D399;
+      white-space: nowrap;
+      text-align: right;
+    }
+    .mg-big-num.neg { color: #FCA5A5; }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid, .two-col-fields { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Business Margin Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Business Margin Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Compute gross margin %, markup %, net profit & target selling price in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="Calculation mode selector">
+            <button type="button" class="mode-btn active" data-mode="from_price">Cost & Price → Margin</button>
+            <button type="button" class="mode-btn" data-mode="target_margin">Cost & Target Margin → Price</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="resetMarginBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="mgCostInput" class="field-label">Unit / Direct Cost ($)</label>
+                <input type="number" id="mgCostInput" class="std-input" min="0" step="0.01" value="60.00" />
+              </div>
+
+              <div class="field-group" id="mgSecondFieldGroup">
+                <label for="mgPriceOrTargetInput" class="field-label" id="mgSecondFieldLabel">Selling Price / Revenue ($)</label>
+                <input type="number" id="mgPriceOrTargetInput" class="std-input" min="0" step="0.01" value="100.00" />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <span class="field-label">Quick Target Margin Presets (Target Margin Mode)</span>
+              <div class="preset-chips">
+                <button type="button" class="preset-chip" data-target="20">20% Margin</button>
+                <button type="button" class="preset-chip" data-target="30">30% Margin</button>
+                <button type="button" class="preset-chip" data-target="40">40% Margin</button>
+                <button type="button" class="preset-chip" data-target="50">50% Margin</button>
+                <button type="button" class="preset-chip" data-target="65">65% Margin</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="mg-hero-box">
+              <div>
+                <div class="mg-kicker" id="mgHeroKicker">Gross Profit Margin</div>
+                <div class="mg-title" id="mgHeroDesc">Profit as a share of selling price</div>
+                <div class="mg-sub" id="mgHeroSub">Profit: $40.00 on $100.00 revenue</div>
+              </div>
+              <div class="mg-big-num" id="mgHeroMainVal">40.00%</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Gross Profit ($)</div>
+                <div class="metric-val" id="mgProfitVal">$40.00</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Markup Percentage</div>
+                <div class="metric-val" id="mgMarkupVal">66.67%</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Direct Cost</div>
+                <div class="metric-val" id="mgCostOutVal">$60.00</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Selling Price</div>
+                <div class="metric-val" id="mgPriceOutVal">$100.00</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyMarginBtn" class="btn-primary">Copy Margin Summary</button>
+              <button type="button" id="downloadMarginBtn" class="btn-sec" style="height:40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Gross Margin vs Markup & Pricing Math -->
+    <article class="content-card">
+      <h2>Complete User Guide to Business Margin, Markup Percentage & Target Pricing</h2>
+
+      <h3>How Gross Margin and Markup Differ (And Why Mixing Them Hurts Pricing)</h3>
+      <p>
+        Two of the most common pricing metrics in business—<strong>gross profit margin</strong> and <strong>markup</strong>—measure the exact same dollar profit from different denominators. <strong>Gross margin</strong> expresses profit as a percentage of the <strong>selling price (revenue)</strong>, showing how much of each sales dollar stays in the business after direct cost of goods or delivery; <strong>markup</strong> expresses profit as a percentage of the <strong>cost</strong>, showing how much was added on top of cost to set the price. Because revenue is larger than cost whenever profit is positive, a <code>40%</code> gross margin equals a <code>66.67%</code> markup—and conversely, adding a <code>40%</code> markup on cost yields a <code>28.57%</code> gross margin, not <code>40%</code>. Confusing the two can easily underprice products or services. A browser-based <strong>Business Margin Calculator</strong> computes both metrics and target selling prices 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Calculate Margin or Target Selling Price in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Choose Your Calculation Mode:</strong> Select <strong>Cost & Price → Margin</strong> to evaluate an existing cost and selling price, or <strong>Cost & Target Margin → Price</strong> to calculate the selling price required for a desired gross margin.</li>
+        <li><strong>Enter Cost & Price (or Target Margin %):</strong> Type your direct cost and selling price—or enter your cost and pick a target margin preset such as <code>30%</code>, <code>40%</code>, or <code>50%</code>.</li>
+        <li><strong>Review Profit, Markup & Export Summary:</strong> Inspect gross profit dollars, gross margin %, markup %, and price, then export via <strong>Copy Margin Summary</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Gross Margin, Markup & Target Price Formulas</h3>
+      <p>
+        For cost <code>C</code>, selling price <code>P</code>, profit <code>Profit = P − C</code>, and target margin decimal <code>m = margin% / 100</code>:
+      </p>
+      <div class="formula-box">
+        Gross Margin (%) = ((P − C) / P) × 100  |  Markup (%) = ((P − C) / C) × 100<br />
+        Target Price (P) = C / (1 − m)  (for m < 1)
+      </div>
+
+      <h3>Helpful Tips for Healthy Unit Economics</h3>
+      <ul>
+        <li><strong>Separate Gross Margin From Net Profit Margin:</strong> Gross margin accounts for direct cost of goods/service delivery—remember to cover fixed overhead, marketing, and taxes out of remaining profit.</li>
+        <li><strong>Check Discount Impact Before Running Promotions:</strong> A small price discount trims profit dollars directly—test reduced prices in the calculator to see how margin compresses.</li>
+        <li><strong>Never Set Target Margin at or Above 100%:</strong> A gross margin of <code>100%</code> would imply zero cost; target margins for sustainable pricing sit below <code>100%</code>.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> With a direct cost of <code>$60.00</code> and a selling price of <code>$100.00</code>, gross profit is <code>$40.00</code>, gross margin is <code>$40.00 / $100.00 = 40.00%</code>, and markup on cost is <code>$40.00 / $60.00 = 66.67%</code>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="mg-table-heading">
+      <h2 id="mg-table-heading">Gross Margin vs. Markup Conversion & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to convert between gross margin percentage and cost markup percentage quickly.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Gross Margin %</th>
+              <th>Equivalent Markup %</th>
+              <th>Price Multiplier (<code>1 / (1 − m)</code>)</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>10.0% Margin</strong></td>
+              <td><code>11.11%</code> Markup</td>
+              <td><code>1.111×</code> cost</td>
+              <td>Thin margin; watch overhead closely</td>
+            </tr>
+            <tr>
+              <td><strong>15.0% Margin</strong></td>
+              <td><code>17.65%</code> Markup</td>
+              <td><code>1.176×</code> cost</td>
+              <td>Common in high-volume retail/goods</td>
+            </tr>
+            <tr>
+              <td><strong>20.0% Margin</strong></td>
+              <td><code>25.00%</code> Markup</td>
+              <td><code>1.250×</code> cost</td>
+              <td>Classic 1/5th of revenue is profit</td>
+            </tr>
+            <tr>
+              <td><strong>25.0% Margin</strong></td>
+              <td><code>33.33%</code> Markup</td>
+              <td><code>1.333×</code> cost</td>
+              <td>One-quarter of selling price is profit</td>
+            </tr>
+            <tr>
+              <td><strong>30.0% Margin</strong></td>
+              <td><code>42.86%</code> Markup</td>
+              <td><code>1.429×</code> cost</td>
+              <td>Moderate gross margin benchmark</td>
+            </tr>
+            <tr>
+              <td><strong>33.33% Margin</strong></td>
+              <td><code>50.00%</code> Markup</td>
+              <td><code>1.500×</code> cost</td>
+              <td>1.5× cost pricing rule</td>
+            </tr>
+            <tr>
+              <td><strong>40.0% Margin</strong></td>
+              <td><code>66.67%</code> Markup</td>
+              <td><code>1.667×</code> cost</td>
+              <td>2/5ths of revenue is gross profit</td>
+            </tr>
+            <tr>
+              <td><strong>50.0% Margin</strong></td>
+              <td><code>100.00%</code> Markup</td>
+              <td><code>2.000×</code> cost</td>
+              <td>Keystone (2× cost) pricing</td>
+            </tr>
+            <tr>
+              <td><strong>60.0% Margin</strong></td>
+              <td><code>150.00%</code> Markup</td>
+              <td><code>2.500×</code> cost</td>
+              <td>High gross margin profile</td>
+            </tr>
+            <tr>
+              <td><strong>70.0% Margin</strong></td>
+              <td><code>233.33%</code> Markup</td>
+              <td><code>3.333×</code> cost</td>
+              <td>Common in software/digital products</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download Summary</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports margin, markup & profit</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Zero Server Storage</strong></td>
+              <td>Client-side JavaScript math</td>
+              <td>Instant calculation in browser</td>
+              <td>No external API calls required</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Margin & Markup Calculator — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your costs, prices, and margin data stay strictly inside your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero business figures transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser margin calculation with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Finance, Pricing, Tax & Everyday Utilities</h2>
+      <p>Calculating percentages, Stripe/PayPal processing fees, GST, or loan EMI? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="stripe-fee-calculator.html"><span>Stripe Fee Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="paypal-fee-calculator.html"><span>PayPal Fee Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="indian-gst-calculator.html"><span>Indian GST Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="emi-calculator.html"><span>EMI Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Why is a 50% markup not the same as a 50% gross margin?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            A <code>50%</code> markup adds <code>50%</code> on top of cost (e.g., <code>$100</code> cost → <code>$150</code> price, <code>$50</code> profit), which equals a <code>$50 / $150 = 33.33%</code> gross margin—whereas a <code>50%</code> gross margin requires selling at <code>$200</code> (<code>100%</code> markup).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How do I find the selling price for a target gross margin?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Switch to <strong>Cost & Target Margin → Price</strong>, enter your cost, enter your target margin percentage (below <code>100%</code>), and the calculator computes <code>Price = Cost / (1 − Margin%)</code>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my business costs, prices, or margin calculations sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations, clipboard copies, and report downloads run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online Business Margin Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Business Margin, Markup & Target Pricing Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const modeBtns = document.querySelectorAll(".mode-btn");
+      const resetMarginBtn = document.getElementById("resetMarginBtn");
+
+      const mgCostInput = document.getElementById("mgCostInput");
+      const mgSecondFieldLabel = document.getElementById("mgSecondFieldLabel");
+      const mgPriceOrTargetInput = document.getElementById("mgPriceOrTargetInput");
+      const presetChips = document.querySelectorAll(".preset-chip");
+
+      const mgHeroKicker = document.getElementById("mgHeroKicker");
+      const mgHeroDesc = document.getElementById("mgHeroDesc");
+      const mgHeroSub = document.getElementById("mgHeroSub");
+      const mgHeroMainVal = document.getElementById("mgHeroMainVal");
+
+      const mgProfitVal = document.getElementById("mgProfitVal");
+      const mgMarkupVal = document.getElementById("mgMarkupVal");
+      const mgCostOutVal = document.getElementById("mgCostOutVal");
+      const mgPriceOutVal = document.getElementById("mgPriceOutVal");
+
+      const copyMarginBtn = document.getElementById("copyMarginBtn");
+      const downloadMarginBtn = document.getElementById("downloadMarginBtn");
+
+      let calcMode = "from_price"; // "from_price" | "target_margin"
+      let latestReportText = "";
+
+      function fmtMoney(num) {
+        if (!Number.isFinite(num)) return "$0.00";
+        const sign = num < 0 ? "-" : "";
+        return sign + "$" + Math.abs(num).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function recalculateMargin() {
+        const cost = Math.max(0, parseFloat(mgCostInput.value) || 0);
+        const secondVal = Math.max(0, parseFloat(mgPriceOrTargetInput.value) || 0);
+
+        let price = 0;
+        let profit = 0;
+        let marginPct = 0;
+        let markupPct = 0;
+
+        if (calcMode === "from_price") {
+          mgSecondFieldLabel.textContent = "Selling Price / Revenue ($)";
+          price = secondVal;
+          profit = price - cost;
+          marginPct = price > 0 ? (profit / price) * 100 : 0;
+          markupPct = cost > 0 ? (profit / cost) * 100 : 0;
+
+          mgHeroKicker.textContent = "Gross Profit Margin";
+          mgHeroDesc.textContent = "Profit as a percentage of selling price";
+          mgHeroSub.textContent = `Profit: ${fmtMoney(profit)} on ${fmtMoney(price)} revenue`;
+          mgHeroMainVal.textContent = `${marginPct.toFixed(2)}%`;
+          mgHeroMainVal.className = "mg-big-num" + (profit < 0 ? " neg" : "");
+        } else {
+          mgSecondFieldLabel.textContent = "Target Gross Margin (%)";
+          const clampedMargin = Math.min(99.5, secondVal);
+          const mFrac = clampedMargin / 100;
+          price = cost / Math.max(0.005, 1 - mFrac);
+          profit = price - cost;
+          marginPct = price > 0 ? (profit / price) * 100 : 0;
+          markupPct = cost > 0 ? (profit / cost) * 100 : 0;
+
+          mgHeroKicker.textContent = "Target Selling Price";
+          mgHeroDesc.textContent = `Price needed for ${clampedMargin.toFixed(1)}% gross margin`;
+          mgHeroSub.textContent = `Gross profit: ${fmtMoney(profit)} (${markupPct.toFixed(2)}% markup)`;
+          mgHeroMainVal.textContent = fmtMoney(price);
+          mgHeroMainVal.className = "mg-big-num";
+        }
+
+        mgProfitVal.textContent = fmtMoney(profit);
+        mgMarkupVal.textContent = `${markupPct.toFixed(2)}%`;
+        mgCostOutVal.textContent = fmtMoney(cost);
+        mgPriceOutVal.textContent = fmtMoney(price);
+
+        latestReportText = [
+          "PureWebKits Business Margin Calculation Report",
+          "---------------------------------------------",
+          `Mode: ${calcMode === "from_price" ? "Cost & Price -> Margin" : "Cost & Target Margin -> Price"}`,
+          `Direct Cost: ${fmtMoney(cost)} | Selling Price: ${fmtMoney(price)}`,
+          `Gross Profit: ${fmtMoney(profit)}`,
+          `Gross Margin: ${marginPct.toFixed(2)}% | Markup on Cost: ${markupPct.toFixed(2)}%`
+        ].join("\n");
+      }
+
+      modeBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          modeBtns.forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          calcMode = btn.getAttribute("data-mode") || "from_price";
+          if (calcMode === "target_margin") {
+            mgPriceOrTargetInput.value = "40";
+          } else {
+            mgPriceOrTargetInput.value = "100.00";
+          }
+          recalculateMargin();
+        });
+      });
+
+      presetChips.forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          calcMode = "target_margin";
+          modeBtns.forEach(function (b) {
+            b.classList.toggle("active", b.getAttribute("data-mode") === "target_margin");
+          });
+          mgPriceOrTargetInput.value = chip.getAttribute("data-target") || "40";
+          recalculateMargin();
+        });
+      });
+
+      resetMarginBtn.addEventListener("click", function () {
+        calcMode = "from_price";
+        modeBtns.forEach(function (b) {
+          b.classList.toggle("active", b.getAttribute("data-mode") === "from_price");
+        });
+        mgCostInput.value = "60.00";
+        mgPriceOrTargetInput.value = "100.00";
+        recalculateMargin();
+      });
+
+      [mgCostInput, mgPriceOrTargetInput].forEach(function (inp) {
+        inp.addEventListener("input", recalculateMargin);
+        inp.addEventListener("change", recalculateMargin);
+      });
+
+      copyMarginBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        navigator.clipboard.writeText(latestReportText).then(function () {
+          const orig = copyMarginBtn.textContent;
+          copyMarginBtn.textContent = "Copied!";
+          setTimeout(function () { copyMarginBtn.textContent = orig; }, 1800);
+        });
+      });
+
+      downloadMarginBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        const blob = new Blob([latestReportText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "business-margin-calculation.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      recalculateMargin();
+    });
+  </script>
+</body>
+</html>
