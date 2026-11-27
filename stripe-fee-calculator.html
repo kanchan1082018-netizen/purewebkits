@@ -1,0 +1,938 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Stripe Fee Calculator (Net Payout & Gross-Up Pricing) — PureWebKits</title>
+  <meta name="description" content="Calculate Stripe processing fees, net received payout, or reverse gross-up charge amounts across standard card, international, and custom rates online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/stripe-fee-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Stripe Calculator Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      flex-wrap: wrap;
+      gap: 2px;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 14px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 11.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 2px;
+    }
+    .preset-chip {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      border-radius: 999px;
+      padding: 5px 11px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .preset-chip:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .st-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .st-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .st-title { font-size: 15px; font-weight: 800; color: #CBD5E1; margin-top: 2px; }
+    .st-sub { font-size: 12px; color: #94A3B8; margin-top: 2px; }
+    .st-big-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 26px;
+      font-weight: 800;
+      color: #34D399;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid, .two-col-fields { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Stripe Fee Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Stripe Fee Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate net payout or reverse gross-up pricing for card & online charges
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="Calculation mode selector">
+            <button type="button" class="mode-btn active" data-mode="forward">Gross → Net Payout</button>
+            <button type="button" class="mode-btn" data-mode="reverse">Target Net → Gross-Up</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="resetStBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="stAmountInput" class="field-label" id="stAmountLabel">Charge / Gross Amount ($)</label>
+              <input type="number" id="stAmountInput" class="std-input" min="0" step="0.01" value="250.00" />
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="stPercentInput" class="field-label">Percentage Fee (%)</label>
+                <input type="number" id="stPercentInput" class="std-input" min="0" max="50" step="0.01" value="2.90" />
+              </div>
+
+              <div class="field-group">
+                <label for="stFixedInput" class="field-label">Fixed Per-Charge Fee ($)</label>
+                <input type="number" id="stFixedInput" class="std-input" min="0" step="0.01" value="0.30" />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <span class="field-label">Common Rate Presets (Editable)</span>
+              <div class="preset-chips">
+                <button type="button" class="preset-chip" data-pct="2.90" data-fix="0.30">US Standard Card (2.90% + $0.30)</button>
+                <button type="button" class="preset-chip" data-pct="3.90" data-fix="0.30">Intl Card (+1.0% / 3.90% + $0.30)</button>
+                <button type="button" class="preset-chip" data-pct="3.40" data-fix="0.30">Manual Card Entry (3.40% + $0.30)</button>
+                <button type="button" class="preset-chip" data-pct="2.00" data-fix="0.00">2.00% Flat / Custom</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="st-hero-box">
+              <div>
+                <div class="st-kicker" id="stHeroKicker">Estimated Net Payout</div>
+                <div class="st-title" id="stHeroDesc">After deducting percentage & fixed fee</div>
+                <div class="st-sub" id="stRateFormulaCaption">Rate: 2.90% + $0.30</div>
+              </div>
+              <div class="st-big-num" id="stHeroAmount">$242.45</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Total Processing Fee</div>
+                <div class="metric-val" id="stTotalFeeVal">$7.55</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Gross Charge Amount</div>
+                <div class="metric-val" id="stGrossVal">$250.00</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Net Amount Received</div>
+                <div class="metric-val" id="stNetVal">$242.45</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Effective Fee Rate</div>
+                <div class="metric-val" id="stEffRateVal">3.02%</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyStReportBtn" class="btn-primary">Copy Fee Breakdown</button>
+              <button type="button" id="downloadStReportBtn" class="btn-sec" style="height:40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Stripe Fee Math & Gross-Up Pricing -->
+    <article class="content-card">
+      <h2>Complete User Guide to Stripe Processing Fees, Net Payouts & Gross-Up Pricing</h2>
+
+      <h3>How Percentage + Fixed Per-Transaction Fees and Gross-Up Pricing Work</h3>
+      <p>
+        Card payment processors typically price online transactions using a combination of a <strong>percentage fee</strong> on the charge amount plus a <strong>fixed per-transaction fee</strong> (such as <code>2.90% + $0.30</code> for standard US domestic card charges, with additional percentage surcharges often applying to international cards, currency conversion, or optional add-ons). Because regional pricing, payment methods, and currency conversion terms vary by country and account configuration, entering your exact percentage and fixed fee lets you forecast exact payouts before launching a checkout page or sending a payment link. Switching to <strong>Target Net → Gross-Up</strong> calculates the higher gross charge amount needed so that after fees are deducted, your net payout equals your target goal. A browser-based <strong>Stripe Fee Calculator</strong> computes these figures 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Calculate Processing Fees & Gross-Up Amounts in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Select Gross → Net Payout or Target Net → Gross-Up:</strong> Choose <strong>Gross → Net Payout</strong> to see what you receive from a given charge, or <strong>Target Net → Gross-Up</strong> to compute the customer charge required for a desired net payout.</li>
+        <li><strong>Enter Amount & Fee Rate (or Pick a Preset):</strong> Enter your amount, percentage rate, and fixed per-charge fee—or click one of the rate preset chips and customize any value.</li>
+        <li><strong>Inspect Breakdown & Export Summary:</strong> Check total fee, gross charge, net payout, and effective fee rate, then save via <strong>Copy Fee Breakdown</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Forward Fee & Reverse Gross-Up Formulas</h3>
+      <p>
+        With decimal rate <code>r = percent / 100</code> and fixed fee <code>F</code>:
+      </p>
+      <div class="formula-box">
+        Forward (Gross G → Net N): Fee = (G × r) + F  |  Net (N) = G − Fee<br />
+        Reverse (Target Net N → Gross G): G = (N + F) / (1 − r)
+      </div>
+
+      <h3>Helpful Tips for Checkout Pricing & Margin Protection</h3>
+      <ul>
+        <li><strong>Account for Fixed-Fee Impact on Low-Ticket Orders:</strong> On a <code>$5.00</code> charge, a <code>$0.30</code> fixed fee alone represents <code>6.00%</code> before any percentage rate—check margins carefully on low-priced items or subscriptions.</li>
+        <li><strong>Include Currency Conversion & Add-On Fees When Applicable:</strong> If customers pay in a non-settlement currency or you enable extra verification/billing features, include any expected surcharge in your rate inputs.</li>
+        <li><strong>Confirm Your Region's Published Rate Card:</strong> Card processing rates differ across countries and payment methods—always verify your exact account schedule.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> On a <code>$250.00</code> gross charge at <code>2.90% + $0.30</code>, the percentage fee is <code>$7.25</code> and the fixed fee is <code>$0.30</code>, giving a total fee of <code>$7.55</code> (<code>3.02%</code> effective rate) and a net payout of <code>$242.45</code>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="st-table-heading">
+      <h2 id="st-table-heading">Stripe Fee Scenarios, Gross-Up Benchmarks & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to compare sample fee profiles on a <code>$1,000.00</code> charge and review key formulas.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Rate Profile / Concept</th>
+              <th>Sample Rate</th>
+              <th>$1,000.00 Example</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>US Standard Card</strong></td>
+              <td><code>2.90% + $0.30</code></td>
+              <td>Fee <code>$29.30</code> → Net <code>$970.70</code></td>
+              <td>Gross-up for $1,000 net: <code>$1,030.28</code></td>
+            </tr>
+            <tr>
+              <td><strong>International Card Preset</strong></td>
+              <td><code>3.90% + $0.30</code></td>
+              <td>Fee <code>$39.30</code> → Net <code>$960.70</code></td>
+              <td>Reflects +1.0% international surcharge</td>
+            </tr>
+            <tr>
+              <td><strong>Manual Card Entry Preset</strong></td>
+              <td><code>3.40% + $0.30</code></td>
+              <td>Fee <code>$34.30</code> → Net <code>$965.70</code></td>
+              <td>Reflects +0.5% keyed-in surcharge</td>
+            </tr>
+            <tr>
+              <td><strong>Custom / Flat Preset</strong></td>
+              <td><code>2.00% + $0.00</code></td>
+              <td>Fee <code>$20.00</code> → Net <code>$980.00</code></td>
+              <td>Fully editable for any rate tier</td>
+            </tr>
+            <tr>
+              <td><strong>Forward Mode</strong></td>
+              <td><code>Gross → Net Payout</code></td>
+              <td>Calculates fee & net from charge</td>
+              <td>Tracks net payout per transaction</td>
+            </tr>
+            <tr>
+              <td><strong>Reverse Mode</strong></td>
+              <td><code>Target Net → Gross-Up</code></td>
+              <td>Calculates charge for target net</td>
+              <td>Helps pass processing fee to buyer</td>
+            </tr>
+            <tr>
+              <td><strong>Percentage Component</strong></td>
+              <td><code>Gross × (pct / 100)</code></td>
+              <td>Proportional to charge amount</td>
+              <td>Editable in percentage input</td>
+            </tr>
+            <tr>
+              <td><strong>Fixed Component</strong></td>
+              <td>Flat per-charge amount</td>
+              <td>Constant regardless of order size</td>
+              <td>Editable in fixed-fee input</td>
+            </tr>
+            <tr>
+              <td><strong>Effective Fee Rate</strong></td>
+              <td><code>(Total Fee / Gross) × 100</code></td>
+              <td>True combined fee percentage</td>
+              <td>Shown live in result grid</td>
+            </tr>
+            <tr>
+              <td><strong>FX / Multi-Currency</strong></td>
+              <td>Conversion spread if applicable</td>
+              <td>Applies when settling across currencies</td>
+              <td>Model via custom rate/surcharge</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download Report</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports full calculation summary</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Zero Server Storage</strong></td>
+              <td>Client-side JavaScript math</td>
+              <td>Instant calculation in browser</td>
+              <td>No backend or database used</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Fee & Gross-Up Calculator — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your charge amounts and pricing numbers stay strictly inside your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero financial figures transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser fee calculation with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Finance, Pricing, Tax & Everyday Utilities</h2>
+      <p>Calculating PayPal fees, percentages, GST, loans/EMI, or currency conversions? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="paypal-fee-calculator.html"><span>PayPal Fee Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="indian-gst-calculator.html"><span>Indian GST Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="emi-calculator.html"><span>EMI Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="us-paycheck-calculator.html"><span>US Paycheck Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How do I calculate the gross price to charge so I keep an exact net payout?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Switch to <strong>Target Net → Gross-Up</strong>, enter your desired net payout, enter your percentage and fixed fee, and the calculator computes <code>Gross = (Target Net + Fixed Fee) / (1 − Rate)</code>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I adjust the percentage and fixed fee for international cards or custom agreements?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes.</strong> Both the <strong>Percentage Fee (%)</strong> and <strong>Fixed Per-Charge Fee</strong> inputs are fully editable so you can model international surcharges, custom volume pricing, or any currency.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my charge amounts or fee calculations sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations, clipboard copies, and report downloads run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online Stripe Fee Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Stripe Fee & Gross-Up Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const modeBtns = document.querySelectorAll(".mode-btn");
+      const resetStBtn = document.getElementById("resetStBtn");
+
+      const stAmountLabel = document.getElementById("stAmountLabel");
+      const stAmountInput = document.getElementById("stAmountInput");
+      const stPercentInput = document.getElementById("stPercentInput");
+      const stFixedInput = document.getElementById("stFixedInput");
+      const presetChips = document.querySelectorAll(".preset-chip");
+
+      const stHeroKicker = document.getElementById("stHeroKicker");
+      const stHeroDesc = document.getElementById("stHeroDesc");
+      const stRateFormulaCaption = document.getElementById("stRateFormulaCaption");
+      const stHeroAmount = document.getElementById("stHeroAmount");
+
+      const stTotalFeeVal = document.getElementById("stTotalFeeVal");
+      const stGrossVal = document.getElementById("stGrossVal");
+      const stNetVal = document.getElementById("stNetVal");
+      const stEffRateVal = document.getElementById("stEffRateVal");
+
+      const copyStReportBtn = document.getElementById("copyStReportBtn");
+      const downloadStReportBtn = document.getElementById("downloadStReportBtn");
+
+      let calcMode = "forward"; // "forward" | "reverse"
+      let latestReportText = "";
+
+      function fmtMoney(num) {
+        if (!Number.isFinite(num)) return "$0.00";
+        return "$" + num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function recalculateStripe() {
+        const inputAmt = Math.max(0, parseFloat(stAmountInput.value) || 0);
+        const pct = Math.max(0, Math.min(99.9, parseFloat(stPercentInput.value) || 0));
+        const fixedFee = Math.max(0, parseFloat(stFixedInput.value) || 0);
+        const rate = pct / 100;
+
+        let gross = 0;
+        let fee = 0;
+        let net = 0;
+
+        if (calcMode === "forward") {
+          gross = inputAmt;
+          fee = inputAmt > 0 ? (gross * rate) + fixedFee : 0;
+          net = gross - fee;
+
+          stAmountLabel.textContent = "Charge / Gross Amount ($)";
+          stHeroKicker.textContent = "Estimated Net Payout";
+          stHeroDesc.textContent = "After deducting percentage & fixed fee";
+          stHeroAmount.textContent = fmtMoney(net);
+        } else {
+          net = inputAmt;
+          const denom = Math.max(0.0001, 1 - rate);
+          gross = inputAmt > 0 ? (net + fixedFee) / denom : 0;
+          fee = Math.max(0, gross - net);
+
+          stAmountLabel.textContent = "Desired Net Payout ($)";
+          stHeroKicker.textContent = "Gross Charge Amount";
+          stHeroDesc.textContent = "Charge total needed to keep target net";
+          stHeroAmount.textContent = fmtMoney(gross);
+        }
+
+        const effPct = gross > 0 ? (fee / gross) * 100 : 0;
+
+        stRateFormulaCaption.textContent = `Rate: ${pct.toFixed(2)}% + ${fmtMoney(fixedFee)}`;
+        stTotalFeeVal.textContent = fmtMoney(fee);
+        stGrossVal.textContent = fmtMoney(gross);
+        stNetVal.textContent = fmtMoney(net);
+        stEffRateVal.textContent = `${effPct.toFixed(2)}%`;
+
+        latestReportText = [
+          "PureWebKits Stripe Fee Calculation Report",
+          "----------------------------------------",
+          `Mode: ${calcMode === "forward" ? "Gross -> Net Payout" : "Target Net -> Gross-Up"}`,
+          `Rate Applied: ${pct.toFixed(2)}% + ${fmtMoney(fixedFee)}`,
+          `Gross Charge: ${fmtMoney(gross)}`,
+          `Total Processing Fee: ${fmtMoney(fee)} (${effPct.toFixed(2)}% effective)`,
+          `Net Payout: ${fmtMoney(net)}`
+        ].join("\n");
+      }
+
+      modeBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          modeBtns.forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          calcMode = btn.getAttribute("data-mode") || "forward";
+          recalculateStripe();
+        });
+      });
+
+      presetChips.forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          stPercentInput.value = chip.getAttribute("data-pct") || "2.90";
+          stFixedInput.value = chip.getAttribute("data-fix") || "0.30";
+          recalculateStripe();
+        });
+      });
+
+      resetStBtn.addEventListener("click", function () {
+        calcMode = "forward";
+        modeBtns.forEach(function (b) {
+          b.classList.toggle("active", b.getAttribute("data-mode") === "forward");
+        });
+        stAmountInput.value = "250.00";
+        stPercentInput.value = "2.90";
+        stFixedInput.value = "0.30";
+        recalculateStripe();
+      });
+
+      [stAmountInput, stPercentInput, stFixedInput].forEach(function (inp) {
+        inp.addEventListener("input", recalculateStripe);
+        inp.addEventListener("change", recalculateStripe);
+      });
+
+      copyStReportBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        navigator.clipboard.writeText(latestReportText).then(function () {
+          const orig = copyStReportBtn.textContent;
+          copyStReportBtn.textContent = "Copied!";
+          setTimeout(function () { copyStReportBtn.textContent = orig; }, 1800);
+        });
+      });
+
+      downloadStReportBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        const blob = new Blob([latestReportText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "stripe-fee-calculation.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      recalculateStripe();
+    });
+  </script>
+</body>
+</html>

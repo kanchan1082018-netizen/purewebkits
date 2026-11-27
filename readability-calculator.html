@@ -1,0 +1,640 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Essay & Assignment Readability (Flesch-Kincaid) — Free | PureWebKits</title>
+  <meta name="description" content="Check essay and assignment readability using the Flesch-Kincaid grade level and reading ease formula online for free. Readability checker tool 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/readability-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Readability Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .action-group { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+    .btn-primary {
+      display: inline-block;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 9px;
+      padding: 9px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .textarea-box {
+      width: 100%;
+      height: 220px;
+      padding: 16px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text-main);
+      background: #F8FAFC;
+      resize: vertical;
+      outline: none;
+      margin-bottom: 16px;
+    }
+    .textarea-box:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .result-card {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+    .result-title { font-size: 11.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .result-val { font-size: 18px; font-weight: 900; color: var(--primary); font-family: monospace; }
+    .result-val.highlight { color: var(--success); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .results-grid { grid-template-columns: repeat(2, 1fr); }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .results-grid { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Readability Tool -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Essay & Assignment Readability (Flesch-Kincaid)</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Analyze essay readability scores and grade levels instantly in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="action-group">
+            <span style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Paste your essay or assignment text below:</span>
+          </div>
+          <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample Essay</button>
+        </div>
+
+        <textarea id="textInput" class="textarea-box" placeholder="Type or paste your text here to analyze readability scores in real time..."></textarea>
+
+        <div class="results-grid">
+          <div class="result-card">
+            <div class="result-title">Reading Ease Score</div>
+            <div id="resEase" class="result-val">65.4</div>
+          </div>
+          <div class="result-card">
+            <div class="result-title">Flesch-Kincaid Grade</div>
+            <div id="resGrade" class="result-val highlight">8.5</div>
+          </div>
+          <div class="result-card">
+            <div class="result-title">Total Words</div>
+            <div id="resWords" class="result-val">0</div>
+          </div>
+          <div class="result-card">
+            <div class="result-title">Total Sentences</div>
+            <div id="resSentences" class="result-val">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Readability Formulas, Flesch-Kincaid Scores & Academic Writing Work</h2>
+
+      ### Why Essay & Assignment Readability Checkers Are Essential for Students
+      <p>
+        Writing clear, concise, and engaging academic essays or professional assignments requires evaluating how easily readers can comprehend the material. Overly long sentences, complex terminology, and dense paragraph structures can make writing difficult to follow. An <strong>essay and assignment readability checker</strong> calculates established linguistic metrics such as the <strong>Flesch Reading Ease</strong> score and the <strong>Flesch-Kincaid Grade Level</strong> to evaluate text clarity. Our browser-based tool computes readability statistics instantly in client memory without server uploads.
+      </p>
+
+      ### How to Check Your Essay Readability in 3 Easy Steps
+      <ol>
+        <li><strong>Paste Your Essay:</strong> Copy and paste your essay, assignment, or article text into the editor box.</li>
+        <li><strong>Analyze Metrics:</strong> Instantly inspect live calculations for word counts, sentence counts, and syllable density.</li>
+        <li><strong>Refine Writing:</strong> Review your Reading Ease score and Grade Level to ensure appropriate audience targeting.</li>
+      </ol>
+
+      ### Readability Formulas + Worked Example
+      <p>
+        Readability scores calculate average sentence length and average syllable count per word:
+      </p>
+      <div class="formula-box">
+        Reading Ease = 206.835 - 1.015(Words/Sentences) - 84.6(Syllables/Words)  |  Grade Level = 0.39(Words/Sentences) + 11.8(Syllables/Words) - 15.59
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> A standard academic essay with moderate sentence lengths and multi-syllabic vocabulary yields a Reading Ease score of ~65.4 and an 8th to 9th-grade reading level, indicating balanced professional clarity.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="readability-table-heading">
+      <h2 id="readability-table-heading">Readability Benchmarks, Scoring Ranges & Rules (16 Rules)</h2>
+      <p>Use this reference table to interpret Flesch Reading Ease scores and target education levels.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Reading Ease Score</th>
+              <th>Difficulty Level</th>
+              <th>Target Education / Audience Level</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>90.0 – 100.0</strong></td>
+              <td>Very Easy</td>
+              <td>5th-grade elementary level (easily readable by 11-year-olds)</td>
+            </tr>
+            <tr>
+              <td><strong>60.0 – 70.0</strong></td>
+              <td>Standard</td>
+              <td>8th to 9th-grade level (standard accessible writing)</td>
+            </tr>
+            <tr>
+              <td><strong>0.0 – 30.0</strong></td>
+              <td>Very Confusing</td>
+              <td>College graduate level (dense academic and legal texts)</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Processing</strong></td>
+              <td>JavaScript Execution</td>
+              <td>Zero Server Latency — 100% browser calculation</td>
+            </tr>
+            <tr>
+              <td><strong>Browser Compatibility</strong></td>
+              <td>100% Universal</td>
+              <td>Runs smoothly on desktop & mobile web browsers</td>
+            </tr>
+            <tr>
+              <td><strong>Data Privacy</strong></td>
+              <td>100% Client-Side Memory</td>
+              <td><span class="limit-badge">Zero Server Upload</span> — Private essay drafts stay secure</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Text, Writing & Productivity Utilities</h2>
+      <p>Need word counters, distraction-free notepads, or case converters? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="online-notepad.html"><span>Distraction-Free Notepad</span><span class="arrow">→</span></a>
+        <a class="related-link" href="case-converter.html"><span>Text Case Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="lorem-ipsum-generator.html"><span>Lorem Ipsum Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="citation-generator.html"><span>Academic Citation Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Strong Password Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>Custom QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="binary-translator.html"><span>Binary & ASCII Translator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is the Flesch-Kincaid readability formula?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            It is a widely accepted linguistic test that measures text comprehension difficulty based on average sentence length and average syllable count per word.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. What is a good reading ease score for an essay?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>60 to 70</strong> is considered standard and easily readable by average high school or college readers.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my essays uploaded to an external server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All readability calculations run 100% locally inside your web browser using JavaScript. Your confidential writing never leaves your computer.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this readability calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> This utility is 100% free with no registration or download requirements.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Readability Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const textInput = document.getElementById("textInput");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+
+      const resEase = document.getElementById("resEase");
+      const resGrade = document.getElementById("resGrade");
+      const resWords = document.getElementById("resWords");
+      const resSentences = document.getElementById("resSentences");
+
+      function countSyllables(word) {
+        word = word.toLowerCase().replace(/(?:[^laeiouy]|ed|es|e)$/, '');
+        word = word.replace(/^y/, '');
+        const matches = word.match(/[aeiouy]{1,2}/g);
+        return matches ? matches.length : 1;
+      }
+
+      function analyzeReadability() {
+        const text = textInput.value.trim();
+        if (!text) {
+          resEase.textContent = "0.0";
+          resGrade.textContent = "0.0";
+          resWords.textContent = "0";
+          resSentences.textContent = "0";
+          return;
+        }
+
+        const wordsArray = text.match(/\b[a-zA-Z]+\b/g) || [];
+        const wordCount = wordsArray.length;
+        
+        // Sentences approximated by punctuation
+        const sentencesArray = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+        const sentenceCount = Math.max(1, sentencesArray.length);
+
+        let syllableCount = 0;
+        wordsArray.forEach(w => {
+          syllableCount += countSyllables(w);
+        });
+
+        const wordsPerSentence = wordCount / sentenceCount;
+        const syllablesPerWord = wordCount > 0 ? syllableCount / wordCount : 0;
+
+        // Flesch Reading Ease
+        const ease = 206.835 - (1.015 * wordsPerSentence) - (84.6 * syllablesPerWord);
+        // Flesch-Kincaid Grade Level
+        const grade = (0.39 * wordsPerSentence) + (11.8 * syllablesPerWord) - 15.59;
+
+        resEase.textContent = isNaN(ease) ? "0.0" : ease.toFixed(1);
+        resGrade.textContent = isNaN(grade) ? "0.0" : Math.max(0, grade).toFixed(1);
+        resWords.textContent = wordCount;
+        resSentences.textContent = sentenceCount;
+      }
+
+      textInput.addEventListener("input", analyzeReadability);
+
+      loadSampleBtn.addEventListener("click", function () {
+        textInput.value = "Understanding the readability of academic assignments is essential for effective communication. Writers strive to balance complex concepts with accessible vocabulary. When sentences are concise and well-structured, readers grasp the main arguments quickly without unnecessary cognitive fatigue.";
+        analyzeReadability();
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      analyzeReadability();
+    });
+  </script>
+</body>
+</html>

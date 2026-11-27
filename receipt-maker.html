@@ -1,0 +1,981 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Receipt Maker (Itemized Invoice, Tax & Print/PDF) — PureWebKits</title>
+  <meta name="description" content="Create clean itemized receipts with custom store details, tax/discount calculation, live thermal/standard receipt preview, plain-text export, and print/PDF output online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/receipt-maker.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1120px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Receipt Maker Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.95fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+    }
+
+    .two-col-fields, .three-col-fields {
+      display: grid;
+      gap: 11px;
+    }
+    .two-col-fields { grid-template-columns: 1fr 1fr; }
+    .three-col-fields { grid-template-columns: 1fr 1fr 1fr; }
+
+    .field-group { display: flex; flex-direction: column; gap: 4px; }
+    .field-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 39px;
+      padding: 0 10px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input.num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 700;
+    }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .add-line-box {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 1.6fr 0.65fr 0.8fr auto;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .line-items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 175px;
+      overflow-y: auto;
+    }
+    .line-row {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12.5px;
+    }
+    .line-desc { font-weight: 700; color: var(--text-main); }
+    .line-meta {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+    .btn-del-line {
+      background: #FEF2F2;
+      color: #991B1B;
+      border: 1px solid #FECACA;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Paper Receipt Sheet */
+    .receipt-sheet {
+      background: #FFFFFF;
+      border: 1.5px dashed #94A3B8;
+      border-radius: 10px;
+      padding: 18px 20px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      color: #0F172A;
+      line-height: 1.55;
+    }
+    .rcpt-center { text-align: center; }
+    .rcpt-biz-name { font-size: 15px; font-weight: 800; text-transform: uppercase; }
+    .rcpt-muted { color: #475569; font-size: 11px; }
+    .rcpt-divider { border-top: 1px dashed #CBD5E1; margin: 10px 0; }
+    .rcpt-meta-line { display: flex; justify-content: space-between; font-size: 11px; color: #334155; }
+    .rcpt-item-line { display: flex; justify-content: space-between; gap: 8px; margin: 4px 0; }
+    .rcpt-total-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      font-weight: 800;
+      margin-top: 6px;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media print {
+      .site-header, .studio-topbar, .form-col, .btn-row, .main-content, .site-footer, .trust-pill { display: none !important; }
+      .tool-hero { background: #FFFFFF; border: none; padding: 0; }
+      .tool-card { box-shadow: none; border: none; padding: 0; }
+      .calc-grid { grid-template-columns: 1fr; }
+      .result-col { border: none; background: #FFFFFF; padding: 0; }
+    }
+
+    @media (max-width: 900px) {
+      .calc-grid, .two-col-fields, .three-col-fields, .add-line-box { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Receipt Maker Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Receipt Maker</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Build itemized receipts with tax, discount, plain-text export & print/PDF view
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">
+            Draft clean itemized receipts locally — print/save as PDF or copy/download plain text:
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleRcptBtn" class="btn-sec">Load Sample Receipt</button>
+            <button type="button" id="clearRcptBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="rcptBizNameInput" class="field-label">Business / Store Name</label>
+                <input type="text" id="rcptBizNameInput" class="std-input" value="PureWeb Studio & Co." />
+              </div>
+              <div class="field-group">
+                <label for="rcptNumberInput" class="field-label">Receipt # / Date</label>
+                <input type="text" id="rcptNumberInput" class="std-input" value="RCT-2026-104" />
+              </div>
+            </div>
+
+            <div class="three-col-fields">
+              <div class="field-group">
+                <label for="rcptCurrencySelect" class="field-label">Currency Symbol</label>
+                <select id="rcptCurrencySelect" class="std-select">
+                  <option value="$" selected>$ (USD)</option>
+                  <option value="₹">₹ (INR)</option>
+                  <option value="€">€ (EUR)</option>
+                  <option value="£">£ (GBP)</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label for="rcptTaxPctInput" class="field-label">Tax Rate (%)</label>
+                <input type="number" id="rcptTaxPctInput" class="std-input num" min="0" max="100" step="0.1" value="8.0" />
+              </div>
+              <div class="field-group">
+                <label for="rcptDiscountInput" class="field-label">Discount (Flat)</label>
+                <input type="number" id="rcptDiscountInput" class="std-input num" min="0" step="0.01" value="5.00" />
+              </div>
+            </div>
+
+            <div class="add-line-box">
+              <div class="field-group">
+                <label for="rcptItemDescInput" class="field-label">Item / Service</label>
+                <input type="text" id="rcptItemDescInput" class="std-input" placeholder="e.g., Landing Page Setup" />
+              </div>
+              <div class="field-group">
+                <label for="rcptItemQtyInput" class="field-label">Qty</label>
+                <input type="number" id="rcptItemQtyInput" class="std-input num" min="1" max="999" step="1" value="1" />
+              </div>
+              <div class="field-group">
+                <label for="rcptItemPriceInput" class="field-label">Unit Price</label>
+                <input type="number" id="rcptItemPriceInput" class="std-input num" min="0" step="0.01" value="45.00" />
+              </div>
+              <button type="button" id="addRcptItemBtn" class="btn-primary" style="height:39px; padding:0 14px;">+ Add</button>
+            </div>
+
+            <div class="line-items-list" id="rcptItemsContainer"></div>
+          </div>
+
+          <div class="result-col">
+            <div class="receipt-sheet" id="receiptSheetPreview"></div>
+
+            <div class="btn-row">
+              <button type="button" id="printReceiptBtn" class="btn-primary">Print / Save PDF</button>
+              <button type="button" id="copyReceiptTxtBtn" class="btn-sec" style="height:40px;">Copy Receipt Text</button>
+              <button type="button" id="downloadReceiptTxtBtn" class="btn-sec" style="height:40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Receipt Math & Recordkeeping -->
+    <article class="content-card">
+      <h2>Complete User Guide to Creating Itemized Receipts, Tax/Discount Totals & PDF/Text Exports</h2>
+
+      <h3>How Itemized Line Totals, Discounts, Tax & Grand Totals Are Calculated</h3>
+      <p>
+        A clear, itemized receipt helps freelancers, small shops, tutors, and service providers record transactions transparently and give customers a clean record of payment. Each line item multiplies quantity (<code>Qty</code>) by unit price (<code>Price</code>) to form line totals, which sum into the <strong>Subtotal</strong>. Applying any flat <strong>Discount</strong> and then calculating percentage <strong>Tax</strong> on the discounted taxable amount (<code>max(0, Subtotal − Discount)</code>) produces a consistent, easy-to-audit <strong>Grand Total</strong>. You can print or save the formatted receipt sheet as a PDF directly from your browser or export a plain-text copy for bookkeeping logs. A browser-based <strong>Receipt Maker</strong> runs 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Create a Receipt in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter Business Name, Receipt # & Tax/Discount:</strong> Customize your business header, receipt reference, currency symbol, tax percentage, and flat discount amount.</li>
+        <li><strong>Add or Remove Itemized Line Items:</strong> Enter an item or service description, quantity, and unit price and click <strong>+ Add</strong> (or remove any row you no longer need).</li>
+        <li><strong>Print/Save PDF or Export Plain Text:</strong> Click <strong>Print / Save PDF</strong> to open your browser's print dialog, or click <strong>Copy Receipt Text</strong> / <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Receipt Subtotal, Discount & Tax Formula</h3>
+      <p>
+        For line items <code>i</code>, flat discount <code>D</code>, and tax rate <code>t = tax% / 100</code>:
+      </p>
+      <div class="formula-box">
+        Subtotal = Σ(Qty<sub>i</sub> × Unit_Price<sub>i</sub>)  |  Taxable = max(0, Subtotal − D)<br />
+        Tax Amount = Taxable × t  |  Grand Total = Taxable + Tax_Amount
+      </div>
+
+      <h3>Helpful Tips for Clean Receipt Records</h3>
+      <ul>
+        <li><strong>Use Unique Sequential Receipt Numbers:</strong> Labeling receipts cleanly (such as <code>RCT-2026-104</code>) makes matching payments and records much easier later.</li>
+        <li><strong>Verify Tax Rules for Your Jurisdiction:</strong> Tax applicability and rates depend on your location and goods/services—confirm the right rate for your transaction.</li>
+        <li><strong>Save a Copy Locally Before Closing:</strong> Because this tool runs client-side with no cloud database, export a PDF or <code>.txt</code> copy if you need a permanent record.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Two line items totaling a <code>$120.00</code> subtotal with a <code>$5.00</code> discount give a <code>$115.00</code> taxable base; at <code>8.0%</code> tax (<code>$9.20</code>), the grand total is <code>$124.20</code>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="rcpt-table-heading">
+      <h2 id="rcpt-table-heading">Receipt Components, Totals & Export Reference Table (16 Rows)</h2>
+      <p>Use this reference table to check receipt fields, calculation order, and export formats.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Receipt Element</th>
+              <th>Calculation / Format</th>
+              <th>Purpose</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Business / Store Name</strong></td>
+              <td>Header text field</td>
+              <td>Identifies issuer on receipt</td>
+              <td>Shown at top of receipt sheet</td>
+            </tr>
+            <tr>
+              <td><strong>Receipt # / Date</strong></td>
+              <td>Reference code</td>
+              <td>Helps track & reference receipt</td>
+              <td>Editable in top form fields</td>
+            </tr>
+            <tr>
+              <td><strong>Line Item (Qty × Price)</strong></td>
+              <td><code>Qty × Unit_Price</code></td>
+              <td>Calculates per-item line total</td>
+              <td>Added via + Add bar</td>
+            </tr>
+            <tr>
+              <td><strong>Subtotal</strong></td>
+              <td>Sum of all line items</td>
+              <td>Pre-discount, pre-tax sum</td>
+              <td>Updates live as items change</td>
+            </tr>
+            <tr>
+              <td><strong>Flat Discount</strong></td>
+              <td>Currency amount subtracted</td>
+              <td>Reduces subtotal before tax</td>
+              <td>Clamped so taxable ≥ 0</td>
+            </tr>
+            <tr>
+              <td><strong>Tax Rate (%)</strong></td>
+              <td><code>Taxable × (Tax% / 100)</code></td>
+              <td>Computes tax on taxable base</td>
+              <td>Supports decimals (e.g., <code>8.0%</code>, <code>18.0%</code>)</td>
+            </tr>
+            <tr>
+              <td><strong>Grand Total</strong></td>
+              <td><code>Taxable + Tax_Amount</code></td>
+              <td>Final total payable on receipt</td>
+              <td>Highlighted in receipt summary</td>
+            </tr>
+            <tr>
+              <td><strong>Currency Symbols</strong></td>
+              <td><code>$</code>, <code>₹</code>, <code>€</code>, <code>£</code></td>
+              <td>Formats amounts cleanly</td>
+              <td>Selectable in dropdown</td>
+            </tr>
+            <tr>
+              <td><strong>Print / Save PDF</strong></td>
+              <td>Browser print stylesheet</td>
+              <td>Prints or saves receipt as PDF</td>
+              <td>Hides nav & controls on print</td>
+            </tr>
+            <tr>
+              <td><strong>Copy Receipt Text</strong></td>
+              <td>Plain-text receipt block</td>
+              <td>Paste into notes, chat, or email</td>
+              <td>Local clipboard action</td>
+            </tr>
+            <tr>
+              <td><strong>Download .txt</strong></td>
+              <td><code>.txt</code> plain-text file</td>
+              <td>Saves local text copy of receipt</td>
+              <td>Generated in browser</td>
+            </tr>
+            <tr>
+              <td><strong>Zero Server Storage</strong></td>
+              <td>Client-side JavaScript state</td>
+              <td>No cloud database or backend</td>
+              <td>100% browser memory</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Receipt Builder & Print Formatter — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your receipt items and totals stay strictly inside your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero transaction details transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser receipt builder with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Billing, Finance, Tax & Everyday Utilities</h2>
+      <p>Calculating percentages, GST, business margins, or PayPal/Stripe fees? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="indian-gst-calculator.html"><span>Indian GST Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="business-margin-calculator.html"><span>Business Margin Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="paypal-fee-calculator.html"><span>PayPal Fee Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="stripe-fee-calculator.html"><span>Stripe Fee Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How do I save my receipt as a PDF file?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Click <strong>Print / Save PDF</strong> and choose <strong>Save as PDF</strong> (or Microsoft Print to PDF) as the destination in your browser's print dialog.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. In what order are discounts and taxes applied?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Line items sum into the <strong>Subtotal</strong>, the flat <strong>Discount</strong> is subtracted to form the taxable amount (floored at <code>0</code>), and the <strong>Tax Rate (%)</strong> is applied to that discounted subtotal before computing the <strong>Grand Total</strong>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my receipt details or line items sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All receipt formatting, totals, printing, and text exports run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online Receipt Maker free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Itemized Receipt Builder & Formatter Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const DEFAULT_ITEMS = [
+        { id: 1, desc: "Web Utility Setup & Config", qty: 1, price: 85.00 },
+        { id: 2, desc: "Custom Icon & Layout Pack", qty: 2, price: 20.00 }
+      ];
+
+      const rcptBizNameInput = document.getElementById("rcptBizNameInput");
+      const rcptNumberInput = document.getElementById("rcptNumberInput");
+      const rcptCurrencySelect = document.getElementById("rcptCurrencySelect");
+      const rcptTaxPctInput = document.getElementById("rcptTaxPctInput");
+      const rcptDiscountInput = document.getElementById("rcptDiscountInput");
+
+      const rcptItemDescInput = document.getElementById("rcptItemDescInput");
+      const rcptItemQtyInput = document.getElementById("rcptItemQtyInput");
+      const rcptItemPriceInput = document.getElementById("rcptItemPriceInput");
+      const addRcptItemBtn = document.getElementById("addRcptItemBtn");
+
+      const rcptItemsContainer = document.getElementById("rcptItemsContainer");
+      const receiptSheetPreview = document.getElementById("receiptSheetPreview");
+
+      const loadSampleRcptBtn = document.getElementById("loadSampleRcptBtn");
+      const clearRcptBtn = document.getElementById("clearRcptBtn");
+      const printReceiptBtn = document.getElementById("printReceiptBtn");
+      const copyReceiptTxtBtn = document.getElementById("copyReceiptTxtBtn");
+      const downloadReceiptTxtBtn = document.getElementById("downloadReceiptTxtBtn");
+
+      let items = DEFAULT_ITEMS.map(function (it) { return Object.assign({}, it); });
+      let nextItemId = 10;
+      let latestPlainTextReceipt = "";
+
+      function fmtCurr(num, sym) {
+        const val = Number.isFinite(num) ? num : 0;
+        return `${sym}${val.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      }
+
+      function renderReceipt() {
+        const bizName = rcptBizNameInput.value.trim() || "Business Receipt";
+        const rcptNum = rcptNumberInput.value.trim() || "RCT-001";
+        const sym = rcptCurrencySelect.value || "$";
+        const taxPct = Math.max(0, Math.min(100, parseFloat(rcptTaxPctInput.value) || 0));
+        const discount = Math.max(0, parseFloat(rcptDiscountInput.value) || 0);
+
+        let subtotal = 0;
+        items.forEach(function (it) {
+          subtotal += (it.qty || 1) * (it.price || 0);
+        });
+
+        const taxable = Math.max(0, subtotal - discount);
+        const taxAmt = taxable * (taxPct / 100);
+        const grandTotal = taxable + taxAmt;
+
+        rcptItemsContainer.innerHTML = "";
+        if (items.length === 0) {
+          rcptItemsContainer.innerHTML = '<div style="font-size:12.5px; color:var(--text-muted); padding:6px;">No line items yet — add an item above.</div>';
+        } else {
+          items.forEach(function (it) {
+            const lineTotal = (it.qty || 1) * (it.price || 0);
+            const row = document.createElement("div");
+            row.className = "line-row";
+            row.innerHTML = `
+              <div>
+                <div class="line-desc">${it.desc}</div>
+                <div class="line-meta">${it.qty} × ${fmtCurr(it.price, sym)} = ${fmtCurr(lineTotal, sym)}</div>
+              </div>
+              <button type="button" class="btn-del-line">Remove</button>
+            `;
+            row.querySelector(".btn-del-line").addEventListener("click", function () {
+              items = items.filter(function (x) { return x.id !== it.id; });
+              renderReceipt();
+            });
+            rcptItemsContainer.appendChild(row);
+          });
+        }
+
+        const itemHtml = items.map(function (it) {
+          const lineTotal = (it.qty || 1) * (it.price || 0);
+          return `<div class="rcpt-item-line"><span>${it.desc} (${it.qty}×${fmtCurr(it.price, sym)})</span><strong>${fmtCurr(lineTotal, sym)}</strong></div>`;
+        }).join("");
+
+        receiptSheetPreview.innerHTML = `
+          <div class="rcpt-center">
+            <div class="rcpt-biz-name">${bizName}</div>
+            <div class="rcpt-muted">Official Itemized Receipt</div>
+          </div>
+          <div class="rcpt-divider"></div>
+          <div class="rcpt-meta-line"><span>Receipt #: ${rcptNum}</span><span>${new Date().toLocaleDateString()}</span></div>
+          <div class="rcpt-divider"></div>
+          ${itemHtml || '<div class="rcpt-muted rcpt-center">No items added</div>'}
+          <div class="rcpt-divider"></div>
+          <div class="rcpt-item-line"><span>Subtotal</span><span>${fmtCurr(subtotal, sym)}</span></div>
+          <div class="rcpt-item-line"><span>Discount</span><span>-${fmtCurr(discount, sym)}</span></div>
+          <div class="rcpt-item-line"><span>Tax (${taxPct.toFixed(1)}%)</span><span>${fmtCurr(taxAmt, sym)}</span></div>
+          <div class="rcpt-divider"></div>
+          <div class="rcpt-total-line"><span>TOTAL</span><span>${fmtCurr(grandTotal, sym)}</span></div>
+        `;
+
+        const txtLines = [
+          bizName.toUpperCase(),
+          "----------------------------------------",
+          `Receipt #: ${rcptNum} | Date: ${new Date().toLocaleDateString()}`,
+          "----------------------------------------",
+          ...items.map(function (it) {
+            const lineTotal = (it.qty || 1) * (it.price || 0);
+            return `${it.desc} (${it.qty} x ${fmtCurr(it.price, sym)}) : ${fmtCurr(lineTotal, sym)}`;
+          }),
+          "----------------------------------------",
+          `Subtotal : ${fmtCurr(subtotal, sym)}`,
+          `Discount : -${fmtCurr(discount, sym)}`,
+          `Tax (${taxPct.toFixed(1)}%) : ${fmtCurr(taxAmt, sym)}`,
+          `TOTAL    : ${fmtCurr(grandTotal, sym)}`
+        ];
+        latestPlainTextReceipt = txtLines.join("\n");
+      }
+
+      addRcptItemBtn.addEventListener("click", function () {
+        const desc = rcptItemDescInput.value.trim();
+        const qty = Math.max(1, parseInt(rcptItemQtyInput.value, 10) || 1);
+        const price = Math.max(0, parseFloat(rcptItemPriceInput.value) || 0);
+        if (!desc) {
+          rcptItemDescInput.focus();
+          return;
+        }
+        items.push({
+          id: nextItemId++,
+          desc: desc,
+          qty: qty,
+          price: price
+        });
+        rcptItemDescInput.value = "";
+        rcptItemQtyInput.value = "1";
+        rcptItemPriceInput.value = "25.00";
+        renderReceipt();
+        rcptItemDescInput.focus();
+      });
+
+      rcptItemDescInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          addRcptItemBtn.click();
+        }
+      });
+
+      loadSampleRcptBtn.addEventListener("click", function () {
+        rcptBizNameInput.value = "PureWeb Studio & Co.";
+        rcptNumberInput.value = "RCT-2026-104";
+        rcptTaxPctInput.value = "8.0";
+        rcptDiscountInput.value = "5.00";
+        items = DEFAULT_ITEMS.map(function (it, idx) {
+          return { id: nextItemId + idx, desc: it.desc, qty: it.qty, price: it.price };
+        });
+        nextItemId += DEFAULT_ITEMS.length;
+        renderReceipt();
+      });
+
+      clearRcptBtn.addEventListener("click", function () {
+        items = [];
+        rcptDiscountInput.value = "0.00";
+        rcptTaxPctInput.value = "0.0";
+        renderReceipt();
+      });
+
+      [rcptBizNameInput, rcptNumberInput, rcptCurrencySelect, rcptTaxPctInput, rcptDiscountInput].forEach(function (el) {
+        el.addEventListener("input", renderReceipt);
+        el.addEventListener("change", renderReceipt);
+      });
+
+      printReceiptBtn.addEventListener("click", function () {
+        window.print();
+      });
+
+      copyReceiptTxtBtn.addEventListener("click", function () {
+        if (!latestPlainTextReceipt) return;
+        navigator.clipboard.writeText(latestPlainTextReceipt).then(function () {
+          const orig = copyReceiptTxtBtn.textContent;
+          copyReceiptTxtBtn.textContent = "Copied!";
+          setTimeout(function () { copyReceiptTxtBtn.textContent = orig; }, 1800);
+        });
+      });
+
+      downloadReceiptTxtBtn.addEventListener("click", function () {
+        if (!latestPlainTextReceipt) return;
+        const blob = new Blob([latestPlainTextReceipt + "\n"], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${(rcptNumberInput.value.trim() || "receipt").toLowerCase()}.txt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      renderReceipt();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1156 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Speaker Audio Test (Left/Right Stereo, Tone Generator & Sweep) — PureWebKits</title>
+  <meta name="description" content="Test your left and right speakers or headphones, generate clean Web Audio sine/triangle/square/sawtooth tones (60 Hz to 16 kHz), run frequency sweeps, and check stereo balance online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/speaker-audio-test.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Speaker Audio Test Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover:not(:disabled) { background: #E2E8F0; }
+    .btn-sec:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 16px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-danger:hover { background: #B91C1C; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 14px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    /* Stereo Channel Buttons */
+    .stereo-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .channel-btn {
+      background: #FFFFFF;
+      border: 2px solid #CBD5E1;
+      border-radius: 12px;
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .channel-btn:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+    .channel-btn.playing {
+      background: #0F172A;
+      border-color: #2563EB;
+      color: #FFFFFF;
+    }
+    .ch-tag {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--primary);
+    }
+    .channel-btn.playing .ch-tag { color: #38BDF8; }
+    .ch-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: inherit;
+    }
+    .ch-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .channel-btn.playing .ch-hint { color: #CBD5E1; }
+
+    /* Frequency & Gain Controls */
+    .control-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .field-label { font-size: 11.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-select {
+      width: 100%;
+      height: 40px;
+      padding: 0 11px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #FFFFFF;
+      outline: none;
+    }
+    .range-slider {
+      width: 100%;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .preset-freqs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .freq-chip {
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: var(--text-main);
+      border-radius: 7px;
+      padding: 5px 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .freq-chip:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    /* Live Tone Scope */
+    .tone-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .tone-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .tone-title { font-size: 16px; font-weight: 800; color: #34D399; }
+    .tone-sub { font-size: 12px; color: #CBD5E1; }
+    .tone-hz-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 24px;
+      font-weight: 800;
+      color: #38BDF8;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    #toneWaveCanvas {
+      width: 100%;
+      height: 125px;
+      display: block;
+      background: #020617;
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid, .stereo-pair { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Speaker Audio Test Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Speaker & Stereo Audio Test</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side Web Audio: Left/right channel check, tone generator (60 Hz–16 kHz) & frequency sweep
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">
+            Synthesized in your browser via Web Audio API — keep output volume moderate before playing tones:
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="runSweepBtn" class="btn-primary">Run Sweep (100 Hz → 4 kHz)</button>
+            <button type="button" id="stopAudioBtn" class="btn-danger">Stop Sound</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="stereo-pair">
+              <button type="button" class="channel-btn" id="testLeftBtn" data-pan="-1">
+                <span class="ch-tag">Channel L • Pan -1.0</span>
+                <span class="ch-name">Left Speaker</span>
+                <span class="ch-hint">Click to play left-only tone</span>
+              </button>
+
+              <button type="button" class="channel-btn" id="testRightBtn" data-pan="1">
+                <span class="ch-tag">Channel R • Pan +1.0</span>
+                <span class="ch-name">Right Speaker</span>
+                <span class="ch-hint">Click to play right-only tone</span>
+              </button>
+            </div>
+
+            <div class="control-box">
+              <div class="field-group">
+                <div class="field-label-row">
+                  <label for="toneFreqSlider" class="field-label">Tone Frequency (Hz)</label>
+                  <span id="toneFreqLabel" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:12.5px; font-weight:800; color:var(--primary);">440 Hz (A4)</span>
+                </div>
+                <input type="range" id="toneFreqSlider" class="range-slider" min="60" max="16000" step="10" value="440" />
+                <div class="preset-freqs">
+                  <button type="button" class="freq-chip" data-hz="100">100 Hz (Bass)</button>
+                  <button type="button" class="freq-chip" data-hz="440">440 Hz (A4)</button>
+                  <button type="button" class="freq-chip" data-hz="1000">1000 Hz (1 kHz)</button>
+                  <button type="button" class="freq-chip" data-hz="4000">4000 Hz (4 kHz)</button>
+                  <button type="button" class="freq-chip" data-hz="10000">10000 Hz (10 kHz)</button>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label-row">
+                  <label for="toneWaveSelect" class="field-label">Waveform Shape</label>
+                  <label for="toneGainSlider" class="field-label">Test Gain: <span id="toneGainLabel">20%</span></label>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:center;">
+                  <select id="toneWaveSelect" class="std-select">
+                    <option value="sine" selected>Sine Wave (Pure Tone)</option>
+                    <option value="triangle">Triangle Wave (Warm)</option>
+                    <option value="square">Square Wave (Buzzy/Rich)</option>
+                    <option value="sawtooth">Sawtooth Wave (Harmonic)</option>
+                  </select>
+                  <input type="range" id="toneGainSlider" class="range-slider" min="1" max="60" step="1" value="20" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="tone-hero-box">
+              <div>
+                <div class="tone-kicker">Audio Output State</div>
+                <div class="tone-title" id="audioStateTitle">Standby (Muted)</div>
+                <div class="tone-sub" id="audioStateSub">Click Left/Right Speaker or Run Sweep</div>
+              </div>
+              <div class="tone-hz-num" id="audioHzHero">440 Hz</div>
+            </div>
+
+            <canvas id="toneWaveCanvas" width="480" height="140" aria-label="Synthesized Audio Waveform Preview"></canvas>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Active Pan / Channel</div>
+                <div class="metric-val" id="activePanVal">Center (0.0)</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">AudioContext Sample Rate</div>
+                <div class="metric-val" id="ctxSampleRateVal">—</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="testBothCenterBtn" class="btn-sec" style="height:38px;">Play Both (Center)</button>
+              <button type="button" id="copyAudioReportBtn" class="btn-sec" style="height:38px;">Copy Audio Specs</button>
+              <button type="button" id="downloadAudioReportBtn" class="btn-sec" style="height:38px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Stereo Panning & Frequency Response -->
+    <article class="content-card">
+      <h2>Complete User Guide to Speaker Testing, Stereo Channel Balance & Frequency Tones</h2>
+
+      <h3>How Left/Right Stereo Channel Routing and Frequency Tones Diagnose Speakers</h3>
+      <p>
+        Whether you are checking newly connected desktop speakers, wireless earbuds, a laptop soundbar, or a conference room setup, verifying left/right channel separation and frequency response catches wiring swaps, blown drivers, and buzzing enclosures early. Using the browser's <strong>Web Audio API</strong> (<code>AudioContext</code>, <code>OscillatorNode</code>, and <code>StereoPannerNode</code>), this tool routes synthesized test tones exclusively to the <strong>Left</strong> channel (<code>pan = −1.0</code>), <strong>Right</strong> channel (<code>pan = +1.0</code>), or <strong>Center</strong> (<code>pan = 0.0</code>) so you can confirm that left and right audio are not swapped or imbalanced. Testing across frequencies—from low bass tones (such as <code>100 Hz</code>) through mid-range speech reference tones (<code>440 Hz</code> and <code>1000 Hz</code>) up to high treble (<code>4000 Hz–10000 Hz</code>) or a continuous frequency sweep—helps identify cabinet rattles, distortion, or roll-off on small laptop speakers. A browser-based <strong>Speaker Audio Test</strong> synthesizes sound 100% locally in your browser—with zero server uploads or audio downloads required.
+      </p>
+
+      <h3>How to Test Your Speakers or Headphones in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Check Left & Right Stereo Channels:</strong> Click <strong>Left Speaker</strong> and <strong>Right Speaker</strong> one at a time (or <strong>Play Both (Center)</strong>) and confirm sound plays cleanly on the matching side.</li>
+        <li><strong>Test Frequencies & Waveforms or Run a Sweep:</strong> Adjust the <strong>Tone Frequency (Hz)</strong> slider, click quick presets like <code>100 Hz</code>, <code>1000 Hz</code>, or <code>10000 Hz</code>, or click <strong>Run Sweep (100 Hz → 4 kHz)</strong> to listen for buzzes or resonances.</li>
+        <li><strong>Stop Sound & Export Audio Specs:</strong> Click <strong>Stop Sound</strong> when finished and save your test settings via <strong>Copy Audio Specs</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Acoustic Wavelength & Stereo Panning Formula</h3>
+      <p>
+        In air at ~<code>343 m/s</code> speed of sound, wavelength <code>λ</code> relates to frequency <code>f</code> (in Hz) as:
+      </p>
+      <div class="formula-box">
+        Wavelength (λ) = 343 / f (meters)  |  Stereo Pan Range: -1.0 (Left) to +1.0 (Right)
+      </div>
+
+      <h3>Helpful Tips for Safe & Accurate Speaker Testing</h3>
+      <ul>
+        <li><strong>Start at Moderate Volume & Low Gain:</strong> Higher frequencies and square/sawtooth waveforms can sound much sharper or louder than pure sine waves—keep your system volume reasonable, especially when wearing headphones.</li>
+        <li><strong>Laptop Speakers Naturally Roll Off Deep Bass:</strong> Small thin-chassis laptop speakers cannot reproduce deep sub-bass strongly—if a <code>100 Hz</code> sine wave sounds quiet on a laptop speaker, that is a physical driver size limit rather than a defect.</li>
+        <li><strong>Check OS Balance Sliders If One Side Is Quiet:</strong> If left and right sound uneven on headphones, check your operating system's Left/Right output balance slider.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Playing a <code>440 Hz</code> (concert A) sine wave panned to <code>−1.0</code> verifies that your left speaker/earcup receives isolated left-channel audio, while switching to <code>+1.0</code> confirms right-channel separation.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="speaker-table-heading">
+      <h2 id="speaker-table-heading">Audio Test Frequencies, Waveforms & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to explore test frequencies, waveform shapes, and stereo diagnostics.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Frequency / Feature</th>
+              <th>Value / Range</th>
+              <th>Acoustic Purpose</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>60 Hz – 100 Hz</strong></td>
+              <td>Low bass / sub-bass</td>
+              <td>Tests enclosure rattle & low-end response</td>
+              <td>Limited on thin laptop speakers</td>
+            </tr>
+            <tr>
+              <td><strong>440 Hz (A4)</strong></td>
+              <td>Standard musical pitch A4</td>
+              <td>Clear mid-range reference tone</td>
+              <td>Default slider frequency</td>
+            </tr>
+            <tr>
+              <td><strong>1000 Hz (1 kHz)</strong></td>
+              <td>Mid-band reference tone</td>
+              <td>Checks clarity & channel level balance</td>
+              <td>Core audio test benchmark</td>
+            </tr>
+            <tr>
+              <td><strong>4000 Hz (4 kHz)</strong></td>
+              <td>Upper-mid / presence band</td>
+              <td>Tests consonant clarity & driver response</td>
+              <td>Used in built-in sweep</td>
+            </tr>
+            <tr>
+              <td><strong>10,000 Hz+ (10 kHz+)</strong></td>
+              <td>High treble band</td>
+              <td>Checks tweeter & high-frequency output</td>
+              <td>High-frequency hearing varies by age/gear</td>
+            </tr>
+            <tr>
+              <td><strong>Sine Wave</strong></td>
+              <td>Single fundamental frequency</td>
+              <td>Cleanest pure tone for resonance checks</td>
+              <td>No overtone harmonics</td>
+            </tr>
+            <tr>
+              <td><strong>Triangle Wave</strong></td>
+              <td>Soft odd-harmonic wave</td>
+              <td>Gentle, warm tonal test</td>
+              <td>Less harsh than square/sawtooth</td>
+            </tr>
+            <tr>
+              <td><strong>Square Wave</strong></td>
+              <td>Rich odd harmonics</td>
+              <td>Stronger, buzzy timbre for audible checks</td>
+              <td>Lower gain recommended</td>
+            </tr>
+            <tr>
+              <td><strong>Sawtooth Wave</strong></td>
+              <td>Full harmonic spectrum</td>
+              <td>Bright, brassy test waveform</td>
+              <td>Useful for audible level verification</td>
+            </tr>
+            <tr>
+              <td><strong>Left Channel Test</strong></td>
+              <td><code>pan = -1.0</code></td>
+              <td>Isolates left speaker / left earcup</td>
+              <td>Highlights L/R swapped cables</td>
+            </tr>
+            <tr>
+              <td><strong>Right Channel Test</strong></td>
+              <td><code>pan = +1.0</code></td>
+              <td>Isolates right speaker / right earcup</td>
+              <td>Checks right driver output</td>
+            </tr>
+            <tr>
+              <td><strong>Frequency Sweep</strong></td>
+              <td><code>100 Hz → 4000 Hz</code></td>
+              <td>Scans across bass, mid & treble</td>
+              <td>Helps spot buzzing frequencies</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser Web Audio API Synthesizer — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — All tones are generated locally in your browser's audio engine</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Synthesis</span> — Zero audio files or network calls needed</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser speaker check with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Hardware, Audio, Display & Everyday Utilities</h2>
+      <p>Testing your microphone, keyboard, or screen for dead pixels, or checking your display resolution? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="microphone-test.html"><span>Microphone Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="keyboard-test.html"><span>Keyboard Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="dead-pixel-test.html"><span>Dead Pixel Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="screen-resolution-tester.html"><span>Screen Resolution Tester</span><span class="arrow">→</span></a>
+        <a class="related-link" href="webcam-test.html"><span>Webcam Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="html5-gamepad-tester.html"><span>HTML5 Gamepad Tester</span><span class="arrow">→</span></a>
+        <a class="related-link" href="study-timer-pomodoro.html"><span>Study Timer (Pomodoro)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-strength-tester.html"><span>Password Strength Tester</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How do I check if my left and right speakers or earbuds are wired backwards?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Click <strong>Left Speaker</strong> and verify the tone comes from your left side—if it plays on the right side instead (or vice versa), your left and right channels are swapped.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Why can't I hear a 16,000 Hz tone even when the oscillator is running?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Upper hearing limits vary widely across individuals and age, and many small laptop speakers or Bluetooth codecs roll off sharply above <code>12–16 kHz</code>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Does this Speaker Audio Test require downloading any audio files or sending data to a server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            No. All tones and sweeps are synthesized mathematically in real time inside your browser using the Web Audio API.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online Speaker Audio Test free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Web Audio Tone, Stereo Pan & Sweep Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const testLeftBtn = document.getElementById("testLeftBtn");
+      const testRightBtn = document.getElementById("testRightBtn");
+      const testBothCenterBtn = document.getElementById("testBothCenterBtn");
+      const runSweepBtn = document.getElementById("runSweepBtn");
+      const stopAudioBtn = document.getElementById("stopAudioBtn");
+
+      const toneFreqSlider = document.getElementById("toneFreqSlider");
+      const toneFreqLabel = document.getElementById("toneFreqLabel");
+      const toneWaveSelect = document.getElementById("toneWaveSelect");
+      const toneGainSlider = document.getElementById("toneGainSlider");
+      const toneGainLabel = document.getElementById("toneGainLabel");
+      const freqChips = document.querySelectorAll(".freq-chip");
+
+      const audioStateTitle = document.getElementById("audioStateTitle");
+      const audioStateSub = document.getElementById("audioStateSub");
+      const audioHzHero = document.getElementById("audioHzHero");
+
+      const toneWaveCanvas = document.getElementById("toneWaveCanvas");
+      const wctx = toneWaveCanvas.getContext("2d");
+
+      const activePanVal = document.getElementById("activePanVal");
+      const ctxSampleRateVal = document.getElementById("ctxSampleRateVal");
+
+      const copyAudioReportBtn = document.getElementById("copyAudioReportBtn");
+      const downloadAudioReportBtn = document.getElementById("downloadAudioReportBtn");
+
+      let audioCtx = null;
+      let oscNode = null;
+      let gainNode = null;
+      let pannerNode = null;
+      let sweepInterval = null;
+      let isPlaying = false;
+      let currentPan = 0;
+      let phaseOffset = 0;
+      let waveRafId = null;
+
+      function drawWavePreview() {
+        const w = toneWaveCanvas.width;
+        const h = toneWaveCanvas.height;
+        wctx.fillStyle = "#020617";
+        wctx.fillRect(0, 0, w, h);
+
+        wctx.strokeStyle = "#1E293B";
+        wctx.lineWidth = 1;
+        wctx.beginPath();
+        wctx.moveTo(0, h / 2);
+        wctx.lineTo(w, h / 2);
+        wctx.stroke();
+
+        const waveType = toneWaveSelect.value || "sine";
+        const amp = isPlaying ? Math.min(0.45, (parseInt(toneGainSlider.value, 10) || 20) / 100) : 0.12;
+        const cycles = 3.5;
+
+        wctx.strokeStyle = isPlaying ? "#38BDF8" : "#475569";
+        wctx.lineWidth = 2.2;
+        wctx.beginPath();
+
+        for (let x = 0; x < w; x++) {
+          const t = (x / w) * cycles * Math.PI * 2 + phaseOffset;
+          let yNorm = 0;
+          if (waveType === "sine") {
+            yNorm = Math.sin(t);
+          } else if (waveType === "triangle") {
+            const normPhase = (((t / (Math.PI * 2)) % 1) + 1) % 1;
+            yNorm = 4 * Math.abs(normPhase - 0.5) - 1;
+          } else if (waveType === "square") {
+            yNorm = Math.sin(t) >= 0 ? 0.85 : -0.85;
+          } else {
+            const normPhase = (((t / (Math.PI * 2)) % 1) + 1) % 1;
+            yNorm = 2 * normPhase - 1;
+          }
+          const py = h / 2 - yNorm * amp * h;
+          if (x === 0) wctx.moveTo(x, py);
+          else wctx.lineTo(x, py);
+        }
+        wctx.stroke();
+
+        if (isPlaying) {
+          phaseOffset += 0.22;
+          waveRafId = requestAnimationFrame(drawWavePreview);
+        }
+      }
+
+      function stopSound() {
+        if (sweepInterval) {
+          clearInterval(sweepInterval);
+          sweepInterval = null;
+        }
+        if (waveRafId) {
+          cancelAnimationFrame(waveRafId);
+          waveRafId = null;
+        }
+        if (oscNode) {
+          try {
+            oscNode.stop();
+            oscNode.disconnect();
+          } catch (e) {}
+          oscNode = null;
+        }
+        if (gainNode) {
+          try { gainNode.disconnect(); } catch (e) {}
+          gainNode = null;
+        }
+        if (pannerNode) {
+          try { pannerNode.disconnect(); } catch (e) {}
+          pannerNode = null;
+        }
+        isPlaying = false;
+        testLeftBtn.classList.remove("playing");
+        testRightBtn.classList.remove("playing");
+        audioStateTitle.textContent = "Standby (Muted)";
+        audioStateSub.textContent = "Click Left/Right Speaker or Run Sweep";
+        drawWavePreview();
+      }
+
+      function startTone(panValue, channelLabel) {
+        stopSound();
+        const hz = parseInt(toneFreqSlider.value, 10) || 440;
+        const waveType = toneWaveSelect.value || "sine";
+        const gainPct = parseInt(toneGainSlider.value, 10) || 20;
+        const maxAmp = Math.min(0.35, (gainPct / 100) * 0.45);
+
+        try {
+          const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtxClass) return;
+          if (!audioCtx) {
+            audioCtx = new AudioCtxClass();
+          }
+          if (audioCtx.state === "suspended") {
+            audioCtx.resume();
+          }
+
+          oscNode = audioCtx.createOscillator();
+          oscNode.type = waveType;
+          oscNode.frequency.setValueAtTime(hz, audioCtx.currentTime);
+
+          gainNode = audioCtx.createGain();
+          gainNode.gain.setValueAtTime(maxAmp, audioCtx.currentTime);
+
+          oscNode.connect(gainNode);
+
+          if (typeof audioCtx.createStereoPanner === "function") {
+            pannerNode = audioCtx.createStereoPanner();
+            pannerNode.pan.setValueAtTime(panValue, audioCtx.currentTime);
+            gainNode.connect(pannerNode);
+            pannerNode.connect(audioCtx.destination);
+          } else {
+            gainNode.connect(audioCtx.destination);
+          }
+
+          oscNode.start();
+          isPlaying = true;
+          currentPan = panValue;
+
+          testLeftBtn.classList.toggle("playing", panValue < -0.5);
+          testRightBtn.classList.toggle("playing", panValue > 0.5);
+
+          activePanVal.textContent = `${channelLabel} (${panValue >= 0 ? "+" : ""}${panValue.toFixed(1)})`;
+          ctxSampleRateVal.textContent = `${audioCtx.sampleRate.toLocaleString("en-US")} Hz`;
+          audioStateTitle.textContent = `Playing ${channelLabel}`;
+          audioStateSub.textContent = `${waveType.toUpperCase()} wave \u2022 Gain ${gainPct}%`;
+          audioHzHero.textContent = `${hz} Hz`;
+
+          drawWavePreview();
+        } catch (e) {
+          audioStateTitle.textContent = "Audio Playback Blocked";
+          audioStateSub.textContent = "Interact with the page or check system sound output";
+        }
+      }
+
+      function syncSlidersUi() {
+        const hz = parseInt(toneFreqSlider.value, 10) || 440;
+        const gainPct = parseInt(toneGainSlider.value, 10) || 20;
+        toneFreqLabel.textContent = hz === 440 ? "440 Hz (A4)" : `${hz} Hz`;
+        toneGainLabel.textContent = `${gainPct}%`;
+        audioHzHero.textContent = `${hz} Hz`;
+
+        if (isPlaying && oscNode && audioCtx) {
+          oscNode.frequency.setValueAtTime(hz, audioCtx.currentTime);
+          if (gainNode) {
+            gainNode.gain.setValueAtTime(Math.min(0.35, (gainPct / 100) * 0.45), audioCtx.currentTime);
+          }
+        }
+        if (!isPlaying) drawWavePreview();
+      }
+
+      testLeftBtn.addEventListener("click", function () {
+        if (isPlaying && currentPan === -1) stopSound();
+        else startTone(-1, "Left Speaker");
+      });
+
+      testRightBtn.addEventListener("click", function () {
+        if (isPlaying && currentPan === 1) stopSound();
+        else startTone(1, "Right Speaker");
+      });
+
+      testBothCenterBtn.addEventListener("click", function () {
+        startTone(0, "Both / Center");
+      });
+
+      runSweepBtn.addEventListener("click", function () {
+        toneFreqSlider.value = "100";
+        syncSlidersUi();
+        startTone(0, "Sweep (100Hz\u21924kHz)");
+
+        let curHz = 100;
+        sweepInterval = setInterval(function () {
+          curHz += 130;
+          if (curHz > 4000) {
+            stopSound();
+            return;
+          }
+          toneFreqSlider.value = String(curHz);
+          toneFreqLabel.textContent = `${curHz} Hz`;
+          audioHzHero.textContent = `${curHz} Hz`;
+          if (oscNode && audioCtx) {
+            oscNode.frequency.setValueAtTime(curHz, audioCtx.currentTime);
+          }
+        }, 100);
+      });
+
+      stopAudioBtn.addEventListener("click", stopSound);
+
+      toneFreqSlider.addEventListener("input", syncSlidersUi);
+      toneGainSlider.addEventListener("input", syncSlidersUi);
+      toneWaveSelect.addEventListener("change", function () {
+        if (isPlaying) {
+          const panLbl = currentPan < -0.5 ? "Left Speaker" : (currentPan > 0.5 ? "Right Speaker" : "Both / Center");
+          startTone(currentPan, panLbl);
+        } else {
+          drawWavePreview();
+        }
+      });
+
+      freqChips.forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          const hz = chip.getAttribute("data-hz") || "440";
+          toneFreqSlider.value = hz;
+          syncSlidersUi();
+          const panLbl = currentPan < -0.5 ? "Left Speaker" : (currentPan > 0.5 ? "Right Speaker" : "Both / Center");
+          startTone(currentPan, panLbl);
+        });
+      });
+
+      function buildAudioReport() {
+        return [
+          "PureWebKits Speaker Audio Test Specs",
+          "-------------------------------------",
+          `Frequency: ${toneFreqSlider.value} Hz | Waveform: ${toneWaveSelect.value}`,
+          `Test Gain: ${toneGainSlider.value}% | Pan Setting: ${activePanVal.textContent}`,
+          `AudioContext Sample Rate: ${ctxSampleRateVal.textContent}`
+        ].join("\n");
+      }
+
+      copyAudioReportBtn.addEventListener("click", function () {
+        navigator.clipboard.writeText(buildAudioReport()).then(function () {
+          const orig = copyAudioReportBtn.textContent;
+          copyAudioReportBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyAudioReportBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadAudioReportBtn.addEventListener("click", function () {
+        const blob = new Blob([buildAudioReport()], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "speaker-audio-test-specs.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      syncSlidersUi();
+      drawWavePreview();
+    });
+  </script>
+</body>
+</html>

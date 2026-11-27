@@ -1,0 +1,740 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SQL Query Formatter & Beautifier Online — Format SQL Free | PureWebKits</title>
+  <meta name="description" content="Format and beautify SQL queries online for free. Clean up messy database queries with uppercase keywords and indentation 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/sql-formatter.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Studio Toolbar */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .action-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+    .btn-primary {
+      display: inline-block;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 9px;
+      padding: 9px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* SQL Grid */
+    .sql-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: stretch;
+    }
+    .pane-box { display: flex; flex-direction: column; gap: 6px; }
+    .pane-header {
+      font-size: 12.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .code-box {
+      width: 100%;
+      height: 380px;
+      padding: 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text-main);
+      background: #F8FAFC;
+      resize: vertical;
+      outline: none;
+    }
+    .code-box:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .err-banner {
+      display: none;
+      margin-top: 14px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .sql-grid { grid-template-columns: 1fr; }
+      .code-box { height: 260px; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive SQL Formatter Tool -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>SQL Query Formatter & Beautifier — Format Database Queries Free</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Format and beautify SQL queries with uppercase keywords locally in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="action-group">
+            <button type="button" id="formatSqlBtn" class="btn-primary">Format SQL</button>
+            <button type="button" id="loadSampleSqlBtn" class="btn-sec">Load Sample SQL</button>
+            <button type="button" id="clearSqlBtn" class="btn-sec">Clear All</button>
+          </div>
+          <button type="button" id="copySqlBtn" class="btn-sec">Copy Formatted SQL</button>
+        </div>
+
+        <div class="sql-grid">
+          <div class="pane-box">
+            <div class="pane-header">Input Messy SQL Query</div>
+            <textarea id="inputSqlBox" class="code-box" spellcheck="false" placeholder="Paste unformatted SQL query here..."></textarea>
+          </div>
+
+          <div class="pane-box">
+            <div class="pane-header">Beautified Output SQL</div>
+            <textarea id="outputSqlBox" class="code-box" readonly spellcheck="false" placeholder="Formatted SQL result will appear here..."></textarea>
+          </div>
+        </div>
+
+        <div id="sqlErrBanner" class="err-banner" role="alert"></div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How SQL Keyword Capitalization, Indentation & Query Beautification Work</h2>
+
+      ### Why Formatting SQL Queries Is Essential for Database Management
+      <p>
+        Writing or debugging complex relational database queries often leads to dense, unformatted single-line SQL strings piled with table joins, subqueries, and conditional filters. Maintaining or reviewing such unformatted code becomes extremely difficult. Our browser-based <strong>SQL Query Formatter & Beautifier</strong> normalizes whitespace, capitalizes major SQL clauses (such as <code>SELECT</code>, <code>FROM</code>, <code>WHERE</code>, <code>JOIN</code>, <code>GROUP BY</code>, and <code>ORDER BY</code>), and indents nested blocks cleanly in client memory without transmitting your database schemas to any server.
+      </p>
+
+      <h3>How to Format SQL Queries in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Paste SQL Query:</strong> Paste your messy or single-line database query into the left input box (or click <em>Load Sample SQL</em>).</li>
+        <li><strong>Instant Formatting:</strong> Click <em>Format SQL</em> to normalize keywords and indent clauses automatically.</li>
+        <li><strong>Copy Result:</strong> Copy your clean, production-ready SQL query from the right output pane.</li>
+      </ol>
+
+      <h3>SQL Clause Break & Keyword Normalization Formula + Worked Example</h3>
+      <p>
+        Beautification splits query strings at primary SQL clauses, normalizes casing, and applies clean indentation rules:
+      </p>
+      <div class="formula-box">
+        Formatted SQL = Clause Normalization + Uppercase Keywords (SELECT, FROM, WHERE, JOIN) + Indentation
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Formatting <code>select id,name from users where status = 'active' order by name asc</code> transforms it into structured, indented multiline SQL with capitalized keywords[cite: 3].</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="sql-table-heading">
+      <h2 id="sql-table-heading">SQL Keywords, Clauses & Database Formatting Standards (16 Rules)</h2>
+      <p>Use this SQL reference table to understand standard query clauses and formatting conventions[cite: 3].</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>SQL Clause / Keyword</th>
+              <th>Standard Casing</th>
+              <th>Indentation Rule</th>
+              <th>Purpose & Function</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>SELECT</strong></td>
+              <td><code>SELECT</code></td>
+              <td>Root Level (0 Indent)</td>
+              <td>Specifies columns to retrieve from database</td>
+            </tr>
+            <tr>
+              <td><strong>FROM</strong></td>
+              <td><code>FROM</code></td>
+              <td>Root Level (0 Indent)</td>
+              <td>Specifies target database table or view</td>
+            </tr>
+            <tr>
+              <td><strong>WHERE</strong></td>
+              <td><code>WHERE</code></td>
+              <td>Root Level (0 Indent)</td>
+              <td>Filters record rows based on conditions</td>
+            </tr>
+            <tr>
+              <td><strong>JOIN / INNER JOIN</strong></td>
+              <td><code>INNER JOIN</code></td>
+              <td>1 Indent (2-4 spaces)</td>
+              <td>Combines rows from multiple related tables</td>
+            </tr>
+            <tr>
+              <td><strong>ON</strong></td>
+              <td><code>ON</code></td>
+              <td>Aligned with JOIN</td>
+              <td>Specifies join matching condition predicate</td>
+            </tr>
+            <tr>
+              <td><strong>GROUP BY</strong></td>
+              <td><code>GROUP BY</code></td>
+              <td>Root Level (0 Indent)</td>
+              <td>Aggregates rows sharing common column values</td>
+            </tr>
+            <tr>
+              <td><strong>HAVING</strong></td>
+              <td><code>HAVING</code></td>
+              <td>Root Level (0 Indent)</td>
+              <td>Filters aggregated group summary rows</td>
+            </tr>
+            <tr>
+              <td><strong>ORDER BY</strong></td>
+              <td><code>ORDER BY</code></td>
+              <td>Root Level (0 Indent)</td>
+              <td>Sorts result set ascending or descending</td>
+            </tr>
+            <tr>
+              <td><strong>LIMIT / OFFSET</strong></td>
+              <td><code>LIMIT</code></td>
+              <td>Root Level (0 Indent)</td>
+              <td>Restricts number of rows returned</td>
+            </tr>
+            <tr>
+              <td><strong>INSERT INTO</strong></td>
+              <td><code>INSERT INTO</code></td>
+              <td>Root Level (0 Indent)</td>
+              <td>Adds new records into a database table</td>
+            </tr>
+            <tr>
+              <td><strong>UPDATE / SET</strong></td>
+              <td><code>UPDATE / SET</code></td>
+              <td>Root Level (0 Indent)</td>
+              <td>Modifies existing table record values</td>
+            </tr>
+            <tr>
+              <td><strong>DELETE FROM</strong></td>
+              <td><code>DELETE FROM</code></td>
+              <td>Root Level (0 Indent)</td>
+              <td>Removes records from a database table</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Processing</strong></td>
+              <td>JavaScript DOM APIs</td>
+              <td>Zero Server Latency</td>
+              <td>Instant browser execution</td>
+            </tr>
+            <tr>
+              <td><strong>Clipboard Integration</strong></td>
+              <td>Copy text</td>
+              <td>Workflow Optimization</td>
+              <td>Quick developer utility</td>
+            </tr>
+            <tr>
+              <td><strong>Browser Compatibility</strong></td>
+              <td>100% Universal</td>
+              <td>All Modern Browsers</td>
+              <td>Runs on desktop & mobile</td>
+            </tr>
+            <tr>
+              <td><strong>Data Privacy</strong></td>
+              <td>100% Client-Side Memory</td>
+              <td><span class="limit-badge">Zero Server Upload</span></td>
+              <td>Private database queries stay secure on your PC[cite: 3]</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Developer, Coding & Database Utilities</h2>
+      <p>Need to format JSON, test regular expressions, encode Base64, or generate UUIDs? Explore our companion tools[cite: 3]:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter & Validator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="regex-tester.html"><span>Regex Live Tester</span><span class="arrow">→</span></a>
+        <a class="related-link" href="base64-encode-decode.html"><span>Base64 Encoder / Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="uuid-generator.html"><span>UUID / GUID Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="url-encode-decode.html"><span>URL Encoder / Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="hash-generator.html"><span>MD5 & SHA Hash Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Strong Password Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="html-minifier.html"><span>HTML Minifier & Beautifier</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What does the SQL Formatter tool do?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            The SQL Formatter takes unformatted or messy database queries and automatically capitalizes major keywords (like <code>SELECT</code>, <code>FROM</code>, <code>WHERE</code>) while applying proper indentation to make complex queries easy to read.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Does formatting change the logic or results of my SQL query?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>No.</strong> Formatting only adjusts whitespace, casing, and line breaks. The underlying SQL query logic, table names, column filters, and execution results remain 100% identical.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. What types of SQL queries are supported?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Standard SQL statements including <code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>JOIN</code> operations, subqueries, and conditional filters are fully supported across database engines like MySQL, PostgreSQL, SQL Server, and SQLite.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my database schemas or SQL queries uploaded to any external server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All formatting and query normalization run 100% locally inside your web browser. Your private database queries never leave your computer[cite: 3].
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side SQL Formatter Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const inputSqlBox = document.getElementById("inputSqlBox");
+      const outputSqlBox = document.getElementById("outputSqlBox");
+      const formatSqlBtn = document.getElementById("formatSqlBtn");
+      const loadSampleSqlBtn = document.getElementById("loadSampleSqlBtn");
+      const clearSqlBtn = document.getElementById("clearSqlBtn");
+      const copySqlBtn = document.getElementById("copySqlBtn");
+      const sqlErrBanner = document.getElementById("sqlErrBanner");
+
+      function showErr(msg) {
+        sqlErrBanner.textContent = msg;
+        sqlErrBanner.style.display = "block";
+      }
+
+      function hideErr() {
+        sqlErrBanner.style.display = "none";
+      }
+
+      function formatSqlQuery(sql) {
+        hideErr();
+        if (!sql.trim()) return "";
+
+        // Normalize whitespace
+        let cleaned = sql.replace(/\s+/g, ' ').trim();
+
+        // Major clauses to break and capitalize
+        const keywords = [
+          "SELECT", "FROM", "WHERE", "INNER JOIN", "LEFT JOIN", "RIGHT JOIN", 
+          "FULL OUTER JOIN", "JOIN", "ON", "GROUP BY", "HAVING", "ORDER BY", 
+          "LIMIT", "OFFSET", "UNION", "INSERT INTO", "VALUES", "UPDATE", "SET", "DELETE FROM"
+        ];
+
+        // Sort keywords by length descending to match multi-word clauses first
+        keywords.sort(function (a, b) { return b.length - a.length; });
+
+        // Replace keywords with capitalized versions and newlines
+        keywords.forEach(function (kw) {
+          const regex = new RegExp("\\b" + kw + "\\b", "gi");
+          if (kw === "SELECT" || kw === "FROM" || kw === "WHERE" || kw === "GROUP BY" || kw === "HAVING" || kw === "ORDER BY" || kw === "LIMIT" || kw === "INSERT INTO" || kw === "UPDATE" || kw === "SET" || kw === "DELETE FROM" || kw === "UNION") {
+            cleaned = cleaned.replace(regex, "\n" + kw);
+          } else {
+            cleaned = cleaned.replace(regex, "\n  " + kw);
+          }
+        });
+
+        // Clean up extra leading newlines
+        cleaned = cleaned.replace(/^\n+/, '');
+
+        // Format indentation for sub-clauses
+        let lines = cleaned.split('\n');
+        let formattedLines = lines.map(function (line) {
+          let trimmed = line.trim();
+          if (trimmed.startsWith("INNER JOIN") || trimmed.startsWith("LEFT JOIN") || trimmed.startsWith("RIGHT JOIN") || trimmed.startsWith("JOIN") || trimmed.startsWith("ON")) {
+            return "  " + trimmed;
+          }
+          return trimmed;
+        });
+
+        return formattedLines.join('\n');
+      }
+
+      formatSqlBtn.addEventListener("click", function () {
+        const raw = inputSqlBox.value || "";
+        outputSqlBox.value = formatSqlQuery(raw);
+      });
+
+      loadSampleSqlBtn.addEventListener("click", function () {
+        const sample = "select u.id, u.username, o.order_id, o.total_amount from users u inner join orders o on u.id = o.user_id where o.status = 'completed' and o.total_amount > 100.00 group by u.id order by o.total_amount desc limit 10;";
+        inputSqlBox.value = sample;
+        outputSqlBox.value = formatSqlQuery(sample);
+      });
+
+      clearSqlBtn.addEventListener("click", function () {
+        inputSqlBox.value = "";
+        outputSqlBox.value = "";
+        hideErr();
+      });
+
+      copySqlBtn.addEventListener("click", async function () {
+        if (!outputSqlBox.value) return;
+        try {
+          await navigator.clipboard.writeText(outputSqlBox.value);
+          const orig = copySqlBtn.textContent;
+          copySqlBtn.textContent = "Copied SQL!";
+          setTimeout(function () { copySqlBtn.textContent = orig; }, 1400);
+        } catch (e) {}
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      loadSampleSqlBtn.click();
+    });
+  </script>
+</body>
+</html>

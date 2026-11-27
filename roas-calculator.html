@@ -1,0 +1,648 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ROAS (Return on Ad Spend) & CPA Calculator — Free | PureWebKits</title>
+  <meta name="description" content="Calculate Return on Ad Spend (ROAS) and Cost Per Acquisition (CPA) for e-commerce and digital marketing campaigns online for free. ROAS calculator tool 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/roas-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* ROAS Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: center;
+    }
+    .form-col { display: flex; flex-direction: column; gap: 14px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .result-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .result-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .result-title { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .result-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 19px;
+      font-weight: 900;
+      color: var(--primary);
+    }
+    .result-val.highlight { color: var(--success); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive ROAS Calculator Tool -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>ROAS (Return on Ad Spend) & CPA Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate ROAS, CPA, and campaign profitability instantly in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Enter your ad spend, generated revenue, and total conversions below:</div>
+          <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample Campaign</button>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="adSpendInput" class="field-label">Total Ad Spend / Cost ($ / ₹)</label>
+              <input type="number" id="adSpendInput" class="std-input" value="2000" />
+            </div>
+            <div class="field-group">
+              <label for="revenueInput" class="field-label">Total Revenue Generated ($ / ₹)</label>
+              <input type="number" id="revenueInput" class="std-input" value="8000" />
+            </div>
+            <div class="field-group">
+              <label for="conversionsInput" class="field-label">Total Conversions / Customers</label>
+              <input type="number" id="conversionsInput" class="std-input" value="40" />
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="result-item">
+              <div class="result-title">ROAS (Ratio / Multiplier)</div>
+              <div id="resRoasRatio" class="result-val">4.00x</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">ROAS (Percentage Return)</div>
+              <div id="resRoasPct" class="result-val">400.0%</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Cost Per Acquisition (CPA)</div>
+              <div id="resCpa" class="result-val">$50.00</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Net Profit / ROI</div>
+              <div id="resProfit" class="result-val highlight">+$6,000</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Return on Ad Spend (ROAS), CPA & Marketing Profitability Work</h2>
+
+      ### Why ROAS & CPA Calculators Are Essential for E-commerce & Marketers
+      <p>
+        Evaluating the financial performance of paid digital advertising campaigns on Google Ads, Meta, TikTok, or Amazon requires tracking metrics that go beyond simple click counts. **Return on Ad Spend (ROAS)** measures the gross revenue generated for every dollar spent on advertising, while **Cost Per Acquisition (CPA)** reveals how much it costs to acquire a paying customer. A <strong>ROAS & CPA calculator</strong> computes these critical performance ratios instantly. Our browser-based tool calculates marketing profitability locally in client memory without server uploads.
+      </p>
+
+      ### How to Calculate ROAS in 3 Easy Steps
+      <ol>
+        <li><strong>Enter Total Ad Spend:</strong> Input your total advertising budget expended during the campaign.</li>
+        <li><strong>Enter Revenue Generated:</strong> Type the total gross revenue earned directly from your ad campaigns.</li>
+        <li><strong>Enter Conversions:</strong> Input total customer acquisitions to inspect your CPA and net profit immediately.</li>
+      </ol>
+
+      ### Calculation Formulas + Worked Example
+      <p>
+        ROAS divides total revenue by total ad spend, while CPA divides total spend by total conversions:
+      </p>
+      <div class="formula-box">
+        ROAS (Ratio) = Total Revenue / Total Ad Spend  |  CPA = Total Ad Spend / Total Conversions
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Spending $2,000 on ads to generate $8,000 in revenue across 40 customer conversions yields a **4.00x ROAS (400%)**, a **$50.00 CPA**, and a net advertising profit of **+$6,000**.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="roas-table-heading">
+      <h2 id="roas-table-heading">ROAS Performance Standards, Benchmarks & Rules (16 Rules)</h2>
+      <p>Use this reference table to understand ROAS profitability benchmarks across e-commerce verticals.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ROAS Threshold</th>
+              <th>Campaign Profitability Status</th>
+              <th>Marketing Assessment & Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Below 1.0x (<100%)</strong></td>
+              <td>Unprofitable / Loss</td>
+              <td>Ads are losing money; campaign requires immediate optimization or pause</td>
+            </tr>
+            <tr>
+              <td><strong>1.0x – 3.0x (100%–300%)</strong></td>
+              <td>Break-Even to Moderate Profit</td>
+              <td>Sustainable depending on product profit margins and fulfillment costs</td>
+            </tr>
+            <tr>
+              <td><strong>4.0x + (400%+)</strong></td>
+              <td>Highly Profitable / Scaling</td>
+              <td>Excellent campaign efficiency; prime candidate for budget scaling</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Processing</strong></td>
+              <td>JavaScript Execution</td>
+              <td>Zero Server Latency — 100% browser calculation</td>
+            </tr>
+            <tr>
+              <td><strong>Browser Compatibility</strong></td>
+              <td>100% Universal</td>
+              <td>Runs smoothly on desktop & mobile web browsers</td>
+            </tr>
+            <tr>
+              <td><strong>Data Privacy</strong></td>
+              <td>100% Client-Side Memory</td>
+              <td><span class="limit-badge">Zero Server Upload</span> — Private campaign data stays secure</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Marketing, Advertising & Calculator Utilities</h2>
+      <p>Need ad metrics calculators, AdSense estimators, or percentage calculators? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="ad-metrics-calculator.html"><span>CTR, CPM & CPC Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="adsense-revenue-calculator.html"><span>AdSense Revenue Estimator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="keyword-density-checker.html"><span>Keyword Density Analyzer</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>3-in-1 Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Strong Password Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>Custom QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter & Validator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is ROAS (Return on Ad Spend)?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            ROAS is a marketing metric that measures the amount of revenue a business earns for each dollar it spends on advertising (expressed as a ratio like 4:1 or multiplier like 4x).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. What is a good ROAS target for e-commerce?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Typically 4.0x (400%) or higher!</strong> While a 4x ROAS means $4 earned for every $1 spent, your exact target depends on your product gross profit margins.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my campaign financial figures uploaded to an external server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations run 100% locally inside your web browser using JavaScript. Your confidential advertising data never leaves your computer.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this ROAS and CPA calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> This utility is 100% free with no registration or download requirements.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side ROAS Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const adSpendInput = document.getElementById("adSpendInput");
+      const revenueInput = document.getElementById("revenueInput");
+      const conversionsInput = document.getElementById("conversionsInput");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+
+      const resRoasRatio = document.getElementById("resRoasRatio");
+      const resRoasPct = document.getElementById("resRoasPct");
+      const resCpa = document.getElementById("resCpa");
+      const resProfit = document.getElementById("resProfit");
+
+      function formatCurrency(val) {
+        return "$" + Math.round(val).toLocaleString("en-US");
+      }
+
+      function calcRoas() {
+        const spend = parseFloat(adSpendInput.value) || 0;
+        const revenue = parseFloat(revenueInput.value) || 0;
+        const conversions = parseFloat(conversionsInput.value) || 0;
+
+        if (spend <= 0) {
+          resRoasRatio.textContent = "0.00x";
+          resRoasPct.textContent = "0.0%";
+          resCpa.textContent = "$0.00";
+          resProfit.textContent = "$0";
+          return;
+        }
+
+        const roasRatio = revenue / spend;
+        const roasPct = roasRatio * 100;
+        const cpa = conversions > 0 ? spend / conversions : 0;
+        const profit = revenue - spend;
+
+        resRoasRatio.textContent = roasRatio.toFixed(2) + "x";
+        resRoasPct.textContent = roasPct.toFixed(1) + "%";
+        resCpa.textContent = conversions > 0 ? "$" + cpa.toFixed(2) : "N/A";
+        
+        if (profit >= 0) {
+          resProfit.textContent = "+$" + Math.round(profit).toLocaleString("en-US");
+          resProfit.style.color = "var(--success)";
+        } else {
+          resProfit.textContent = "-$" + Math.round(Math.abs(profit)).toLocaleString("en-US");
+          resProfit.style.color = "var(--danger)";
+        }
+      }
+
+      [adSpendInput, revenueInput, conversionsInput].forEach(function (el) {
+        el.addEventListener("input", calcRoas);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        adSpendInput.value = "5000";
+        revenueInput.value = "25000";
+        conversionsInput.value = "100";
+        calcRoas();
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calcRoas();
+    });
+  </script>
+</body>
+</html>

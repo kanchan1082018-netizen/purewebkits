@@ -1,0 +1,1230 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online BMI & Sleep Cycle Calculator (Healthy Weight & Bedtime Planner) — PureWebKits</title>
+  <meta name="description" content="Calculate your Body Mass Index (BMI), healthy weight range, and optimal 90-minute REM/NREM sleep cycle bedtimes or wake-up times online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/bmi-sleep-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Studio Topbar */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      flex-wrap: wrap;
+      gap: 2px;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .hero-title { font-size: 16px; font-weight: 800; }
+    .hero-sub { font-size: 12px; color: #CBD5E1; }
+    .hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 24px;
+      font-weight: 800;
+      color: #34D399;
+      white-space: nowrap;
+      text-align: right;
+    }
+    .hero-num.warn { color: #FBBF24; }
+    .hero-num.high { color: #FCA5A5; }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    /* Sleep Cycle Pills */
+    .cycle-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .cycle-card {
+      background: #FFFFFF;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .cycle-card.optimal {
+      border-color: #2563EB;
+      background: #EFF6FF;
+    }
+    .cycle-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .cycle-card.optimal .cycle-top { color: var(--primary-dark); }
+    .cycle-time {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .cycle-meta {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid, .cycle-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive BMI & Sleep Cycle Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online BMI & Sleep Cycle Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Check Body Mass Index (BMI), healthy weight range & 90-minute REM sleep cycles in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="Calculator studio mode">
+            <button type="button" class="mode-btn active" id="bmiTabBtn" data-tab="bmi">BMI & Healthy Weight</button>
+            <button type="button" class="mode-btn" id="sleepTabBtn" data-tab="sleep">90-Min Sleep Cycle Planner</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample</button>
+            <button type="button" id="resetToolBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <!-- PANEL A: BMI CALCULATOR -->
+        <div class="calc-grid" id="bmiPanel">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="unitSystemSelect" class="field-label">Measurement Units</label>
+                <select id="unitSystemSelect" class="std-select">
+                  <option value="metric" selected>Metric (kg & cm)</option>
+                  <option value="imperial">Imperial (lbs & ft/in)</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="bmiStandardSelect" class="field-label">Classification Standard</label>
+                <select id="bmiStandardSelect" class="std-select">
+                  <option value="who" selected>WHO Global (Normal 18.5–24.9)</option>
+                  <option value="asian">Asian / Indian Consensus (Normal 18.5–22.9)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="two-col-fields" id="metricInputsRow">
+              <div class="field-group">
+                <label for="weightKgInput" class="field-label">Weight (kg)</label>
+                <input type="number" id="weightKgInput" class="std-input" min="1" max="500" step="0.5" value="70" />
+              </div>
+
+              <div class="field-group">
+                <label for="heightCmInput" class="field-label">Height (cm)</label>
+                <input type="number" id="heightCmInput" class="std-input" min="30" max="280" step="0.5" value="175" />
+              </div>
+            </div>
+
+            <div class="two-col-fields" id="imperialInputsRow" style="display: none;">
+              <div class="field-group">
+                <label for="weightLbsInput" class="field-label">Weight (lbs)</label>
+                <input type="number" id="weightLbsInput" class="std-input" min="1" max="1100" step="1" value="154" />
+              </div>
+
+              <div class="two-col-fields" style="gap: 8px;">
+                <div class="field-group">
+                  <label for="heightFtInput" class="field-label">Height (ft)</label>
+                  <input type="number" id="heightFtInput" class="std-input" min="1" max="8" step="1" value="5" />
+                </div>
+                <div class="field-group">
+                  <label for="heightInInput" class="field-label">Height (in)</label>
+                  <input type="number" id="heightInInput" class="std-input" min="0" max="11.9" step="0.5" value="9" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="hero-box">
+              <div>
+                <div class="hero-kicker">Body Mass Index (BMI)</div>
+                <div class="hero-title" id="bmiCategoryTitle">Normal Weight</div>
+                <div class="hero-sub" id="bmiSubCaption">Healthy Range: 56.7 kg – 76.3 kg • BMI Prime: 0.91</div>
+              </div>
+              <div class="hero-num" id="bmiScoreDisplay">22.9</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Healthy Weight Range</div>
+                <div class="metric-val" id="healthyWeightVal">56.7 kg – 76.3 kg</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Weight Distance to Normal</div>
+                <div class="metric-val" id="weightDeltaVal">Inside healthy range</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">BMI Prime (BMI / Upper Limit)</div>
+                <div class="metric-val" id="bmiPrimeVal">0.92 (Optimal ≤ 1.00)</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Ponderal Index (kg/m³)</div>
+                <div class="metric-val" id="ponderalVal">13.06 kg/m³</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyBmiBtn" class="btn-primary">Copy BMI Summary</button>
+              <button type="button" id="downloadBmiBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL B: SLEEP CYCLE CALCULATOR -->
+        <div class="calc-grid" id="sleepPanel" style="display: none;">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="sleepDirectionSelect" class="field-label">Planning Direction</label>
+                <select id="sleepDirectionSelect" class="std-select">
+                  <option value="wake_at" selected>I want to WAKE UP at...</option>
+                  <option value="sleep_at">I plan to GO TO BED at...</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="sleepTargetTimeInput" class="field-label" id="sleepTimeLabel">Target Wake-Up Time</label>
+                <input type="time" id="sleepTargetTimeInput" class="std-input" value="06:30" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="sleepLatencySelect" class="field-label">Time to Fall Asleep (Sleep Latency)</label>
+                <select id="sleepLatencySelect" class="std-select">
+                  <option value="10">10 minutes (Fast)</option>
+                  <option value="15" selected>15 minutes (Average)</option>
+                  <option value="20">20 minutes</option>
+                  <option value="30">30 minutes</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="cycleLengthSelect" class="field-label">Sleep Cycle Length</label>
+                <select id="cycleLengthSelect" class="std-select">
+                  <option value="90" selected>90 minutes (Standard)</option>
+                  <option value="85">85 minutes</option>
+                  <option value="95">95 minutes</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="sleepNowBtn" class="btn-sec">Use Current Time (Sleep Now)</button>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="hero-box">
+              <div>
+                <div class="hero-kicker" id="sleepHeroKicker">Recommended Bedtimes (5–6 Cycles)</div>
+                <div class="hero-title" id="sleepHeroTitle">9:15 PM (6 Cycles) or 10:45 PM (5 Cycles)</div>
+                <div class="hero-sub" id="sleepHeroSub">Includes 15 min fall-asleep buffer before 6:30 AM wake-up</div>
+              </div>
+            </div>
+
+            <div class="cycle-grid" id="sleepCyclesGrid"></div>
+
+            <div class="btn-row">
+              <button type="button" id="copySleepBtn" class="btn-primary">Copy Sleep Schedule</button>
+              <button type="button" id="downloadSleepBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, BMI & 90-Minute Sleep Cycles -->
+    <article class="content-card">
+      <h2>Complete User Guide to Body Mass Index (BMI) & 90-Minute REM Sleep Cycle Planning</h2>
+
+      <h3>How BMI Classification and 90-Minute Sleep Architecture Support Daily Wellness</h3>
+      <p>
+        Two of the most practical wellness benchmarks people check regularly are <strong>Body Mass Index (BMI)</strong>—a weight-for-height screening ratio defined as <code>BMI = Weight (kg) / Height (m)²</code>—and <strong>90-minute sleep cycle timing</strong>, which aligns your bedtime or alarm clock with the natural end of a complete Non-REM + REM sleep cycle rather than waking abruptly out of deep slow-wave sleep. While standard World Health Organization (WHO) guidelines classify adult normal weight as <code>18.5 to 24.9 kg/m²</code>, South Asian and Indian medical consensus guidelines use a tighter normal range of <code>18.5 to 22.9 kg/m²</code> because metabolic risk begins at lower BMI thresholds. Similarly, during a typical night of sleep, the human brain progresses through <code>4 to 6</code> recurring sleep cycles lasting roughly <code>90 minutes</code> each, preceded by an average <code>15-minute</code> sleep-onset latency buffer; waking at the boundary between cycles reduces morning grogginess (sleep inertia). A browser-based <strong>BMI & Sleep Cycle Calculator</strong> computes both tools 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Use the BMI & Sleep Cycle Calculator in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Choose BMI or Sleep Cycle Tab:</strong> Stay in <strong>BMI & Healthy Weight</strong> to evaluate weight-for-height metrics, or switch to <strong>90-Min Sleep Cycle Planner</strong> to schedule bedtimes or wake-up alarms.</li>
+        <li><strong>Enter Your Measurements or Target Time:</strong> For BMI, pick Metric (<code>kg/cm</code>) or Imperial (<code>lbs/ft/in</code>) and WHO vs. Asian thresholds; for Sleep, select your desired wake-up time (or click <strong>Use Current Time (Sleep Now)</strong>) and fall-asleep buffer.</li>
+        <li><strong>Review Results & Export:</strong> Inspect your BMI score, healthy weight range, BMI Prime, and <code>6 / 5 / 4 / 3-cycle</code> sleep windows, then click <strong>Copy</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>BMI & Sleep Cycle Formulas</h3>
+      <p>
+        Both calculations use transparent, deterministic arithmetic:
+      </p>
+      <div class="formula-box">
+        Metric BMI = Weight (kg) / [Height (m)]²  |  Imperial BMI = 703 × Weight (lbs) / [Height (in)]²<br />
+        Target Bedtime = Wake Time − (Cycles × 90 mins + Sleep Latency)
+      </div>
+
+      <h3>Helpful Tips for Interpreting BMI and Sleep Timing</h3>
+      <ul>
+        <li><strong>BMI Is a Population Screening Metric, Not a Direct Body-Fat Scan:</strong> Muscular athletes can register an overweight BMI despite low body fat, while older adults with low muscle mass can fall in the normal BMI range with higher visceral fat—pair BMI with waist circumference and clinical checkups.</li>
+        <li><strong>Aim for 5 to 6 Full Cycles (7.5 to 9 Hours of Sleep):</strong> Most adults feel best after <code>5 cycles</code> (<code>7.5 hours</code>) or <code>6 cycles</code> (<code>9 hours</code>) of actual sleep plus <code>15 minutes</code> to fall asleep.</li>
+        <li><strong>Educational Wellness Reference Only:</strong> This calculator provides general health math only and is not medical advice—consult a qualified healthcare provider for personalized medical guidance.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> An adult weighing <code>70 kg</code> at <code>175 cm</code> (<code>1.75 m</code>) has a BMI of <code>70 / 1.75² = 22.9 kg/m²</code> (Normal Weight, healthy range <code>56.7–76.3 kg</code>). To wake up refreshed at <code>6:30 AM</code> after <code>5</code> or <code>6</code> 90-minute cycles (with a <code>15-minute</code> fall-asleep buffer), recommended bedtimes are <code>9:15 PM</code> (<code>9h 00m</code> sleep) or <code>10:45 PM</code> (<code>7h 30m</code> sleep).</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="bmi-sleep-table-heading">
+      <h2 id="bmi-sleep-table-heading">BMI Categories, Sleep Cycle Windows & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to compare WHO vs. Asian BMI categories and 90-minute sleep cycle durations.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Category / Cycle Count</th>
+              <th>WHO / Sleep Duration</th>
+              <th>Asian Consensus / Details</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Underweight BMI</strong></td>
+              <td><code>< 18.5 kg/m²</code></td>
+              <td><code>< 18.5 kg/m²</code></td>
+              <td>Below healthy weight range</td>
+            </tr>
+            <tr>
+              <td><strong>Normal / Healthy BMI</strong></td>
+              <td><code>18.5 – 24.9 kg/m²</code></td>
+              <td><code>18.5 – 22.9 kg/m²</code></td>
+              <td>Optimal weight-for-height band</td>
+            </tr>
+            <tr>
+              <td><strong>Overweight BMI</strong></td>
+              <td><code>25.0 – 29.9 kg/m²</code></td>
+              <td><code>23.0 – 24.9 kg/m²</code></td>
+              <td>Elevated weight-for-height</td>
+            </tr>
+            <tr>
+              <td><strong>Obesity Class I</strong></td>
+              <td><code>30.0 – 34.9 kg/m²</code></td>
+              <td><code>25.0 – 29.9 kg/m²</code></td>
+              <td>Consult healthcare professional</td>
+            </tr>
+            <tr>
+              <td><strong>Obesity Class II / III</strong></td>
+              <td><code>≥ 35.0 kg/m²</code></td>
+              <td><code>≥ 30.0 kg/m²</code></td>
+              <td>Higher cardiometabolic risk</td>
+            </tr>
+            <tr>
+              <td><strong>BMI Prime</strong></td>
+              <td><code>BMI / 25.0</code> (WHO)</td>
+              <td><code>BMI / 23.0</code> (Asian)</td>
+              <td><code>≤ 1.00</code> indicates normal band</td>
+            </tr>
+            <tr>
+              <td><strong>6 Sleep Cycles (Optimal)</strong></td>
+              <td><code>9 hrs 00 mins</code> actual sleep</td>
+              <td><code>540 mins</code> + latency</td>
+              <td>Full recovery / high sleep need</td>
+            </tr>
+            <tr>
+              <td><strong>5 Sleep Cycles (Optimal)</strong></td>
+              <td><code>7 hrs 30 mins</code> actual sleep</td>
+              <td><code>450 mins</code> + latency</td>
+              <td>Recommended adult nightly target</td>
+            </tr>
+            <tr>
+              <td><strong>4 Sleep Cycles (Minimum)</strong></td>
+              <td><code>6 hrs 00 mins</code> actual sleep</td>
+              <td><code>360 mins</code> + latency</td>
+              <td>Short-night recovery option</td>
+            </tr>
+            <tr>
+              <td><strong>3 Sleep Cycles (Power Night)</strong></td>
+              <td><code>4 hrs 30 mins</code> actual sleep</td>
+              <td><code>270 mins</code> + latency</td>
+              <td>Emergency / shift-work boundary</td>
+            </tr>
+            <tr>
+              <td><strong>Sleep Latency Buffer</strong></td>
+              <td><code>15 mins</code> default (10–30m)</td>
+              <td>Time to fall asleep</td>
+              <td>Adjustable in planner</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports BMI & sleep plan</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript BMI & Sleep Cycle Modeler — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your height, weight, and sleep schedule stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero personal health metrics transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Health, Timer, Age & Everyday Calculators</h2>
+      <p>Estimating health insurance premiums, running a Pomodoro study timer, or calculating exact age? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="health-insurance-premium-estimator.html"><span>Health Insurance Estimator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="study-timer-pomodoro.html"><span>Study Timer (Pomodoro)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="life-insurance-calculator.html"><span>Life Insurance Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="spin-wheel.html"><span>Spin Wheel</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is the difference between WHO Global and Asian / Indian BMI thresholds?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Standard WHO guidelines define normal BMI as <code>18.5–24.9 kg/m²</code>, whereas South Asian and Indian consensus guidelines define normal BMI as <code>18.5–22.9 kg/m²</code> (and overweight starting at <code>23.0 kg/m²</code>) due to higher body-fat percentage and metabolic risk at lower BMIs.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Why does the Sleep Cycle Planner recommend waking up in multiples of 90 minutes?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            A typical human sleep cycle lasts roughly <code>90 minutes</code> (progressing through light sleep, deep slow-wave sleep, and REM sleep)—waking up at the end of a cycle rather than mid-deep-sleep helps you feel more alert.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my weight, height, or sleep schedules sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All BMI and sleep cycle calculations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this BMI & Sleep Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side BMI & Sleep Cycle Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const bmiTabBtn = document.getElementById("bmiTabBtn");
+      const sleepTabBtn = document.getElementById("sleepTabBtn");
+      const bmiPanel = document.getElementById("bmiPanel");
+      const sleepPanel = document.getElementById("sleepPanel");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetToolBtn = document.getElementById("resetToolBtn");
+
+      // BMI Elements
+      const unitSystemSelect = document.getElementById("unitSystemSelect");
+      const bmiStandardSelect = document.getElementById("bmiStandardSelect");
+      const metricInputsRow = document.getElementById("metricInputsRow");
+      const weightKgInput = document.getElementById("weightKgInput");
+      const heightCmInput = document.getElementById("heightCmInput");
+      const imperialInputsRow = document.getElementById("imperialInputsRow");
+      const weightLbsInput = document.getElementById("weightLbsInput");
+      const heightFtInput = document.getElementById("heightFtInput");
+      const heightInInput = document.getElementById("heightInInput");
+
+      const bmiCategoryTitle = document.getElementById("bmiCategoryTitle");
+      const bmiSubCaption = document.getElementById("bmiSubCaption");
+      const bmiScoreDisplay = document.getElementById("bmiScoreDisplay");
+      const healthyWeightVal = document.getElementById("healthyWeightVal");
+      const weightDeltaVal = document.getElementById("weightDeltaVal");
+      const bmiPrimeVal = document.getElementById("bmiPrimeVal");
+      const ponderalVal = document.getElementById("ponderalVal");
+      const copyBmiBtn = document.getElementById("copyBmiBtn");
+      const downloadBmiBtn = document.getElementById("downloadBmiBtn");
+
+      // Sleep Elements
+      const sleepDirectionSelect = document.getElementById("sleepDirectionSelect");
+      const sleepTimeLabel = document.getElementById("sleepTimeLabel");
+      const sleepTargetTimeInput = document.getElementById("sleepTargetTimeInput");
+      const sleepLatencySelect = document.getElementById("sleepLatencySelect");
+      const cycleLengthSelect = document.getElementById("cycleLengthSelect");
+      const sleepNowBtn = document.getElementById("sleepNowBtn");
+
+      const sleepHeroKicker = document.getElementById("sleepHeroKicker");
+      const sleepHeroTitle = document.getElementById("sleepHeroTitle");
+      const sleepHeroSub = document.getElementById("sleepHeroSub");
+      const sleepCyclesGrid = document.getElementById("sleepCyclesGrid");
+      const copySleepBtn = document.getElementById("copySleepBtn");
+      const downloadSleepBtn = document.getElementById("downloadSleepBtn");
+
+      let activeTab = "bmi";
+      let latestBmiText = "";
+      let latestSleepText = "";
+
+      function switchTab(tab) {
+        activeTab = tab;
+        const isBmi = tab === "bmi";
+        bmiTabBtn.classList.toggle("active", isBmi);
+        sleepTabBtn.classList.toggle("active", !isBmi);
+        bmiPanel.style.display = isBmi ? "grid" : "none";
+        sleepPanel.style.display = !isBmi ? "grid" : "none";
+      }
+
+      function calculateBmi() {
+        const isMetric = unitSystemSelect.value === "metric";
+        metricInputsRow.style.display = isMetric ? "grid" : "none";
+        imperialInputsRow.style.display = !isMetric ? "grid" : "none";
+
+        let weightKg = 0;
+        let heightM = 0;
+
+        if (isMetric) {
+          weightKg = parseFloat(weightKgInput.value);
+          const heightCm = parseFloat(heightCmInput.value);
+          heightM = heightCm / 100;
+        } else {
+          const lbs = parseFloat(weightLbsInput.value);
+          const ft = parseFloat(heightFtInput.value) || 0;
+          const inc = parseFloat(heightInInput.value) || 0;
+          const totalIn = ft * 12 + inc;
+          weightKg = lbs * 0.45359237;
+          heightM = totalIn * 0.0254;
+        }
+
+        if (!Number.isFinite(weightKg) || weightKg <= 0 || !Number.isFinite(heightM) || heightM <= 0) {
+          bmiScoreDisplay.className = "hero-num";
+          bmiScoreDisplay.textContent = "—";
+          bmiCategoryTitle.textContent = "Enter Valid Weight & Height";
+          bmiSubCaption.textContent = "Provide positive weight and height values above";
+          healthyWeightVal.textContent = "—";
+          weightDeltaVal.textContent = "—";
+          bmiPrimeVal.textContent = "—";
+          ponderalVal.textContent = "—";
+          latestBmiText = "";
+          return;
+        }
+
+        const bmi = weightKg / (heightM * heightM);
+        const isAsian = bmiStandardSelect.value === "asian";
+        const normalLow = 18.5;
+        const normalHigh = isAsian ? 22.9 : 24.9;
+        const obeseCut = isAsian ? 25.0 : 30.0;
+
+        let catLabel = "Normal Weight";
+        let numClass = "hero-num";
+        if (bmi < normalLow) {
+          catLabel = "Underweight";
+          numClass = "hero-num warn";
+        } else if (bmi <= normalHigh) {
+          catLabel = "Normal Weight";
+          numClass = "hero-num";
+        } else if (bmi < obeseCut) {
+          catLabel = "Overweight";
+          numClass = "hero-num warn";
+        } else {
+          catLabel = "Obesity Range";
+          numClass = "hero-num high";
+        }
+
+        const minHealthyKg = normalLow * heightM * heightM;
+        const maxHealthyKg = normalHigh * heightM * heightM;
+
+        const unitFactor = isMetric ? 1 : 2.20462262;
+        const unitLabel = isMetric ? "kg" : "lbs";
+        const dispWeight = weightKg * unitFactor;
+        const dispMin = minHealthyKg * unitFactor;
+        const dispMax = maxHealthyKg * unitFactor;
+
+        let deltaStr = "Inside healthy range";
+        if (dispWeight < dispMin) {
+          deltaStr = `+${(dispMin - dispWeight).toFixed(1)} ${unitLabel} to reach ${normalLow}`;
+        } else if (dispWeight > dispMax) {
+          deltaStr = `\u2212${(dispWeight - dispMax).toFixed(1)} ${unitLabel} to reach ${normalHigh}`;
+        }
+
+        const upperPrimeRef = isAsian ? 23.0 : 25.0;
+        const bmiPrime = bmi / upperPrimeRef;
+        const ponderal = weightKg / Math.pow(heightM, 3);
+
+        bmiScoreDisplay.className = numClass;
+        bmiScoreDisplay.textContent = bmi.toFixed(1);
+        bmiCategoryTitle.textContent = catLabel;
+        bmiSubCaption.textContent = `Healthy Range: ${dispMin.toFixed(1)} ${unitLabel} \u2013 ${dispMax.toFixed(1)} ${unitLabel} \u2022 BMI Prime: ${bmiPrime.toFixed(2)}`;
+
+        healthyWeightVal.textContent = `${dispMin.toFixed(1)} ${unitLabel} \u2013 ${dispMax.toFixed(1)} ${unitLabel}`;
+        weightDeltaVal.textContent = deltaStr;
+        bmiPrimeVal.textContent = `${bmiPrime.toFixed(2)} (${bmiPrime <= 1 ? "Optimal \u2264 1.00" : "Above 1.00"})`;
+        ponderalVal.textContent = `${ponderal.toFixed(2)} kg/m\u00B3`;
+
+        latestBmiText = [
+          "PureWebKits BMI & Healthy Weight Summary",
+          "-----------------------------------------",
+          `Standard: ${isAsian ? "Asian / Indian Consensus (18.5–22.9)" : "WHO Global (18.5–24.9)"}`,
+          `BMI Score: ${bmi.toFixed(1)} kg/m\u00B2 (${catLabel}) | BMI Prime: ${bmiPrime.toFixed(2)} | Ponderal Index: ${ponderal.toFixed(2)}`,
+          `Healthy Weight Range: ${dispMin.toFixed(1)} ${unitLabel} – ${dispMax.toFixed(1)} ${unitLabel} (${deltaStr})`
+        ].join("\n");
+      }
+
+      function format12HourTime(totalMins) {
+        const wrapped = ((totalMins % 1440) + 1440) % 1440;
+        const hrs24 = Math.floor(wrapped / 60);
+        const mins = wrapped % 60;
+        const period = hrs24 >= 12 ? "PM" : "AM";
+        const hrs12 = hrs24 % 12 === 0 ? 12 : hrs24 % 12;
+        return `${hrs12}:${String(mins).padStart(2, "0")} ${period}`;
+      }
+
+      function calculateSleepCycles() {
+        const dir = sleepDirectionSelect.value;
+        const isWakeAt = dir === "wake_at";
+        sleepTimeLabel.textContent = isWakeAt ? "Target Wake-Up Time" : "Planned Bedtime";
+
+        const timeVal = sleepTargetTimeInput.value || "06:30";
+        const parts = timeVal.split(":").map(Number);
+        const baseMins = (parts[0] || 0) * 60 + (parts[1] || 0);
+        const latency = parseInt(sleepLatencySelect.value, 10) || 15;
+        const cycleLen = parseInt(cycleLengthSelect.value, 10) || 90;
+
+        const cycleOptions = [6, 5, 4, 3];
+        const results = cycleOptions.map(function (c) {
+          const sleepMins = c * cycleLen;
+          const totalOffset = sleepMins + latency;
+          const targetMins = isWakeAt ? (baseMins - totalOffset) : (baseMins + totalOffset);
+          const hrs = Math.floor(sleepMins / 60);
+          const remM = sleepMins % 60;
+          return {
+            cycles: c,
+            timeStr: format12HourTime(targetMins),
+            durStr: `${hrs}h ${String(remM).padStart(2, "0")}m sleep`,
+            optimal: c === 5 || c === 6
+          };
+        });
+
+        sleepHeroKicker.textContent = isWakeAt
+          ? "Recommended Bedtimes (5–6 Cycles)"
+          : "Recommended Wake-Up Times (5–6 Cycles)";
+        sleepHeroTitle.textContent = `${results[0].timeStr} (6 Cycles) or ${results[1].timeStr} (5 Cycles)`;
+        sleepHeroSub.textContent = isWakeAt
+          ? `Includes ${latency} min fall-asleep buffer before ${format12HourTime(baseMins)} wake-up`
+          : `Includes ${latency} min fall-asleep buffer after ${format12HourTime(baseMins)} bedtime`;
+
+        sleepCyclesGrid.innerHTML = "";
+        results.forEach(function (r) {
+          const card = document.createElement("div");
+          card.className = "cycle-card" + (r.optimal ? " optimal" : "");
+          card.innerHTML = `
+            <div class="cycle-top">
+              <span>${r.cycles} Cycles</span>
+              <span>${r.optimal ? "Optimal" : "Short"}</span>
+            </div>
+            <div class="cycle-time">${r.timeStr}</div>
+            <div class="cycle-meta">${r.durStr}</div>
+          `;
+          sleepCyclesGrid.appendChild(card);
+        });
+
+        latestSleepText = [
+          "PureWebKits 90-Minute Sleep Cycle Schedule",
+          "------------------------------------------",
+          `${isWakeAt ? "Target Wake-Up Time" : "Planned Bedtime"}: ${format12HourTime(baseMins)} | Fall-Asleep Buffer: ${latency} mins | Cycle Length: ${cycleLen} mins`,
+          ...results.map(function (r) {
+            return `- ${r.cycles} Cycles (${r.durStr}): ${r.timeStr}${r.optimal ? " [Optimal]" : ""}`;
+          })
+        ].join("\n");
+      }
+
+      bmiTabBtn.addEventListener("click", function () { switchTab("bmi"); });
+      sleepTabBtn.addEventListener("click", function () { switchTab("sleep"); });
+
+      [
+        unitSystemSelect,
+        bmiStandardSelect,
+        weightKgInput,
+        heightCmInput,
+        weightLbsInput,
+        heightFtInput,
+        heightInInput
+      ].forEach(function (el) {
+        el.addEventListener("input", calculateBmi);
+        el.addEventListener("change", calculateBmi);
+      });
+
+      [
+        sleepDirectionSelect,
+        sleepTargetTimeInput,
+        sleepLatencySelect,
+        cycleLengthSelect
+      ].forEach(function (el) {
+        el.addEventListener("input", calculateSleepCycles);
+        el.addEventListener("change", calculateSleepCycles);
+      });
+
+      sleepNowBtn.addEventListener("click", function () {
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, "0");
+        const mm = String(now.getMinutes()).padStart(2, "0");
+        sleepDirectionSelect.value = "sleep_at";
+        sleepTargetTimeInput.value = `${hh}:${mm}`;
+        calculateSleepCycles();
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        if (activeTab === "bmi") {
+          unitSystemSelect.value = "metric";
+          bmiStandardSelect.value = "who";
+          weightKgInput.value = "70";
+          heightCmInput.value = "175";
+          calculateBmi();
+        } else {
+          sleepDirectionSelect.value = "wake_at";
+          sleepTargetTimeInput.value = "06:30";
+          sleepLatencySelect.value = "15";
+          cycleLengthSelect.value = "90";
+          calculateSleepCycles();
+        }
+      });
+
+      resetToolBtn.addEventListener("click", function () {
+        if (activeTab === "bmi") {
+          weightKgInput.value = "";
+          heightCmInput.value = "";
+          weightLbsInput.value = "";
+          heightFtInput.value = "";
+          heightInInput.value = "";
+          calculateBmi();
+        } else {
+          sleepDirectionSelect.value = "wake_at";
+          sleepTargetTimeInput.value = "07:00";
+          sleepLatencySelect.value = "15";
+          cycleLengthSelect.value = "90";
+          calculateSleepCycles();
+        }
+      });
+
+      function copyWithFeedback(btn, text) {
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(function () {
+          const orig = btn.textContent;
+          btn.textContent = "Copied!";
+          setTimeout(function () {
+            btn.textContent = orig;
+          }, 1800);
+        });
+      }
+
+      function downloadTxt(filename, text) {
+        if (!text) return;
+        const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }
+
+      copyBmiBtn.addEventListener("click", function () { copyWithFeedback(copyBmiBtn, latestBmiText); });
+      downloadBmiBtn.addEventListener("click", function () { downloadTxt("bmi-summary.txt", latestBmiText); });
+
+      copySleepBtn.addEventListener("click", function () { copyWithFeedback(copySleepBtn, latestSleepText); });
+      downloadSleepBtn.addEventListener("click", function () { downloadTxt("sleep-cycle-schedule.txt", latestSleepText); });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateBmi();
+      calculateSleepCycles();
+    });
+  </script>
+</body>
+</html>

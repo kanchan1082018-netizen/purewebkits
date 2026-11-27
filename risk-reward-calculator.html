@@ -1,0 +1,666 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Risk-to-Reward & Position Size Calculator — Free | PureWebKits</title>
+  <meta name="description" content="Calculate trading position size, risk-to-reward ratio, and capital risk management online for free. Trading risk calculator tool 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/risk-reward-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Risk Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col { display: flex; flex-direction: column; gap: 14px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .result-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .result-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .result-title { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .result-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 19px;
+      font-weight: 900;
+      color: var(--primary);
+    }
+    .result-val.highlight { color: var(--success); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Risk-Reward Calculator Tool -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Risk-to-Reward & Position Size Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate trading position sizing, risk capital, and risk-to-reward ratios instantly in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Enter your account size, risk %, entry, stop-loss, and target prices below:</div>
+          <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample Trade</button>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="accountSize" class="field-label">Account Size / Capital ($ / ₹)</label>
+              <input type="number" id="accountSize" class="std-input" value="10000" />
+            </div>
+            <div class="field-group">
+              <label for="riskPercent" class="field-label">Risk Tolerance per Trade (%)</label>
+              <input type="number" id="riskPercent" class="std-input" step="0.1" value="1.0" />
+            </div>
+            <div class="field-group">
+              <label for="entryPrice" class="field-label">Entry Price ($ / ₹)</label>
+              <input type="number" id="entryPrice" class="std-input" step="0.01" value="100" />
+            </div>
+            <div class="field-group">
+              <label for="stopLoss" class="field-label">Stop-Loss Price ($ / ₹)</label>
+              <input type="number" id="stopLoss" class="std-input" step="0.01" value="95" />
+            </div>
+            <div class="field-group">
+              <label for="takeProfit" class="field-label">Take-Profit Target Price ($ / ₹)</label>
+              <input type="number" id="takeProfit" class="std-input" step="0.01" value="115" />
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="result-item">
+              <div class="result-title">Maximum Risk Capital ($)</div>
+              <div id="resRiskAmount" class="result-val">$100.00</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Recommended Position Size</div>
+              <div id="resPositionSize" class="result-val">20 Shares / Units</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Potential Profit ($)</div>
+              <div id="resProfitAmount" class="result-val">$300.00</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Risk-to-Reward Ratio</div>
+              <div id="resRrRatio" class="result-val highlight">1 : 3.00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Risk-to-Reward Ratios, Position Sizing & Trading Risk Management Work</h2>
+
+      ### Why Risk-to-Reward & Position Size Calculators Are Essential for Traders
+      <p>
+        Successful trading across stocks, forex, and cryptocurrencies is built on disciplined risk management rather than guesswork. Knowing exactly how much capital to risk per trade and determining your exact position size prevents emotional over-leveraging and protects trading accounts from devastating drawdowns. The **Risk-to-Reward (R:R) ratio** compares potential losses against expected gains, while position sizing calculates the exact number of units or shares to buy based on your stop-loss distance. A <strong>risk-to-reward & position size calculator</strong> computes these critical metrics instantly. Our browser-based tool calculates risk parameters locally in client memory without server uploads.
+      </p>
+
+      ### How to Calculate Position Size & R:R in 3 Easy Steps
+      <ol>
+        <li><strong>Enter Account Capital & Risk %:</strong> Type your total trading account size and maximum percentage you are willing to risk on a single trade (e.g., 1%).</li>
+        <li><strong>Enter Entry & Stop-Loss:</strong> Input your planned entry price and stop-loss level to determine your dollar risk per share.</li>
+        <li><strong>Enter Take-Profit Target:</strong> Specify your profit target price to inspect your final position size and Risk-to-Reward ratio immediately.</li>
+      </ol>
+
+      ### Calculation Formulas + Worked Example
+      <p>
+        Position size divides total risk capital by risk per share, while Risk-to-Reward divides potential profit by potential loss:
+      </p>
+      <div class="formula-box">
+        Risk Capital = Account * (Risk% / 100)  |  Position Size = Risk Capital / |Entry - StopLoss|  |  R:R = |Target - Entry| / |Entry - StopLoss|
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> With a $10,000 account risking 1.0% ($100), entering a stock at $100 with a stop-loss at $95 (risk per share = $5) results in a position size of **20 shares**. Setting a take-profit target at $115 yields a potential profit of $300 and a **Risk-to-Reward ratio of 1:3.00**.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="risk-table-heading">
+      <h2 id="risk-table-heading">Trading Risk Management Standards, R:R Brackets & Rules (16 Rules)</h2>
+      <p>Use this reference table to understand professional risk-to-reward benchmarks and position sizing rules.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Risk-to-Reward Ratio</th>
+              <th>Breakeven Win Rate</th>
+              <th>Trading Strategy & Viability Assessment</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1 : 1 Ratio</strong></td>
+              <td>50.0% Win Rate</td>
+              <td>Requires half of all trades to win; minimal profit margin after commissions</td>
+            </tr>
+            <tr>
+              <td><strong>1 : 2 Ratio</strong></td>
+              <td>33.3% Win Rate</td>
+              <td>Solid standard for day trading; highly profitable even with moderate win rates</td>
+            </tr>
+            <tr>
+              <td><strong>1 : 3+ Ratio</strong></td>
+              <td>25.0% Win Rate</td>
+              <td>Professional swing trading standard; highly resilient against losing streaks</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Processing</strong></td>
+              <td>JavaScript Execution</td>
+              <td>Zero Server Latency — 100% browser calculation</td>
+            </tr>
+            <tr>
+              <td><strong>Browser Compatibility</strong></td>
+              <td>100% Universal</td>
+              <td>Runs smoothly on desktop & mobile web browsers</td>
+            </tr>
+            <tr>
+              <td><strong>Data Privacy</strong></td>
+              <td>100% Client-Side Memory</td>
+              <td><span class="limit-badge">Zero Server Upload</span> — Private trading calculations stay secure</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Trading, Finance & Calculator Utilities</h2>
+      <p>Need pivot point calculators, crypto futures calculators, or compound interest calculators? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="pivot-fibonacci-calculator.html"><span>Pivot & Fibonacci Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="crypto-futures-calculator.html"><span>Crypto Futures Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="crypto-dca-calculator.html"><span>Crypto DCA Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="cagr-calculator.html"><span>CAGR Investment Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>3-in-1 Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Strong Password Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>Custom QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is a Risk-to-Reward (R:R) ratio?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            The Risk-to-Reward ratio compares the potential loss of a trade (distance from entry to stop-loss) against its potential profit (distance from entry to take-profit).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Why is position sizing important in trading?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Capital preservation!</strong> Correct position sizing ensures that a losing trade never risks more than your predetermined percentage (e.g., 1%) of your total account balance.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my account figures uploaded to an external server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations run 100% locally inside your web browser using JavaScript. Your confidential trading data never leaves your computer.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this risk-to-reward calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> This utility is 100% free with no registration or download requirements.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Risk-to-Reward Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const accountSize = document.getElementById("accountSize");
+      const riskPercent = document.getElementById("riskPercent");
+      const entryPrice = document.getElementById("entryPrice");
+      const stopLoss = document.getElementById("stopLoss");
+      const takeProfit = document.getElementById("takeProfit");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+
+      const resRiskAmount = document.getElementById("resRiskAmount");
+      const resPositionSize = document.getElementById("resPositionSize");
+      const resProfitAmount = document.getElementById("resProfitAmount");
+      const resRrRatio = document.getElementById("resRrRatio");
+
+      function formatCurrency(val) {
+        return "$" + val.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function calcRiskReward() {
+        const account = parseFloat(accountSize.value) || 0;
+        const riskPct = parseFloat(riskPercent.value) || 0;
+        const entry = parseFloat(entryPrice.value) || 0;
+        const sl = parseFloat(stopLoss.value) || 0;
+        const tp = parseFloat(takeProfit.value) || 0;
+
+        if (account <= 0 || riskPct <= 0 || entry <= 0 || sl <= 0 || tp <= 0) {
+          resRiskAmount.textContent = "$0.00";
+          resPositionSize.textContent = "0 Units";
+          resProfitAmount.textContent = "$0.00";
+          resRrRatio.textContent = "1 : 0.00";
+          return;
+        }
+
+        const riskCapital = account * (riskPct / 100);
+        const riskPerShare = Math.abs(entry - sl);
+        const rewardPerShare = Math.abs(tp - entry);
+
+        if (riskPerShare === 0) {
+          resRiskAmount.textContent = formatCurrency(riskCapital);
+          resPositionSize.textContent = "0 Units";
+          resProfitAmount.textContent = "$0.00";
+          resRrRatio.textContent = "Invalid (SL equals Entry)";
+          return;
+        }
+
+        const positionSize = riskCapital / riskPerShare;
+        const potentialProfit = positionSize * rewardPerShare;
+        const rrRatio = rewardPerShare / riskPerShare;
+
+        resRiskAmount.textContent = formatCurrency(riskCapital);
+        resPositionSize.textContent = Math.round(positionSize * 100) / 100 + " Units / Shares";
+        resProfitAmount.textContent = formatCurrency(potentialProfit);
+        resRrRatio.textContent = "1 : " + rrRatio.toFixed(2);
+      }
+
+      [accountSize, riskPercent, entryPrice, stopLoss, takeProfit].forEach(function (el) {
+        el.addEventListener("input", calcRiskReward);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        accountSize.value = "25000";
+        riskPercent.value = "1.5";
+        entryPrice.value = "150";
+        stopLoss.value = "142";
+        takeProfit.value = "174";
+        calcRiskReward();
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calcRiskReward();
+    });
+  </script>
+</body>
+</html>

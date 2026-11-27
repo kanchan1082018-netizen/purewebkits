@@ -1,0 +1,935 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online ROAS & CPA Calculator (Ad Spend, Break-Even & Profit) — PureWebKits</title>
+  <meta name="description" content="Calculate Return on Ad Spend (ROAS), Cost Per Acquisition (CPA), Cost Per Click (CPC), Conversion Rate (CVR), net ad profit, and break-even ROAS online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/roas-cpa-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* ROAS & CPA Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .roas-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .roas-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .roas-hero-title { font-size: 16px; font-weight: 800; }
+    .roas-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .roas-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 23px;
+      font-weight: 800;
+      color: #34D399;
+      white-space: nowrap;
+      text-align: right;
+    }
+    .roas-hero-num.warn { color: #FBBF24; }
+    .roas-hero-num.loss { color: #FCA5A5; }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive ROAS & CPA Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online ROAS & CPA Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate ROAS, CPA, CPC, CVR, net profit & break-even ROAS in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Enter your ad spend, attributed revenue, conversions, clicks, and gross margin %:</div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample ($2,000 Spend)</button>
+            <button type="button" id="resetRoasBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="adCurrency" class="field-label">Currency Symbol</label>
+                <select id="adCurrency" class="std-select">
+                  <option value="$" selected>USD ($)</option>
+                  <option value="₹">INR (₹)</option>
+                  <option value="€">EUR (€)</option>
+                  <option value="£">GBP (£)</option>
+                  <option value="AED ">AED</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="adSpendInput" class="field-label">Total Ad Spend</label>
+                <input type="number" id="adSpendInput" class="std-input" min="0" step="100" value="2000" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="adRevenueInput" class="field-label">Attributed Revenue</label>
+                <input type="number" id="adRevenueInput" class="std-input" min="0" step="250" value="8500" />
+              </div>
+
+              <div class="field-group">
+                <label for="conversionsInput" class="field-label">Conversions / Orders</label>
+                <input type="number" id="conversionsInput" class="std-input" min="0" step="1" value="80" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="clicksInput" class="field-label">Total Ad Clicks (Optional)</label>
+                <input type="number" id="clicksInput" class="std-input" min="0" step="50" value="1600" />
+              </div>
+
+              <div class="field-group">
+                <label for="grossMarginPctInput" class="field-label">Product Gross Margin (%)</label>
+                <input type="number" id="grossMarginPctInput" class="std-input" min="1" max="100" step="5" value="60" />
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="roas-hero-box">
+              <div>
+                <div class="roas-hero-kicker">Return on Ad Spend (ROAS)</div>
+                <div class="roas-hero-title" id="roasSummaryTitle">CPA: $25.00 • Break-Even: 1.67x</div>
+                <div class="roas-hero-sub" id="roasSubCaption">425.0% ROAS • Gross Ad Profit: +$3,100.00</div>
+              </div>
+              <div class="roas-hero-num" id="roasMultiplierDisplay">4.25x</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Cost Per Acquisition (CPA)</div>
+                <div class="metric-val" id="cpaOutVal">$25.00 / conv</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Break-Even ROAS</div>
+                <div class="metric-val" id="breakEvenRoasVal">1.67x (166.7%)</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">CPC & Conversion Rate</div>
+                <div class="metric-val" id="cpcCvrVal">$1.25 CPC • 5.00% CVR</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Net Profit After COGS & Ads</div>
+                <div class="metric-val" id="netAdProfitVal">+$3,100.00</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyRoasBtn" class="btn-primary">Copy Campaign Metrics</button>
+              <button type="button" id="downloadRoasBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Break-Even ROAS & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to ROAS, CPA, Break-Even ROAS & Paid Campaign Unit Economics</h2>
+
+      <h3>Why ROAS Alone Isn't Enough Without CPA and Break-Even ROAS</h3>
+      <p>
+        Performance marketers, e-commerce founders, and media buyers evaluate paid acquisition campaigns across Google Ads, Meta Ads, YouTube, and search/social channels using two core ratios: <strong>Return on Ad Spend (ROAS)</strong>, which measures gross revenue generated per dollar spent on ads (<code>Revenue / Ad Spend</code>, expressed either as a multiplier like <code>4.25x</code> or a percentage like <code>425%</code>), and <strong>Cost Per Acquisition (CPA)</strong>, which measures how much ad spend is required to generate one customer order or conversion (<code>Ad Spend / Conversions</code>). However, a <code>2.0x</code> ROAS can be highly profitable for a digital product with an <code>80%</code> gross margin yet lose money on a physical product with a <code>35%</code> gross margin after Cost of Goods Sold (COGS). Calculating your <strong>Break-Even ROAS</strong> (<code>1 / Gross Margin</code>) shows the exact minimum ROAS needed for gross profit to cover ad spend. A browser-based <strong>ROAS & CPA Calculator</strong> computes all metrics 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Analyze Your Ad Campaign in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter Currency, Ad Spend & Attributed Revenue:</strong> Select your currency symbol, enter your <strong>Total Ad Spend</strong> and <strong>Attributed Revenue</strong> (or click <strong>Load Sample ($2,000 Spend)</strong>).</li>
+        <li><strong>Enter Conversions, Clicks & Gross Margin %:</strong> Type total <strong>Conversions / Orders</strong>, optional <strong>Total Ad Clicks</strong> (for CPC and CVR), and your <strong>Product Gross Margin (%)</strong>.</li>
+        <li><strong>Inspect ROAS, CPA & Export:</strong> Compare your actual ROAS against your Break-Even ROAS and review net profit after COGS and ad spend, then click <strong>Copy Campaign Metrics</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>ROAS, CPA, CPC & Break-Even ROAS Formulas</h3>
+      <p>
+        Let <code>S</code> be ad spend, <code>R</code> be attributed revenue, <code>N</code> be conversions, <code>C</code> be clicks, and <code>GM = Gross Margin% / 100</code>:
+      </p>
+      <div class="formula-box">
+        ROAS = R / S  |  CPA = S / N  |  Break-Even ROAS = 1 / GM<br />
+        CPC = S / C  |  CVR (%) = (N / C) × 100  |  Net Profit = (R × GM) − S
+      </div>
+
+      <h3>Helpful Tips for Optimizing Paid Ad Campaigns</h3>
+      <ul>
+        <li><strong>Compare Actual ROAS vs. Break-Even ROAS:</strong> Campaigns above Break-Even ROAS contribute positive contribution profit toward overhead; campaigns below Break-Even ROAS lose money on first-order gross margin.</li>
+        <li><strong>Watch Average Order Value (AOV) Alongside CPA:</strong> Even if CPA rises slightly, higher AOV (<code>Revenue / Conversions</code>) can keep ROAS healthy.</li>
+        <li><strong>Keep Attribution Windows Consistent:</strong> Compare 7-day click or 28-day click windows consistently when benchmarking week-over-week ROAS.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Spending <code>$2,000</code> to generate <code>$8,500</code> in revenue across <code>80</code> orders (from <code>1,600</code> clicks) yields a <code>4.25x</code> (<code>425.0%</code>) ROAS, a <code>$25.00</code> CPA, a <code>$1.25</code> CPC, and a <code>5.00%</code> conversion rate. At a <code>60%</code> product gross margin, Break-Even ROAS is <code>1 / 0.60 = 1.67x</code> and net profit after COGS and ads is <code>($8,500 × 0.60) − $2,000 = +$3,100.00</code>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="roas-table-heading">
+      <h2 id="roas-table-heading">ROAS, CPA, Margin & Paid Media Formulas Reference Table (16 Rows)</h2>
+      <p>Use this reference table to check paid acquisition formulas, break-even thresholds, and campaign metrics.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Metric / Benchmark</th>
+              <th>Formula / Value</th>
+              <th>Role</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>ROAS (Multiplier)</strong></td>
+              <td><code>Attributed Revenue / Ad Spend</code></td>
+              <td>Gross revenue per $1 spent</td>
+              <td><code>$8,500 / $2,000 = 4.25x</code></td>
+            </tr>
+            <tr>
+              <td><strong>ROAS (Percentage)</strong></td>
+              <td><code>(Revenue / Ad Spend) × 100</code></td>
+              <td>Percentage return on ad spend</td>
+              <td><code>4.25x = 425.0%</code></td>
+            </tr>
+            <tr>
+              <td><strong>Cost Per Acquisition (CPA)</strong></td>
+              <td><code>Ad Spend / Conversions</code></td>
+              <td>Ad cost per order or lead</td>
+              <td><code>$2,000 / 80 = $25.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Break-Even ROAS</strong></td>
+              <td><code>1 / (Gross Margin% / 100)</code></td>
+              <td>Zero-profit ROAS floor</td>
+              <td><code>1 / 0.60 = 1.67x</code> @ 60% margin</td>
+            </tr>
+            <tr>
+              <td><strong>80% Gross Margin</strong></td>
+              <td>Break-Even ROAS = <code>1.25x</code></td>
+              <td>SaaS / digital goods benchmark</td>
+              <td>Low COGS allows lower ROAS</td>
+            </tr>
+            <tr>
+              <td><strong>50% Gross Margin</strong></td>
+              <td>Break-Even ROAS = <code>2.00x</code></td>
+              <td>Mid-margin retail benchmark</td>
+              <td>Needs 2x revenue to cover COGS+ads</td>
+            </tr>
+            <tr>
+              <td><strong>30% Gross Margin</strong></td>
+              <td>Break-Even ROAS = <code>3.33x</code></td>
+              <td>Tight-margin physical goods</td>
+              <td>Requires higher ROAS for profit</td>
+            </tr>
+            <tr>
+              <td><strong>Cost Per Click (CPC)</strong></td>
+              <td><code>Ad Spend / Total Clicks</code></td>
+              <td>Average traffic click cost</td>
+              <td><code>$2,000 / 1,600 = $1.25</code></td>
+            </tr>
+            <tr>
+              <td><strong>Conversion Rate (CVR %)</strong></td>
+              <td><code>(Conversions / Clicks) × 100</code></td>
+              <td>Click-to-order efficiency</td>
+              <td><code>(80 / 1,600) × 100 = 5.00%</code></td>
+            </tr>
+            <tr>
+              <td><strong>Average Order Value (AOV)</strong></td>
+              <td><code>Revenue / Conversions</code></td>
+              <td>Average revenue per order</td>
+              <td><code>$8,500 / 80 = $106.25</code></td>
+            </tr>
+            <tr>
+              <td><strong>Net Profit After COGS & Ads</strong></td>
+              <td><code>(Revenue × Margin%) − Spend</code></td>
+              <td>Contribution profit</td>
+              <td><code>+$3,100.00</code> in sample</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports campaign metrics</td>
+              <td>Local plain-text report</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Ad Economics Calculator — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your ad spend, revenue, and margin data stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero campaign metrics transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Business, Finance, Percentage & Everyday Calculators</h2>
+      <p>Calculating percentages, sales tax, billable hours, or net worth? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="sales-tax-calculator.html"><span>Sales Tax Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="billable-hours-calculator.html"><span>Billable Hours Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="net-worth-calculator.html"><span>Net Worth Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="income-tax-calculator.html"><span>Income Tax Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is the difference between ROAS and ROI / Net Profit?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>ROAS</strong> compares gross attributed revenue to ad spend (<code>Revenue / Ad Spend</code>) before product costs, whereas <strong>Net Profit After COGS & Ads</strong> multiplies revenue by your <strong>Product Gross Margin (%)</strong> first and then subtracts ad spend.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How is Break-Even ROAS calculated?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Break-Even ROAS equals <code>1 / (Product Gross Margin % / 100)</code>—for example, a <code>60%</code> gross margin means you need at least <code>1 / 0.60 = 1.67x</code> ROAS for gross profit to cover your ad spend.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my campaign spend or revenue numbers sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this ROAS & CPA Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side ROAS & CPA Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const adCurrency = document.getElementById("adCurrency");
+      const adSpendInput = document.getElementById("adSpendInput");
+      const adRevenueInput = document.getElementById("adRevenueInput");
+      const conversionsInput = document.getElementById("conversionsInput");
+      const clicksInput = document.getElementById("clicksInput");
+      const grossMarginPctInput = document.getElementById("grossMarginPctInput");
+
+      const roasSummaryTitle = document.getElementById("roasSummaryTitle");
+      const roasSubCaption = document.getElementById("roasSubCaption");
+      const roasMultiplierDisplay = document.getElementById("roasMultiplierDisplay");
+
+      const cpaOutVal = document.getElementById("cpaOutVal");
+      const breakEvenRoasVal = document.getElementById("breakEvenRoasVal");
+      const cpcCvrVal = document.getElementById("cpcCvrVal");
+      const netAdProfitVal = document.getElementById("netAdProfitVal");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetRoasBtn = document.getElementById("resetRoasBtn");
+      const copyRoasBtn = document.getElementById("copyRoasBtn");
+      const downloadRoasBtn = document.getElementById("downloadRoasBtn");
+
+      let latestSummaryText = "";
+
+      function fmtCurr(sym, amt) {
+        const safe = Number.isFinite(amt) ? amt : 0;
+        const locale = sym === "₹" ? "en-IN" : "en-US";
+        const absStr = Math.abs(safe).toLocaleString(locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        return safe < 0 ? `-${sym}${absStr}` : `${sym}${absStr}`;
+      }
+
+      function fmtSigned(sym, amt) {
+        const safe = Number.isFinite(amt) ? amt : 0;
+        const locale = sym === "₹" ? "en-IN" : "en-US";
+        const absStr = Math.abs(safe).toLocaleString(locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        if (safe > 0) return `+${sym}${absStr}`;
+        if (safe < 0) return `-${sym}${absStr}`;
+        return `${sym}0.00`;
+      }
+
+      function clearRoasOutput(msg) {
+        roasMultiplierDisplay.className = "roas-hero-num";
+        roasMultiplierDisplay.textContent = "—";
+        roasSubCaption.textContent = msg;
+        cpaOutVal.textContent = "—";
+        breakEvenRoasVal.textContent = "—";
+        cpcCvrVal.textContent = "—";
+        netAdProfitVal.textContent = "—";
+        latestSummaryText = "";
+      }
+
+      function calculateRoasCpa() {
+        const sym = adCurrency.value;
+        const spend = parseFloat(adSpendInput.value);
+        const rev = parseFloat(adRevenueInput.value);
+        const conv = parseFloat(conversionsInput.value) || 0;
+        const clicks = parseFloat(clicksInput.value) || 0;
+        const gmPct = parseFloat(grossMarginPctInput.value);
+
+        if (
+          !Number.isFinite(spend) || spend < 0 ||
+          !Number.isFinite(rev) || rev < 0 ||
+          !Number.isFinite(gmPct) || gmPct <= 0 || gmPct > 100
+        ) {
+          clearRoasOutput("Enter valid ad spend, revenue, and gross margin (1–100%)");
+          return;
+        }
+
+        const roas = spend > 0 ? rev / spend : 0;
+        const roasPct = roas * 100;
+        const gmFrac = gmPct / 100;
+        const breakEvenRoas = 1 / gmFrac;
+        const netProfit = (rev * gmFrac) - spend;
+
+        const cpaText = conv > 0 ? `${fmtCurr(sym, spend / conv)} / conv` : "N/A (0 conv)";
+        const cpcCvrText = clicks > 0
+          ? `${fmtCurr(sym, spend / clicks)} CPC \u2022 ${((conv / clicks) * 100).toFixed(2)}% CVR`
+          : "Enter clicks for CPC/CVR";
+
+        roasSummaryTitle.textContent = `CPA: ${conv > 0 ? fmtCurr(sym, spend / conv) : "N/A"} \u2022 Break-Even: ${breakEvenRoas.toFixed(2)}x`;
+        roasSubCaption.textContent = `${roasPct.toFixed(1)}% ROAS \u2022 Net Profit: ${fmtSigned(sym, netProfit)}`;
+
+        roasMultiplierDisplay.className = netProfit > 0
+          ? "roas-hero-num"
+          : (netProfit === 0 ? "roas-hero-num warn" : "roas-hero-num loss");
+        roasMultiplierDisplay.textContent = `${roas.toFixed(2)}x`;
+
+        cpaOutVal.textContent = cpaText;
+        breakEvenRoasVal.textContent = `${breakEvenRoas.toFixed(2)}x (${(breakEvenRoas * 100).toFixed(1)}%)`;
+        cpcCvrVal.textContent = cpcCvrText;
+        netAdProfitVal.textContent = fmtSigned(sym, netProfit);
+
+        latestSummaryText = [
+          "PureWebKits ROAS & CPA Campaign Metrics",
+          "----------------------------------------",
+          `Ad Spend: ${fmtCurr(sym, spend)} | Attributed Revenue: ${fmtCurr(sym, rev)} | Gross Margin: ${gmPct}%`,
+          `ROAS: ${roas.toFixed(2)}x (${roasPct.toFixed(1)}%) | Break-Even ROAS: ${breakEvenRoas.toFixed(2)}x`,
+          `Conversions: ${conv} | CPA: ${cpaText} | ${cpcCvrText}`,
+          `Net Profit After COGS & Ads: ${fmtSigned(sym, netProfit)}`
+        ].join("\n");
+      }
+
+      [
+        adCurrency,
+        adSpendInput,
+        adRevenueInput,
+        conversionsInput,
+        clicksInput,
+        grossMarginPctInput
+      ].forEach(function (el) {
+        el.addEventListener("input", calculateRoasCpa);
+        el.addEventListener("change", calculateRoasCpa);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        adCurrency.value = "$";
+        adSpendInput.value = "2000";
+        adRevenueInput.value = "8500";
+        conversionsInput.value = "80";
+        clicksInput.value = "1600";
+        grossMarginPctInput.value = "60";
+        calculateRoasCpa();
+      });
+
+      resetRoasBtn.addEventListener("click", function () {
+        adSpendInput.value = "";
+        adRevenueInput.value = "";
+        conversionsInput.value = "0";
+        clicksInput.value = "0";
+        calculateRoasCpa();
+      });
+
+      copyRoasBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyRoasBtn.textContent;
+          copyRoasBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyRoasBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadRoasBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "roas-cpa-metrics.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateRoasCpa();
+    });
+  </script>
+</body>
+</html>

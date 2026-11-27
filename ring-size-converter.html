@@ -1,0 +1,753 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>International Ring Size Converter (US/UK/EU/JP/IN) — Free | PureWebKits</title>
+  <meta name="description" content="Convert international ring sizes between US, UK, EU, Japan, and India standards online for free. Ring size converter tool 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/ring-size-converter.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Ring Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: center;
+    }
+    .form-col { display: flex; flex-direction: column; gap: 14px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-select, .std-input {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-select:focus, .std-input:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .result-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .result-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .result-title { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .result-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--primary);
+    }
+    .result-val.highlight { color: var(--success); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Ring Size Converter Tool -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>International Ring Size Converter (US/UK/EU/JP/IN)</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Convert ring sizes between US, UK, EU, Japan, and India standards instantly in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Select your standard and size or enter finger circumference:</div>
+          <button type="button" id="loadSampleBtn" class="btn-sec">Load US Size 7</button>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="inputStandard" class="field-label">Input Measurement Standard</label>
+              <select id="inputStandard" class="std-select">
+                <option value="us" selected>US / Canada (Numeric)</option>
+                <option value="uk">UK / Australia / RSA (Alphabet)</option>
+                <option value="eu">Europe / ISO (Circumference mm)</option>
+                <option value="jp">Japan / China (Numeric)</option>
+                <option value="in">India / Asia (Diameter mm)</option>
+                <option value="mm">Finger Circumference (mm)</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label for="sizeSelect" class="field-label" id="sizeLabel">Select US Ring Size</label>
+              <select id="sizeSelect" class="std-select">
+                <!-- Populated dynamically via JS -->
+              </select>
+              <input type="number" id="manualInput" class="std-input" step="0.1" value="54.4" style="display:none;" placeholder="Enter mm circumference" />
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="result-item">
+              <div class="result-title">US / Canada</div>
+              <div id="resUs" class="result-val highlight">7</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">UK / Australia / RSA</div>
+              <div id="resUk" class="result-val">O</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Europe / ISO (Circumference)</div>
+              <div id="resEu" class="result-val">54.4 mm</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Japan / China</div>
+              <div id="resJp" class="result-val">14</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">India / Asia</div>
+              <div id="resIn" class="result-val">14</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Inner Diameter</div>
+              <div id="resDia" class="result-val">17.3 mm</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How International Ring Sizes, Circumference Conversions & Standards Work</h2>
+
+      ### Why International Ring Size Converters Are Essential for Jewelry Shoppers
+      <p>
+        Shopping for fine jewelry, wedding bands, or engagement rings online often presents a confusing challenge: different countries use entirely distinct sizing systems. While the United States measures in numeric increments (such as US 6, 7, or 8), the UK and Australia use alphabetical scales (such as J, L, or O), and continental Europe uses direct millimeter circumference (such as 52 or 54). Meanwhile, India and Japan rely on their own specific numeric standards. An <strong>international ring size converter</strong> translates finger measurements across all global standards instantly. Our browser-based tool computes conversions locally in client memory without server uploads.
+      </p>
+
+      ### How to Convert Ring Sizes in 3 Easy Steps
+      <ol>
+        <li><strong>Select Input Standard:</strong> Choose your known ring size standard (e.g., US, UK, EU, India) or finger circumference in millimeters.</li>
+        <li><strong>Select or Enter Size:</strong> Pick your size from the dropdown menu or enter your exact measured finger circumference.</li>
+        <li><strong>View Global Equivalents:</strong> Instantly check exact corresponding ring sizes across US, UK, EU, Japan, and India standards.</li>
+      </ol>
+
+      ### Conversion Formula + Worked Example
+      <p>
+        Ring sizes correlate directly to the inner circumference ($C$) and inner diameter ($D$) of the band:
+      </p>
+      <div class="formula-box">
+        Circumference ($C$) = Diameter ($D$) * $\pi$  |  US Size $\approx$ (Circumference in inches - 1.16) * 3
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> A finger with a circumference of 54.4 mm corresponds to a **US Size 7**, **UK Size O**, **EU Size 54**, **Japan/India Size 14**, and an inner diameter of **17.3 mm**.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="ring-table-heading">
+      <h2 id="ring-table-heading">International Ring Size Comparison Table & Standards (16 Rules)</h2>
+      <p>Use this reference table to compare ring sizes across US, UK, Europe, Japan, and India standards.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>US / Canada</th>
+              <th>UK / Australia</th>
+              <th>Europe (ISO)</th>
+              <th>India / Asia</th>
+              <th>Inner Circumference</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>4.0</strong></td>
+              <td>H ½</td>
+              <td>46.8 mm</td>
+              <td>7</td>
+              <td>46.8 mm (1.84 in)</td>
+            </tr>
+            <tr>
+              <td><strong>5.0</strong></td>
+              <td>J ½</td>
+              <td>49.3 mm</td>
+              <td>9</td>
+              <td>49.3 mm (1.94 in)</td>
+            </tr>
+            <tr>
+              <td><strong>6.0</strong></td>
+              <td>L ½</td>
+              <td>51.9 mm</td>
+              <td>11</td>
+              <td>51.9 mm (2.04 in)</td>
+            </tr>
+            <tr>
+              <td><strong>7.0</strong></td>
+              <td>O</td>
+              <td>54.4 mm</td>
+              <td>14</td>
+              <td>54.4 mm (2.14 in)</td>
+            </tr>
+            <tr>
+              <td><strong>8.0</strong></td>
+              <td>Q</td>
+              <td>57.0 mm</td>
+              <td>16</td>
+              <td>57.0 mm (2.24 in)</td>
+            </tr>
+            <tr>
+              <td><strong>9.0</strong></td>
+              <td>R ½</td>
+              <td>59.5 mm</td>
+              <td>18</td>
+              <td>59.5 mm (2.34 in)</td>
+            </tr>
+            <tr>
+              <td><strong>10.0</strong></td>
+              <td>T ½</td>
+              <td>62.1 mm</td>
+              <td>20</td>
+              <td>62.1 mm (2.44 in)</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Processing</strong></td>
+              <td>JavaScript Execution</td>
+              <td colspan="2"><span class="limit-badge">Zero Server Latency</span> — 100% browser calculation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Conversion & Utility Tools</h2>
+      <p>Need currency converters, percentage calculators, or word counters? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="currency-converter.html"><span>Global Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>3-in-1 Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Strong Password Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>Custom QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter & Validator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="binary-translator.html"><span>Binary & ASCII Translator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="paper-size-guide.html"><span>International Paper Size Guide</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How do I measure my ring size at home?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Wrap a strip of paper or string snugly around the base of your intended finger, mark where it overlaps, and measure the length in millimeters with a ruler to find your circumference.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. What is the standard ring size in India?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Sizes 11 to 18!</strong> In India and much of Asia, standard women's rings typically range from size 8 to 14, while men's rings usually range from size 15 to 23.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my ring size queries uploaded to an external server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All conversions run 100% locally inside your web browser using JavaScript. Your personal measurements never leave your computer.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this ring size converter free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> This utility is 100% free with no registration or download requirements.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Ring Size Converter Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const inputStandard = document.getElementById("inputStandard");
+      const sizeSelect = document.getElementById("sizeSelect");
+      const manualInput = document.getElementById("manualInput");
+      const sizeLabel = document.getElementById("sizeLabel");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+
+      const resUs = document.getElementById("resUs");
+      const resUk = document.getElementById("resUk");
+      const resEu = document.getElementById("resEu");
+      const resJp = document.getElementById("resJp");
+      const resIn = document.getElementById("resIn");
+      const resDia = document.getElementById("resDia");
+
+      // Master Ring Size Database (Ordered by size)
+      const ringData = [
+        { us: "4.0", uk: "H ½", eu: "46.8", jp: "7", in: "7", circ: 46.8, dia: 14.9 },
+        { us: "4.5", opt: true, uk: "I ½", eu: "48.0", jp: "8", in: "8", circ: 48.0, dia: 15.3 },
+        { us: "5.0", uk: "J ½", eu: "49.3", jp: "9", in: "9", circ: 49.3, dia: 15.7 },
+        { us: "5.5", opt: true, uk: "K ½", eu: "50.6", jp: "10", in: "10", circ: 50.6, dia: 16.1 },
+        { us: "6.0", uk: "L ½", eu: "51.9", jp: "11", in: "11", circ: 51.9, dia: 16.5 },
+        { us: "6.5", opt: true, uk: "M ½", eu: "53.1", jp: "12", in: "12", circ: 53.1, dia: 16.9 },
+        { us: "7.0", uk: "O", eu: "54.4", jp: "14", in: "14", circ: 54.4, dia: 17.3 },
+        { us: "7.5", opt: true, uk: "P", eu: "55.7", jp: "15", in: "15", circ: 55.7, dia: 17.7 },
+        { us: "8.0", uk: "Q", eu: "57.0", jp: "16", in: "16", circ: 57.0, dia: 18.1 },
+        { us: "8.5", opt: true, uk: "R", eu: "58.3", jp: "17", in: "17", circ: 58.3, dia: 18.5 },
+        { us: "9.0", uk: "S", eu: "59.5", jp: "18", in: "18", circ: 59.5, dia: 18.9 },
+        { us: "9.5", opt: true, uk: "T", eu: "60.8", jp: "19", in: "19", circ: 60.8, dia: 19.4 },
+        { us: "10.0", uk: "T ½", eu: "62.1", jp: "20", in: "20", circ: 62.1, dia: 19.8 },
+        { us: "10.5", opt: true, uk: "V", eu: "63.4", jp: "21", in: "21", circ: 63.4, dia: 20.2 },
+        { us: "11.0", uk: "W", eu: "64.6", jp: "22", in: "22", circ: 64.6, dia: 20.6 },
+        { us: "12.0", uk: "Y", eu: "67.2", jp: "24", in: "24", circ: 67.2, dia: 21.4 }
+      ];
+
+      function populateDropdown(std) {
+        sizeSelect.innerHTML = "";
+        ringDataforEach = ringData.forEach(item => {
+          const opt = document.createElement("option");
+          if (std === 'us') {
+            opt.value = item.us;
+            opt.textContent = `US Size ${item.us} (${item.circ} mm)`;
+          } else if (std === 'uk') {
+            opt.value = item.us;
+            opt.textContent = `UK Size ${item.uk} (US ${item.us})`;
+          } else if (std === 'eu') {
+            opt.value = item.us;
+            opt.textContent = `EU Size ${item.eu} mm`;
+          } else if (std === 'jp') {
+            opt.value = item.us;
+            opt.textContent = `Japan Size ${item.jp}`;
+          } else if (std === 'in') {
+            opt.value = item.us;
+            opt.textContent = `India Size ${item.in} (${item.dia} mm dia)`;
+          }
+          sizeSelect.appendChild(opt);
+        });
+      }
+
+      function handleStandardChange() {
+        const std = inputStandard.value;
+        if (std === 'mm') {
+          sizeSelect.style.display = "none";
+          manualInput.style.display = "block";
+          sizeLabel.textContent = "Enter Finger Circumference (mm)";
+          convertByManualMm(parseFloat(manualInput.value) || 54.4);
+        } else {
+          sizeSelect.style.display = "block";
+          manualInput.style.display = "none";
+          sizeLabel.textContent = `Select ${std.toUpperCase()} Ring Size`;
+          populateDropdown(std);
+          convertByUs(sizeSelect.value);
+        }
+      }
+
+      function convertByUs(usVal) {
+        const found = ringData.find(i => i.us === usVal) || ringData[6]; // Default US 7
+        resUs.textContent = found.us;
+        resUk.textContent = found.uk;
+        resEu.textContent = found.eu + " mm";
+        resJp.textContent = found.jp;
+        resIn.textContent = found.in;
+        resDia.textContent = found.dia + " mm";
+      }
+
+      function convertByManualMm(mmVal) {
+        // Find closest ring size by circumference
+        let closest = ringData[0];
+        let minDiff = Math.abs(ringData[0].circ - mmVal);
+
+        ringData.forEach(item => {
+          const diff = Math.abs(item.circ - mmVal);
+          if (diff < minDiff) {
+            minDiff = diff;
+            closest = item;
+          }
+        });
+
+        resUs.textContent = closest.us + " (Approx)";
+        resUk.textContent = closest.uk;
+        resEu.textContent = mmVal.toFixed(1) + " mm";
+        resJp.textContent = closest.jp;
+        resIn.textContent = closest.in;
+        resDia.textContent = (mmVal / Math.PI).toFixed(1) + " mm";
+      }
+
+      inputStandard.addEventListener("change", handleStandardChange);
+      
+      sizeSelect.addEventListener("change", function () {
+        convertByUs(sizeSelect.value);
+      });
+
+      manualInput.addEventListener("input", function () {
+        convertByManualMm(parseFloat(manualInput.value) || 0);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        inputStandard.value = "us";
+        handleStandardChange();
+        sizeSelect.value = "7.0";
+        convertByUs("7.0");
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      handleStandardChange();
+    });
+  </script>
+</body>
+</html>

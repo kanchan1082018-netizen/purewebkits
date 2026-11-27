@@ -1,0 +1,1332 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Spin Wheel & Random Name Picker (Custom Wheel, Sound & Winner Log) — PureWebKits</title>
+  <meta name="description" content="Spin a customizable random wheel picker for names, giveaways, classroom choices, and decisions with smooth physics animation, Web Audio ticks, winner removal, and spin history online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/spin-wheel.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Spin Wheel Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      flex-wrap: wrap;
+      gap: 2px;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 13px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.08fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .wheel-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .controls-col {
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+    }
+
+    .wheel-stage {
+      position: relative;
+      width: 100%;
+      max-width: 370px;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #wheelCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 50%;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14);
+      cursor: pointer;
+    }
+    .wheel-pointer {
+      position: absolute;
+      right: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-top: 15px solid transparent;
+      border-bottom: 15px solid transparent;
+      border-right: 28px solid #0F172A;
+      filter: drop-shadow(-2px 2px 4px rgba(15, 23, 42, 0.25));
+      z-index: 5;
+      pointer-events: none;
+    }
+    .wheel-center-btn {
+      position: absolute;
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      background: #0F172A;
+      color: #FFFFFF;
+      border: 4px solid #FFFFFF;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3);
+      z-index: 4;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+    .wheel-center-btn:hover:not(:disabled) {
+      background: var(--primary);
+      transform: scale(1.06);
+    }
+    .wheel-center-btn:disabled {
+      opacity: 0.75;
+      cursor: not-allowed;
+    }
+
+    .winner-hero-box {
+      width: 100%;
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .winner-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .winner-title {
+      font-size: 19px;
+      font-weight: 800;
+      color: #34D399;
+      word-break: break-word;
+    }
+    .winner-sub {
+      font-size: 12px;
+      color: #CBD5E1;
+    }
+
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-textarea {
+      width: 100%;
+      min-height: 175px;
+      padding: 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.55;
+      color: var(--text-main);
+      background: #F8FAFC;
+      resize: vertical;
+      outline: none;
+    }
+    .std-textarea:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .std-select {
+      width: 100%;
+      height: 40px;
+      padding: 0 10px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+    .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; }
+
+    .history-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 130px;
+      overflow-y: auto;
+    }
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .history-item span.time-tag {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Spin Wheel Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Spin Wheel & Random Name Picker</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Fair crypto-random wheel spinner with custom entries, Web Audio ticks & winner log in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="Wheel preset lists">
+            <button type="button" class="mode-btn active" data-preset="names">Team / Names</button>
+            <button type="button" class="mode-btn" data-preset="yesno">Yes / No</button>
+            <button type="button" class="mode-btn" data-preset="prizes">Giveaway Prizes</button>
+            <button type="button" class="mode-btn" data-preset="numbers">Numbers 1–10</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="shuffleEntriesBtn" class="btn-sec">Shuffle</button>
+            <button type="button" id="sortEntriesBtn" class="btn-sec">Sort A–Z</button>
+            <button type="button" id="clearEntriesBtn" class="btn-sec">Clear</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="wheel-col">
+            <div class="wheel-stage">
+              <div class="wheel-pointer" aria-hidden="true"></div>
+              <canvas id="wheelCanvas" width="440" height="440" aria-label="Interactive Spin Wheel"></canvas>
+              <button type="button" id="centerSpinBtn" class="wheel-center-btn">SPIN</button>
+            </div>
+
+            <div class="winner-hero-box">
+              <div>
+                <div class="winner-kicker" id="winnerKicker">Selected Result</div>
+                <div class="winner-title" id="winnerDisplay">Ready to Spin</div>
+                <div class="winner-sub" id="winnerSubCaption">8 active slices • 12.50% chance per entry</div>
+              </div>
+              <button type="button" id="removeWinnerBtn" class="btn-sec" style="display:none; white-space:nowrap;">Remove Winner</button>
+            </div>
+          </div>
+
+          <div class="controls-col">
+            <div class="field-group">
+              <div class="field-label-row">
+                <label for="wheelEntriesInput" class="field-label">Wheel Entries (One Per Line)</label>
+                <span id="sliceCountBadge" style="font-size:12px; font-weight:800; color:var(--primary);">8 Entries</span>
+              </div>
+              <textarea id="wheelEntriesInput" class="std-textarea" placeholder="Enter one name, option, or prize per line...">Aarav
+Maya
+Liam
+Sophia
+Rohan
+Emma
+Noah
+Ananya</textarea>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="spinDurationSelect" class="field-label">Spin Duration</label>
+                <select id="spinDurationSelect" class="std-select">
+                  <option value="2500">Quick (2.5 Seconds)</option>
+                  <option value="4200" selected>Standard (4.2 Seconds)</option>
+                  <option value="6500">Suspense (6.5 Seconds)</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="wheelSoundSelect" class="field-label">Wheel Tick & Win Sound</label>
+                <select id="wheelSoundSelect" class="std-select">
+                  <option value="on" selected>Web Audio Ticks & Chime (On)</option>
+                  <option value="off">Silent / Visual Only</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="mainSpinBtn" class="btn-primary">Spin the Wheel</button>
+              <button type="button" id="copyHistoryBtn" class="btn-sec" style="height: 40px;">Copy Winners</button>
+              <button type="button" id="downloadHistoryBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+
+            <div class="history-box">
+              <div class="history-header">
+                <span id="historyCountLabel">Winner History (0)</span>
+                <button type="button" id="clearHistoryBtn" class="btn-sec" style="padding:3px 9px; font-size:11.5px;">Clear Log</button>
+              </div>
+              <div class="history-list" id="historyListContainer">
+                <div style="font-size:12.5px; color:var(--text-muted);">Click <strong>Spin the Wheel</strong> or tap the center <strong>SPIN</strong> button to pick a winner.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Crypto RNG Fairness & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to the Online Spin Wheel, Crypto-Random Fairness & Giveaway Draws</h2>
+
+      <h3>How Equal-Probability Wheel Slicing & Cryptographic Randomness Work</h3>
+      <p>
+        Whether you are picking a giveaway winner on stream, calling on students in a classroom, assigning standup speakers, or breaking a tie on where to eat, a fair randomizer requires both equal geometric slice angles and unbiased random stop selection. When you enter <code>N</code> non-empty lines into the wheel, each entry occupies an exact central angle of <code>360° / N</code> (<code>2π / N</code> radians) around the wheel perimeter, giving every entry an identical <code>1 / N</code> probability of landing under the right-hand pointer. Instead of relying on predictable sequential seeds, the wheel uses the browser's built-in <code>window.crypto.getRandomValues()</code> cryptographic random number generator to pick an unbiased stopping angle combined with smooth cubic-ease-out deceleration and synthesized Web Audio peg ticks. A browser-based <strong>Spin Wheel</strong> runs 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Customize & Spin the Wheel in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter Your Choices or Select a Preset:</strong> Type or paste one entry per line into <strong>Wheel Entries (One Per Line)</strong>, or pick a built-in preset (<strong>Team / Names</strong>, <strong>Yes / No</strong>, <strong>Giveaway Prizes</strong>, or <strong>Numbers 1–10</strong>).</li>
+        <li><strong>Configure Spin Duration & Sound:</strong> Choose <strong>Quick (2.5s)</strong>, <strong>Standard (4.2s)</strong>, or <strong>Suspense (6.5s)</strong>, toggle Web Audio peg ticks on or off, and optionally click <strong>Shuffle</strong> or <strong>Sort A–Z</strong>.</li>
+        <li><strong>Spin, Eliminate Winners & Export Log:</strong> Click <strong>Spin the Wheel</strong> (or click the wheel directly), click <strong>Remove Winner</strong> if running a multi-round elimination giveaway, and export results via <strong>Copy Winners</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Equal-Slice Probability & Angular Geometry Formula</h3>
+      <p>
+        For <code>N</code> active entries on the wheel:
+      </p>
+      <div class="formula-box">
+        Slice Angle = 360° / N  |  Single-Spin Win Probability = (1 / N) × 100%<br />
+        Elimination Round k Probability (from initial N) = 1 / (N − k + 1)
+      </div>
+
+      <h3>Helpful Tips for Live Giveaways, Classrooms & Team Standups</h3>
+      <ul>
+        <li><strong>Use "Remove Winner" for Multi-Prize Raffles:</strong> After a winner lands, click <strong>Remove Winner</strong> to automatically remove that entry from the list before spinning for the next prize.</li>
+        <li><strong>Include Duplicate Lines for Weighted Odds:</strong> If one participant earned <code>2</code> raffle tickets while others earned <code>1</code>, simply list that participant's name on two lines to double their slice share.</li>
+        <li><strong>Click Anywhere on the Wheel Canvas to Spin:</strong> In addition to the main button, clicking directly on the wheel or center <strong>SPIN</strong> hub starts a spin immediately.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> With <code>8</code> names entered on the wheel, each name occupies a <code>360° / 8 = 45°</code> wedge and has an exact <code>1 / 8 = 12.50%</code> probability on the first spin; removing the first winner leaves <code>7</code> entries at <code>51.43°</code> (<code>14.29%</code>) each for Round 2.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="wheel-table-heading">
+      <h2 id="wheel-table-heading">Spin Wheel Probability Reference & Feature Table (16 Rows)</h2>
+      <p>Use this reference table to check per-slice angles, win probabilities, and built-in wheel controls.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Slice Count / Control</th>
+              <th>Slice Angle / Behavior</th>
+              <th>Win Probability</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>2 Entries (Coin Flip / Yes-No)</strong></td>
+              <td><code>180.00°</code> per slice</td>
+              <td><code>50.00%</code> each</td>
+              <td>Ideal for binary decisions</td>
+            </tr>
+            <tr>
+              <td><strong>4 Entries (4-Way Choice)</strong></td>
+              <td><code>90.00°</code> per slice</td>
+              <td><code>25.00%</code> each</td>
+              <td>Quarter-circle wedges</td>
+            </tr>
+            <tr>
+              <td><strong>5 Entries (Giveaway Prizes)</strong></td>
+              <td><code>72.00°</code> per slice</td>
+              <td><code>20.00%</code> each</td>
+              <td>Default Giveaway preset</td>
+            </tr>
+            <tr>
+              <td><strong>6 Entries (Die Roll)</strong></td>
+              <td><code>60.00°</code> per slice</td>
+              <td><code>16.67%</code> each</td>
+              <td>Matches a standard 6-sided die</td>
+            </tr>
+            <tr>
+              <td><strong>8 Entries (Default Team)</strong></td>
+              <td><code>45.00°</code> per slice</td>
+              <td><code>12.50%</code> each</td>
+              <td>Default sample wheel</td>
+            </tr>
+            <tr>
+              <td><strong>10 Entries (Numbers 1–10)</strong></td>
+              <td><code>36.00°</code> per slice</td>
+              <td><code>10.00%</code> each</td>
+              <td>Default Numbers preset</td>
+            </tr>
+            <tr>
+              <td><strong>20 Entries</strong></td>
+              <td><code>18.00°</code> per slice</td>
+              <td><code>5.00%</code> each</td>
+              <td>Auto-scales label font size</td>
+            </tr>
+            <tr>
+              <td><strong>50+ Entries</strong></td>
+              <td><code>≤ 7.20°</code> per slice</td>
+              <td><code>≤ 2.00%</code> each</td>
+              <td>Supports large classroom/raffle lists</td>
+            </tr>
+            <tr>
+              <td><strong>Crypto Random Seeding</strong></td>
+              <td><code>window.crypto.getRandomValues()</code></td>
+              <td>Hardware-backed entropy</td>
+              <td>Unbiased landing angles</td>
+            </tr>
+            <tr>
+              <td><strong>Remove Winner Button</strong></td>
+              <td>Deletes winning line & redraws</td>
+              <td>Supports multi-round draws</td>
+              <td>Appears after each spin</td>
+            </tr>
+            <tr>
+              <td><strong>Web Audio Ticks & Chime</strong></td>
+              <td>Synthesized peg click on slice crossings</td>
+              <td>Zero external MP3 files</td>
+              <td>Mute anytime via dropdown</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download Log</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports timestamped winners</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">HTML5 Canvas 2D & Web Audio Synthesizer — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your participant lists and winners stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero names or raffle entries transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Generators, Timers, Randomizers & Everyday Utilities</h2>
+      <p>Generating strong passwords, running a Pomodoro study timer, creating QR codes, or calculating percentages? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="password-generator.html"><span>Password Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="study-timer-pomodoro.html"><span>Study Timer (Pomodoro)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="gpa-calculator.html"><span>GPA Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Is the Spin Wheel truly random and unbiased?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> Each entry receives an identical angular wedge (<code>360° / N</code>) and the spin rotation is generated using <code>window.crypto.getRandomValues()</code> rather than a predictable sequence.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How do I remove a winner so they cannot be picked twice in a raffle?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            As soon as the wheel stops on a winner, a <strong>Remove Winner</strong> button appears inside the result banner—click it to remove that entry from the wheel before your next spin.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my names or giveaway entries sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All wheel rendering, random number generation, and audio effects run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Spin Wheel free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Spin Wheel & Random Picker Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const SLICE_PALETTE = [
+        "#2563EB", "#059669", "#D97706", "#DC2626",
+        "#7C3AED", "#0891B2", "#DB2777", "#4F46E5",
+        "#16A34A", "#EA580C", "#0284C7", "#9333EA"
+      ];
+
+      const PRESETS = {
+        names: ["Aarav", "Maya", "Liam", "Sophia", "Rohan", "Emma", "Noah", "Ananya"],
+        yesno: ["Yes", "No", "Yes", "No", "Maybe", "Spin Again"],
+        prizes: ["Grand Prize", "Gift Card", "Free Coffee", "Bonus Spin", "Mystery Box", "VIP Pass"],
+        numbers: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+      };
+
+      const presetBtns = document.querySelectorAll(".mode-btn");
+      const shuffleEntriesBtn = document.getElementById("shuffleEntriesBtn");
+      const sortEntriesBtn = document.getElementById("sortEntriesBtn");
+      const clearEntriesBtn = document.getElementById("clearEntriesBtn");
+
+      const wheelCanvas = document.getElementById("wheelCanvas");
+      const ctx = wheelCanvas.getContext("2d");
+      const centerSpinBtn = document.getElementById("centerSpinBtn");
+      const mainSpinBtn = document.getElementById("mainSpinBtn");
+
+      const winnerKicker = document.getElementById("winnerKicker");
+      const winnerDisplay = document.getElementById("winnerDisplay");
+      const winnerSubCaption = document.getElementById("winnerSubCaption");
+      const removeWinnerBtn = document.getElementById("removeWinnerBtn");
+
+      const wheelEntriesInput = document.getElementById("wheelEntriesInput");
+      const sliceCountBadge = document.getElementById("sliceCountBadge");
+      const spinDurationSelect = document.getElementById("spinDurationSelect");
+      const wheelSoundSelect = document.getElementById("wheelSoundSelect");
+
+      const historyCountLabel = document.getElementById("historyCountLabel");
+      const historyListContainer = document.getElementById("historyListContainer");
+      const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+      const copyHistoryBtn = document.getElementById("copyHistoryBtn");
+      const downloadHistoryBtn = document.getElementById("downloadHistoryBtn");
+
+      let currentAngle = 0; // radians
+      let isSpinning = false;
+      let lastWinnerIndex = -1;
+      let lastWinnerText = "";
+      let winnerHistory = [];
+      let audioCtx = null;
+
+      function getEntries() {
+        return wheelEntriesInput.value
+          .split(/\r?\n/)
+          .map(function (line) { return line.trim(); })
+          .filter(Boolean);
+      }
+
+      function cryptoRandomUnit() {
+        if (window.crypto && window.crypto.getRandomValues) {
+          const arr = new Uint32Array(1);
+          window.crypto.getRandomValues(arr);
+          return arr[0] / 4294967296;
+        }
+        return Math.random();
+      }
+
+      function ensureAudioCtx() {
+        if (wheelSoundSelect.value !== "on") return null;
+        try {
+          if (!audioCtx) {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioContextClass) audioCtx = new AudioContextClass();
+          }
+          if (audioCtx && audioCtx.state === "suspended") {
+            audioCtx.resume();
+          }
+          return audioCtx;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function playTickSound() {
+        const ac = ensureAudioCtx();
+        if (!ac) return;
+        try {
+          const osc = ac.createOscillator();
+          const gain = ac.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(760, ac.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(320, ac.currentTime + 0.03);
+          gain.gain.setValueAtTime(0.08, ac.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.032);
+          osc.connect(gain);
+          gain.connect(ac.destination);
+          osc.start();
+          osc.stop(ac.currentTime + 0.035);
+        } catch (e) {
+          // Ignore audio errors
+        }
+      }
+
+      function playWinSound() {
+        const ac = ensureAudioCtx();
+        if (!ac) return;
+        try {
+          const notes = [523.25, 659.25, 783.99, 1046.5];
+          notes.forEach(function (freq, i) {
+            const osc = ac.createOscillator();
+            const gain = ac.createGain();
+            osc.type = "sine";
+            osc.frequency.value = freq;
+            const t = ac.currentTime + i * 0.09;
+            gain.gain.setValueAtTime(0.001, t);
+            gain.gain.exponentialRampToValueAtTime(0.14, t + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0008, t + 0.32);
+            osc.connect(gain);
+            gain.connect(ac.destination);
+            osc.start(t);
+            osc.stop(t + 0.33);
+          });
+        } catch (e) {
+          // Ignore audio errors
+        }
+      }
+
+      function getSliceIndexAtPointer(angleRad, count) {
+        if (count <= 0) return -1;
+        const twoPi = Math.PI * 2;
+        const arc = twoPi / count;
+        // Pointer is at angle 0 (3 o'clock / right side)
+        const normalized = ((twoPi - (angleRad % twoPi)) % twoPi + twoPi) % twoPi;
+        return Math.floor(normalized / arc) % count;
+      }
+
+      function drawWheel() {
+        const entries = getEntries();
+        const w = wheelCanvas.width;
+        const h = wheelCanvas.height;
+        const cx = w / 2;
+        const cy = h / 2;
+        const radius = Math.min(cx, cy) - 10;
+
+        ctx.clearRect(0, 0, w, h);
+
+        if (entries.length === 0) {
+          ctx.beginPath();
+          ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+          ctx.fillStyle = "#E2E8F0";
+          ctx.fill();
+          ctx.lineWidth = 6;
+          ctx.strokeStyle = "#CBD5E1";
+          ctx.stroke();
+
+          ctx.fillStyle = "#475569";
+          ctx.font = "700 16px -apple-system, BlinkMacSystemFont, sans-serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("Add entries on the right", cx, cy - 46);
+          return;
+        }
+
+        const n = entries.length;
+        const arc = (Math.PI * 2) / n;
+
+        for (let i = 0; i < n; i++) {
+          const start = currentAngle + i * arc;
+          const end = start + arc;
+
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.arc(cx, cy, radius, start, end);
+          ctx.closePath();
+          ctx.fillStyle = SLICE_PALETTE[i % SLICE_PALETTE.length];
+          ctx.fill();
+
+          ctx.lineWidth = n > 24 ? 1 : 2;
+          ctx.strokeStyle = "#FFFFFF";
+          ctx.stroke();
+
+          // Label text
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(start + arc / 2);
+          ctx.textAlign = "right";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = "#FFFFFF";
+
+          const fontSize = n <= 8 ? 17 : (n <= 14 ? 14 : (n <= 24 ? 11.5 : 9.5));
+          ctx.font = `800 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+
+          const maxChars = n <= 10 ? 18 : 14;
+          const label = entries[i].length > maxChars
+            ? entries[i].slice(0, maxChars - 1) + "\u2026"
+            : entries[i];
+          ctx.fillText(label, radius - 18, 0);
+          ctx.restore();
+        }
+
+        // Outer rim
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = "#0F172A";
+        ctx.stroke();
+      }
+
+      function updateStatsDisplay() {
+        const entries = getEntries();
+        const n = entries.length;
+        sliceCountBadge.textContent = `${n} ${n === 1 ? "Entry" : "Entries"}`;
+
+        const disabled = isSpinning || n === 0;
+        centerSpinBtn.disabled = disabled;
+        mainSpinBtn.disabled = disabled;
+
+        if (!isSpinning) {
+          if (n === 0) {
+            winnerKicker.textContent = "Wheel Empty";
+            winnerDisplay.textContent = "Add At Least 1 Entry";
+            winnerSubCaption.textContent = "Type one option per line in the box on the right";
+            removeWinnerBtn.style.display = "none";
+          } else if (!lastWinnerText) {
+            const prob = (100 / n).toFixed(2);
+            winnerKicker.textContent = "Selected Result";
+            winnerDisplay.textContent = "Ready to Spin";
+            winnerSubCaption.textContent = `${n} active slices \u2022 ${prob}% chance per entry`;
+            removeWinnerBtn.style.display = "none";
+          }
+        }
+      }
+
+      function renderHistory() {
+        historyCountLabel.textContent = `Winner History (${winnerHistory.length})`;
+        if (winnerHistory.length === 0) {
+          historyListContainer.innerHTML = '<div style="font-size:12.5px; color:var(--text-muted);">Click <strong>Spin the Wheel</strong> or tap the center <strong>SPIN</strong> button to pick a winner.</div>';
+          return;
+        }
+        historyListContainer.innerHTML = "";
+        winnerHistory.forEach(function (item, idx) {
+          const row = document.createElement("div");
+          row.className = "history-item";
+          const left = document.createElement("span");
+          left.textContent = `#${winnerHistory.length - idx}  ${item.name}`;
+          const right = document.createElement("span");
+          right.className = "time-tag";
+          right.textContent = item.time;
+          row.appendChild(left);
+          row.appendChild(right);
+          historyListContainer.appendChild(row);
+        });
+      }
+
+      function spinWheel() {
+        const entries = getEntries();
+        if (isSpinning || entries.length === 0) return;
+
+        ensureAudioCtx();
+        isSpinning = true;
+        removeWinnerBtn.style.display = "none";
+        winnerKicker.textContent = "Spinning...";
+        winnerDisplay.textContent = "Good Luck!";
+        winnerSubCaption.textContent = `Selecting randomly from ${entries.length} entries...`;
+        updateStatsDisplay();
+
+        const duration = parseInt(spinDurationSelect.value, 10) || 4200;
+        const extraSpins = 5 + Math.floor(cryptoRandomUnit() * 4); // 5 to 8 full turns
+        const randomOffset = cryptoRandomUnit() * Math.PI * 2;
+        const startAngle = currentAngle;
+        const totalDelta = extraSpins * Math.PI * 2 + randomOffset;
+        const startTime = performance.now();
+
+        let prevSlice = getSliceIndexAtPointer(currentAngle, entries.length);
+
+        function animate(now) {
+          const elapsed = now - startTime;
+          const t = Math.min(1, elapsed / duration);
+          // Quintic ease-out for realistic smooth deceleration
+          const ease = 1 - Math.pow(1 - t, 4);
+          currentAngle = startAngle + totalDelta * ease;
+
+          const curSlice = getSliceIndexAtPointer(currentAngle, entries.length);
+          if (curSlice !== prevSlice) {
+            playTickSound();
+            prevSlice = curSlice;
+          }
+
+          drawWheel();
+
+          if (t < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            isSpinning = false;
+            const finalEntries = getEntries();
+            const winIdx = getSliceIndexAtPointer(currentAngle, finalEntries.length);
+            lastWinnerIndex = winIdx;
+            lastWinnerText = winIdx >= 0 ? finalEntries[winIdx] : "";
+
+            if (lastWinnerText) {
+              playWinSound();
+              winnerKicker.textContent = "Winning Result";
+              winnerDisplay.textContent = lastWinnerText;
+              winnerSubCaption.textContent = `Picked from ${finalEntries.length} entries (${(100 / finalEntries.length).toFixed(2)}% odds)`;
+              removeWinnerBtn.style.display = finalEntries.length > 1 ? "inline-block" : "none";
+
+              const nowTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+              winnerHistory.unshift({ name: lastWinnerText, time: nowTime });
+              renderHistory();
+            }
+            updateStatsDisplay();
+          }
+        }
+
+        requestAnimationFrame(animate);
+      }
+
+      presetBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          if (isSpinning) return;
+          presetBtns.forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          const key = btn.getAttribute("data-preset") || "names";
+          wheelEntriesInput.value = (PRESETS[key] || PRESETS.names).join("\n");
+          lastWinnerText = "";
+          lastWinnerIndex = -1;
+          drawWheel();
+          updateStatsDisplay();
+        });
+      });
+
+      wheelEntriesInput.addEventListener("input", function () {
+        if (isSpinning) return;
+        lastWinnerText = "";
+        lastWinnerIndex = -1;
+        drawWheel();
+        updateStatsDisplay();
+      });
+
+      shuffleEntriesBtn.addEventListener("click", function () {
+        if (isSpinning) return;
+        const arr = getEntries();
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(cryptoRandomUnit() * (i + 1));
+          const tmp = arr[i];
+          arr[i] = arr[j];
+          arr[j] = tmp;
+        }
+        wheelEntriesInput.value = arr.join("\n");
+        lastWinnerText = "";
+        drawWheel();
+        updateStatsDisplay();
+      });
+
+      sortEntriesBtn.addEventListener("click", function () {
+        if (isSpinning) return;
+        const arr = getEntries().sort(function (a, b) {
+          return a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" });
+        });
+        wheelEntriesInput.value = arr.join("\n");
+        lastWinnerText = "";
+        drawWheel();
+        updateStatsDisplay();
+      });
+
+      clearEntriesBtn.addEventListener("click", function () {
+        if (isSpinning) return;
+        wheelEntriesInput.value = "";
+        lastWinnerText = "";
+        lastWinnerIndex = -1;
+        drawWheel();
+        updateStatsDisplay();
+      });
+
+      removeWinnerBtn.addEventListener("click", function () {
+        if (isSpinning || !lastWinnerText) return;
+        const arr = getEntries();
+        if (lastWinnerIndex >= 0 && lastWinnerIndex < arr.length && arr[lastWinnerIndex] === lastWinnerText) {
+          arr.splice(lastWinnerIndex, 1);
+        } else {
+          const idx = arr.indexOf(lastWinnerText);
+          if (idx !== -1) arr.splice(idx, 1);
+        }
+        wheelEntriesInput.value = arr.join("\n");
+        lastWinnerText = "";
+        lastWinnerIndex = -1;
+        removeWinnerBtn.style.display = "none";
+        drawWheel();
+        updateStatsDisplay();
+      });
+
+      centerSpinBtn.addEventListener("click", spinWheel);
+      mainSpinBtn.addEventListener("click", spinWheel);
+      wheelCanvas.addEventListener("click", spinWheel);
+
+      clearHistoryBtn.addEventListener("click", function () {
+        winnerHistory = [];
+        renderHistory();
+      });
+
+      function buildHistoryText() {
+        if (winnerHistory.length === 0) return "";
+        return [
+          "PureWebKits Spin Wheel Winner Log",
+          "----------------------------------",
+          ...winnerHistory.map(function (w, i) {
+            return `${i + 1}. ${w.name} (${w.time})`;
+          })
+        ].join("\n");
+      }
+
+      copyHistoryBtn.addEventListener("click", function () {
+        const txt = buildHistoryText();
+        if (!txt) return;
+        navigator.clipboard.writeText(txt).then(function () {
+          const orig = copyHistoryBtn.textContent;
+          copyHistoryBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyHistoryBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadHistoryBtn.addEventListener("click", function () {
+        const txt = buildHistoryText();
+        if (!txt) return;
+        const blob = new Blob([txt], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "spin-wheel-winners.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      drawWheel();
+      updateStatsDisplay();
+    });
+  </script>
+</body>
+</html>

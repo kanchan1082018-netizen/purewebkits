@@ -1,0 +1,1012 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Typing Speed Test (Gross/Net WPM, Accuracy & Keystroke Log) — PureWebKits</title>
+  <meta name="description" content="Measure your typing speed in Words Per Minute (Net WPM & Gross WPM), accuracy percentage, error count, and elapsed time across customizable passages or timers online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/typing-test.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Typing Test Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      flex-wrap: wrap;
+      gap: 2px;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 13px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    /* Live HUD Strip */
+    .hud-grid {
+      display: grid;
+      grid-template-columns: 1.3fr repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .hud-hero {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 12px 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .hud-kicker {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .hud-sub {
+      font-size: 12px;
+      color: #CBD5E1;
+    }
+    .hud-wpm-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 26px;
+      font-weight: 800;
+      color: #34D399;
+      white-space: nowrap;
+    }
+    .hud-card {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .hud-card-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .hud-card-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    /* Passage Display & Typing Input */
+    .passage-box {
+      background: #F8FAFC;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 12px;
+      padding: 18px 20px;
+      font-family: Georgia, "Times New Roman", Times, serif;
+      font-size: 18px;
+      line-height: 1.75;
+      color: #475569;
+      margin-bottom: 14px;
+      user-select: none;
+    }
+    .ch-correct { color: #059669; }
+    .ch-wrong {
+      color: #DC2626;
+      background: #FEE2E2;
+      border-radius: 2px;
+    }
+    .ch-current {
+      color: #0F172A;
+      background: #DBEAFE;
+      border-bottom: 2px solid #2563EB;
+      border-radius: 2px;
+    }
+
+    .typing-input-area {
+      width: 100%;
+      min-height: 105px;
+      padding: 14px 16px;
+      border: 2px solid #CBD5E1;
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.6;
+      color: var(--text-main);
+      background: #FFFFFF;
+      resize: vertical;
+      outline: none;
+    }
+    .typing-input-area:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .action-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 900px) {
+      .hud-grid { grid-template-columns: 1fr 1fr; }
+      .hud-hero { grid-column: 1 / -1; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Typing Speed Test Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Typing Speed Test (WPM & Accuracy)</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Real-time Net & Gross WPM, accuracy %, error count & custom passages in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="Test duration selector">
+            <button type="button" class="mode-btn" data-duration="30">30s Sprint</button>
+            <button type="button" class="mode-btn active" data-duration="60">60s Standard</button>
+            <button type="button" class="mode-btn" data-duration="120">120s Endurance</button>
+            <button type="button" class="mode-btn" data-duration="0">Passage Mode</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="nextPassageBtn" class="btn-sec">New Passage</button>
+            <button type="button" id="restartTestBtn" class="btn-sec">Restart</button>
+          </div>
+        </div>
+
+        <!-- Live Telemetry HUD -->
+        <div class="hud-grid">
+          <div class="hud-hero">
+            <div>
+              <div class="hud-kicker">Net Typing Speed</div>
+              <div class="hud-sub" id="grossWpmSub">Gross WPM: 0.0</div>
+            </div>
+            <div class="hud-wpm-num" id="netWpmDisplay">0.0 <span style="font-size:13px;">WPM</span></div>
+          </div>
+
+          <div class="hud-card">
+            <div class="hud-card-key">Time Remaining</div>
+            <div class="hud-card-val" id="timerDisplay">60.0s</div>
+          </div>
+
+          <div class="hud-card">
+            <div class="hud-card-key">Accuracy</div>
+            <div class="hud-card-val" id="accuracyDisplay">100.0%</div>
+          </div>
+
+          <div class="hud-card">
+            <div class="hud-card-key">Mistyped Chars</div>
+            <div class="hud-card-val" id="errorsDisplay">0 errors</div>
+          </div>
+
+          <div class="hud-card">
+            <div class="hud-card-key">Characters Typed</div>
+            <div class="hud-card-val" id="charsTypedDisplay">0 chars</div>
+          </div>
+        </div>
+
+        <!-- Target Passage -->
+        <div class="passage-box" id="targetPassageBox" aria-live="polite"></div>
+
+        <!-- Typing Box -->
+        <textarea id="typingInputBox" class="typing-input-area" spellcheck="false" autocorrect="off" autocapitalize="off" placeholder="Click here and start typing the passage above — the timer starts automatically on your first keystroke..."></textarea>
+
+        <div class="action-bar">
+          <div style="font-size:12.5px; font-weight:700; color:var(--text-muted);" id="testStatusCaption">
+            Standard WPM divides total characters by 5 (average word length including spaces).
+          </div>
+          <div class="btn-row">
+            <button type="button" id="copyTypingReportBtn" class="btn-primary">Copy Typing Score</button>
+            <button type="button" id="downloadTypingReportBtn" class="btn-sec" style="height:40px;">Download .txt</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, WPM Math & Touch-Typing Ergonomics -->
+    <article class="content-card">
+      <h2>Complete User Guide to Typing Speed (WPM), Accuracy Scoring & Touch-Typing Technique</h2>
+
+      <h3>How Gross WPM, Net WPM, and Character Accuracy Are Calculated</h3>
+      <p>
+        In standardized typing benchmarks, one "word" is defined as <code>5 characters</code> (including spaces and punctuation) so that typing speeds on easy short words and complex technical prose can be compared fairly across tests. <strong>Gross WPM</strong> measures your raw typing pace across all entered characters over elapsed time in minutes, whereas <strong>Net WPM</strong> penalizes uncorrected character errors so speed alone cannot mask careless mistakes. Accurate touch typing balances rhythm and precision: aiming for <code>96% to 99%+</code> accuracy with smooth, relaxed keystrokes builds sustainable speed without triggering frequent backspaces or wrist strain. A browser-based <strong>Typing Speed Test</strong> runs 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Take a Typing Test in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Choose a Timer or Passage Mode:</strong> Pick <strong>30s Sprint</strong>, <strong>60s Standard</strong>, <strong>120s Endurance</strong>, or <strong>Passage Mode</strong> (which runs until you finish the full passage).</li>
+        <li><strong>Start Typing Directly in the Box:</strong> The timer starts automatically on your very first character—typed letters highlight in green when matching and red when mismatched, with a blue marker showing your current cursor character.</li>
+        <li><strong>Finish, Review & Export Your Score:</strong> When time runs out or you complete the passage, inspect your Net WPM, Gross WPM, and accuracy percentage, then click <strong>Copy Typing Score</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Gross WPM, Net WPM & Accuracy Formulas</h3>
+      <p>
+        For total typed characters <code>C</code>, uncorrected error characters <code>E</code>, and elapsed time <code>T</code> in seconds:
+      </p>
+      <div class="formula-box">
+        Minutes (M) = T / 60  |  Gross WPM = (C / 5) / M<br />
+        Net WPM = max(0, ((C − E) / 5) / M)  |  Accuracy (%) = max(0, ((C − E) / C) × 100)
+      </div>
+
+      <h3>Helpful Tips for Faster, More Accurate Typing</h3>
+      <ul>
+        <li><strong>Prioritize Accuracy Before Pushing Speed:</strong> Typing at <code>98%</code> accuracy at a steady pace produces higher Net WPM—and far less frustration—than rushing at <code>85%</code> accuracy with constant corrections.</li>
+        <li><strong>Anchor Home Row Fingers on F and J:</strong> Keep your index fingers on the tactile ridges of <code>F</code> and <code>J</code> and return to home position naturally between reaches.</li>
+        <li><strong>Keep Wrists Neutral and Shoulders Relaxed:</strong> Avoid resting wrists heavily on hard desk edges while typing, and take brief breaks during longer practice sessions.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Typing <code>325</code> characters in <code>60 seconds</code> (<code>1.0 minute</code>) with <code>5</code> uncorrected errors yields a Gross WPM of <code>325 / 5 = 65.0 WPM</code>, a Net WPM of <code>(325 − 5) / 5 = 64.0 WPM</code>, and <code>98.5%</code> accuracy.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="typing-table-heading">
+      <h2 id="typing-table-heading">Typing Speed Tiers, WPM Benchmarks & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to benchmark your WPM score, understand accuracy targets, and review test rules.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Speed Tier / Metric</th>
+              <th>WPM / Benchmark</th>
+              <th>Typical Profile</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Beginner Typist</strong></td>
+              <td><code>< 30 WPM</code></td>
+              <td>Hunt-and-peck or early learners</td>
+              <td>Focus on finger placement & accuracy</td>
+            </tr>
+            <tr>
+              <td><strong>Average Adult Typing</strong></td>
+              <td><code>35 – 45 WPM</code></td>
+              <td>Everyday email & general computer use</td>
+              <td>Solid baseline for office tasks</td>
+            </tr>
+            <tr>
+              <td><strong>Proficient / Above Average</strong></td>
+              <td><code>50 – 70 WPM</code></td>
+              <td>Writers, students, developers & support</td>
+              <td>Comfortable sustained drafting pace</td>
+            </tr>
+            <tr>
+              <td><strong>Fast / Touch Typist</strong></td>
+              <td><code>75 – 100 WPM</code></td>
+              <td>Experienced touch typists & coders</td>
+              <td>High rhythm with low error rate</td>
+            </tr>
+            <tr>
+              <td><strong>Competitive / Expert</strong></td>
+              <td><code>100+ WPM</code></td>
+              <td>Competitive speed typists & stenographers</td>
+              <td>Requires precision & low latency</td>
+            </tr>
+            <tr>
+              <td><strong>Standard Word Unit</strong></td>
+              <td><code>5 characters</code> per word</td>
+              <td>Includes letters, spaces & punctuation</td>
+              <td>International WPM convention</td>
+            </tr>
+            <tr>
+              <td><strong>Gross WPM</strong></td>
+              <td><code>(Chars / 5) / Minutes</code></td>
+              <td>Unpenalized raw character speed</td>
+              <td>Shown in HUD sub-caption</td>
+            </tr>
+            <tr>
+              <td><strong>Net WPM</strong></td>
+              <td><code>((Chars − Errors) / 5) / Minutes</code></td>
+              <td>Error-adjusted speed</td>
+              <td>Primary hero score display</td>
+            </tr>
+            <tr>
+              <td><strong>Target Accuracy</strong></td>
+              <td><code>≥ 96%</code> recommended</td>
+              <td>Balances speed and clean output</td>
+              <td>Shown live in HUD</td>
+            </tr>
+            <tr>
+              <td><strong>30s & 60s Timers</strong></td>
+              <td><code>30s</code> or <code>60s</code> countdown</td>
+              <td>Quick sprints & standard 1-min test</td>
+              <td>Auto-starts on first keystroke</td>
+            </tr>
+            <tr>
+              <td><strong>120s & Passage Mode</strong></td>
+              <td><code>120s</code> or full-text completion</td>
+              <td>Stamina & complete-passage check</td>
+              <td>Switch mode in top bar</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download Report</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports WPM, accuracy & duration</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Live Character Diff & WPM Timer — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your typed text and speed results stay strictly inside your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero keystroke text transmitted over the network</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser typing test with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Keyboard, Text, Study & Everyday Utilities</h2>
+      <p>Testing physical key switches or NKRO ghosting, counting words, or running a Pomodoro study timer? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="keyboard-test.html"><span>Keyboard Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="study-timer-pomodoro.html"><span>Study Timer (Pomodoro)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-strength-tester.html"><span>Password Strength Tester</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is the difference between Gross WPM and Net WPM?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Gross WPM</strong> divides all typed characters (divided by 5) by elapsed minutes regardless of accuracy, whereas <strong>Net WPM</strong> deducts character errors so you can measure effective error-free typing speed.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. When does the typing timer start?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            The countdown timer (or elapsed clock in Passage Mode) starts automatically on your very first keystroke in the typing box—no need to click a separate start button first.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Is any of my typed text sent to a server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All character matching, WPM calculations, and exports run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online Typing Speed Test free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Typing Speed Test (WPM & Accuracy) Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const PASSAGES = [
+        "Fast, accurate typing comes from steady rhythm and clean finger movement rather than rushing through keys. Keep your posture upright, let your eyes scan a few words ahead, and focus on hitting every character cleanly before increasing your pace.",
+        "Modern web applications run smoothly inside the browser sandbox, turning everyday tasks like formatting data, checking hardware, and calculating numbers into instant local tools that respect user privacy with zero server delay.",
+        "Good engineering habits compound over time. Writing clear code, testing edge cases carefully, and keeping user interfaces focused and responsive help people finish practical work quickly without unnecessary clutter.",
+        "Consistent daily practice builds muscle memory across both hands. Whether drafting reports, answering messages, or writing software, calm accuracy at a comfortable speed always outperforms frantic guesswork."
+      ];
+
+      const durationBtns = document.querySelectorAll(".mode-btn");
+      const nextPassageBtn = document.getElementById("nextPassageBtn");
+      const restartTestBtn = document.getElementById("restartTestBtn");
+
+      const netWpmDisplay = document.getElementById("netWpmDisplay");
+      const grossWpmSub = document.getElementById("grossWpmSub");
+      const timerDisplay = document.getElementById("timerDisplay");
+      const accuracyDisplay = document.getElementById("accuracyDisplay");
+      const errorsDisplay = document.getElementById("errorsDisplay");
+      const charsTypedDisplay = document.getElementById("charsTypedDisplay");
+
+      const targetPassageBox = document.getElementById("targetPassageBox");
+      const typingInputBox = document.getElementById("typingInputBox");
+      const testStatusCaption = document.getElementById("testStatusCaption");
+
+      const copyTypingReportBtn = document.getElementById("copyTypingReportBtn");
+      const downloadTypingReportBtn = document.getElementById("downloadTypingReportBtn");
+
+      let durationSec = 60; // 0 = Passage Mode (count up)
+      let passageIndex = 0;
+      let currentPassage = PASSAGES[0];
+
+      let testRunning = false;
+      let testFinished = false;
+      let startTimeMs = 0;
+      let elapsedSec = 0;
+      let tickerInterval = null;
+
+      function renderPassageHighlight() {
+        const typed = typingInputBox.value;
+        const frag = document.createDocumentFragment();
+
+        for (let i = 0; i < currentPassage.length; i++) {
+          const span = document.createElement("span");
+          const expectedCh = currentPassage[i];
+          span.textContent = expectedCh;
+
+          if (i < typed.length) {
+            if (typed[i] === expectedCh) {
+              span.className = "ch-correct";
+            } else {
+              span.className = "ch-wrong";
+            }
+          } else if (i === typed.length && !testFinished) {
+            span.className = "ch-current";
+          }
+
+          frag.appendChild(span);
+        }
+
+        targetPassageBox.innerHTML = "";
+        targetPassageBox.appendChild(frag);
+      }
+
+      function computeMetrics() {
+        const typed = typingInputBox.value;
+        const totalChars = typed.length;
+        let errors = 0;
+        for (let i = 0; i < totalChars; i++) {
+          if (i >= currentPassage.length || typed[i] !== currentPassage[i]) {
+            errors++;
+          }
+        }
+
+        const effectiveElapsed = testRunning
+          ? Math.max(0.2, (performance.now() - startTimeMs) / 1000)
+          : Math.max(0.2, elapsedSec);
+
+        const mins = effectiveElapsed / 60;
+        const grossWpm = totalChars > 0 ? (totalChars / 5) / mins : 0;
+        const netChars = Math.max(0, totalChars - errors);
+        const netWpm = totalChars > 0 ? (netChars / 5) / mins : 0;
+        const acc = totalChars > 0 ? Math.max(0, ((totalChars - errors) / totalChars) * 100) : 100;
+
+        netWpmDisplay.innerHTML = `${netWpm.toFixed(1)} <span style="font-size:13px;">WPM</span>`;
+        grossWpmSub.textContent = `Gross WPM: ${grossWpm.toFixed(1)}`;
+        accuracyDisplay.textContent = `${acc.toFixed(1)}%`;
+        errorsDisplay.textContent = `${errors} ${errors === 1 ? "error" : "errors"}`;
+        charsTypedDisplay.textContent = `${totalChars} ${totalChars === 1 ? "char" : "chars"}`;
+
+        if (durationSec > 0) {
+          const rem = Math.max(0, durationSec - (testRunning ? (performance.now() - startTimeMs) / 1000 : elapsedSec));
+          timerDisplay.textContent = `${rem.toFixed(1)}s`;
+        } else {
+          const curEl = testRunning ? (performance.now() - startTimeMs) / 1000 : elapsedSec;
+          timerDisplay.textContent = `${curEl.toFixed(1)}s`;
+        }
+
+        return {
+          netWpm: netWpm.toFixed(1),
+          grossWpm: grossWpm.toFixed(1),
+          accuracy: acc.toFixed(1),
+          errors: errors,
+          totalChars: totalChars,
+          elapsed: effectiveElapsed.toFixed(1)
+        };
+      }
+
+      function finishTest() {
+        if (testFinished) return;
+        testFinished = true;
+        testRunning = false;
+        if (tickerInterval) {
+          clearInterval(tickerInterval);
+          tickerInterval = null;
+        }
+        elapsedSec = Math.max(0.2, (performance.now() - startTimeMs) / 1000);
+        if (durationSec > 0 && elapsedSec > durationSec) {
+          elapsedSec = durationSec;
+        }
+        typingInputBox.disabled = true;
+        const m = computeMetrics();
+        renderPassageHighlight();
+        testStatusCaption.textContent = `Completed in ${m.elapsed}s — Net WPM: ${m.netWpm} | Gross WPM: ${m.grossWpm} | Accuracy: ${m.accuracy}%.`;
+      }
+
+      function startTimerIfNeeded() {
+        if (testRunning || testFinished) return;
+        testRunning = true;
+        startTimeMs = performance.now();
+        testStatusCaption.textContent = "Test in progress — keep typing smoothly!";
+
+        tickerInterval = setInterval(function () {
+          if (!testRunning) return;
+          const nowElapsed = (performance.now() - startTimeMs) / 1000;
+          if (durationSec > 0 && nowElapsed >= durationSec) {
+            elapsedSec = durationSec;
+            finishTest();
+          } else {
+            elapsedSec = nowElapsed;
+            computeMetrics();
+          }
+        }, 100);
+      }
+
+      function resetTest(pickNewPassage) {
+        if (tickerInterval) {
+          clearInterval(tickerInterval);
+          tickerInterval = null;
+        }
+        if (pickNewPassage) {
+          passageIndex = (passageIndex + 1) % PASSAGES.length;
+          currentPassage = PASSAGES[passageIndex];
+        }
+        testRunning = false;
+        testFinished = false;
+        elapsedSec = 0;
+        typingInputBox.disabled = false;
+        typingInputBox.value = "";
+        timerDisplay.textContent = durationSec > 0 ? `${durationSec.toFixed(1)}s` : "0.0s";
+        testStatusCaption.textContent = "Standard WPM divides total characters by 5 (average word length including spaces).";
+        renderPassageHighlight();
+        computeMetrics();
+        typingInputBox.focus();
+      }
+
+      durationBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          durationBtns.forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          durationSec = parseInt(btn.getAttribute("data-duration") || "60", 10);
+          resetTest(false);
+        });
+      });
+
+      nextPassageBtn.addEventListener("click", function () { resetTest(true); });
+      restartTestBtn.addEventListener("click", function () { resetTest(false); });
+
+      typingInputBox.addEventListener("input", function () {
+        if (testFinished) return;
+        if (typingInputBox.value.length > 0 && !testRunning) {
+          startTimerIfNeeded();
+        }
+        computeMetrics();
+        renderPassageHighlight();
+
+        if (typingInputBox.value.length >= currentPassage.length) {
+          finishTest();
+        }
+      });
+
+      function buildTypingReport() {
+        const m = computeMetrics();
+        return [
+          "PureWebKits Typing Speed Test Report",
+          "-------------------------------------",
+          `Mode: ${durationSec > 0 ? durationSec + "s Timer" : "Passage Mode"} | Elapsed: ${m.elapsed}s`,
+          `Net WPM: ${m.netWpm} WPM | Gross WPM: ${m.grossWpm} WPM`,
+          `Accuracy: ${m.accuracy}% | Characters Typed: ${m.totalChars} | Mistyped Chars: ${m.errors}`
+        ].join("\n");
+      }
+
+      copyTypingReportBtn.addEventListener("click", function () {
+        navigator.clipboard.writeText(buildTypingReport()).then(function () {
+          const orig = copyTypingReportBtn.textContent;
+          copyTypingReportBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyTypingReportBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadTypingReportBtn.addEventListener("click", function () {
+        const blob = new Blob([buildTypingReport()], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "typing-speed-report.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      renderPassageHighlight();
+      computeMetrics();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,954 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Screen Resolution Tester (Viewport, Physical Pixels, DPR & Aspect Ratio) — PureWebKits</title>
+  <meta name="description" content="Inspect your live browser viewport size, physical screen resolution, device pixel ratio (DPR), aspect ratio, color depth, orientation, and CSS media breakpoints online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/screen-resolution-tester.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Screen Resolution Tester Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 14px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .res-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .res-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .res-main-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: clamp(22px, 3.2vw, 30px);
+      font-weight: 800;
+      color: #34D399;
+      line-height: 1.2;
+      margin-top: 2px;
+    }
+    .res-sub {
+      font-size: 12.5px;
+      color: #CBD5E1;
+      margin-top: 2px;
+    }
+    .dpr-pill {
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #38BDF8;
+      border-radius: 10px;
+      padding: 10px 14px;
+      text-align: right;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .dpr-val {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.15;
+    }
+    .dpr-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: #BAE6FD;
+    }
+
+    /* Visual Proportion Stage */
+    .prop-stage-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .prop-canvas-wrap {
+      width: 100%;
+      height: 150px;
+      background: #020617;
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+    #aspectCanvas {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+    }
+
+    /* Breakpoint Badges */
+    .bp-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .bp-chip {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid #CBD5E1;
+      background: #FFFFFF;
+      color: var(--text-muted);
+    }
+    .bp-chip.matched {
+      background: #EFF6FF;
+      border-color: #93C5FD;
+      color: var(--primary-dark);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Screen Resolution Tester Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Screen Resolution & Viewport Tester</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Live viewport pixels, physical resolution, DPR scaling & aspect ratio in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">
+            Resize your browser window or zoom level to watch viewport dimensions and breakpoints update live:
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="refreshResBtn" class="btn-primary">Refresh Metrics</button>
+            <button type="button" id="toggleFsResBtn" class="btn-sec">Toggle Fullscreen</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="res-hero-box">
+              <div>
+                <div class="res-kicker">Active Browser Viewport (CSS Pixels)</div>
+                <div class="res-main-num" id="viewportMainRes">— × —</div>
+                <div class="res-sub" id="screenPhysicalSub">Screen: — • Available: —</div>
+              </div>
+              <div class="dpr-pill">
+                <div class="dpr-val" id="dprBadgeVal">1.00x</div>
+                <div class="dpr-lbl">Device Pixel Ratio</div>
+              </div>
+            </div>
+
+            <div class="prop-stage-box">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="field-label">Viewport Aspect Ratio Preview</span>
+                <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:12px; font-weight:800; color:var(--primary-dark);" id="aspectRatioBadge">—</span>
+              </div>
+              <div class="prop-canvas-wrap">
+                <canvas id="aspectCanvas" width="320" height="126" aria-label="Viewport Aspect Ratio Proportion"></canvas>
+              </div>
+              <div class="bp-row" id="breakpointChipsRow"></div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Scaled Hardware Pixels</div>
+                <div class="metric-val" id="scaledPixelsVal">—</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Screen Resolution</div>
+                <div class="metric-val" id="screenResVal">—</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Orientation & Color Depth</div>
+                <div class="metric-val" id="orientDepthVal">—</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Outer Window Size</div>
+                <div class="metric-val" id="outerWinVal">—</div>
+              </div>
+            </div>
+
+            <div style="background:#FFFFFF; border:1px solid var(--border); border-radius:8px; padding:11px 13px; font-size:12.5px; color:var(--text-muted); line-height:1.5;" id="resGuidanceBox">
+              <strong>Display Tip:</strong> CSS viewport width (<code>window.innerWidth</code>) determines responsive layout breakpoints, while multiplying by <code>window.devicePixelRatio</code> estimates physical/scaled pixel density.
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyResBtn" class="btn-primary">Copy Resolution Specs</button>
+              <button type="button" id="downloadResBtn" class="btn-sec" style="height:40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Viewport vs Screen vs DPR & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Screen Resolution, Browser Viewport, DPR & Aspect Ratios</h2>
+
+      <h3>How Viewport Size, Screen Resolution, and Device Pixel Ratio (DPR) Relate</h3>
+      <p>
+        When designing responsive websites, debugging UI scaling, or checking monitor display settings, understanding the difference between <strong>CSS viewport dimensions</strong> (<code>window.innerWidth × window.innerHeight</code>), <strong>screen dimensions</strong> (<code>screen.width × screen.height</code>), and <strong>Device Pixel Ratio (DPR)</strong> (<code>window.devicePixelRatio</code>) prevents layout confusion. On high-DPI ("Retina") displays or when OS display scaling is set to <code>125%</code> or <code>150%</code>, a single CSS layout pixel maps to multiple physical or scaled device pixels across each axis—meaning a <code>1536×864</code> CSS viewport at <code>1.25x</code> scaling corresponds to <code>1920×1080</code> scaled pixels. Furthermore, browser sidebars, developer tools, or zoomed pages change your active viewport size immediately without altering your monitor's hardware resolution. A browser-based <strong>Screen Resolution Tester</strong> measures all of these values live 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Test Your Screen & Viewport in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>View Your Live Viewport & DPR Metrics:</strong> The studio reads your current viewport width and height, screen size, DPR multiplier, color depth, and orientation automatically on load.</li>
+        <li><strong>Resize Your Window or Test Fullscreen:</strong> Drag your browser window edge, open or close DevTools, or click <strong>Toggle Fullscreen</strong> to observe real-time dimension and responsive breakpoint updates.</li>
+        <li><strong>Copy or Export Display Specs:</strong> Click <strong>Copy Resolution Specs</strong> or <strong>Download .txt</strong> to save a clean summary of your display metrics.</li>
+      </ol>
+
+      <h3>Scaled Pixel & Aspect Ratio Formulas</h3>
+      <p>
+        Using simplified ratio integers <code>(W / gcd, H / gcd)</code> and <code>dpr = window.devicePixelRatio</code>:
+      </p>
+      <div class="formula-box">
+        Scaled Pixels = round(innerWidth × DPR) × round(innerHeight × DPR)<br />
+        Aspect Ratio = (Width / gcd(Width, Height)) : (Height / gcd(Width, Height))
+      </div>
+
+      <h3>Helpful Tips for Responsive Design & Display Checks</h3>
+      <ul>
+        <li><strong>Check Browser Zoom When Debugging Layouts:</strong> Browser zoom (<code>Ctrl/Cmd +</code> or <code>-</code>) scales <code>innerWidth</code> and <code>devicePixelRatio</code>—reset zoom to <code>100%</code> (<code>Ctrl/Cmd + 0</code>) to inspect unzoomed layout behavior.</li>
+        <li><strong>Inspect Individual Pixels or Backlight Bleed:</strong> To test the display panel itself for stuck/dead sub-pixels or uniformity, pair this tool with our <a href="dead-pixel-test.html" style="color:var(--primary); font-weight:700;">Dead Pixel Test</a>.</li>
+        <li><strong>Note Mobile Viewport Differences:</strong> On mobile devices, opening the on-screen keyboard or browser address bar can temporarily adjust viewport height.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> A <code>1920×1080</code> (Full HD) monitor with Windows display scaling set to <code>125%</code> (<code>DPR = 1.25</code>) presents a <code>1536×864</code> CSS layout space when maximized, maintaining a crisp <code>16:9</code> (<code>1.78</code>) widescreen aspect ratio.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="res-table-heading">
+      <h2 id="res-table-heading">Common Screen Resolutions, Aspect Ratios & Breakpoints Table (16 Rows)</h2>
+      <p>Use this reference table to compare standard resolutions, aspect ratios, and responsive width tiers.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Resolution / Tier</th>
+              <th>Dimensions (px)</th>
+              <th>Aspect Ratio</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Mobile Compact</strong></td>
+              <td><code>360 × 800</code> / <code>390 × 844</code></td>
+              <td><code>9:20</code> / <code>9:19.5</code></td>
+              <td>Portrait smartphone viewport</td>
+            </tr>
+            <tr>
+              <td><strong>Tablet Portrait / Small</strong></td>
+              <td><code>768 × 1024</code></td>
+              <td><code>3:4</code></td>
+              <td>Classic tablet portrait size</td>
+            </tr>
+            <tr>
+              <td><strong>HD Ready (720p)</strong></td>
+              <td><code>1280 × 720</code></td>
+              <td><code>16:9</code> (<code>1.78</code>)</td>
+              <td>Standard HD widescreen</td>
+            </tr>
+            <tr>
+              <td><strong>WXGA Laptop</strong></td>
+              <td><code>1366 × 768</code></td>
+              <td><code>~16:9</code> (<code>1.78</code>)</td>
+              <td>Common budget laptop panel</td>
+            </tr>
+            <tr>
+              <td><strong>Full HD (1080p)</strong></td>
+              <td><code>1920 × 1080</code></td>
+              <td><code>16:9</code> (<code>1.78</code>)</td>
+              <td>Most common desktop/laptop FHD</td>
+            </tr>
+            <tr>
+              <td><strong>WUXGA (16:10 Laptop)</strong></td>
+              <td><code>1920 × 1200</code></td>
+              <td><code>16:10</code> (<code>1.60</code>)</td>
+              <td>Extra vertical productivity space</td>
+            </tr>
+            <tr>
+              <td><strong>QHD / 1440p (2K)</strong></td>
+              <td><code>2560 × 1440</code></td>
+              <td><code>16:9</code> (<code>1.78</code>)</td>
+              <td>High-res desktop & gaming</td>
+            </tr>
+            <tr>
+              <td><strong>4K UHD (2160p)</strong></td>
+              <td><code>3840 × 2160</code></td>
+              <td><code>16:9</code> (<code>1.78</code>)</td>
+              <td>Ultra-high-definition display</td>
+            </tr>
+            <tr>
+              <td><strong>Ultrawide 21:9</strong></td>
+              <td><code>2560 × 1080</code> / <code>3440 × 1440</code></td>
+              <td><code>21:9</code> (<code>~2.33–2.39</code>)</td>
+              <td>Wide multi-window workspace</td>
+            </tr>
+            <tr>
+              <td><strong><code>window.innerWidth</code></strong></td>
+              <td>CSS layout width inside browser</td>
+              <td>Excludes scrollbars/chrome</td>
+              <td>Primary CSS media-query width</td>
+            </tr>
+            <tr>
+              <td><strong><code>window.devicePixelRatio</code></strong></td>
+              <td>Scaling factor (e.g., <code>1</code>, <code>1.25</code>, <code>2</code>)</td>
+              <td>CSS-to-device pixel ratio</td>
+              <td>Affects sharp canvas/image assets</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download Specs</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports full display snapshot</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Viewport, Screen & DPR Inspector — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your display metrics stay strictly inside your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero screen telemetry transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser display test with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Display, Hardware, Privacy & Developer Utilities</h2>
+      <p>Checking for dead pixels, inspecting browser fingerprint signals, testing your webcam or keyboard, or formatting JSON? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="dead-pixel-test.html"><span>Dead Pixel Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="browser-fingerprint-inspector.html"><span>Browser Fingerprint Inspector</span><span class="arrow">→</span></a>
+        <a class="related-link" href="webcam-test.html"><span>Webcam Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="keyboard-test.html"><span>Keyboard Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="microphone-test.html"><span>Microphone Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="battery-status-checker.html"><span>Battery Status Checker</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Why is my browser viewport resolution smaller than my monitor's native resolution?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            The <strong>viewport</strong> measures the inner document area inside your browser window in CSS pixels—if OS display scaling is above <code>100%</code> (e.g., <code>125%</code> or <code>150%</code>), browser zoom is above <code>100%</code>, or the window is not full-screen, the CSS viewport dimensions are smaller than raw hardware pixels.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. What does Device Pixel Ratio (DPR) mean?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <code>window.devicePixelRatio</code> is the ratio between physical/scaled device pixels and CSS pixels along one axis—a <code>2.0x</code> DPR means <code>2×2 = 4</code> device pixels represent each CSS pixel square.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my screen resolution details sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All screen, viewport, and DPR readings run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online Screen Resolution Tester free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Screen Resolution, Viewport & DPR Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const refreshResBtn = document.getElementById("refreshResBtn");
+      const toggleFsResBtn = document.getElementById("toggleFsResBtn");
+
+      const viewportMainRes = document.getElementById("viewportMainRes");
+      const screenPhysicalSub = document.getElementById("screenPhysicalSub");
+      const dprBadgeVal = document.getElementById("dprBadgeVal");
+
+      const aspectRatioBadge = document.getElementById("aspectRatioBadge");
+      const aspectCanvas = document.getElementById("aspectCanvas");
+      const actx = aspectCanvas.getContext("2d");
+      const breakpointChipsRow = document.getElementById("breakpointChipsRow");
+
+      const scaledPixelsVal = document.getElementById("scaledPixelsVal");
+      const screenResVal = document.getElementById("screenResVal");
+      const orientDepthVal = document.getElementById("orientDepthVal");
+      const outerWinVal = document.getElementById("outerWinVal");
+
+      const copyResBtn = document.getElementById("copyResBtn");
+      const downloadResBtn = document.getElementById("downloadResBtn");
+
+      let latestReportText = "";
+
+      function gcd(a, b) {
+        let x = Math.abs(Math.round(a));
+        let y = Math.abs(Math.round(b));
+        while (y !== 0) {
+          const t = y;
+          y = x % y;
+          x = t;
+        }
+        return x || 1;
+      }
+
+      function drawProportionBox(vw, vh) {
+        const w = aspectCanvas.width;
+        const h = aspectCanvas.height;
+        actx.clearRect(0, 0, w, h);
+
+        if (vw <= 0 || vh <= 0) return;
+        const pad = 12;
+        const availW = w - pad * 2;
+        const availH = h - pad * 2;
+        const scale = Math.min(availW / vw, availH / vh);
+        const boxW = Math.max(24, vw * scale);
+        const boxH = Math.max(18, vh * scale);
+        const bx = (w - boxW) / 2;
+        const by = (h - boxH) / 2;
+
+        actx.fillStyle = "rgba(37, 99, 235, 0.25)";
+        actx.strokeStyle = "#38BDF8";
+        actx.lineWidth = 2;
+        actx.fillRect(bx, by, boxW, boxH);
+        actx.strokeRect(bx, by, boxW, boxH);
+
+        actx.fillStyle = "#E2E8F0";
+        actx.font = "700 12px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
+        actx.textAlign = "center";
+        actx.textBaseline = "middle";
+        actx.fillText(`${vw} \u00D7 ${vh}`, w / 2, h / 2);
+      }
+
+      function updateResolutionMetrics() {
+        const vw = window.innerWidth || 0;
+        const vh = window.innerHeight || 0;
+        const dpr = window.devicePixelRatio || 1;
+        const sw = window.screen ? window.screen.width : 0;
+        const sh = window.screen ? window.screen.height : 0;
+        const aw = window.screen ? window.screen.availWidth : 0;
+        const ah = window.screen ? window.screen.availHeight : 0;
+        const depth = window.screen ? window.screen.colorDepth : 24;
+        const ow = window.outerWidth || vw;
+        const oh = window.outerHeight || vh;
+
+        const scaledW = Math.round(vw * dpr);
+        const scaledH = Math.round(vh * dpr);
+
+        const g = gcd(vw, vh);
+        const decRatio = vh > 0 ? (vw / vh).toFixed(2) : "0.00";
+        const ratioLabel = `${vw / g}:${vh / g} (${decRatio})`;
+
+        const orientation = vw >= vh ? "Landscape" : "Portrait";
+
+        viewportMainRes.textContent = `${vw} \u00D7 ${vh}`;
+        screenPhysicalSub.textContent = `Screen: ${sw}\u00D7${sh} \u2022 Avail: ${aw}\u00D7${ah}`;
+        dprBadgeVal.textContent = `${dpr.toFixed(2)}x`;
+
+        aspectRatioBadge.textContent = ratioLabel;
+        drawProportionBox(vw, vh);
+
+        scaledPixelsVal.textContent = `${scaledW} \u00D7 ${scaledH} px`;
+        screenResVal.textContent = `${sw} \u00D7 ${sh} px`;
+        orientDepthVal.textContent = `${orientation} \u2022 ${depth}-bit`;
+        outerWinVal.textContent = `${ow} \u00D7 ${oh} px`;
+
+        const breakpoints = [
+          { label: "sm \u2265640px", active: vw >= 640 },
+          { label: "md \u2265768px", active: vw >= 768 },
+          { label: "lg \u22651024px", active: vw >= 1024 },
+          { label: "xl \u22651280px", active: vw >= 1280 }
+        ];
+
+        breakpointChipsRow.innerHTML = "";
+        breakpoints.forEach(function (bp) {
+          const chip = document.createElement("span");
+          chip.className = "bp-chip" + (bp.active ? " matched" : "");
+          chip.textContent = `${bp.active ? "\u2713 " : ""}${bp.label}`;
+          breakpointChipsRow.appendChild(chip);
+        });
+
+        latestReportText = [
+          "PureWebKits Screen Resolution & Viewport Report",
+          "----------------------------------------------",
+          `Viewport (CSS): ${vw} x ${vh} px`,
+          `Scaled Pixels: ${scaledW} x ${scaledH} px (DPR: ${dpr.toFixed(2)}x)`,
+          `Screen Hardware: ${sw} x ${sh} px (Available: ${aw} x ${ah} px)`,
+          `Outer Window: ${ow} x ${oh} px`,
+          `Aspect Ratio: ${ratioLabel} | Orientation: ${orientation} | Color Depth: ${depth}-bit`
+        ].join("\n");
+      }
+
+      refreshResBtn.addEventListener("click", updateResolutionMetrics);
+      window.addEventListener("resize", updateResolutionMetrics);
+
+      toggleFsResBtn.addEventListener("click", function () {
+        if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(function () {});
+        } else if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(function () {});
+        }
+      });
+
+      copyResBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        navigator.clipboard.writeText(latestReportText).then(function () {
+          const orig = copyResBtn.textContent;
+          copyResBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyResBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadResBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        const blob = new Blob([latestReportText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "screen-resolution-report.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      updateResolutionMetrics();
+    });
+  </script>
+</body>
+</html>

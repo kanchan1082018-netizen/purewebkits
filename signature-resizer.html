@@ -1,0 +1,2027 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signature Resizer & DPI Adjuster — Online Exam & Form Signature Tool | PureWebKits</title>
+  <meta name="description" content="Resize and compress scanned signatures to exact pixel, cm, DPI, and KB limits (SSC, UPSC, IBPS, GATE, JEE, Passport) 100% inside your browser. No uploads, instant download.">
+  <link rel="canonical" href="https://PureWebKits.com/signature-resizer.html">
+  <meta property="og:title" content="Signature Resizer & DPI Adjuster — PureWebKits">
+  <meta property="og:description" content="Resize, clean background contrast, set DPI, and compress your signature image to exact KB limits privately in your browser.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://PureWebKits.com/signature-resizer.html">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Signature Resizer & DPI Adjuster",
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "Any (Web Browser)",
+    "url": "https://PureWebKits.com/signature-resizer.html",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "Free client-side signature resizer, DPI adjuster, contrast enhancer, and KB compressor for SSC, UPSC, IBPS, GATE, JEE, and official government portals.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "PureWebKits",
+      "url": "https://PureWebKits.com"
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I sign with black ink or blue ink for online exam forms?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Most Indian and international portals such as SSC, UPSC, IBPS, and Passport Seva strongly recommend signing with a black ballpoint or gel pen on clean, unruled white A4 paper. Black ink provides maximum contrast against white paper when compressed down to 10–20 KB, whereas light blue ink can fade or look broken after downsampling."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why do portals reject scanned signatures with extra white margins?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "When an uncropped sheet of paper is scaled down to 140 × 60 pixels, the actual signature shrinks to a tiny unreadable smudge in the center while blank white space occupies most of the frame. Automated verification algorithms and human reviewers reject these uploads because the signature strokes become illegible. Always crop tightly around your signature before resizing."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does changing the DPI affect my signature file?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "DPI (Dots Per Inch) defines the physical print size of your digital image. If you specify dimensions in centimeters (such as 3.5 × 1.5 cm), increasing the DPI from 96 to 300 increases the pixel count proportionally so the signature prints crisply. When you specify exact pixel dimensions (like 140 × 60 px), our tool embeds the selected DPI into the JPEG JFIF or PNG pHYs header for portals that check DPI metadata."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I download my resized signature as JPEG or PNG?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Almost every examination and government portal (SSC, UPSC, IBPS, GATE, NEET, and PAN) explicitly requires .JPG or .JPEG format because JPEG compression easily meets tight 10 KB to 20 KB file size limits. Choose PNG only if a portal specifically requests lossless PNG files or higher file size allowances."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is my scanned signature uploaded to any server?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. PureWebKits processes your signature 100% locally inside your web browser using the HTML5 Canvas API and JavaScript. Your personal signature image never leaves your device, is never transmitted over the internet, and is never stored on any external server."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg-page: #F8FAFC;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #F1F5F9;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --text-light: #64748B;
+      --border: #E2E8F0;
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-light: #EFF6FF;
+      --success: #059669;
+      --success-bg: #ECFDF5;
+      --warning: #D97706;
+      --warning-bg: #FFFBEB;
+      --danger: #DC2626;
+      --danger-bg: #FEF2F2;
+      --footer-bg: #182234;
+      --footer-bottom: #111827;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.07);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #FFFFFF;
+      height: 70px;
+      border-bottom: 1px solid #E2E8F0;
+      display: flex;
+      align-items: center;
+    }
+
+    .header-inner {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #0F172A;
+      font-weight: 800;
+      font-size: 1.22rem;
+      letter-spacing: -0.02em;
+      text-decoration: none;
+    }
+
+    .brand-logo:hover {
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .nav-links a {
+      color: #334155;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.15s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    /* Main Container */
+    .container {
+      width: 100%;
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+
+    /* Block 1: Hero & Tool */
+    .hero-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .hero-header h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.65rem, 3.2vw, 2.3rem);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: #0F172A;
+      line-height: 1.2;
+    }
+
+    .trust-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--success-bg);
+      color: #065F46;
+      border: 1px solid #A7F3D0;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      padding: 24px;
+      margin-bottom: 40px;
+    }
+
+    /* Upload Dropzone */
+    .dropzone {
+      border: 2px dashed #CBD5E1;
+      border-radius: var(--radius);
+      background: #F8FAFC;
+      padding: 34px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+
+    .dropzone:hover,
+    .dropzone.drag-over {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .dropzone-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 12px;
+      background: #DBEAFE;
+      color: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dropzone h2 {
+      margin: 0 0 6px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .dropzone p {
+      margin: 0 0 14px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.92rem;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-outline {
+      background: #FFFFFF;
+      color: var(--text-main);
+      border-color: #CBD5E1;
+    }
+
+    .btn-outline:hover {
+      background: #F1F5F9;
+    }
+
+    /* Workspace Layout */
+    .workspace {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .controls-panel,
+    .preview-panel {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+    }
+
+    .panel-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 0 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Preset Pills */
+    .preset-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .preset-btn {
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #334155;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 7px 11px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .preset-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .preset-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    /* Form Controls */
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .form-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 14px;
+    }
+
+    .field-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+
+    .field-control {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.92rem;
+      color: var(--text-main);
+      background: #FFFFFF;
+    }
+
+    .field-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .lock-btn {
+      height: 39px;
+      width: 39px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+      background: #FFFFFF;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .lock-btn.locked {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      cursor: pointer;
+    }
+
+    .checkbox-row input {
+      margin-top: 3px;
+      accent-color: var(--primary);
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .checkbox-text strong {
+      display: block;
+      font-size: 0.86rem;
+      color: var(--text-main);
+    }
+
+    .checkbox-text span {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--text-light);
+    }
+
+    .format-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .format-btn {
+      padding: 8px 10px;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+      background: #FFFFFF;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .format-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    /* Preview Area */
+    .preview-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .preview-box {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .preview-box-label {
+      width: 100%;
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-light);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .canvas-stage {
+      width: 100%;
+      min-height: 130px;
+      max-height: 190px;
+      background-image: linear-gradient(45deg, #F1F5F9 25%, transparent 25%),
+                        linear-gradient(-45deg, #F1F5F9 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, #F1F5F9 75%),
+                        linear-gradient(-45deg, transparent 75%, #F1F5F9 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+      border: 1px solid #E2E8F0;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 8px;
+    }
+
+    .canvas-stage img {
+      max-width: 100%;
+      max-height: 170px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .empty-stage-msg {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      text-align: center;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .stat-tile {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      text-align: center;
+    }
+
+    .stat-tile span {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--text-light);
+      font-weight: 600;
+    }
+
+    .stat-tile strong {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      margin-top: 2px;
+    }
+
+    .status-banner {
+      font-size: 0.83rem;
+      padding: 9px 12px;
+      border-radius: 6px;
+      margin-bottom: 14px;
+      display: none;
+    }
+
+    .status-banner.success {
+      display: block;
+      background: var(--success-bg);
+      color: #065F46;
+      border: 1px solid #A7F3D0;
+    }
+
+    .status-banner.warning {
+      display: block;
+      background: var(--warning-bg);
+      color: #92400E;
+      border: 1px solid #FDE68A;
+    }
+
+    .download-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .download-actions .btn-primary {
+      flex: 1;
+      padding: 12px 18px;
+      font-size: 0.98rem;
+    }
+
+    /* Editorial Sections */
+    .content-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .content-card h2 {
+      margin: 0 0 16px;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.015em;
+    }
+
+    .content-card h3 {
+      margin: 22px 0 8px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1E293B;
+    }
+
+    .content-card p {
+      margin: 0 0 12px;
+      color: #334155;
+      font-size: 0.97rem;
+    }
+
+    .formula-box {
+      background: #F8FAFC;
+      border-left: 4px solid var(--primary);
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.92rem;
+      color: #0F172A;
+      line-height: 1.7;
+    }
+
+    .worked-example {
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-top: 14px;
+    }
+
+    .worked-example strong {
+      color: #1E3A8A;
+    }
+
+    /* Table */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      text-align: left;
+    }
+
+    thead th {
+      background: #F1F5F9;
+      color: #0F172A;
+      font-weight: 700;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      color: #334155;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: #F8FAFC;
+    }
+
+    /* Related Tools Grid */
+    .tools-hub-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .hub-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: #1E293B;
+      font-weight: 600;
+      font-size: 0.88rem;
+      transition: all 0.15s ease;
+    }
+
+    .hub-link:hover {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    /* FAQ Accordion */
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .faq-item {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #FFFFFF;
+    }
+
+    .faq-question {
+      width: 100%;
+      text-align: left;
+      background: #FFFFFF;
+      border: none;
+      padding: 15px 18px;
+      font-family: inherit;
+      font-size: 0.97rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .faq-question:hover {
+      background: #F8FAFC;
+    }
+
+    .faq-chevron {
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+      color: var(--text-light);
+    }
+
+    .faq-item.open .faq-chevron {
+      transform: rotate(180deg);
+      color: var(--primary);
+    }
+
+    .faq-answer {
+      display: none;
+      padding: 0 18px 16px;
+      font-size: 0.93rem;
+      color: #475569;
+      border-top: 1px solid #F1F5F9;
+      padding-top: 12px;
+    }
+
+    .faq-item.open .faq-answer {
+      display: block;
+    }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer {
+      background: #182234;
+      color: #CBD5E1;
+      padding-top: 48px;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px 40px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+      gap: 28px;
+    }
+
+    .footer-brand-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #FFFFFF;
+      font-weight: 800;
+      font-size: 1.15rem;
+      margin-bottom: 12px;
+    }
+
+    .footer-desc {
+      font-size: 0.87rem;
+      color: #94A3B8;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .footer-col h4 {
+      color: #FFFFFF;
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin: 0 0 14px;
+    }
+
+    .footer-col ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .footer-col li {
+      margin-bottom: 9px;
+    }
+
+    .footer-col a {
+      color: #94A3B8;
+      font-size: 0.87rem;
+      transition: color 0.15s;
+    }
+
+    .footer-col a:hover {
+      color: #FFFFFF;
+      text-decoration: none;
+    }
+
+    .footer-bottom {
+      background: #111827;
+      padding: 18px 20px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #94A3B8;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    @media (max-width: 960px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+      .tools-hub-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .footer-inner {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .nav-links {
+        gap: 14px;
+      }
+      .nav-links a {
+        font-size: 0.85rem;
+      }
+      .tool-card,
+      .content-card {
+        padding: 18px;
+      }
+      .preview-compare {
+        grid-template-columns: 1fr;
+      }
+      .tools-hub-grid {
+        grid-template-columns: 1fr;
+      }
+      .footer-inner {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M16 3L28 9.5V22.5L16 29L4 22.5V9.5L16 3Z" fill="#2563EB"/>
+          <path d="M16 3L28 9.5L16 16L4 9.5L16 3Z" fill="#60A5FA"/>
+          <path d="M16 16L28 9.5V22.5L16 29V16Z" fill="#1D4ED8"/>
+          <path d="M16 16L4 9.5V22.5L16 29V16Z" fill="#3B82F6"/>
+        </svg>
+        <span>PureWebKits</span>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- Block 1: Hero & Interactive Tool -->
+    <section class="hero-header">
+      <h1>Signature Resizer &amp; DPI Adjuster — Online Exam &amp; Form Signature Tool</h1>
+      <div class="trust-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        100% Client-Side: Your scanned signature never leaves your browser
+      </div>
+    </section>
+
+    <section class="tool-card" aria-label="Signature Resizer Tool">
+      <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload signature image by clicking or dragging and dropping">
+        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" hidden>
+        <div class="dropzone-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+        </div>
+        <h2>Drop your signature scan here, or click to upload</h2>
+        <p>Supports JPG, JPEG, PNG, and WebP files</p>
+        <button type="button" class="btn btn-primary" id="chooseFileBtn">Select Signature File</button>
+      </div>
+
+      <div class="workspace">
+        <!-- Controls Panel -->
+        <div class="controls-panel">
+          <div class="panel-title">
+            <span>1. Exam &amp; Official Presets</span>
+          </div>
+          <div class="preset-grid" id="presetGroup">
+            <button type="button" class="preset-btn active" data-preset="ssc">SSC / UPSC (140×60 px, 20 KB)</button>
+            <button type="button" class="preset-btn" data-preset="ibps">IBPS / Banking (140×60 px, 10–20 KB)</button>
+            <button type="button" class="preset-btn" data-preset="gate">GATE / JEE (280×80 px, 150 KB)</button>
+            <button type="button" class="preset-btn" data-preset="standard_cm">Standard 3.5 × 1.5 cm</button>
+            <button type="button" class="preset-btn" data-preset="custom">Custom Dimensions</button>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="field-group">
+              <label for="unitSelect">Dimension Unit</label>
+              <select id="unitSelect" class="field-control">
+                <option value="px" selected>Pixels (px)</option>
+                <option value="cm">Centimeters (cm)</option>
+                <option value="mm">Millimeters (mm)</option>
+                <option value="in">Inches (in)</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label for="dpiSelect">Print &amp; Metadata DPI</label>
+              <select id="dpiSelect" class="field-control">
+                <option value="96" selected>96 DPI (Web / Standard)</option>
+                <option value="150">150 DPI (Medium Scan)</option>
+                <option value="200">200 DPI (Exam Portal / PAN)</option>
+                <option value="300">300 DPI (High-Res Print)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid-3">
+            <div class="field-group">
+              <label for="widthInput">Width (<span class="unit-label">px</span>)</label>
+              <input type="number" id="widthInput" class="field-control" value="140" min="1" step="any">
+            </div>
+            <button type="button" id="aspectLockBtn" class="lock-btn" title="Toggle Aspect Ratio Lock" aria-pressed="false">
+              <svg id="lockIcon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+              </svg>
+            </button>
+            <div class="field-group">
+              <label for="heightInput">Height (<span class="unit-label">px</span>)</label>
+              <input type="number" id="heightInput" class="field-control" value="60" min="1" step="any">
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="field-group">
+              <label for="maxKbInput">Target Max Size (KB)</label>
+              <input type="number" id="maxKbInput" class="field-control" value="20" min="2" max="2000" step="1">
+            </div>
+            <div class="field-group">
+              <label>Output Format</label>
+              <div class="format-toggle">
+                <button type="button" class="format-btn active" data-format="image/jpeg">.JPEG</button>
+                <button type="button" class="format-btn" data-format="image/png">.PNG</button>
+              </div>
+            </div>
+          </div>
+
+          <label class="checkbox-row">
+            <input type="checkbox" id="enhanceCheck">
+            <div class="checkbox-text">
+              <strong>Auto-Enhance Contrast</strong>
+              <span>Clean off-white paper shadows to pure white &amp; darken ink strokes</span>
+            </div>
+          </label>
+        </div>
+
+        <!-- Preview & Output Panel -->
+        <div class="preview-panel">
+          <div class="panel-title">
+            <span>2. Live Preview &amp; Download</span>
+            <span id="pixelPreviewTag" style="font-size:0.8rem; color:#2563EB; font-weight:600;">Target: 140 × 60 px</span>
+          </div>
+
+          <div class="preview-compare">
+            <div class="preview-box">
+              <div class="preview-box-label">
+                <span>Original</span>
+                <span id="origMeta">—</span>
+              </div>
+              <div class="canvas-stage" id="origStage">
+                <span class="empty-stage-msg">Upload a scan to view original</span>
+              </div>
+            </div>
+            <div class="preview-box">
+              <div class="preview-box-label">
+                <span>Resized Output</span>
+                <span id="outMeta">—</span>
+              </div>
+              <div class="canvas-stage" id="outStage">
+                <span class="empty-stage-msg">Output preview appears here</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-tile">
+              <span>Dimensions</span>
+              <strong id="statDims">—</strong>
+            </div>
+            <div class="stat-tile">
+              <span>Final Size</span>
+              <strong id="statSize">—</strong>
+            </div>
+            <div class="stat-tile">
+              <span>DPI / Quality</span>
+              <strong id="statDpi">—</strong>
+            </div>
+          </div>
+
+          <div id="statusBanner" class="status-banner" role="status" aria-live="polite"></div>
+
+          <div class="download-actions">
+            <button type="button" id="downloadBtn" class="btn btn-primary" disabled>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Download Resized Signature
+            </button>
+            <button type="button" id="resetBtn" class="btn btn-outline" title="Clear current file">Reset</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Block 2: Practical Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Practical Guide to Resizing Digital Signatures for Online Forms</h2>
+
+      <h3>How to Resize a Digital Signature Without Blurring</h3>
+      <p>
+        Online exam portals and government application forms reject thousands of applications every cycle due to illegible or improperly formatted signature files. To create a crisp digital signature every time, start with clean source material: sign on plain, unruled white A4 paper using a dark black ballpoint or gel pen. Photograph or scan the signature under even daylight so shadows do not darken one corner of the page.
+      </p>
+      <p>
+        Before resizing, crop tightly around the edges of your signature so only minimal white margin remains. If excessive blank paper stays in the frame, shrinking the file to 140 × 60 pixels will crush your actual handwriting into a tiny, pixelated line. Once uploaded to our tool, select the official preset for your exam (or enter custom width, height, and DPI), enable <strong>Auto-Enhance Contrast</strong> if your paper looks grayish, and set the Target Max Size (such as 20 KB) to automatically balance JPEG compression without introducing jagged artifacts.
+      </p>
+
+      <h3>Pixel-to-Centimeter &amp; DPI Mathematical Formula</h3>
+      <p>
+        Many application instructions list signature dimensions in centimeters (for example, 3.5 × 1.5 cm) alongside a required print resolution in Dots Per Inch (DPI). Because web images are stored in discrete pixels, you can convert physical measurements to exact pixel dimensions using the standard inch-conversion constant (1 inch = 2.54 cm):
+      </p>
+      <div class="formula-box">
+        Pixels = (Centimeters × DPI) / 2.54<br>
+        Aspect Ratio = Width / Height
+      </div>
+      <p>
+        For instance, a 3.5 × 1.5 cm signature requires <strong>(3.5 × 96) / 2.54 = 132 px</strong> by <strong>(1.5 × 96) / 2.54 = 57 px</strong> at standard 96 DPI screen resolution, whereas at 300 DPI print quality it scales up to <strong>413 × 177 px</strong> while maintaining the exact 2.33:1 aspect ratio.
+      </p>
+
+      <h3>Step-by-Step Worked Example (SSC / IBPS Portal)</h3>
+      <div class="worked-example">
+        <p style="margin-bottom:8px;">
+          <strong>Scenario:</strong> You take a close-up smartphone photo of your signature measuring <strong>1200 × 500 px</strong> with a file size of <strong>340 KB</strong>, and you need to upload it to an SSC or IBPS form requiring <strong>140 × 60 px</strong> and a file size under <strong>20 KB</strong>.
+        </p>
+        <p style="margin-bottom:0;">
+          <strong>1) Check Aspect Ratio:</strong> Your cropped scan has an aspect ratio of 1200 / 500 = 2.40, closely matching 140 / 60 = 2.33, preventing vertical stretching.<br>
+          <strong>2) Apply Dimensions &amp; Contrast:</strong> Select the <em>SSC / UPSC</em> preset (140 × 60 px) and turn on <em>Auto-Enhance Contrast</em> so off-white smartphone shadows become pure #FFFFFF white.<br>
+          <strong>3) Iterative KB Compression:</strong> Our canvas engine downsamples the image cleanly and tests JPEG quality levels automatically, settling around Quality 84% to produce a sharp <strong>140 × 60 px</strong> file at <strong>16.4 KB</strong>—safely inside the 10–20 KB acceptance window with zero pixelation.
+        </p>
+      </div>
+    </article>
+
+    <!-- Block 3: 18-Row Reference Data Table -->
+    <section class="content-card">
+      <h2>Official Signature Dimension, DPI &amp; File Size Chart (2026 Exam &amp; Portal Standards)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Exam / Official Portal</th>
+              <th>Recommended Dimensions</th>
+              <th>File Size Limit</th>
+              <th>DPI Standard</th>
+              <th>Accepted Format</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>SSC CGL / CHSL / MTS</td>
+              <td>140 × 60 px (4.0 × 2.0 cm)</td>
+              <td>10 KB – 20 KB</td>
+              <td>100 – 200 DPI</td>
+              <td>JPG / JPEG</td>
+            </tr>
+            <tr>
+              <td>UPSC Civil Services (IAS/IPS)</td>
+              <td>140 × 60 px (350 × 350 to 1000 × 1000 px max)</td>
+              <td>20 KB – 300 KB</td>
+              <td>200 DPI</td>
+              <td>JPG / JPEG</td>
+            </tr>
+            <tr>
+              <td>IBPS PO / Clerk / RRB</td>
+              <td>140 × 60 px</td>
+              <td>10 KB – 20 KB</td>
+              <td>200 DPI</td>
+              <td>JPG / JPEG</td>
+            </tr>
+            <tr>
+              <td>SBI PO / Clerk</td>
+              <td>140 × 60 px</td>
+              <td>10 KB – 20 KB</td>
+              <td>200 DPI</td>
+              <td>JPG / JPEG</td>
+            </tr>
+            <tr>
+              <td>RRB NTPC / Group D</td>
+              <td>140 × 60 px (3.5 × 1.5 cm)</td>
+              <td>10 KB – 40 KB</td>
+              <td>100 – 200 DPI</td>
+              <td>JPG / JPEG</td>
+            </tr>
+            <tr>
+              <td>NTA NEET UG</td>
+              <td>140 × 60 px (3.5 × 1.5 cm)</td>
+              <td>4 KB – 30 KB</td>
+              <td>200 DPI</td>
+              <td>JPG / JPEG</td>
+            </tr>
+            <tr>
+              <td>NTA JEE Main</td>
+              <td>140 × 60 px (3.5 × 1.5 cm)</td>
+              <td>4 KB – 30 KB</td>
+              <td>200 DPI</td>
+              <td>JPG / JPEG</td>
+            </tr>
+            <tr>
+              <td>GATE (IIT / IISc)</td>
+              <td>280 × 80 px (Max 560 × 160 px)</td>
+              <td>5 KB – 150 KB</td>
+              <td>200 DPI</td>
+              <td>JPG / JPEG</td>
+            </tr>
+            <tr>
+              <td>CAT (IIM Admission)</td>
+              <td>80 × 35 mm (~302 × 132 px at 96 DPI)</td>
+              <td>Max 80 KB</td>
+              <td>150 – 200 DPI</td>
+              <td>JPG / JPEG</td>
+            </tr>
+            <tr>
+              <td>CUET UG / PG</td>
+              <td>140 × 60 px</td>
+              <td>4 KB – 30 KB</td>
+              <td>200 DPI</td>
+              <td>JPG / JPEG</td>
+            </tr>
+            <tr>
+              <td>CTET / UPTET</td>
+              <td>3.5 × 1.5 cm (140 × 60 px)</td>
+              <td>3 KB – 30 KB</td>
+              <td>96 – 200 DPI</td>
+              <td>JPG / JPEG</td>
+            </tr>
+            <tr>
+              <td>Passport Seva (India)</td>
+              <td>140 × 60 px</td>
+              <td>10 KB – 20 KB</td>
+              <td>200 DPI</td>
+              <td>JPG / JPEG</td>
+            </tr>
+            <tr>
+              <td>PAN Card (NSDL / Protean)</td>
+              <td>2 × 4.5 cm (157 × 354 px at 200 DPI)</td>
+              <td>Max 50 KB</td>
+              <td>200 DPI</td>
+              <td>JPG / JPEG</td>
+            </tr>
+            <tr>
+              <td>PAN Card (UTIITSL)</td>
+              <td>600 × 200 px</td>
+              <td>Max 60 KB</td>
+              <td>600 DPI (or 300 DPI)</td>
+              <td>JPG / JPEG</td>
+            </tr>
+            <tr>
+              <td>LIC AAO / ADO</td>
+              <td>140 × 60 px</td>
+              <td>10 KB – 20 KB</td>
+              <td>200 DPI</td>
+              <td>JPG / JPEG</td>
+            </tr>
+            <tr>
+              <td>RBI Grade B / Assistant</td>
+              <td>140 × 60 px</td>
+              <td>10 KB – 20 KB</td>
+              <td>200 DPI</td>
+              <td>JPG / JPEG</td>
+            </tr>
+            <tr>
+              <td>US USCIS Electronic Forms</td>
+              <td>600 × 200 px (approx. 3 × 1 in)</td>
+              <td>Max 200 KB</td>
+              <td>200 – 300 DPI</td>
+              <td>JPG / PNG</td>
+            </tr>
+            <tr>
+              <td>UK Visa &amp; Immigration (UKVI)</td>
+              <td>350 × 150 px</td>
+              <td>Max 100 KB</td>
+              <td>150 – 300 DPI</td>
+              <td>JPG / PNG</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Block 4: Internal Linking Hub & 5 Accordion FAQs -->
+    <section class="content-card">
+      <h2>Related Image &amp; Exam Tools</h2>
+      <div class="tools-hub-grid">
+        <a href="compress-image-to-exact-kb.html" class="hub-link"><span>Compress Image to KB</span><span>→</span></a>
+        <a href="image-resizer.html" class="hub-link"><span>Image Resizer</span><span>→</span></a>
+        <a href="image-cropper.html" class="hub-link"><span>Image Cropper</span><span>→</span></a>
+        <a href="image-dpi-changer.html" class="hub-link"><span>Image DPI Changer</span><span>→</span></a>
+        <a href="jpg-to-png.html" class="hub-link"><span>JPG to PNG Converter</span><span>→</span></a>
+        <a href="png-to-jpg.html" class="hub-link"><span>PNG to JPG Converter</span><span>→</span></a>
+        <a href="grayscale-image.html" class="hub-link"><span>Grayscale Image Tool</span><span>→</span></a>
+        <a href="jpg-to-pdf.html" class="hub-link"><span>JPG to PDF Converter</span><span>→</span></a>
+      </div>
+    </section>
+
+    <section class="content-card">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-list" id="faqList">
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            <span>Should I sign with black ink or blue ink for online exam forms?</span>
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="faq-answer">
+            Most Indian and international portals such as SSC, UPSC, IBPS, and Passport Seva strongly recommend signing with a black ballpoint or gel pen on clean, unruled white A4 paper. Black ink provides maximum contrast against white paper when compressed down to 10–20 KB, whereas light blue ink can fade or look broken after downsampling.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            <span>Why do portals reject scanned signatures with extra white margins?</span>
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="faq-answer">
+            When an uncropped sheet of paper is scaled down to 140 × 60 pixels, the actual signature shrinks to a tiny unreadable smudge in the center while blank white space occupies most of the frame. Automated verification checks and human reviewers reject these uploads because the signature strokes become illegible. Always crop tightly around your signature before resizing.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            <span>How does changing the DPI affect my signature file?</span>
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="faq-answer">
+            DPI (Dots Per Inch) defines the physical print size of your digital image. If you specify dimensions in centimeters (such as 3.5 × 1.5 cm), increasing the DPI from 96 to 300 increases the pixel count proportionally so the signature prints crisply. When you specify exact pixel dimensions (like 140 × 60 px), our tool embeds the selected DPI directly into the JPEG JFIF or PNG pHYs header for portals that inspect DPI metadata.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            <span>Should I download my resized signature as JPEG or PNG?</span>
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="faq-answer">
+            Almost every examination and government portal (SSC, UPSC, IBPS, GATE, NEET, and PAN) explicitly requires .JPG or .JPEG format because JPEG compression easily meets tight 10 KB to 20 KB file size limits. Choose PNG only if a portal specifically requests lossless PNG files or higher file size allowances.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            <span>Is my scanned signature uploaded to any server?</span>
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="faq-answer">
+            No. PureWebKits processes your signature 100% locally inside your web browser using the HTML5 Canvas API and JavaScript. Your personal signature image never leaves your device, is never transmitted over the internet, and is never stored on any external server.
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Dark Navy 5-Column Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <div class="footer-brand-title">
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M16 3L28 9.5V22.5L16 29L4 22.5V9.5L16 3Z" fill="#2563EB"/>
+            <path d="M16 3L28 9.5L16 16L4 9.5L16 3Z" fill="#60A5FA"/>
+            <path d="M16 16L28 9.5V22.5L16 29V16Z" fill="#1D4ED8"/>
+            <path d="M16 16L4 9.5V22.5L16 29V16Z" fill="#3B82F6"/>
+          </svg>
+          <span>PureWebKits</span>
+        </div>
+        <p class="footer-desc">Fast, private, browser-based utilities for images, PDFs, developers, and daily calculations. Zero server uploads.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image &amp; PDF</h4>
+        <ul>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="image-resizer.html">Image Resizer</a></li>
+          <li><a href="image-dpi-changer.html">Image DPI Changer</a></li>
+          <li><a href="jpg-to-pdf.html">JPG to PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer &amp; Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="base64-encoder.html">Base64 Encoder</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="case-converter.html">Case Converter</a></li>
+          <li><a href="regex-tester.html">Regex Tester</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance &amp; Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="sip-calculator.html">SIP Calculator</a></li>
+          <li><a href="gst-calculator.html">GST Calculator</a></li>
+          <li><a href="percentage-calculator.html">Percentage Calculator</a></li>
+          <li><a href="age-calculator.html">Age Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company &amp; Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 PureWebKits.com. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // DOM References
+      const dropzone = document.getElementById('dropzone');
+      const fileInput = document.getElementById('fileInput');
+      const chooseFileBtn = document.getElementById('chooseFileBtn');
+      const presetBtns = document.querySelectorAll('.preset-btn');
+      const unitSelect = document.getElementById('unitSelect');
+      const dpiSelect = document.getElementById('dpiSelect');
+      const widthInput = document.getElementById('widthInput');
+      const heightInput = document.getElementById('heightInput');
+      const aspectLockBtn = document.getElementById('aspectLockBtn');
+      const lockIcon = document.getElementById('lockIcon');
+      const maxKbInput = document.getElementById('maxKbInput');
+      const formatBtns = document.querySelectorAll('.format-btn');
+      const enhanceCheck = document.getElementById('enhanceCheck');
+      const unitLabels = document.querySelectorAll('.unit-label');
+
+      const origStage = document.getElementById('origStage');
+      const outStage = document.getElementById('outStage');
+      const origMeta = document.getElementById('origMeta');
+      const outMeta = document.getElementById('outMeta');
+      const pixelPreviewTag = document.getElementById('pixelPreviewTag');
+
+      const statDims = document.getElementById('statDims');
+      const statSize = document.getElementById('statSize');
+      const statDpi = document.getElementById('statDpi');
+      const statusBanner = document.getElementById('statusBanner');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const resetBtn = document.getElementById('resetBtn');
+
+      // Application State
+      let sourceImage = null;
+      let sourceFileName = 'signature';
+      let sourceFileSize = 0;
+      let currentPreset = 'ssc';
+      let currentUnit = 'px';
+      let currentDpi = 96;
+      let aspectLocked = false;
+      let lockedRatio = 140 / 60;
+      let outputFormat = 'image/jpeg';
+      let finalBlob = null;
+      let finalPreviewUrl = null;
+      let origPreviewUrl = null;
+      let processTimer = null;
+
+      // Preset Definitions
+      const PRESETS = {
+        ssc: { unit: 'px', w: 140, h: 60, kb: 20, dpi: 200 },
+        ibps: { unit: 'px', w: 140, h: 60, kb: 20, dpi: 200 },
+        gate: { unit: 'px', w: 280, h: 80, kb: 150, dpi: 200 },
+        standard_cm: { unit: 'cm', w: 3.5, h: 1.5, kb: 50, dpi: 96 },
+        custom: null
+      };
+
+      // Unit Conversion Helpers
+      function toPixels(val, unit, dpi) {
+        if (!isFinite(val) || val <= 0) return 1;
+        switch (unit) {
+          case 'cm': return Math.round((val * dpi) / 2.54);
+          case 'mm': return Math.round((val * dpi) / 25.4);
+          case 'in': return Math.round(val * dpi);
+          default: return Math.round(val);
+        }
+      }
+
+      function fromPixels(px, unit, dpi) {
+        switch (unit) {
+          case 'cm': return Number(((px * 2.54) / dpi).toFixed(2));
+          case 'mm': return Number(((px * 25.4) / dpi).toFixed(1));
+          case 'in': return Number((px / dpi).toFixed(2));
+          default: return Math.round(px);
+        }
+      }
+
+      function getTargetPixels() {
+        const wVal = parseFloat(widthInput.value) || 1;
+        const hVal = parseFloat(heightInput.value) || 1;
+        const wPx = Math.max(1, Math.min(4000, toPixels(wVal, currentUnit, currentDpi)));
+        const hPx = Math.max(1, Math.min(4000, toPixels(hVal, currentUnit, currentDpi)));
+        return { wPx, hPx };
+      }
+
+      function updatePixelTag() {
+        const { wPx, hPx } = getTargetPixels();
+        pixelPreviewTag.textContent = `Target: ${wPx} × ${hPx} px`;
+      }
+
+      // CRC32 Table for PNG pHYs chunk injection
+      const crcTable = (function () {
+        const table = new Uint32Array(256);
+        for (let n = 0; n < 256; n++) {
+          let c = n;
+          for (let k = 0; k < 8; k++) {
+            c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+          }
+          table[n] = c >>> 0;
+        }
+        return table;
+      })();
+
+      function crc32(bytes) {
+        let c = 0xFFFFFFFF;
+        for (let i = 0; i < bytes.length; i++) {
+          c = crcTable[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+        }
+        return (c ^ 0xFFFFFFFF) >>> 0;
+      }
+
+      // Inject DPI into JPEG JFIF APP0 header
+      function setJpegDpi(arrayBuffer, dpi) {
+        const bytes = new Uint8Array(arrayBuffer);
+        // Check SOI (FF D8) and APP0 (FF E0) JFIF header
+        if (bytes.length > 20 && bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF && bytes[3] === 0xE0) {
+          // Verify 'JFIF\0' at index 6..10
+          if (bytes[6] === 0x4A && bytes[7] === 0x46 && bytes[8] === 0x49 && bytes[9] === 0x46 && bytes[10] === 0x00) {
+            bytes[13] = 1; // units = dots per inch
+            bytes[14] = (dpi >> 8) & 0xFF;
+            bytes[15] = dpi & 0xFF;
+            bytes[16] = (dpi >> 8) & 0xFF;
+            bytes[17] = dpi & 0xFF;
+            return new Blob([bytes], { type: 'image/jpeg' });
+          }
+        }
+        // Fallback: Insert an APP0 JFIF segment right after SOI
+        const jfifSegment = new Uint8Array([
+          0xFF, 0xE0, 0x00, 0x10,
+          0x4A, 0x46, 0x49, 0x46, 0x00,
+          0x01, 0x01,
+          0x01, // DPI units
+          (dpi >> 8) & 0xFF, dpi & 0xFF,
+          (dpi >> 8) & 0xFF, dpi & 0xFF,
+          0x00, 0x00
+        ]);
+        const out = new Uint8Array(bytes.length + jfifSegment.length);
+        out.set(bytes.slice(0, 2), 0);
+        out.set(jfifSegment, 2);
+        out.set(bytes.slice(2), 2 + jfifSegment.length);
+        return new Blob([out], { type: 'image/jpeg' });
+      }
+
+      // Inject DPI into PNG pHYs chunk
+      function setPngDpi(arrayBuffer, dpi) {
+        const bytes = new Uint8Array(arrayBuffer);
+        const ppm = Math.round(dpi / 0.0254); // pixels per meter
+        const physData = new Uint8Array(13);
+        // Chunk type 'pHYs'
+        physData[0] = 0x70; physData[1] = 0x48; physData[2] = 0x59; physData[3] = 0x73;
+        // X pixels per unit (4 bytes big-endian)
+        physData[4] = (ppm >>> 24) & 0xFF;
+        physData[5] = (ppm >>> 16) & 0xFF;
+        physData[6] = (ppm >>> 8) & 0xFF;
+        physData[7] = ppm & 0xFF;
+        // Y pixels per unit (4 bytes big-endian)
+        physData[8] = (ppm >>> 24) & 0xFF;
+        physData[9] = (ppm >>> 16) & 0xFF;
+        physData[10] = (ppm >>> 8) & 0xFF;
+        physData[11] = ppm & 0xFF;
+        // Unit specifier: 1 = meter
+        physData[12] = 1;
+
+        const crc = crc32(physData);
+        const chunk = new Uint8Array(4 + 13 + 4);
+        // Length = 9
+        chunk[0] = 0; chunk[1] = 0; chunk[2] = 0; chunk[3] = 9;
+        chunk.set(physData, 4);
+        chunk[17] = (crc >>> 24) & 0xFF;
+        chunk[18] = (crc >>> 16) & 0xFF;
+        chunk[19] = (crc >>> 8) & 0xFF;
+        chunk[20] = crc & 0xFF;
+
+        // PNG signature (8 bytes) + IHDR chunk (4 len + 4 type + 13 data + 4 crc = 25 bytes) => insert at offset 33
+        if (bytes.length > 33) {
+          const out = new Uint8Array(bytes.length + chunk.length);
+          out.set(bytes.slice(0, 33), 0);
+          out.set(chunk, 33);
+          out.set(bytes.slice(33), 33 + chunk.length);
+          return new Blob([out], { type: 'image/png' });
+        }
+        return new Blob([bytes], { type: 'image/png' });
+      }
+
+      function canvasToBlobAsync(canvas, mime, quality) {
+        return new Promise((resolve) => {
+          canvas.toBlob((blob) => resolve(blob), mime, quality);
+        });
+      }
+
+      // Multi-step downsampling for crisp signature strokes
+      function createResizedCanvas(img, targetW, targetH, enhance) {
+        let curW = img.naturalWidth;
+        let curH = img.naturalHeight;
+
+        const srcCanvas = document.createElement('canvas');
+        srcCanvas.width = curW;
+        srcCanvas.height = curH;
+        const srcCtx = srcCanvas.getContext('2d');
+        srcCtx.fillStyle = '#FFFFFF';
+        srcCtx.fillRect(0, 0, curW, curH);
+        srcCtx.drawImage(img, 0, 0);
+
+        let currentCanvas = srcCanvas;
+
+        // Progressive halving when scaling down significantly to prevent jagged aliasing
+        while (curW * 0.5 > targetW && curH * 0.5 > targetH) {
+          curW = Math.max(targetW, Math.round(curW * 0.5));
+          curH = Math.max(targetH, Math.round(curH * 0.5));
+          const stepCanvas = document.createElement('canvas');
+          stepCanvas.width = curW;
+          stepCanvas.height = curH;
+          const stepCtx = stepCanvas.getContext('2d');
+          stepCtx.fillStyle = '#FFFFFF';
+          stepCtx.fillRect(0, 0, curW, curH);
+          stepCtx.imageSmoothingEnabled = true;
+          stepCtx.imageSmoothingQuality = 'high';
+          stepCtx.drawImage(currentCanvas, 0, 0, curW, curH);
+          currentCanvas = stepCanvas;
+        }
+
+        const outCanvas = document.createElement('canvas');
+        outCanvas.width = targetW;
+        outCanvas.height = targetH;
+        const outCtx = outCanvas.getContext('2d');
+        outCtx.fillStyle = '#FFFFFF';
+        outCtx.fillRect(0, 0, targetW, targetH);
+        outCtx.imageSmoothingEnabled = true;
+        outCtx.imageSmoothingQuality = 'high';
+        outCtx.drawImage(currentCanvas, 0, 0, targetW, targetH);
+
+        // Optional Contrast & White-Background Cleanup
+        if (enhance) {
+          const imgData = outCtx.getImageData(0, 0, targetW, targetH);
+          const data = imgData.data;
+
+          // Estimate paper brightness from 85th percentile luminance so shaded paper becomes pure white
+          const lumHist = new Uint32Array(256);
+          for (let i = 0; i < data.length; i += 4) {
+            const lum = Math.round(0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]);
+            lumHist[lum]++;
+          }
+          const totalPx = targetW * targetH;
+          let accum = 0;
+          let whitePoint = 225;
+          for (let b = 255; b >= 0; b--) {
+            accum += lumHist[b];
+            if (accum >= totalPx * 0.25) {
+              whitePoint = Math.max(165, Math.min(242, b - 12));
+              break;
+            }
+          }
+          const blackPoint = 45;
+          const range = Math.max(1, whitePoint - blackPoint);
+
+          for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+
+            if (lum >= whitePoint) {
+              data[i] = 255;
+              data[i + 1] = 255;
+              data[i + 2] = 255;
+            } else {
+              // Stretch contrast cleanly while preserving ink hue slightly
+              const factor = Math.max(0, (lum - blackPoint) / range);
+              const darkened = Math.pow(factor, 1.35);
+              const scale = lum > 0 ? (darkened * 255) / lum : 0;
+              data[i] = Math.min(255, Math.max(0, Math.round(r * scale * 0.85)));
+              data[i + 1] = Math.min(255, Math.max(0, Math.round(g * scale * 0.85)));
+              data[i + 2] = Math.min(255, Math.max(0, Math.round(b * scale * 0.85)));
+            }
+            data[i + 3] = 255;
+          }
+          outCtx.putImageData(imgData, 0, 0);
+        }
+
+        return outCanvas;
+      }
+
+      // Main Image Processing Pipeline
+      async function processSignature() {
+        updatePixelTag();
+        if (!sourceImage) return;
+
+        const { wPx, hPx } = getTargetPixels();
+        const maxKb = Math.max(2, parseFloat(maxKbInput.value) || 20);
+        const maxBytes = maxKb * 1024;
+        const enhance = enhanceCheck.checked;
+
+        const outCanvas = createResizedCanvas(sourceImage, wPx, hPx, enhance);
+
+        let chosenBlob = null;
+        let usedQuality = 100;
+
+        if (outputFormat === 'image/jpeg') {
+          // Binary search quality between 0.10 and 0.96 to stay under target maxBytes
+          let low = 0.10;
+          let high = 0.96;
+          let bestBlob = null;
+          let bestQ = 0.10;
+
+          // Check highest quality first
+          const highBlob = await canvasToBlobAsync(outCanvas, 'image/jpeg', high);
+          const highBuffer = await highBlob.arrayBuffer();
+          const highWithDpi = setJpegDpi(highBuffer, currentDpi);
+
+          if (highWithDpi.size <= maxBytes) {
+            chosenBlob = highWithDpi;
+            usedQuality = Math.round(high * 100);
+          } else {
+            for (let step = 0; step < 8; step++) {
+              const mid = (low + high) / 2;
+              const rawBlob = await canvasToBlobAsync(outCanvas, 'image/jpeg', mid);
+              const buf = await rawBlob.arrayBuffer();
+              const dpiBlob = setJpegDpi(buf, currentDpi);
+
+              if (dpiBlob.size <= maxBytes) {
+                bestBlob = dpiBlob;
+                bestQ = mid;
+                low = mid;
+              } else {
+                high = mid;
+              }
+            }
+            if (bestBlob) {
+              chosenBlob = bestBlob;
+              usedQuality = Math.round(bestQ * 100);
+            } else {
+              const minRaw = await canvasToBlobAsync(outCanvas, 'image/jpeg', 0.08);
+              chosenBlob = setJpegDpi(await minRaw.arrayBuffer(), currentDpi);
+              usedQuality = 8;
+            }
+          }
+        } else {
+          const rawPng = await canvasToBlobAsync(outCanvas, 'image/png', 1.0);
+          chosenBlob = setPngDpi(await rawPng.arrayBuffer(), currentDpi);
+          usedQuality = 100;
+        }
+
+        finalBlob = chosenBlob;
+
+        // Render Output Preview
+        if (finalPreviewUrl) URL.revokeObjectURL(finalPreviewUrl);
+        finalPreviewUrl = URL.createObjectURL(finalBlob);
+
+        outStage.innerHTML = '';
+        const outImg = document.createElement('img');
+        outImg.src = finalPreviewUrl;
+        outImg.alt = 'Resized Signature Preview';
+        outStage.appendChild(outImg);
+
+        const sizeKb = (finalBlob.size / 1024).toFixed(1);
+        outMeta.textContent = `${sizeKb} KB`;
+        statDims.textContent = `${wPx} × ${hPx} px`;
+        statSize.textContent = `${sizeKb} KB`;
+        statDpi.textContent = outputFormat === 'image/jpeg'
+          ? `${currentDpi} DPI / Q${usedQuality}%`
+          : `${currentDpi} DPI / Lossless`;
+
+        if (finalBlob.size <= maxBytes) {
+          statusBanner.className = 'status-banner success';
+          statusBanner.textContent = `Ready! Resized to ${wPx} × ${hPx} px (${sizeKb} KB), within your ${maxKb} KB limit at ${currentDpi} DPI.`;
+        } else {
+          statusBanner.className = 'status-banner warning';
+          statusBanner.textContent = `File size is ${sizeKb} KB, above your ${maxKb} KB limit. Switch to .JPEG or increase Max KB to fit.`;
+        }
+
+        downloadBtn.disabled = false;
+      }
+
+      function scheduleProcess() {
+        updatePixelTag();
+        if (!sourceImage) return;
+        clearTimeout(processTimer);
+        processTimer = setTimeout(processSignature, 80);
+      }
+
+      // Handle Uploaded File
+      function handleFile(file) {
+        if (!file || !file.type.startsWith('image/')) {
+          statusBanner.className = 'status-banner warning';
+          statusBanner.textContent = 'Please select a valid JPG, PNG, or WebP signature image.';
+          return;
+        }
+
+        sourceFileName = file.name.replace(/\.[^/.]+$/, '') || 'signature';
+        sourceFileSize = file.size;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            sourceImage = img;
+            lockedRatio = img.naturalWidth / img.naturalHeight;
+
+            if (origPreviewUrl) URL.revokeObjectURL(origPreviewUrl);
+            origPreviewUrl = e.target.result;
+
+            origStage.innerHTML = '';
+            const preview = document.createElement('img');
+            preview.src = origPreviewUrl;
+            preview.alt = 'Original Signature Scan';
+            origStage.appendChild(preview);
+
+            origMeta.textContent = `${img.naturalWidth}×${img.naturalHeight} · ${(file.size / 1024).toFixed(1)} KB`;
+            processSignature();
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // Dropzone Events
+      chooseFileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fileInput.click();
+      });
+
+      dropzone.addEventListener('click', () => fileInput.click());
+      dropzone.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          fileInput.click();
+        }
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          handleFile(e.target.files[0]);
+        }
+      });
+
+      ['dragenter', 'dragover'].forEach((evt) => {
+        dropzone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          dropzone.classList.add('drag-over');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach((evt) => {
+        dropzone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          dropzone.classList.remove('drag-over');
+        });
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      // Preset Click Handlers
+      function setActivePresetButton(name) {
+        currentPreset = name;
+        presetBtns.forEach((btn) => {
+          btn.classList.toggle('active', btn.dataset.preset === name);
+        });
+      }
+
+      presetBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const key = btn.dataset.preset;
+          setActivePresetButton(key);
+          const cfg = PRESETS[key];
+          if (cfg) {
+            currentUnit = cfg.unit;
+            unitSelect.value = cfg.unit;
+            unitLabels.forEach((el) => { el.textContent = cfg.unit; });
+
+            if (key === 'standard_cm') {
+              // Keep current DPI or default 96/300 without breaking user choice unless needed
+              widthInput.value = cfg.w;
+              heightInput.value = cfg.h;
+            } else {
+              currentDpi = cfg.dpi;
+              dpiSelect.value = String(cfg.dpi);
+              widthInput.value = cfg.w;
+              heightInput.value = cfg.h;
+            }
+            maxKbInput.value = cfg.kb;
+            lockedRatio = cfg.w / cfg.h;
+          }
+          scheduleProcess();
+        });
+      });
+
+      // Unit Switcher (Converts current dimensions accurately)
+      unitSelect.addEventListener('change', () => {
+        const oldUnit = currentUnit;
+        const newUnit = unitSelect.value;
+        const curW = parseFloat(widthInput.value) || 1;
+        const curH = parseFloat(heightInput.value) || 1;
+
+        const pxW = toPixels(curW, oldUnit, currentDpi);
+        const pxH = toPixels(curH, oldUnit, currentDpi);
+
+        currentUnit = newUnit;
+        unitLabels.forEach((el) => { el.textContent = newUnit; });
+        widthInput.value = fromPixels(pxW, newUnit, currentDpi);
+        heightInput.value = fromPixels(pxH, newUnit, currentDpi);
+        setActivePresetButton('custom');
+        scheduleProcess();
+      });
+
+      // DPI Selector
+      dpiSelect.addEventListener('change', () => {
+        currentDpi = parseInt(dpiSelect.value, 10) || 96;
+        scheduleProcess();
+      });
+
+      // Aspect Lock Toggle
+      aspectLockBtn.addEventListener('click', () => {
+        aspectLocked = !aspectLocked;
+        aspectLockBtn.classList.toggle('locked', aspectLocked);
+        aspectLockBtn.setAttribute('aria-pressed', String(aspectLocked));
+        if (aspectLocked) {
+          const w = parseFloat(widthInput.value) || 1;
+          const h = parseFloat(heightInput.value) || 1;
+          lockedRatio = sourceImage ? (sourceImage.naturalWidth / sourceImage.naturalHeight) : (w / h);
+          lockIcon.innerHTML = '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>';
+        } else {
+          lockIcon.innerHTML = '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path>';
+        }
+      });
+
+      // Width / Height Input Listeners
+      widthInput.addEventListener('input', () => {
+        setActivePresetButton('custom');
+        const w = parseFloat(widthInput.value);
+        if (aspectLocked && isFinite(w) && w > 0) {
+          const decimals = currentUnit === 'px' ? 0 : 2;
+          heightInput.value = Number((w / lockedRatio).toFixed(decimals));
+        }
+        scheduleProcess();
+      });
+
+      heightInput.addEventListener('input', () => {
+        setActivePresetButton('custom');
+        const h = parseFloat(heightInput.value);
+        if (aspectLocked && isFinite(h) && h > 0) {
+          const decimals = currentUnit === 'px' ? 0 : 2;
+          widthInput.value = Number((h * lockedRatio).toFixed(decimals));
+        }
+        scheduleProcess();
+      });
+
+      maxKbInput.addEventListener('input', scheduleProcess);
+      enhanceCheck.addEventListener('change', scheduleProcess);
+
+      // Output Format Toggle
+      formatBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          outputFormat = btn.dataset.format;
+          formatBtns.forEach((b) => b.classList.toggle('active', b === btn));
+          scheduleProcess();
+        });
+      });
+
+      // Download Resized Signature
+      downloadBtn.addEventListener('click', () => {
+        if (!finalBlob) return;
+        const ext = outputFormat === 'image/png' ? 'png' : 'jpg';
+        const { wPx, hPx } = getTargetPixels();
+        const url = URL.createObjectURL(finalBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${sourceFileName}-${wPx}x${hPx}-${currentDpi}dpi.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
+
+      // Reset Tool
+      resetBtn.addEventListener('click', () => {
+        sourceImage = null;
+        finalBlob = null;
+        fileInput.value = '';
+        if (finalPreviewUrl) URL.revokeObjectURL(finalPreviewUrl);
+        finalPreviewUrl = null;
+        origStage.innerHTML = '<span class="empty-stage-msg">Upload a scan to view original</span>';
+        outStage.innerHTML = '<span class="empty-stage-msg">Output preview appears here</span>';
+        origMeta.textContent = '—';
+        outMeta.textContent = '—';
+        statDims.textContent = '—';
+        statSize.textContent = '—';
+        statDpi.textContent = '—';
+        statusBanner.className = 'status-banner';
+        statusBanner.textContent = '';
+        downloadBtn.disabled = true;
+      });
+
+      // FAQ Accordion Logic
+      const faqItems = document.querySelectorAll('.faq-item');
+      faqItems.forEach((item) => {
+        const btn = item.querySelector('.faq-question');
+        btn.addEventListener('click', () => {
+          const isOpen = item.classList.contains('open');
+          faqItems.forEach((other) => {
+            other.classList.remove('open');
+            other.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+          });
+          if (!isOpen) {
+            item.classList.add('open');
+            btn.setAttribute('aria-expanded', 'true');
+          }
+        });
+      });
+
+      // Initialize UI state
+      updatePixelTag();
+    })();
+  </script>
+</body>
+</html>

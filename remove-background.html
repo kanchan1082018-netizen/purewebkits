@@ -1,0 +1,975 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free AI Photo Background Remover (MediaPipe + 1.5px Edge Smooth) — PureWebKits</title>
+  <meta name="description" content="Remove photo backgrounds fast with AI MediaPipe segmentation and 1.5px edge smoothing. Export transparent PNG or custom solid color backgrounds locally in your browser with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/remove-background.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1120px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 800px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover:not(:disabled) { background: #E2E8F0; }
+    .btn-sec:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-sec.active-tool {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary-dark);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .dropzone-box {
+      border: 2px dashed #93C5FD;
+      background: #F8FAFC;
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+      margin-bottom: 18px;
+    }
+    .dropzone-box:hover, .dropzone-box.dragover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+    }
+    .dropzone-title { font-size: 15px; font-weight: 800; color: var(--text-main); }
+    .dropzone-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.95fr;
+      gap: 22px;
+      align-items: start;
+    }
+    .canvas-col {
+      background: #0F172A;
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .canvas-hud {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #93C5FD;
+    }
+    .checker-wrap {
+      width: 100%;
+      min-height: 310px;
+      max-height: 430px;
+      border-radius: 8px;
+      border: 1px solid #1E293B;
+      background-color: #1E293B;
+      background-image:
+        linear-gradient(45deg, #334155 25%, transparent 25%),
+        linear-gradient(-45deg, #334155 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #334155 75%),
+        linear-gradient(-45deg, transparent 75%, #334155 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 8px;
+    }
+    #bgRemoverCanvas {
+      max-width: 100%;
+      max-height: 400px;
+      height: auto;
+      width: auto;
+      display: none;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    .controls-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .field-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-select {
+      width: 100%;
+      height: 39px;
+      padding: 0 10px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #FFFFFF;
+      outline: none;
+    }
+    .range-slider {
+      width: 100%;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+    .color-input {
+      width: 100%;
+      height: 39px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      background: #FFFFFF;
+      padding: 2px 6px;
+      cursor: pointer;
+    }
+
+    .bg-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .bg-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .bg-title { font-size: 15px; font-weight: 800; color: #34D399; }
+    .bg-sub { font-size: 12px; color: #CBD5E1; }
+    .bg-badge {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 800;
+      color: #38BDF8;
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      padding: 6px 10px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 880px) {
+      .calc-grid, .two-col-fields { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free AI Photo Background Remover</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          MediaPipe AI + 1.5px Edge Smoothing: Fast background removal right in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <button type="button" id="aiRemoveBgBtn" class="btn-primary" style="padding:8px 15px; font-size:13px;" disabled>AI Remove Background</button>
+            <button type="button" id="brushEraseBtn" class="btn-sec active-tool" disabled>Eraser Brush</button>
+            <button type="button" id="brushRestoreBtn" class="btn-sec" disabled>Restore Brush</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="undoMaskBtn" class="btn-sec" disabled>Restore Original</button>
+            <button type="button" id="clearBgToolBtn" class="btn-sec">Clear Image</button>
+          </div>
+        </div>
+
+        <input type="file" id="bgFileInput" accept="image/jpeg,image/png,image/webp" style="display:none;" />
+        <div class="dropzone-box" id="bgDropzone" role="button" tabindex="0" aria-label="Choose or drop a photo to remove its background">
+          <div class="dropzone-title">Click to Choose a Photo or Drag & Drop Here (JPG, PNG, WebP)</div>
+          <div class="dropzone-sub">Automatically runs MediaPipe segmentation with 1.5px edge smoothing — or fine-tune with Eraser/Restore brush</div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="canvas-col">
+            <div class="canvas-hud">
+              <span id="bgCanvasDimsLabel">No image loaded</span>
+              <span id="bgBrushModeLabel">Edge Smooth: blur(1.5px)</span>
+            </div>
+            <div class="checker-wrap">
+              <canvas id="bgRemoverCanvas" width="600" height="400" aria-label="AI Background Removal Canvas"></canvas>
+              <span id="bgPlaceholderHint" style="color:#CBD5E1; font-size:13.5px; font-weight:700;">Upload a photo above to remove its background with AI</span>
+            </div>
+          </div>
+
+          <div class="controls-col">
+            <div class="bg-hero-box">
+              <div>
+                <div class="bg-kicker">MediaPipe AI Engine</div>
+                <div class="bg-title" id="bgStatusTitle">Ready for Photo</div>
+                <div class="bg-sub" id="bgStatusSub">Includes 1.5px edge feathering/smoothing</div>
+              </div>
+              <div class="bg-badge" id="bgOutputBadge">1.5px</div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <div class="field-label-row">
+                  <label for="maskThresholdSlider" class="field-label">AI Mask Sensitivity</label>
+                  <span id="maskThresholdVal" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:12px; font-weight:800; color:var(--primary);">0.45</span>
+                </div>
+                <input type="range" id="maskThresholdSlider" class="range-slider" min="0.15" max="0.85" step="0.05" value="0.45" />
+              </div>
+
+              <div class="field-group">
+                <div class="field-label-row">
+                  <label for="brushSizeSlider" class="field-label">Brush Size</label>
+                  <span id="brushSizeVal" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:12px; font-weight:800; color:var(--primary);">26 px</span>
+                </div>
+                <input type="range" id="brushSizeSlider" class="range-slider" min="6" max="90" step="2" value="26" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="bgBackdropModeSelect" class="field-label">Output Background</label>
+                <select id="bgBackdropModeSelect" class="std-select">
+                  <option value="transparent" selected>Transparent (Alpha PNG)</option>
+                  <option value="solid">Solid Color Backdrop</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="bgBackdropColorInput" class="field-label">Backdrop Color</label>
+                <input type="color" id="bgBackdropColorInput" class="color-input" value="#FFFFFF" />
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="downloadCutoutPngBtn" class="btn-primary" disabled>Download Result PNG</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="main-content">
+    <article class="content-card">
+      <h2>How MediaPipe AI Background Remover With 1.5px Edge Smoothing Works</h2>
+      <p>
+        Standard color-threshold tools often struggle when a photo has mixed lighting or textured surroundings. This tool uses <strong>MediaPipe Selfie Segmentation</strong> in the browser to separate the subject from the background in a few seconds, then applies a <code>blur(1.5px)</code> edge-smoothing pass to the mask so edges look natural rather than jagged.
+      </p>
+      <h3>Steps to Remove a Background</h3>
+      <ol>
+        <li><strong>Upload or Drop Your Photo:</strong> Pick any <code>JPG</code>, <code>PNG</code>, or <code>WebP</code> image. AI background removal runs automatically right after loading.</li>
+        <li><strong>Adjust Sensitivity or Brush Touch-Ups:</strong> Move <strong>AI Mask Sensitivity</strong> if needed, or use <strong>Eraser Brush</strong> / <strong>Restore Brush</strong> to clean up small spots.</li>
+        <li><strong>Choose Transparent or Solid Color & Download:</strong> Export as a transparent <code>PNG</code> or over a solid backdrop color.</li>
+      </ol>
+    </article>
+
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Image Utilities</h2>
+      <div class="tools-grid">
+        <a class="related-link" href="compress-image-to-exact-kb.html"><span>Image Compressor to Exact KB</span><span>→</span></a>
+        <a class="related-link" href="image-resizer.html"><span>Image Resizer</span><span>→</span></a>
+        <a class="related-link" href="jpg-to-png.html"><span>JPG to PNG Converter</span><span>→</span></a>
+        <a class="related-link" href="signature-resizer.html"><span>Signature Resizer</span><span>→</span></a>
+      </div>
+    </section>
+
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Why does the cutout use blur(1.5px) edge smoothing?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            A light <code>1.5px</code> Gaussian blur on the segmentation alpha mask softens harsh pixel steps around hair, clothes, and edges for a cleaner cutout.
+          </div>
+        </div>
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I re-run AI segmentation after changing AI Mask Sensitivity?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Yes. Adjust <strong>AI Mask Sensitivity</strong> and click <strong>AI Remove Background</strong> to re-segment from the original image.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">© 2026 PureWebKits.com. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <!-- MediaPipe Selfie Segmentation CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const bgFileInput = document.getElementById("bgFileInput");
+      const bgDropzone = document.getElementById("bgDropzone");
+
+      const aiRemoveBgBtn = document.getElementById("aiRemoveBgBtn");
+      const brushEraseBtn = document.getElementById("brushEraseBtn");
+      const brushRestoreBtn = document.getElementById("brushRestoreBtn");
+      const undoMaskBtn = document.getElementById("undoMaskBtn");
+      const clearBgToolBtn = document.getElementById("clearBgToolBtn");
+
+      const bgCanvasDimsLabel = document.getElementById("bgCanvasDimsLabel");
+      const bgBrushModeLabel = document.getElementById("bgBrushModeLabel");
+      const bgRemoverCanvas = document.getElementById("bgRemoverCanvas");
+      const bctx = bgRemoverCanvas.getContext("2d");
+      const bgPlaceholderHint = document.getElementById("bgPlaceholderHint");
+
+      const bgStatusTitle = document.getElementById("bgStatusTitle");
+      const bgStatusSub = document.getElementById("bgStatusSub");
+
+      const maskThresholdSlider = document.getElementById("maskThresholdSlider");
+      const maskThresholdVal = document.getElementById("maskThresholdVal");
+      const brushSizeSlider = document.getElementById("brushSizeSlider");
+      const brushSizeVal = document.getElementById("brushSizeVal");
+
+      const bgBackdropModeSelect = document.getElementById("bgBackdropModeSelect");
+      const bgBackdropColorInput = document.getElementById("bgBackdropColorInput");
+      const downloadCutoutPngBtn = document.getElementById("downloadCutoutPngBtn");
+
+      const sourceCanvas = document.createElement("canvas");
+      const sourceCtx = sourceCanvas.getContext("2d");
+      const workingCanvas = document.createElement("canvas");
+      const workingCtx = workingCanvas.getContext("2d");
+
+      let activeBrush = "erase";
+      let isPainting = false;
+      let hasImage = false;
+      let isSegmenting = false;
+      let sourceFileName = "background-removed";
+      let mpSegmenter = null;
+      let pendingMaskResolver = null;
+
+      function getMpSegmenter() {
+        if (mpSegmenter) return Promise.resolve(mpSegmenter);
+        if (typeof window.SelfieSegmentation !== "function") {
+          return Promise.reject(new Error("MediaPipe SelfieSegmentation library did not load."));
+        }
+
+        const seg = new window.SelfieSegmentation({
+          locateFile: function (file) {
+            return "https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/" + file;
+          }
+        });
+
+        seg.setOptions({ modelSelection: 1 });
+        seg.onResults(function (results) {
+          if (typeof pendingMaskResolver === "function") {
+            const resolve = pendingMaskResolver;
+            pendingMaskResolver = null;
+            resolve(results);
+          }
+        });
+
+        mpSegmenter = seg;
+        return Promise.resolve(mpSegmenter);
+      }
+
+      function syncControlsText() {
+        const bSize = parseInt(brushSizeSlider.value, 10) || 26;
+        const thresh = parseFloat(maskThresholdSlider.value) || 0.45;
+        brushSizeVal.textContent = bSize + " px";
+        maskThresholdVal.textContent = thresh.toFixed(2);
+        bgBrushModeLabel.textContent =
+          (activeBrush === "erase" ? "Eraser" : "Restore") + " (" + bSize + "px) | Edge: blur(1.5px)";
+      }
+
+      function renderPreview() {
+        if (!hasImage) {
+          bgRemoverCanvas.style.display = "none";
+          bgPlaceholderHint.style.display = "inline";
+          return;
+        }
+        const w = workingCanvas.width;
+        const h = workingCanvas.height;
+        bgRemoverCanvas.width = w;
+        bgRemoverCanvas.height = h;
+        bgRemoverCanvas.style.display = "block";
+        bgPlaceholderHint.style.display = "none";
+
+        bctx.clearRect(0, 0, w, h);
+        if (bgBackdropModeSelect.value === "solid") {
+          bctx.fillStyle = bgBackdropColorInput.value || "#FFFFFF";
+          bctx.fillRect(0, 0, w, h);
+        }
+        bctx.drawImage(workingCanvas, 0, 0);
+      }
+
+      // Runs MediaPipe segmentation and applies 1.5px edge smoothing to the alpha mask
+      async function runMediaPipeBackgroundRemoval() {
+        if (!hasImage || isSegmenting) return;
+        isSegmenting = true;
+        aiRemoveBgBtn.disabled = true;
+        bgStatusTitle.textContent = "Removing Background...";
+        bgStatusSub.textContent = "Running MediaPipe + blur(1.5px) edge smoothing";
+
+        try {
+          const seg = await getMpSegmenter();
+          const results = await new Promise(function (resolve, reject) {
+            pendingMaskResolver = resolve;
+            seg.send({ image: sourceCanvas }).catch(function (err) {
+              pendingMaskResolver = null;
+              reject(err);
+            });
+          });
+
+          const w = sourceCanvas.width;
+          const h = sourceCanvas.height;
+          const threshold = parseFloat(maskThresholdSlider.value) || 0.45;
+
+          const maskRawCanvas = document.createElement("canvas");
+          maskRawCanvas.width = w;
+          maskRawCanvas.height = h;
+          const mctx = maskRawCanvas.getContext("2d");
+
+          if (results && results.segmentationMask) {
+            const tmpMask = document.createElement("canvas");
+            tmpMask.width = results.segmentationMask.width || w;
+            tmpMask.height = results.segmentationMask.height || h;
+            const tctx = tmpMask.getContext("2d");
+
+            if (results.segmentationMask instanceof ImageData) {
+              tctx.putImageData(results.segmentationMask, 0, 0);
+            } else {
+              tctx.drawImage(results.segmentationMask, 0, 0, tmpMask.width, tmpMask.height);
+            }
+
+            const mImg = tctx.getImageData(0, 0, tmpMask.width, tmpMask.height);
+            const mData = mImg.data;
+            for (let i = 0; i < mData.length; i += 4) {
+              const score = mData[i] / 255;
+              const alphaVal = score >= threshold ? 255 : 0;
+              mData[i] = 255;
+              mData[i + 1] = 255;
+              mData[i + 2] = 255;
+              mData[i + 3] = alphaVal;
+            }
+            tctx.putImageData(mImg, 0, 0);
+
+            // Smooth edges with blur(1.5px)
+            mctx.clearRect(0, 0, w, h);
+            mctx.filter = "blur(1.5px)";
+            mctx.drawImage(tmpMask, 0, 0, w, h);
+            mctx.filter = "none";
+          }
+
+          workingCtx.clearRect(0, 0, w, h);
+          workingCtx.drawImage(sourceCanvas, 0, 0);
+          workingCtx.save();
+          workingCtx.globalCompositeOperation = "destination-in";
+          workingCtx.drawImage(maskRawCanvas, 0, 0);
+          workingCtx.restore();
+
+          bgStatusTitle.textContent = "Background Removed (AI)";
+          bgStatusSub.textContent = "Edge-smoothed with blur(1.5px) — ready to export";
+          renderPreview();
+        } catch (err) {
+          bgStatusTitle.textContent = "AI Model Unavailable";
+          bgStatusSub.textContent = "Check internet access for MediaPipe or use Eraser Brush manually";
+        } finally {
+          isSegmenting = false;
+          if (hasImage) aiRemoveBgBtn.disabled = false;
+        }
+      }
+
+      function loadPhotoFile(file) {
+        if (!file) return;
+        sourceFileName = file.name.replace(/\.[^.]+$/, "") || "background-removed";
+
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          const img = new Image();
+          img.onload = function () {
+            const maxDim = 1280;
+            let w = img.naturalWidth;
+            let h = img.naturalHeight;
+            if (w > maxDim || h > maxDim) {
+              const scale = Math.min(maxDim / w, maxDim / h);
+              w = Math.max(1, Math.round(w * scale));
+              h = Math.max(1, Math.round(h * scale));
+            }
+
+            sourceCanvas.width = w;
+            sourceCanvas.height = h;
+            sourceCtx.clearRect(0, 0, w, h);
+            sourceCtx.drawImage(img, 0, 0, w, h);
+
+            workingCanvas.width = w;
+            workingCanvas.height = h;
+            workingCtx.clearRect(0, 0, w, h);
+            workingCtx.drawImage(sourceCanvas, 0, 0);
+
+            hasImage = true;
+            bgCanvasDimsLabel.textContent = w + " x " + h + " px";
+            aiRemoveBgBtn.disabled = false;
+            brushEraseBtn.disabled = false;
+            brushRestoreBtn.disabled = false;
+            undoMaskBtn.disabled = false;
+            downloadCutoutPngBtn.disabled = false;
+
+            renderPreview();
+            runMediaPipeBackgroundRemoval();
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function paintAtPointer(clientX, clientY) {
+        if (!hasImage) return;
+        const rect = bgRemoverCanvas.getBoundingClientRect();
+        const scaleX = workingCanvas.width / (rect.width || 1);
+        const scaleY = workingCanvas.height / (rect.height || 1);
+        const cx = (clientX - rect.left) * scaleX;
+        const cy = (clientY - rect.top) * scaleY;
+        const radius = ((parseInt(brushSizeSlider.value, 10) || 26) / 2) * Math.max(scaleX, scaleY);
+
+        if (activeBrush === "erase") {
+          workingCtx.save();
+          workingCtx.globalCompositeOperation = "destination-out";
+          workingCtx.beginPath();
+          workingCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+          workingCtx.fill();
+          workingCtx.restore();
+        } else {
+          workingCtx.save();
+          workingCtx.beginPath();
+          workingCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+          workingCtx.clip();
+          workingCtx.drawImage(sourceCanvas, 0, 0);
+          workingCtx.restore();
+        }
+        renderPreview();
+      }
+
+      bgDropzone.addEventListener("click", function () { bgFileInput.click(); });
+      bgDropzone.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          bgFileInput.click();
+        }
+      });
+      bgDropzone.addEventListener("dragover", function (e) {
+        e.preventDefault();
+        bgDropzone.classList.add("dragover");
+      });
+      bgDropzone.addEventListener("dragleave", function () {
+        bgDropzone.classList.remove("dragover");
+      });
+      bgDropzone.addEventListener("drop", function (e) {
+        e.preventDefault();
+        bgDropzone.classList.remove("dragover");
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          loadPhotoFile(e.dataTransfer.files[0]);
+        }
+      });
+      bgFileInput.addEventListener("change", function () {
+        if (bgFileInput.files && bgFileInput.files[0]) {
+          loadPhotoFile(bgFileInput.files[0]);
+        }
+      });
+
+      aiRemoveBgBtn.addEventListener("click", runMediaPipeBackgroundRemoval);
+
+      brushEraseBtn.addEventListener("click", function () {
+        activeBrush = "erase";
+        brushEraseBtn.classList.add("active-tool");
+        brushRestoreBtn.classList.remove("active-tool");
+        syncControlsText();
+      });
+
+      brushRestoreBtn.addEventListener("click", function () {
+        activeBrush = "restore";
+        brushRestoreBtn.classList.add("active-tool");
+        brushEraseBtn.classList.remove("active-tool");
+        syncControlsText();
+      });
+
+      undoMaskBtn.addEventListener("click", function () {
+        if (!hasImage) return;
+        workingCtx.clearRect(0, 0, workingCanvas.width, workingCanvas.height);
+        workingCtx.drawImage(sourceCanvas, 0, 0);
+        bgStatusTitle.textContent = "Original Image Restored";
+        renderPreview();
+      });
+
+      clearBgToolBtn.addEventListener("click", function () {
+        hasImage = false;
+        bgFileInput.value = "";
+        bgCanvasDimsLabel.textContent = "No image loaded";
+        bgStatusTitle.textContent = "Ready for Photo";
+        bgStatusSub.textContent = "Includes 1.5px edge feathering/smoothing";
+        aiRemoveBgBtn.disabled = true;
+        brushEraseBtn.disabled = true;
+        brushRestoreBtn.disabled = true;
+        undoMaskBtn.disabled = true;
+        downloadCutoutPngBtn.disabled = true;
+        renderPreview();
+      });
+
+      bgRemoverCanvas.addEventListener("pointerdown", function (e) {
+        if (!hasImage) return;
+        isPainting = true;
+        try { bgRemoverCanvas.setPointerCapture(e.pointerId); } catch (err) {}
+        paintAtPointer(e.clientX, e.clientY);
+      });
+      bgRemoverCanvas.addEventListener("pointermove", function (e) {
+        if (!isPainting) return;
+        paintAtPointer(e.clientX, e.clientY);
+      });
+      function stopPaint() { isPainting = false; }
+      bgRemoverCanvas.addEventListener("pointerup", stopPaint);
+      bgRemoverCanvas.addEventListener("pointercancel", stopPaint);
+
+      brushSizeSlider.addEventListener("input", syncControlsText);
+      maskThresholdSlider.addEventListener("input", syncControlsText);
+      bgBackdropModeSelect.addEventListener("change", renderPreview);
+      bgBackdropColorInput.addEventListener("input", renderPreview);
+
+      downloadCutoutPngBtn.addEventListener("click", function () {
+        if (!hasImage) return;
+        const outCanvas = document.createElement("canvas");
+        outCanvas.width = workingCanvas.width;
+        outCanvas.height = workingCanvas.height;
+        const octx = outCanvas.getContext("2d");
+
+        if (bgBackdropModeSelect.value === "solid") {
+          octx.fillStyle = bgBackdropColorInput.value || "#FFFFFF";
+          octx.fillRect(0, 0, outCanvas.width, outCanvas.height);
+        }
+        octx.drawImage(workingCanvas, 0, 0);
+
+        outCanvas.toBlob(function (blob) {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = sourceFileName + "-no-bg.png";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }, "image/png");
+      });
+
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      syncControlsText();
+    });
+  </script>
+</body>
+</html>

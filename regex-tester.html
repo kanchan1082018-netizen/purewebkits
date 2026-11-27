@@ -1,0 +1,784 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Regex (Regular Expression) Live Tester Online — Test RegEx Free | PureWebKits</title>
+  <meta name="description" content="Test regular expressions (RegEx) live with real-time matching, flags (g, i, m), and match extraction online for free. 100% client-side in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/regex-tester.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Studio Toolbar & RegEx Input Bar */
+    .regex-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .regex-input-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 9px;
+      background: #FFFFFF;
+      padding: 0 12px;
+      height: 44px;
+      min-width: 260px;
+    }
+    .regex-input-wrap:focus-within { border-color: var(--primary); }
+    .regex-slash { font-weight: 800; color: var(--text-muted); font-size: 16px; }
+    .regex-field {
+      flex: 1; border: none; outline: none; font-family: monospace; font-size: 14px; color: var(--text-main); background: transparent;
+    }
+
+    .flags-group {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 0 14px;
+      height: 44px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .flag-lbl { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+
+    .regex-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: stretch;
+    }
+    .pane-box { display: flex; flex-direction: column; gap: 6px; }
+    .pane-header {
+      font-size: 12.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+    .code-box {
+      width: 100%;
+      height: 320px;
+      padding: 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text-main);
+      background: #F8FAFC;
+      resize: vertical;
+      outline: none;
+    }
+    .code-box:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .matches-box {
+      width: 100%;
+      height: 320px;
+      padding: 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-main);
+      background: #FFFFFF;
+      overflow-y: auto;
+    }
+    .match-tag {
+      display: inline-block;
+      background: #EFF6FF;
+      color: #1D4ED8;
+      border: 1px solid #BFDBFE;
+      padding: 2px 8px;
+      border-radius: 5px;
+      margin: 2px;
+      font-weight: 700;
+    }
+
+    .err-banner {
+      display: none;
+      margin-top: 14px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .regex-grid { grid-template-columns: 1fr; }
+      .code-box, .matches-box { height: 240px; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive RegEx Live Tester Tool -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Regex (Regular Expression) Live Tester — Test Patterns Free</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Test regular expressions and match strings live in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="regex-bar">
+          <div class="regex-input-wrap">
+            <span class="regex-slash">/</span>
+            <input type="text" id="regexPatternInp" class="regex-field" value="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}" placeholder="Enter regex pattern..." />
+            <span class="regex-slash">/</span>
+          </div>
+
+          <div class="flags-group">
+            <label class="flag-lbl"><input type="checkbox" id="flagG" checked /> g</label>
+            <label class="flag-lbl"><input type="checkbox" id="flagI" checked /> i</label>
+            <label class="flag-lbl"><input type="checkbox" id="flagM" /> m</label>
+          </div>
+
+          <button type="button" id="loadSampleRegexBtn" class="btn-sec" style="height:44px;">Load Sample</button>
+        </div>
+
+        <div class="regex-grid">
+          <div class="pane-box">
+            <div class="pane-header">
+              <span>Test String</span>
+            </div>
+            <textarea id="testStringBox" class="code-box" spellcheck="false" placeholder="Enter text to test against regex pattern..."></textarea>
+          </div>
+
+          <div class="pane-box">
+            <div class="pane-header">
+              <span>Matched Results</span>
+              <span id="matchCountLbl" style="font-weight:800;color:var(--success);">0 matches found</span>
+            </div>
+            <div id="matchesOutputBox" class="matches-box"></div>
+          </div>
+        </div>
+
+        <div id="regexErrBanner" class="err-banner" role="alert"></div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Regular Expression (RegEx) Pattern Matching & Flags Work</h2>
+
+      <h3>Why Live RegEx Testing Is Essential for Developers & Data Validation</h3>
+      <p>
+        <strong>Regular Expressions (RegEx)</strong> provide a powerful, concise syntax for matching patterns in strings, validating form inputs (like emails, phone numbers, and postal codes), and extracting specific data from text files or logs. However, constructing complex expressions with quantifiers, character classes, and anchors often requires iterative testing. Our browser-based <strong>Regex Live Tester</strong> evaluates patterns in real time as you type, highlighting matched strings and listing captured groups instantly without sending data to any remote server.
+      </p>
+
+      <h3>How to Test Regular Expressions in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter RegEx Pattern:</strong> Type or paste your regular expression into the pattern bar above (e.g., email or phone validator).</li>
+        <li><strong>Select Flags:</strong> Toggle global (<code>g</code>), case-insensitive (<code>i</code>), or multiline (<code>m</code>) flags as needed.</li>
+        <li><strong>Type Test String:</strong> Enter sample text in the test string pane to see matching results instantly in real time.</li>
+      </ol>
+
+      <h3>RegEx Match Execution Formula + Worked Example</h3>
+      <p>
+        Pattern matching utilizes JavaScript's native <code>RegExp</code> object execution and string match methods:
+      </p>
+      <div class="formula-box">
+        Matches = TestString.match( new RegExp( Pattern, Flags ) )
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Using pattern <code>\d{3}-\d{4}</code> against test string <code>"Call us at 555-1234 or 555-5678"</code> extracts <code>555-1234</code> and <code>555-5678</code> instantly[cite: 3].</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="regex-table-heading">
+      <h2 id="regex-table-heading">RegEx Metacharacters, Quantifiers & Pattern Matching Standards (16 Rules)</h2>
+      <p>Use this regular expression cheat sheet to construct robust patterns for text search, validation, and data extraction[cite: 3].</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>RegEx Element / Flag</th>
+              <th>Syntax Symbol</th>
+              <th>Description & Matching Behavior</th>
+              <th>Example Match</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Global Flag</strong></td>
+              <td><code>g</code></td>
+              <td>Finds all matches rather than stopping at the first</td>
+              <td>All occurrences in string</td>
+            </tr>
+            <tr>
+              <td><strong>Case-Insensitive Flag</strong></td>
+              <td><code>i</code></td>
+              <td>Ignores uppercase and lowercase differences</td>
+              <td><code>/abc/i</code> matches "ABC"</td>
+            </tr>
+            <tr>
+              <td><strong>Multiline Flag</strong></td>
+              <td><code>m</code></td>
+              <td>Treats start (<code>^</code>) and end (<code>$</code>) of lines</td>
+              <td>Matches across line breaks</td>
+            </tr>
+            <tr>
+              <td><strong>Any Character</strong></td>
+              <td><code>.</code></td>
+              <td>Matches any single character except newline</td>
+              <td><code>a.c</code> matches "abc", "a3c"</td>
+            </tr>
+            <tr>
+              <td><strong>Digit Character</strong></td>
+              <td><code>\d</code></td>
+              <td>Matches any digit from 0 to 9</td>
+              <td><code>\d+</code> matches "12345"</td>
+            </tr>
+            <tr>
+              <td><strong>Word Character</strong></td>
+              <td><code>\w</code></td>
+              <td>Matches letters, numbers, or underscore</td>
+              <td><code>\w+</code> matches "User_123"</td>
+            </tr>
+            <tr>
+              <td><strong>Whitespace</strong></td>
+              <td><code>\s</code></td>
+              <td>Matches spaces, tabs, and newlines</td>
+              <td>Separates words</td>
+            </tr>
+            <tr>
+              <td><strong>Zero or More Quantifier</strong></td>
+              <td><code>*</code></td>
+              <td>Matches 0 or more occurrences of preceding element</td>
+              <td><code>a*</code> matches "", "a", "aaa"</td>
+            </tr>
+            <tr>
+              <td><strong>One or More Quantifier</strong></td>
+              <td><code>+</code></td>
+              <td>Matches 1 or more occurrences of preceding element</td>
+              <td><code>a+</code> matches "a", "aaa"</td>
+            </tr>
+            <tr>
+              <td><strong>Optional Quantifier</strong></td>
+              <td><code>?</code></td>
+              <td>Matches 0 or 1 occurrence</td>
+              <td><code>colou?r</code> matches color/colour</td>
+            </tr>
+            <tr>
+              <td><strong>Exact Count Range</strong></td>
+              <td><code>{n,m}</code></td>
+              <td>Matches between <code>n</code> and <code>m</code> times</td>
+              <td><code>\d{3,5}</code> matches 3 to 5 digits</td>
+            </tr>
+            <tr>
+              <td><strong>Start Anchor</strong></td>
+              <td><code>^</code></td>
+              <td>Asserts position at start of string or line</td>
+              <td><code>^Test</code> matches starting word</td>
+            </tr>
+            <tr>
+              <td><strong>End Anchor</strong></td>
+              <td><code>$</code></td>
+              <td>Asserts position at end of string or line</td>
+              <td><code>End$</code> matches ending word</td>
+            </tr>
+            <tr>
+              <td><strong>Character Class</strong></td>
+              <td><code>[aeiou]</code></td>
+              <td>Matches any single character inside brackets</td>
+              <td>Vowel matcher</td>
+            </tr>
+            <tr>
+              <td><strong>Alternation</strong></td>
+              <td><code>|</code></td>
+              <td>Acts as a boolean OR operator</td>
+              <td><code>cat|dog</code> matches cat or dog</td>
+            </tr>
+            <tr>
+              <td><strong>Data Privacy</strong></td>
+              <td>100% Client-Side Memory</td>
+              <td><span class="limit-badge">Zero Server Upload</span></td>
+              <td>Private logs and strings stay secure on your PC[cite: 3]</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Developer, Coding & Text Utilities</h2>
+      <p>Need to find and replace text, count words, encode Base64, or generate UUIDs? Explore our companion tools[cite: 3]:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="find-replace-text.html"><span>Find and Replace Text</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="base64-encode-decode.html"><span>Base64 Encoder / Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="uuid-generator.html"><span>UUID / GUID Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter & Validator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="url-encode-decode.html"><span>URL Encoder / Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="hash-generator.html"><span>MD5 & SHA Hash Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Strong Password Generator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is a Regular Expression (RegEx)?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            A Regular Expression is a sequence of characters that defines a search pattern. It is widely used in programming and text editing for string searching, validation, and replacement operations.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. What do the RegEx flags (g, i, m) mean?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <code>g</code> stands for global (find all matches), <code>i</code> stands for case-insensitive (ignore letter casing), and <code>m</code> stands for multiline (treat start/end anchors across line breaks).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. How are matches displayed in this live tester?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            As you type your pattern or test string, the tool executes JavaScript regex matching in real time, displaying the total match count and listing every extracted match in the results panel.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my test strings or private data uploaded to any external server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All regex testing and pattern matching run 100% locally inside your web browser. Your private text never leaves your computer[cite: 3].
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side RegEx Live Tester Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const regexPatternInp = document.getElementById("regexPatternInp");
+      const flagG = document.getElementById("flagG");
+      const flagI = document.getElementById("flagI");
+      const flagM = document.getElementById("flagM");
+      const testStringBox = document.getElementById("testStringBox");
+      const matchesOutputBox = document.getElementById("matchesOutputBox");
+      const matchCountLbl = document.getElementById("matchCountLbl");
+      const regexErrBanner = document.getElementById("regexErrBanner");
+      const loadSampleRegexBtn = document.getElementById("loadSampleRegexBtn");
+
+      function showErr(msg) {
+        regexErrBanner.textContent = msg;
+        regexErrBanner.style.display = "block";
+      }
+
+      function hideErr() {
+        regexErrBanner.style.display = "none";
+      }
+
+      function runRegexTest() {
+        hideErr();
+        const pattern = regexPatternInp.value || "";
+        const text = testStringBox.value || "";
+
+        if (!pattern.trim()) {
+          matchesOutputBox.innerHTML = "";
+          matchCountLbl.textContent = "0 matches found";
+          return;
+        }
+
+        let flags = "";
+        if (flagG.checked) flags += "g";
+        if (flagI.checked) flags += "i";
+        if (flagM.checked) flags += "m";
+
+        try {
+          const regex = new RegExp(pattern, flags);
+          let matches = [];
+          let match;
+
+          if (flags.includes("g")) {
+            while ((match = regex.exec(text)) !== null) {
+              matches.push(match[0]);
+              if (match.index === regex.lastIndex) {
+                regex.lastIndex++;
+              }
+              if (matches.length > 5000) break; // safety cap
+            }
+          } else {
+            match = regex.exec(text);
+            if (match) {
+              matches.push(match[0]);
+            }
+          }
+
+          matchCountLbl.textContent = matches.length + (matches.length === 1 ? " match found" : " matches found");
+          
+          if (matches.length === 0) {
+            matchesOutputBox.innerHTML = '<span style="color:var(--text-muted);font-style:italic;">No matches found in test string.</span>';
+          } else {
+            matchesOutputBox.innerHTML = "";
+            matches.forEach(function (m) {
+              const tag = document.createElement("span");
+              tag.className = "match-tag";
+              tag.textContent = m;
+              matchesOutputBox.appendChild(tag);
+            });
+          }
+        } catch (err) {
+          matchCountLbl.textContent = "Invalid RegEx";
+          matchesOutputBox.innerHTML = "";
+          showErr("Regular Expression Error: " + err.message);
+        }
+      }
+
+      [regexPatternInp, flagG, flagI, flagM, testStringBox].forEach(function (el) {
+        el.addEventListener("input", runRegexTest);
+        el.addEventListener("change", runRegexTest);
+      });
+
+      loadSampleRegexBtn.addEventListener("click", function () {
+        regexPatternInp.value = "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}";
+        flagG.checked = true;
+        flagI.checked = true;
+        flagM.checked = false;
+        testStringBox.value = 
+          "Please reach out to support@PureWebKits.com or admin@example.org for inquiries.\n" +
+          "Invalid emails like test@domain or user@.com should not match properly.";
+        runRegexTest();
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      loadSampleRegexBtn.click();
+    });
+  </script>
+</body>
+</html>

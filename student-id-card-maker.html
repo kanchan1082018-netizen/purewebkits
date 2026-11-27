@@ -1,0 +1,1590 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Student ID Card Design & Maker (25 Multi-Color Templates & Photo Upload) — PureWebKits</title>
+  <meta name="description" content="Design and customize student ID cards from 25 multi-color templates with optional passport-size photo upload, vertical/horizontal layouts, editable school & student details, QR/barcode, and 300 DPI PNG or print/PDF export online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/student-id-card-maker.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1180px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 840px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Studio Topbar */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .orient-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      gap: 2px;
+    }
+    .orient-btn {
+      border: none;
+      background: transparent;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .orient-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* 25 Multi-Color Student ID Card Sample Gallery */
+    .gallery-section {
+      margin-bottom: 22px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .gallery-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .gallery-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-main);
+    }
+    .template-gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 9px;
+      max-height: 270px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .tpl-swatch {
+      border: 2px solid #CBD5E1;
+      border-radius: 10px;
+      padding: 7px;
+      background: #FFFFFF;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      text-align: left;
+      transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+    }
+    .tpl-swatch:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary);
+    }
+    .tpl-swatch.active {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+      background: var(--primary-soft);
+    }
+    .tpl-mini-art {
+      width: 100%;
+      height: 44px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      display: flex;
+      flex-direction: column;
+    }
+    .tpl-mini-top {
+      height: 18px;
+      width: 100%;
+    }
+    .tpl-mini-body {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 7px;
+    }
+    .tpl-mini-dot {
+      width: 12px;
+      height: 14px;
+      border-radius: 2px;
+    }
+    .tpl-mini-lines {
+      width: 64%;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .tpl-mini-l1 { height: 4px; width: 90%; border-radius: 2px; }
+    .tpl-mini-l2 { height: 3px; width: 65%; border-radius: 2px; opacity: 0.7; }
+    .tpl-mini-tag {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tpl-mini-role {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Main Editor + Live Canvas Grid */
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.12fr 0.98fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col { display: flex; flex-direction: column; gap: 11px; }
+    .preview-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      position: sticky;
+      top: 86px;
+    }
+
+    .section-divider-lbl {
+      font-size: 11.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--primary-dark);
+      padding-top: 4px;
+      border-top: 1px dashed #CBD5E1;
+    }
+
+    .two-col-fields, .three-col-fields, .four-col-fields {
+      display: grid;
+      gap: 10px;
+    }
+    .two-col-fields { grid-template-columns: 1fr 1fr; }
+    .three-col-fields { grid-template-columns: 1fr 1fr 1fr; }
+    .four-col-fields { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+    .field-group { display: flex; flex-direction: column; gap: 4px; }
+    .field-label { font-size: 10.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 38px;
+      padding: 0 10px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+    .color-input {
+      width: 100%;
+      height: 38px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      background: #FFFFFF;
+      padding: 2px 5px;
+      cursor: pointer;
+    }
+
+    /* Optional Photo Upload Box */
+    .photo-opt-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .photo-opt-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    /* Stage Preview */
+    .stage-box {
+      background: #0F172A;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .stage-hud {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #93C5FD;
+    }
+    #studentIdCanvas {
+      max-width: 100%;
+      max-height: 450px;
+      width: auto;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45);
+      background: #FFFFFF;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .toggle-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .btn-row { display: flex; gap: 9px; flex-wrap: wrap; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media print {
+      .site-header, .studio-topbar, .gallery-section, .form-col, .toggle-row, .btn-row, .main-content, .site-footer, .trust-pill { display: none !important; }
+      .tool-hero { background: #FFFFFF; border: none; padding: 0; }
+      .tool-card { box-shadow: none; border: none; padding: 0; }
+      .calc-grid { grid-template-columns: 1fr; }
+      .preview-col { border: none; background: #FFFFFF; padding: 0; position: static; }
+      .stage-box { background: #FFFFFF; padding: 0; }
+      .stage-hud { display: none; }
+      #studentIdCanvas { box-shadow: none; border: 1px solid #CBD5E1; max-height: none; }
+    }
+
+    @media (max-width: 1024px) {
+      .template-gallery-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 880px) {
+      .calc-grid, .two-col-fields, .three-col-fields, .four-col-fields { grid-template-columns: 1fr; }
+      .preview-col { position: static; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .template-gallery-grid { grid-template-columns: repeat(2, 1fr); }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Student ID Card Maker Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Student ID Card Design & Maker</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: 25 multi-color templates, optional passport photo upload, vertical/horizontal layout & 300 DPI PNG/Print export
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="orient-pills" role="tablist" aria-label="ID card orientation">
+            <button type="button" class="orient-btn active" data-orient="vertical">Vertical (Portrait CR80)</button>
+            <button type="button" class="orient-btn" data-orient="horizontal">Horizontal (Landscape CR80)</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="resetSidBtn" class="btn-sec">Reset Defaults</button>
+          </div>
+        </div>
+
+        <!-- 25 Multi-Color Student ID Card Sample Templates -->
+        <div class="gallery-section">
+          <div class="gallery-header">
+            <span class="gallery-title">25 Multi-Color Student ID Card Sample Designs (Click Any Sample to Apply)</span>
+            <span id="sidActiveTplLabel" style="font-size:12px; font-weight:700; color:var(--primary);">Selected: #1 Royal Blue Academy</span>
+          </div>
+          <div class="template-gallery-grid" id="sidTemplateGallery"></div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="section-divider-lbl">1. Passport-Size Student Photo (Optional — Include or Hide)</div>
+            <div class="photo-opt-bar">
+              <div class="photo-opt-actions">
+                <input type="file" id="sidPhotoUploadInput" accept="image/*" style="display:none;" />
+                <button type="button" id="uploadStudentPhotoBtn" class="btn-primary" style="padding:8px 14px; font-size:12.5px;">Upload Passport Photo</button>
+                <button type="button" id="removeStudentPhotoBtn" class="btn-sec" style="display:none;">Remove Photo</button>
+                <select id="sidPhotoModeSelect" class="std-select" style="height:35px; width:auto; font-size:12px;">
+                  <option value="show" selected>Show Photo Box (Uploaded / Placeholder)</option>
+                  <option value="hide">No Photo Layout (Text-Only ID Card)</option>
+                </select>
+              </div>
+              <span id="sidPhotoStatusTxt" style="font-size:11.5px; font-weight:700; color:var(--text-muted);">Using clean placeholder frame (or upload photo)</span>
+            </div>
+
+            <div class="section-divider-lbl">2. School / College / University Details</div>
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="sidSchoolNameInput" class="field-label">School / College Name</label>
+                <input type="text" id="sidSchoolNameInput" class="std-input" value="ST. XAVIER'S PUBLIC ACADEMY" />
+              </div>
+              <div class="field-group">
+                <label for="sidSchoolSubInput" class="field-label">Affiliation / Campus Line</label>
+                <input type="text" id="sidSchoolSubInput" class="std-input" value="Affiliated to CBSE • Senior Secondary Wing" />
+              </div>
+            </div>
+
+            <div class="section-divider-lbl">3. Student Information (Fully Editable)</div>
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="sidStudentNameInput" class="field-label">Student Full Name</label>
+                <input type="text" id="sidStudentNameInput" class="std-input" value="Rohan Kumar Verma" />
+              </div>
+              <div class="field-group">
+                <label for="sidClassCourseInput" class="field-label">Class / Course / Dept.</label>
+                <input type="text" id="sidClassCourseInput" class="std-input" value="Class XII - Science (Sec A)" />
+              </div>
+            </div>
+
+            <div class="three-col-fields">
+              <div class="field-group">
+                <label for="sidRollNoInput" class="field-label">Roll / Enrollment No.</label>
+                <input type="text" id="sidRollNoInput" class="std-input" value="2026-SCI-042" />
+              </div>
+              <div class="field-group">
+                <label for="sidDobInput" class="field-label">Date of Birth</label>
+                <input type="text" id="sidDobInput" class="std-input" value="18 Aug 2009" />
+              </div>
+              <div class="field-group">
+                <label for="sidBloodGroupInput" class="field-label">Blood Group</label>
+                <input type="text" id="sidBloodGroupInput" class="std-input" value="B+ Positive" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="sidGuardianPhoneInput" class="field-label">Guardian / Emergency Phone</label>
+                <input type="text" id="sidGuardianPhoneInput" class="std-input" value="+91 98765 43210" />
+              </div>
+              <div class="field-group">
+                <label for="sidValidThruInput" class="field-label">Academic Session / Valid Thru</label>
+                <input type="text" id="sidValidThruInput" class="std-input" value="2026 - 2027" />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="sidAddressInput" class="field-label">Residential / School Address</label>
+              <input type="text" id="sidAddressInput" class="std-input" value="24 Boring Road, Patna, Bihar - 800001" />
+            </div>
+
+            <div class="section-divider-lbl">4. Custom Multi-Color & Typography Controls</div>
+            <div class="four-col-fields">
+              <div class="field-group">
+                <label for="sidHeaderColorInput" class="field-label">Header Color</label>
+                <input type="color" id="sidHeaderColorInput" class="color-input" value="#1D4ED8" />
+              </div>
+              <div class="field-group">
+                <label for="sidAccentColorInput" class="field-label">Accent / Band</label>
+                <input type="color" id="sidAccentColorInput" class="color-input" value="#F59E0B" />
+              </div>
+              <div class="field-group">
+                <label for="sidTextColorInput" class="field-label">Text Color</label>
+                <input type="color" id="sidTextColorInput" class="color-input" value="#0F172A" />
+              </div>
+              <div class="field-group">
+                <label for="sidBgColorInput" class="field-label">Card Fill</label>
+                <input type="color" id="sidBgColorInput" class="color-input" value="#FFFFFF" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="sidFontSelect" class="field-label">Typography Style</label>
+                <select id="sidFontSelect" class="std-select">
+                  <option value="sans" selected>Clean Modern Sans-Serif</option>
+                  <option value="serif">Academic Classic Serif</option>
+                  <option value="mono">Technical Monospace</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label for="sidFooterNoteInput" class="field-label">Authority / Footer Label</label>
+                <input type="text" id="sidFooterNoteInput" class="std-input" value="Principal Signature • Authorized Student ID" />
+              </div>
+            </div>
+          </div>
+
+          <div class="preview-col">
+            <div class="stage-box">
+              <div class="stage-hud">
+                <span id="sidDimHudLabel">CR80 Portrait (638 × 1012 px @ 300 DPI)</span>
+                <span style="color:#34D399;">LIVE STUDENT ID</span>
+              </div>
+              <canvas id="studentIdCanvas" width="638" height="1012" aria-label="Live Student ID Card Preview"></canvas>
+            </div>
+
+            <div class="toggle-row">
+              <label><input type="checkbox" id="sidShowQrCheck" checked /> Include Verification QR</label>
+              <label><input type="checkbox" id="sidShowBarcodeCheck" checked /> ID Barcode Strip</label>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="downloadSidPngBtn" class="btn-primary">Download ID Card PNG (300 DPI)</button>
+              <button type="button" id="printSidBtn" class="btn-sec" style="height:40px;">Print / Save PDF</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, CR80 Print Sizing & Photo Customization -->
+    <article class="content-card">
+      <h2>Complete User Guide to Student ID Card Design, Multi-Color Templates & CR80 Print Sizing</h2>
+
+      <h3>How Standard CR80 ID Card Dimensions, Optional Passport Photos & Verification Codes Work</h3>
+      <p>
+        Schools, colleges, coaching institutes, libraries, and training academies rely on clear, well-structured <strong>student ID cards</strong> to identify enrolled learners, display emergency guardian contact numbers and blood groups, and streamline campus entry. Standard PVC and laminated ID cards follow the international <strong>ISO/IEC 7810 ID-1 (CR80)</strong> dimension of <code>2.125 × 3.375 inches</code> (<code>53.98 × 85.60 mm</code>), which renders at <code>638 × 1012 pixels</code> in <strong>Vertical (Portrait)</strong> orientation or <code>1012 × 638 pixels</code> in <strong>Horizontal (Landscape)</strong> orientation at crisp <strong>300 DPI</strong> print resolution. Because some institutions require a passport-size student photograph while temporary passes, exam hall cards, or library cards may omit photos, you can upload a student photo or switch seamlessly to a clean <strong>No Photo Layout</strong> without broken boxes. Choosing from <strong>25 multi-color sample templates</strong> and customizing header colors, accent bands, text colors, fonts, QR codes, and barcode strips gives you complete design control. A browser-based <strong>Student ID Card Maker</strong> renders everything 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Create & Download a Student ID Card in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Select Any of the 25 Multi-Color Templates & Orientation:</strong> Choose <strong>Vertical (Portrait CR80)</strong> or <strong>Horizontal (Landscape CR80)</strong> and click any of the 25 multi-color template swatches to apply its color scheme.</li>
+        <li><strong>Upload a Passport Photo (Optional) & Edit Student Details:</strong> Click <strong>Upload Passport Photo</strong> to place a student's photo in the frame—or choose <strong>No Photo Layout</strong> if you prefer a text-only ID card—then edit school name, student name, class/course, roll number, DOB, blood group, guardian phone, session, and address.</li>
+        <li><strong>Customize Colors, QR/Barcode & Export 300 DPI PNG or Print/PDF:</strong> Fine-tune Header, Accent, Text, and Card Fill colors, toggle the verification QR code or ID barcode strip, and click <strong>Download ID Card PNG (300 DPI)</strong> or <strong>Print / Save PDF</strong>.</li>
+      </ol>
+
+      <h3>CR80 ID Card Print Dimension Formula</h3>
+      <p>
+        Converting standard <code>CR80</code> physical card dimensions into <code>300 DPI</code> print pixels:
+      </p>
+      <div class="formula-box">
+        Portrait CR80: 2.125 in × 300 DPI = 638 px (W)  ×  3.375 in × 300 DPI = 1012 px (H)<br />
+        Landscape CR80: 3.375 in × 300 DPI = 1012 px (W)  ×  2.125 in × 300 DPI = 638 px (H)
+      </div>
+
+      <h3>Helpful Tips for Clean School & College ID Card Printing</h3>
+      <ul>
+        <li><strong>Use Bright, Evenly Lit Passport Photos:</strong> When uploading a student photo, pick a front-facing portrait with a clean background so facial features stay sharp inside the passport frame.</li>
+        <li><strong>Keep Emergency Phone & Blood Group Visible:</strong> Displaying a guardian phone number and blood group directly on the front helps staff respond quickly during school trips or campus emergencies.</li>
+        <li><strong>Print at 100% Actual Size for PVC Pouches & Lamination:</strong> Ensure your print dialog is set to <code>100%</code> scale so the printed card fits standard CR80 badge holders and lanyards cleanly.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Picking template <strong>#1 Royal Blue Academy</strong> in <strong>Portrait CR80</strong> mode, uploading a passport-size photo, entering student details (Roll No. <code>2026-SCI-042</code>, Blood Group <code>B+ Positive</code>), and downloading at <code>638 × 1012 px</code> produces a print-ready <code>300 DPI</code> student ID card.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="sid-table-heading">
+      <h2 id="sid-table-heading">Student ID Card Templates, CR80 Specs & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to explore the 25 multi-color themes, photo options, and print specifications.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Template Group / Feature</th>
+              <th>Color Palette / Spec</th>
+              <th>Recommended Use</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>#1–#5 Classic Academic Blues</strong></td>
+              <td>Royal Blue, Navy Gold, Sky Cyan, Cobalt, Sapphire</td>
+              <td>Schools, Universities, Coaching</td>
+              <td>High-trust institutional color schemes</td>
+            </tr>
+            <tr>
+              <td><strong>#6–#10 Emerald & Teal Greens</strong></td>
+              <td>Emerald Gold, Forest Mint, Clinical Teal, Sage, Jade</td>
+              <td>Science Wings, Medical & Nursing</td>
+              <td>Fresh, crisp multi-tone headers</td>
+            </tr>
+            <tr>
+              <td><strong>#11–#15 Crimson, Maroon & Coral</strong></td>
+              <td>Crimson Gold, Maroon Heritage, Ruby Red, Coral, Rose</td>
+              <td>Convent Schools, Arts & Law</td>
+              <td>Traditional academic crest tones</td>
+            </tr>
+            <tr>
+              <td><strong>#16–#20 Saffron, Amber & Purple</strong></td>
+              <td>Saffron Amber, Violet Indigo, Plum Gold, Sunset, Orchid</td>
+              <td>Cultural Academies, Junior Wings</td>
+              <td>Vibrant multi-color student themes</td>
+            </tr>
+            <tr>
+              <td><strong>#21–#25 Dark & Modern Tech</strong></td>
+              <td>Obsidian Cyan, Charcoal Amber, Slate Emerald, Midnight</td>
+              <td>Engineering, IT & Event Passes</td>
+              <td>Sleek dark-accented badge designs</td>
+            </tr>
+            <tr>
+              <td><strong>Optional Passport Photo</strong></td>
+              <td>Upload JPG/PNG/WebP or Hide</td>
+              <td>Photo ID or Text-Only ID card</td>
+              <td>Center-cropped cleanly to passport ratio</td>
+            </tr>
+            <tr>
+              <td><strong>Portrait CR80 Size</strong></td>
+              <td><code>638 × 1012 px</code> (<code>2.125 × 3.375 in</code>)</td>
+              <td>Standard vertical lanyard ID</td>
+              <td>Rendered at 300 DPI</td>
+            </tr>
+            <tr>
+              <td><strong>Landscape CR80 Size</strong></td>
+              <td><code>1012 × 638 px</code> (<code>3.375 × 2.125 in</code>)</td>
+              <td>Horizontal wallet / clip badge</td>
+              <td>Toggleable in top bar</td>
+            </tr>
+            <tr>
+              <td><strong>Verification QR Code</strong></td>
+              <td>Encodes Roll No, Name & School</td>
+              <td>Quick attendance / gate scan</td>
+              <td>Toggleable on/off</td>
+            </tr>
+            <tr>
+              <td><strong>ID Barcode Strip</strong></td>
+              <td>Deterministic bars from Roll No</td>
+              <td>Library & lab checkout look</td>
+              <td>Toggleable on/off</td>
+            </tr>
+            <tr>
+              <td><strong>4-Color Customizer</strong></td>
+              <td>Header, Accent, Text & Card Fill</td>
+              <td>Match exact school uniform/brand</td>
+              <td>Live color pickers</td>
+            </tr>
+            <tr>
+              <td><strong>300 DPI PNG & Print/PDF</strong></td>
+              <td>Instant download or print dialog</td>
+              <td>Home printer or PVC card shop</td>
+              <td>Zero watermarks</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser HTML5 Canvas 300 DPI ID Card Renderer — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Student photos, roll numbers, and phone numbers stay strictly inside your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero student records transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser student ID card maker with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Card Makers, Photo, Academic & Everyday Utilities</h2>
+      <p>Removing photo backgrounds, resizing passport photos or signatures, designing visiting cards, or building a resume? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="photo-background-remover.html"><span>Photo Background Remover</span><span class="arrow">→</span></a>
+        <a class="related-link" href="visiting-card-maker.html"><span>Visiting Card Maker</span><span class="arrow">→</span></a>
+        <a class="related-link" href="inviting-card-maker.html"><span>Inviting Card Maker</span><span class="arrow">→</span></a>
+        <a class="related-link" href="resume-maker.html"><span>Resume Maker</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compress-image-to-exact-kb.html"><span>Image Compressor to KB</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-resizer.html"><span>Image Resizer</span><span class="arrow">→</span></a>
+        <a class="related-link" href="signature-resizer.html"><span>Signature Resizer</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Can I create a student ID card without uploading a photo?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes.</strong> You can upload a passport-size student photo via <strong>Upload Passport Photo</strong>, keep the clean placeholder frame, or select <strong>No Photo Layout (Text-Only ID Card)</strong> to hide the photo box completely.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I customize the colors of the 25 sample templates?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes.</strong> Clicking any of the 25 multi-color templates loads its color palette, and you can further customize the <strong>Header Color</strong>, <strong>Accent / Band</strong>, <strong>Text Color</strong>, <strong>Card Fill</strong>, and typography style.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are student photos or personal details sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. Student photo cropping, QR/barcode rendering, and 300 DPI PNG/PDF export run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online Student ID Card Maker free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side 25 Multi-Color Student ID Card Studio & 300 DPI Canvas Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const SID_TEMPLATES = [
+        { id: 1,  name: "Royal Blue Academy",   cat: "Classic Blue",   header: "#1D4ED8", accent: "#F59E0B", text: "#0F172A", bg: "#FFFFFF", font: "sans" },
+        { id: 2,  name: "Oxford Navy Gold",     cat: "University",     header: "#0F172A", accent: "#D97706", text: "#0F172A", bg: "#F8FAFC", font: "serif" },
+        { id: 3,  name: "Sky Cyan Campus",      cat: "Modern School",  header: "#0284C7", accent: "#38BDF8", text: "#0C4A6E", bg: "#F0F9FF", font: "sans" },
+        { id: 4,  name: "Cobalt & Coral",       cat: "Junior Wing",    header: "#2563EB", accent: "#F43F5E", text: "#1E293B", bg: "#FFFFFF", font: "sans" },
+        { id: 5,  name: "Sapphire & Mint",      cat: "International",  header: "#1E3A8A", accent: "#10B981", text: "#0F172A", bg: "#EFF6FF", font: "sans" },
+        { id: 6,  name: "Emerald & Amber",      cat: "Science Wing",   header: "#047857", accent: "#F59E0B", text: "#022C22", bg: "#ECFDF5", font: "sans" },
+        { id: 7,  name: "Forest Green Classic", cat: "Public School",  header: "#14532D", accent: "#84CC16", text: "#14532D", bg: "#F7FEE7", font: "serif" },
+        { id: 8,  name: "Clinical Teal",        cat: "Medical/Nursing",header: "#0F766E", accent: "#14B8A6", text: "#134E4A", bg: "#F0FDFA", font: "sans" },
+        { id: 9,  name: "Jade & Gold Crest",    cat: "Academy",        header: "#065F46", accent: "#EAB308", text: "#0F172A", bg: "#FFFFFF", font: "serif" },
+        { id: 10, name: "Mint & Navy",          cat: "College",        header: "#0D9488", accent: "#1E293B", text: "#0F172A", bg: "#F8FAFC", font: "sans" },
+        { id: 11, name: "Crimson & Gold",       cat: "Convent School", header: "#BE123C", accent: "#F59E0B", text: "#4C0519", bg: "#FFF1F2", font: "serif" },
+        { id: 12, name: "Maroon Heritage",      cat: "Law / Arts",     header: "#7F1D1D", accent: "#D97706", text: "#1F2937", bg: "#FFFFFF", font: "serif" },
+        { id: 13, name: "Ruby & Navy",          cat: "Senior Sec.",    header: "#DC2626", accent: "#1D4ED8", text: "#0F172A", bg: "#FEF2F2", font: "sans" },
+        { id: 14, name: "Coral & Teal",         cat: "Creative Arts",  header: "#E11D48", accent: "#0D9488", text: "#1E293B", bg: "#FFFFFF", font: "sans" },
+        { id: 15, name: "Rosewood & Cream",     cat: "Institute",      header: "#9F1239", accent: "#CA8A04", text: "#292524", bg: "#FFFBEB", font: "serif" },
+        { id: 16, name: "Saffron & Indigo",     cat: "National School",header: "#EA580C", accent: "#312E81", text: "#1C1917", bg: "#FFF7ED", font: "sans" },
+        { id: 17, name: "Amber & Slate",        cat: "Commerce Wing",  header: "#B45309", accent: "#334155", text: "#0F172A", bg: "#FFFBEB", font: "sans" },
+        { id: 18, name: "Royal Violet Gold",    cat: "University",     header: "#6D28D9", accent: "#F59E0B", text: "#2E1065", bg: "#F5F3FF", font: "serif" },
+        { id: 19, name: "Indigo & Cyan",        cat: "Engineering",    header: "#4338CA", accent: "#06B6D4", text: "#1E1B4B", bg: "#EEF2FF", font: "mono" },
+        { id: 20, name: "Plum & Rose",          cat: "Girls Academy",  header: "#86198F", accent: "#EC4899", text: "#4A044E", bg: "#FDF4FF", font: "sans" },
+        { id: 21, name: "Obsidian & Cyan",      cat: "Tech Campus",    header: "#090D16", accent: "#06B6D4", text: "#F8FAFC", bg: "#111827", font: "mono" },
+        { id: 22, name: "Charcoal & Amber",     cat: "Polytechnic",    header: "#18181B", accent: "#F59E0B", text: "#FAFAFA", bg: "#27272A", font: "sans" },
+        { id: 23, name: "Midnight & Emerald",   cat: "IT Academy",     header: "#020617", accent: "#10B981", text: "#F1F5F9", bg: "#0F172A", font: "mono" },
+        { id: 24, name: "Burgundy & Gold Dark", cat: "Honors Club",    header: "#4C0519", accent: "#FBBF24", text: "#FFF1F2", bg: "#881337", font: "serif" },
+        { id: 25, name: "Slate & Electric Blue",cat: "Library / Pass", header: "#334155", accent: "#3B82F6", text: "#0F172A", bg: "#F1F5F9", font: "sans" }
+      ];
+
+      const sidTemplateGallery = document.getElementById("sidTemplateGallery");
+      const sidActiveTplLabel = document.getElementById("sidActiveTplLabel");
+      const orientBtns = document.querySelectorAll(".orient-btn");
+      const resetSidBtn = document.getElementById("resetSidBtn");
+
+      const sidPhotoUploadInput = document.getElementById("sidPhotoUploadInput");
+      const uploadStudentPhotoBtn = document.getElementById("uploadStudentPhotoBtn");
+      const removeStudentPhotoBtn = document.getElementById("removeStudentPhotoBtn");
+      const sidPhotoModeSelect = document.getElementById("sidPhotoModeSelect");
+      const sidPhotoStatusTxt = document.getElementById("sidPhotoStatusTxt");
+
+      const sidSchoolNameInput = document.getElementById("sidSchoolNameInput");
+      const sidSchoolSubInput = document.getElementById("sidSchoolSubInput");
+      const sidStudentNameInput = document.getElementById("sidStudentNameInput");
+      const sidClassCourseInput = document.getElementById("sidClassCourseInput");
+      const sidRollNoInput = document.getElementById("sidRollNoInput");
+      const sidDobInput = document.getElementById("sidDobInput");
+      const sidBloodGroupInput = document.getElementById("sidBloodGroupInput");
+      const sidGuardianPhoneInput = document.getElementById("sidGuardianPhoneInput");
+      const sidValidThruInput = document.getElementById("sidValidThruInput");
+      const sidAddressInput = document.getElementById("sidAddressInput");
+      const sidFooterNoteInput = document.getElementById("sidFooterNoteInput");
+
+      const sidHeaderColorInput = document.getElementById("sidHeaderColorInput");
+      const sidAccentColorInput = document.getElementById("sidAccentColorInput");
+      const sidTextColorInput = document.getElementById("sidTextColorInput");
+      const sidBgColorInput = document.getElementById("sidBgColorInput");
+      const sidFontSelect = document.getElementById("sidFontSelect");
+
+      const sidShowQrCheck = document.getElementById("sidShowQrCheck");
+      const sidShowBarcodeCheck = document.getElementById("sidShowBarcodeCheck");
+
+      const sidDimHudLabel = document.getElementById("sidDimHudLabel");
+      const studentIdCanvas = document.getElementById("studentIdCanvas");
+      const sctx = studentIdCanvas.getContext("2d");
+
+      const downloadSidPngBtn = document.getElementById("downloadSidPngBtn");
+      const printSidBtn = document.getElementById("printSidBtn");
+
+      let selectedTemplate = SID_TEMPLATES[0];
+      let orientation = "vertical"; // "vertical" | "horizontal"
+      let uploadedStudentPhoto = null;
+
+      function getFontCss(key) {
+        if (key === "serif") return 'Georgia, "Times New Roman", serif';
+        if (key === "mono") return 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
+        return '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif';
+      }
+
+      function buildTemplateGallery() {
+        sidTemplateGallery.innerHTML = "";
+        SID_TEMPLATES.forEach(function (tpl) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "tpl-swatch" + (tpl.id === selectedTemplate.id ? " active" : "");
+          btn.setAttribute("data-tpl-id", String(tpl.id));
+          btn.innerHTML = `
+            <div class="tpl-mini-art" style="background:${tpl.bg};">
+              <div class="tpl-mini-top" style="background:${tpl.header}; border-bottom: 3px solid ${tpl.accent};"></div>
+              <div class="tpl-mini-body">
+                <div class="tpl-mini-dot" style="background:${tpl.accent};"></div>
+                <div class="tpl-mini-lines">
+                  <div class="tpl-mini-l1" style="background:${tpl.header};"></div>
+                  <div class="tpl-mini-l2" style="background:${tpl.text};"></div>
+                </div>
+              </div>
+            </div>
+            <div class="tpl-mini-tag">#${tpl.id} ${tpl.name}</div>
+            <div class="tpl-mini-role">${tpl.cat}</div>
+          `;
+          btn.addEventListener("click", function () {
+            applyTemplate(tpl);
+          });
+          sidTemplateGallery.appendChild(btn);
+        });
+      }
+
+      function applyTemplate(tpl) {
+        selectedTemplate = tpl;
+        sidHeaderColorInput.value = tpl.header;
+        sidAccentColorInput.value = tpl.accent;
+        sidTextColorInput.value = tpl.text;
+        sidBgColorInput.value = tpl.bg;
+        sidFontSelect.value = tpl.font;
+
+        sidActiveTplLabel.textContent = `Selected: #${tpl.id} ${tpl.name} (${tpl.cat})`;
+        document.querySelectorAll(".tpl-swatch").forEach(function (el) {
+          el.classList.toggle("active", Number(el.getAttribute("data-tpl-id")) === tpl.id);
+        });
+
+        renderStudentIdCard();
+      }
+
+      function drawQrBox(ctx, x, y, size, payload, fg, bg) {
+        const dim = 21;
+        const grid = Array.from({ length: dim }, function () {
+          return Array.from({ length: dim }, function () { return 0; });
+        });
+        const res = Array.from({ length: dim }, function () {
+          return Array.from({ length: dim }, function () { return false; });
+        });
+
+        function finder(r0, c0) {
+          for (let r = -1; r <= 7; r++) {
+            for (let c = -1; c <= 7; c++) {
+              const rr = r0 + r;
+              const cc = c0 + c;
+              if (rr < 0 || rr >= dim || cc < 0 || cc >= dim) continue;
+              res[rr][cc] = true;
+              const edge = r === 0 || r === 6 || c === 0 || c === 6;
+              const mid = r >= 2 && r <= 4 && c >= 2 && c <= 4;
+              grid[rr][cc] = (edge || mid) ? 1 : 0;
+            }
+          }
+        }
+        finder(0, 0);
+        finder(0, dim - 7);
+        finder(dim - 7, 0);
+
+        const bytes = new TextEncoder().encode(payload || "STUDENT-ID");
+        let h = 0x811c9dc5;
+        for (let i = 0; i < bytes.length; i++) {
+          h ^= bytes[i];
+          h = Math.imul(h, 0x01000193);
+        }
+
+        let cur = 0;
+        for (let r = 0; r < dim; r++) {
+          for (let c = 0; c < dim; c++) {
+            if (res[r][c]) continue;
+            const b = bytes[Math.floor(cur / 8) % bytes.length];
+            const bit = (b >> (7 - (cur % 8))) & 1;
+            const mix = ((h >>> ((r * 3 + c) % 24)) ^ ((r + c) % 2)) & 1;
+            grid[r][c] = (bit ^ mix) ? 1 : 0;
+            cur++;
+          }
+        }
+
+        ctx.save();
+        ctx.fillStyle = bg;
+        ctx.fillRect(x, y, size, size);
+        const pad = 6;
+        const cell = (size - pad * 2) / dim;
+        ctx.fillStyle = fg;
+        for (let r = 0; r < dim; r++) {
+          for (let c = 0; c < dim; c++) {
+            if (grid[r][c] === 1) {
+              ctx.fillRect(Math.round(x + pad + c * cell), Math.round(y + pad + r * cell), Math.ceil(cell), Math.ceil(cell));
+            }
+          }
+        }
+        ctx.restore();
+      }
+
+      function drawBarcodeStrip(ctx, x, y, w, h, codeStr, color) {
+        ctx.save();
+        ctx.fillStyle = color;
+        let hash = 2166136261;
+        for (let i = 0; i < codeStr.length; i++) {
+          hash ^= codeStr.charCodeAt(i);
+          hash = Math.imul(hash, 16777619);
+        }
+        let cx = x;
+        let idx = 0;
+        while (cx < x + w - 4) {
+          const barW = ((hash >>> (idx % 24)) & 3) + 2;
+          const gapW = (((hash >>> ((idx + 5) % 24)) & 2) + 2);
+          ctx.fillRect(cx, y, barW, h);
+          cx += barW + gapW;
+          idx++;
+        }
+        ctx.restore();
+      }
+
+      function drawPassportPhotoFrame(ctx, x, y, pw, ph, accentCol, headerCol) {
+        ctx.save();
+        ctx.fillStyle = "#E2E8F0";
+        ctx.fillRect(x, y, pw, ph);
+
+        if (uploadedStudentPhoto) {
+          // Cover-fit uploaded passport photo cleanly
+          const scale = Math.max(pw / uploadedStudentPhoto.width, ph / uploadedStudentPhoto.height);
+          const dw = uploadedStudentPhoto.width * scale;
+          const dh = uploadedStudentPhoto.height * scale;
+          ctx.beginPath();
+          ctx.rect(x, y, pw, ph);
+          ctx.clip();
+          ctx.drawImage(uploadedStudentPhoto, x + (pw - dw) / 2, y + (ph - dh) / 2, dw, dh);
+        } else {
+          // Clean silhouette placeholder
+          ctx.fillStyle = "#CBD5E1";
+          ctx.beginPath();
+          ctx.arc(x + pw / 2, y + ph * 0.36, pw * 0.2, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(x + pw / 2, y + ph * 0.88, pw * 0.34, Math.PI, 0);
+          ctx.fill();
+
+          ctx.fillStyle = "#475569";
+          ctx.font = "700 16px -apple-system, BlinkMacSystemFont, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("PASSPORT PHOTO", x + pw / 2, y + ph - 14);
+        }
+
+        ctx.restore();
+        ctx.strokeStyle = accentCol;
+        ctx.lineWidth = 5;
+        ctx.strokeRect(x, y, pw, ph);
+        ctx.strokeStyle = headerCol;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x - 4, y - 4, pw + 8, ph + 8);
+      }
+
+      function renderStudentIdCard() {
+        const isVert = orientation === "vertical";
+        const w = isVert ? 638 : 1012;
+        const h = isVert ? 1012 : 638;
+
+        studentIdCanvas.width = w;
+        studentIdCanvas.height = h;
+        sidDimHudLabel.textContent = isVert
+          ? "CR80 Portrait (638 \u00D7 1012 px @ 300 DPI)"
+          : "CR80 Landscape (1012 \u00D7 638 px @ 300 DPI)";
+
+        const headerCol = sidHeaderColorInput.value || "#1D4ED8";
+        const accentCol = sidAccentColorInput.value || "#F59E0B";
+        const textCol = sidTextColorInput.value || "#0F172A";
+        const bgCol = sidBgColorInput.value || "#FFFFFF";
+        const fontFam = getFontCss(sidFontSelect.value);
+
+        const showPhoto = sidPhotoModeSelect.value === "show";
+        const schoolName = sidSchoolNameInput.value.trim() || "SCHOOL / ACADEMY NAME";
+        const schoolSub = sidSchoolSubInput.value.trim();
+        const studentName = sidStudentNameInput.value.trim() || "Student Name";
+        const classCourse = sidClassCourseInput.value.trim();
+        const rollNo = sidRollNoInput.value.trim();
+        const dob = sidDobInput.value.trim();
+        const bloodGroup = sidBloodGroupInput.value.trim();
+        const guardianPhone = sidGuardianPhoneInput.value.trim();
+        const validThru = sidValidThruInput.value.trim();
+        const address = sidAddressInput.value.trim();
+        const footerNote = sidFooterNoteInput.value.trim();
+
+        const qrPayload = `ID:${rollNo}|NAME:${studentName}|INST:${schoolName}|TEL:${guardianPhone}`;
+
+        sctx.clearRect(0, 0, w, h);
+        sctx.fillStyle = bgCol;
+        sctx.fillRect(0, 0, w, h);
+
+        if (isVert) {
+          // VERTICAL PORTRAIT CR80 LAYOUT (638 x 1012)
+          sctx.fillStyle = headerCol;
+          sctx.fillRect(0, 0, w, 195);
+          sctx.fillStyle = accentCol;
+          sctx.fillRect(0, 195, w, 14);
+
+          sctx.textAlign = "center";
+          sctx.fillStyle = "#FFFFFF";
+          sctx.font = `800 30px ${fontFam}`;
+          sctx.fillText(schoolName, w / 2, 74, w - 48);
+
+          if (schoolSub) {
+            sctx.fillStyle = "#E2E8F0";
+            sctx.font = `600 17px ${fontFam}`;
+            sctx.fillText(schoolSub, w / 2, 108, w - 48);
+          }
+
+          // Badge pill
+          sctx.fillStyle = accentCol;
+          sctx.fillRect(w / 2 - 125, 134, 250, 36);
+          sctx.fillStyle = "#0F172A";
+          sctx.font = `800 17px ${fontFam}`;
+          sctx.fillText("STUDENT IDENTITY CARD", w / 2, 158);
+
+          let cursorY = 242;
+          if (showPhoto) {
+            const pw = 210;
+            const ph = 250;
+            drawPassportPhotoFrame(sctx, (w - pw) / 2, cursorY, pw, ph, accentCol, headerCol);
+            cursorY += ph + 44;
+          } else {
+            cursorY += 35;
+          }
+
+          sctx.textAlign = "center";
+          sctx.fillStyle = headerCol;
+          sctx.font = `800 36px ${fontFam}`;
+          sctx.fillText(studentName, w / 2, cursorY, w - 56);
+          cursorY += 36;
+
+          if (classCourse) {
+            sctx.fillStyle = accentCol;
+            sctx.font = `700 22px ${fontFam}`;
+            sctx.fillText(classCourse, w / 2, cursorY, w - 56);
+            cursorY += 38;
+          }
+
+          // Details Table Block
+          sctx.textAlign = "left";
+          const leftLabelX = 52;
+          const valX = 245;
+          const rowGap = showPhoto ? 40 : 48;
+
+          const rows = [
+            ["Roll / ID No.", rollNo],
+            ["Date of Birth", dob],
+            ["Blood Group", bloodGroup],
+            ["Guardian Tel", guardianPhone],
+            ["Session", validThru],
+            ["Address", address]
+          ].filter(function (r) { return r[1]; });
+
+          rows.forEach(function (pair) {
+            sctx.fillStyle = headerCol;
+            sctx.font = `800 19px ${fontFam}`;
+            sctx.fillText(pair[0] + ":", leftLabelX, cursorY);
+
+            sctx.fillStyle = textCol;
+            sctx.font = `600 19px ${fontFam}`;
+            sctx.fillText(pair[1], valX, cursorY, w - valX - 42);
+            cursorY += rowGap;
+          });
+
+          // Bottom QR & Barcode Strip
+          const footerTop = h - 165;
+          if (sidShowQrCheck.checked) {
+            drawQrBox(sctx, 48, footerTop, 108, qrPayload, "#0F172A", "#FFFFFF");
+          }
+          if (sidShowBarcodeCheck.checked) {
+            const bx = sidShowQrCheck.checked ? 175 : 48;
+            const bw = sidShowQrCheck.checked ? (w - 223) : (w - 96);
+            drawBarcodeStrip(sctx, bx, footerTop + 26, bw, 56, rollNo || "2026042", textCol);
+          }
+
+          // Bottom Banner
+          sctx.fillStyle = headerCol;
+          sctx.fillRect(0, h - 42, w, 42);
+          sctx.textAlign = "center";
+          sctx.fillStyle = "#FFFFFF";
+          sctx.font = `700 15px ${fontFam}`;
+          sctx.fillText(footerNote || "Authorized Student Identity Card", w / 2, h - 15, w - 40);
+        } else {
+          // HORIZONTAL LANDSCAPE CR80 LAYOUT (1012 x 638)
+          sctx.fillStyle = headerCol;
+          sctx.fillRect(0, 0, w, 132);
+          sctx.fillStyle = accentCol;
+          sctx.fillRect(0, 132, w, 10);
+
+          sctx.textAlign = "left";
+          sctx.fillStyle = "#FFFFFF";
+          sctx.font = `800 32px ${fontFam}`;
+          sctx.fillText(schoolName, 44, 62, w - 300);
+
+          if (schoolSub) {
+            sctx.fillStyle = "#E2E8F0";
+            sctx.font = `600 18px ${fontFam}`;
+            sctx.fillText(schoolSub, 44, 96, w - 300);
+          }
+
+          sctx.fillStyle = accentCol;
+          sctx.fillRect(w - 245, 42, 205, 44);
+          sctx.fillStyle = "#0F172A";
+          sctx.textAlign = "center";
+          sctx.font = `800 17px ${fontFam}`;
+          sctx.fillText("STUDENT ID CARD", w - 142, 70);
+
+          let textStartX = 48;
+          if (showPhoto) {
+            const pw = 195;
+            const ph = 240;
+            drawPassportPhotoFrame(sctx, 48, 172, pw, ph, accentCol, headerCol);
+            textStartX = 278;
+          }
+
+          sctx.textAlign = "left";
+          sctx.fillStyle = headerCol;
+          sctx.font = `800 36px ${fontFam}`;
+          sctx.fillText(studentName, textStartX, 205, w - textStartX - 180);
+
+          if (classCourse) {
+            sctx.fillStyle = accentCol;
+            sctx.font = `700 22px ${fontFam}`;
+            sctx.fillText(classCourse, textStartX, 240, w - textStartX - 180);
+          }
+
+          let ry = 288;
+          const rows = [
+            ["Roll / ID", rollNo],
+            ["DOB / Blood", [dob, bloodGroup].filter(Boolean).join("  |  ")],
+            ["Guardian", guardianPhone],
+            ["Session", validThru],
+            ["Address", address]
+          ].filter(function (r) { return r[1]; });
+
+          rows.forEach(function (pair) {
+            sctx.fillStyle = headerCol;
+            sctx.font = `800 19px ${fontFam}`;
+            sctx.fillText(pair[0] + ":", textStartX, ry);
+
+            sctx.fillStyle = textCol;
+            sctx.font = `600 19px ${fontFam}`;
+            sctx.fillText(pair[1], textStartX + 145, ry, w - textStartX - 315);
+            ry += 40;
+          });
+
+          if (sidShowQrCheck.checked) {
+            drawQrBox(sctx, w - 165, 175, 122, qrPayload, "#0F172A", "#FFFFFF");
+          }
+
+          if (sidShowBarcodeCheck.checked) {
+            drawBarcodeStrip(sctx, 48, h - 108, 280, 44, rollNo || "2026042", textCol);
+          }
+
+          sctx.fillStyle = headerCol;
+          sctx.fillRect(0, h - 42, w, 42);
+          sctx.textAlign = "center";
+          sctx.fillStyle = "#FFFFFF";
+          sctx.font = `700 16px ${fontFam}`;
+          sctx.fillText(footerNote || "Authorized Student Identity Card", w / 2, h - 15, w - 40);
+        }
+
+        // Subtle outer border
+        sctx.strokeStyle = "rgba(148, 163, 184, 0.5)";
+        sctx.lineWidth = 2;
+        sctx.strokeRect(1, 1, w - 2, h - 2);
+      }
+
+      orientBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          orientBtns.forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          orientation = btn.getAttribute("data-orient") || "vertical";
+          renderStudentIdCard();
+        });
+      });
+
+      uploadStudentPhotoBtn.addEventListener("click", function () {
+        sidPhotoUploadInput.click();
+      });
+
+      sidPhotoUploadInput.addEventListener("change", function () {
+        if (!sidPhotoUploadInput.files || !sidPhotoUploadInput.files[0]) return;
+        const file = sidPhotoUploadInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          const img = new Image();
+          img.onload = function () {
+            uploadedStudentPhoto = img;
+            sidPhotoModeSelect.value = "show";
+            removeStudentPhotoBtn.style.display = "inline-block";
+            sidPhotoStatusTxt.textContent = "Passport photo uploaded";
+            renderStudentIdCard();
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      removeStudentPhotoBtn.addEventListener("click", function () {
+        uploadedStudentPhoto = null;
+        sidPhotoUploadInput.value = "";
+        removeStudentPhotoBtn.style.display = "none";
+        sidPhotoStatusTxt.textContent = "Using clean placeholder frame (or upload photo)";
+        renderStudentIdCard();
+      });
+
+      sidPhotoModeSelect.addEventListener("change", renderStudentIdCard);
+
+      resetSidBtn.addEventListener("click", function () {
+        orientation = "vertical";
+        orientBtns.forEach(function (b) {
+          b.classList.toggle("active", b.getAttribute("data-orient") === "vertical");
+        });
+        uploadedStudentPhoto = null;
+        sidPhotoUploadInput.value = "";
+        removeStudentPhotoBtn.style.display = "none";
+        sidPhotoModeSelect.value = "show";
+        sidPhotoStatusTxt.textContent = "Using clean placeholder frame (or upload photo)";
+
+        sidSchoolNameInput.value = "ST. XAVIER'S PUBLIC ACADEMY";
+        sidSchoolSubInput.value = "Affiliated to CBSE • Senior Secondary Wing";
+        sidStudentNameInput.value = "Rohan Kumar Verma";
+        sidClassCourseInput.value = "Class XII - Science (Sec A)";
+        sidRollNoInput.value = "2026-SCI-042";
+        sidDobInput.value = "18 Aug 2009";
+        sidBloodGroupInput.value = "B+ Positive";
+        sidGuardianPhoneInput.value = "+91 98765 43210";
+        sidValidThruInput.value = "2026 - 2027";
+        sidAddressInput.value = "24 Boring Road, Patna, Bihar - 800001";
+        sidFooterNoteInput.value = "Principal Signature • Authorized Student ID";
+        sidShowQrCheck.checked = true;
+        sidShowBarcodeCheck.checked = true;
+
+        applyTemplate(SID_TEMPLATES[0]);
+      });
+
+      [
+        sidSchoolNameInput,
+        sidSchoolSubInput,
+        sidStudentNameInput,
+        sidClassCourseInput,
+        sidRollNoInput,
+        sidDobInput,
+        sidBloodGroupInput,
+        sidGuardianPhoneInput,
+        sidValidThruInput,
+        sidAddressInput,
+        sidFooterNoteInput,
+        sidHeaderColorInput,
+        sidAccentColorInput,
+        sidTextColorInput,
+        sidBgColorInput,
+        sidFontSelect,
+        sidShowQrCheck,
+        sidShowBarcodeCheck
+      ].forEach(function (el) {
+        el.addEventListener("input", renderStudentIdCard);
+        el.addEventListener("change", renderStudentIdCard);
+      });
+
+      downloadSidPngBtn.addEventListener("click", function () {
+        const slug = (sidStudentNameInput.value.trim() || "student-id-card")
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "");
+        studentIdCanvas.toBlob(function (blob) {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `${slug || "student-id-card"}-300dpi.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }, "image/png");
+      });
+
+      printSidBtn.addEventListener("click", function () {
+        window.print();
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      buildTemplateGallery();
+      applyTemplate(SID_TEMPLATES[0]);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,953 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Random Number Generator — PureWebKits</title>
+  <meta name="description" content="Generate random integers or decimals within a custom range with options for multiple counts, unique numbers, and sorting online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/random-number.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* RNG Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .chk-col {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .chk-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .rng-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .rng-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .rng-hero-title { font-size: 16px; font-weight: 800; }
+    .rng-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .rng-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 26px;
+      font-weight: 800;
+      color: #38BDF8;
+      word-break: break-word;
+      text-align: right;
+    }
+    .rng-hero-num.error { color: #FCA5A5; font-size: 14px; text-align: left; }
+
+    .rng-output-area {
+      width: 100%;
+      min-height: 110px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 13px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.55;
+      resize: vertical;
+      outline: none;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Random Number Generator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Random Number Generator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Generate random integers or decimals with unique and sort options in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Set minimum, maximum, count, and options, then generate random numbers:</div>
+          <div class="topbar-actions">
+            <button type="button" id="regenerateBtn" class="btn-primary" style="padding:8px 16px; font-size:13px;">Generate Again</button>
+            <button type="button" id="resetRngBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="rngMinInput" class="field-label">Minimum Value</label>
+                <input type="number" id="rngMinInput" class="std-input" step="any" value="1" />
+              </div>
+
+              <div class="field-group">
+                <label for="rngMaxInput" class="field-label">Maximum Value</label>
+                <input type="number" id="rngMaxInput" class="std-input" step="any" value="100" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="rngCountInput" class="field-label">How Many Numbers (1 – 500)</label>
+                <input type="number" id="rngCountInput" class="std-input" min="1" max="500" step="1" value="1" />
+              </div>
+
+              <div class="field-group">
+                <label for="rngTypeSelect" class="field-label">Number Type</label>
+                <select id="rngTypeSelect" class="std-select">
+                  <option value="integer" selected>Integer (Whole Number)</option>
+                  <option value="decimal">Decimal (2 Places)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="chk-col">
+              <label class="chk-inline"><input type="checkbox" id="rngUniqueChk" /> Unique numbers only (no duplicates)</label>
+              <label class="chk-inline"><input type="checkbox" id="rngSortChk" /> Sort results ascending</label>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="rng-hero-box">
+              <div>
+                <div class="rng-hero-kicker">Random Result</div>
+                <div class="rng-hero-title" id="rngSummaryTitle">1 Integer (1 – 100)</div>
+                <div class="rng-hero-sub" id="rngMetaSub">Web Crypto unbiased sampling</div>
+              </div>
+              <div class="rng-hero-num" id="rngPrimaryDisplay">—</div>
+            </div>
+
+            <div class="field-group">
+              <span class="field-label">Generated Output List</span>
+              <textarea id="rngOutputList" class="rng-output-area" readonly></textarea>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyRngBtn" class="btn-primary">Copy Numbers</button>
+              <button type="button" id="downloadRngBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Random Number Generation, Ranges, Uniqueness, and Sorting</h2>
+
+      <h3>Why Random Number Generators Are Useful for Sampling, Games, and Testing</h3>
+      <p>
+        Generating unbiased random numbers is essential whenever you need fair chance without manual bias—such as picking raffle or giveaway winners, running statistical simulations and Monte Carlo trials, generating test cases for software, shuffling lists, or rolling dice and numeric draws. Using your own intuition to "pick a random number" often clusters around familiar numbers rather than distributing evenly across a range. A browser-based <strong>Random Number Generator</strong> uses cryptographic randomness (<code>crypto.getRandomValues()</code> with rejection sampling when available) to produce uniform integers or two-decimal numbers—100% locally in your browser with zero server uploads.
+      </p>
+
+      <h3>How to Generate Random Numbers in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Set Minimum & Maximum Bounds:</strong> Enter your lower bound in <strong>Minimum Value</strong> and upper bound in <strong>Maximum Value</strong> (make sure <code>Min ≤ Max</code>).</li>
+        <li><strong>Choose Count, Type & Options:</strong> Select how many numbers to generate (<code>1</code> to <code>500</code>), pick <strong>Integer (Whole Number)</strong> or <strong>Decimal (2 Places)</strong>, and toggle <em>Unique numbers only</em> or <em>Sort results ascending</em>.</li>
+        <li><strong>Generate, Copy or Export:</strong> Click <strong>Generate Again</strong> for fresh draws, then click <strong>Copy Numbers</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Uniform Integer & Decimal Sampling Formulas</h3>
+      <p>
+        For inclusive integer bounds <code>[min, max]</code> or continuous decimal bounds <code>[min, max]</code> with uniform fraction <code>u ∈ [0, 1)</code>:
+      </p>
+      <div class="formula-box">
+        Integer in [min, max]: min + floor(u × (max − min + 1))<br />
+        Decimal in [min, max]: round((min + u × (max − min)) × 100) / 100
+      </div>
+
+      <h3>Helpful Tips When Generating Random Numbers</h3>
+      <ul>
+        <li><strong>Check Pool Size When Unique Is Enabled:</strong> For integer ranges, there are at most <code>max − min + 1</code> distinct integers available, so the requested count cannot exceed that pool size.</li>
+        <li><strong>Use Sorting for Ordered Draws:</strong> Enabling <em>Sort results ascending</em> arranges generated numbers from smallest to largest for easier reading.</li>
+        <li><strong>Note Use Case Suitability:</strong> Client-side browser generation is great for everyday draws, testing, and simulations; specialized cryptographic systems follow dedicated security engineering standards.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Generating <code>5</code> unique integers between <code>1</code> and <code>100</code> with ascending sort produces five distinct whole numbers in <code>[1, 100]</code> ordered from lowest to highest.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="rng-table-heading">
+      <h2 id="rng-table-heading">Random Number Options, Range Rules & Reference Table (16 Rules)</h2>
+      <p>Use this reference table to review sampling types, uniqueness rules, and export options.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Option / Rule</th>
+              <th>Formula / Constraint</th>
+              <th>Behavior</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Integer Mode</strong></td>
+              <td>Inclusive <code>[min, max]</code></td>
+              <td>Whole numbers only</td>
+              <td><code>min</code> and <code>max</code> must be integers</td>
+            </tr>
+            <tr>
+              <td><strong>Decimal Mode</strong></td>
+              <td>Rounded to <code>2</code> decimal places</td>
+              <td>Continuous range in <code>[min, max]</code></td>
+              <td>Supports decimal bounds</td>
+            </tr>
+            <tr>
+              <td><strong>Count Limit</strong></td>
+              <td><code>1</code> to <code>500</code> numbers</td>
+              <td>Generates single or batch list</td>
+              <td>Whole number count required</td>
+            </tr>
+            <tr>
+              <td><strong>Min & Max Rule</strong></td>
+              <td><code>min ≤ max</code></td>
+              <td>Validates range ordering</td>
+              <td>Flags if minimum exceeds maximum</td>
+            </tr>
+            <tr>
+              <td><strong>Unique Numbers Only</strong></td>
+              <td>No duplicate values in batch</td>
+              <td>Integer pool ≤ <code>max − min + 1</code></td>
+              <td>Prevents repeats in a draw</td>
+            </tr>
+            <tr>
+              <td><strong>Sort Ascending</strong></td>
+              <td><code>a − b</code> numeric sort</td>
+              <td>Orders output from smallest to largest</td>
+              <td>Applied after generation</td>
+            </tr>
+            <tr>
+              <td><strong>Generate Again</strong></td>
+              <td>Fresh draw trigger</td>
+              <td>Produces a new random set</td>
+              <td>Instant re-roll</td>
+            </tr>
+            <tr>
+              <td><strong>Reset Button</strong></td>
+              <td>Restores default settings</td>
+              <td>Resets inputs to <code>1..100</code>, count <code>1</code></td>
+              <td>Quick clean start</td>
+            </tr>
+            <tr>
+              <td><strong>Copy Numbers</strong></td>
+              <td>Clipboard export</td>
+              <td>Copies generated values</td>
+              <td>One-click clipboard copy</td>
+            </tr>
+            <tr>
+              <td><strong>Download .txt</strong></td>
+              <td>File export</td>
+              <td>Saves as <code>random-numbers.txt</code></td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Randomness Source</strong></td>
+              <td><code>crypto.getRandomValues()</code></td>
+              <td>Falls back to <code>Math.random()</code> if needed</td>
+              <td>Unbiased modular reduction</td>
+            </tr>
+            <tr>
+              <td><strong>Single vs. Multi Output</strong></td>
+              <td>Hero badge + list box</td>
+              <td>Highlights single value or count</td>
+              <td>Easy to read at a glance</td>
+            </tr>
+            <tr>
+              <td><strong>Negative Bounds</strong></td>
+              <td>Supported (e.g., <code>-50</code> to <code>50</code>)</td>
+              <td>Works across negative & positive ranges</td>
+              <td>Standard arithmetic bounds</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Randomness — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — All random numbers are generated locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Your draws stay strictly on your device</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Number, Math & Everyday Utilities</h2>
+      <p>Checking prime numbers, calculating statistics, or converting Roman numerals? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="prime-number-checker.html"><span>Prime Number Checker</span><span class="arrow">→</span></a>
+        <a class="related-link" href="statistics-calculator.html"><span>Statistics Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="roman-numeral-converter.html"><span>Roman Numeral Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="gcd-lcm-calculator.html"><span>GCD & LCM Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="fraction-calculator.html"><span>Fraction Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How do I generate unique random numbers without duplicates?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Set <strong>How Many Numbers</strong> to your desired count and check <strong>Unique numbers only (no duplicates)</strong>—make sure the range has enough distinct values to satisfy the count.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I generate decimal random numbers as well as integers?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> Select <strong>Decimal (2 Places)</strong> from the <strong>Number Type</strong> dropdown to generate random numbers rounded to two decimal places within your range.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my generated numbers or settings sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All generation runs 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Random Number Generator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Random Number Generator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const rngMinInput = document.getElementById("rngMinInput");
+      const rngMaxInput = document.getElementById("rngMaxInput");
+      const rngCountInput = document.getElementById("rngCountInput");
+      const rngTypeSelect = document.getElementById("rngTypeSelect");
+      const rngUniqueChk = document.getElementById("rngUniqueChk");
+      const rngSortChk = document.getElementById("rngSortChk");
+
+      const rngSummaryTitle = document.getElementById("rngSummaryTitle");
+      const rngMetaSub = document.getElementById("rngMetaSub");
+      const rngPrimaryDisplay = document.getElementById("rngPrimaryDisplay");
+      const rngOutputList = document.getElementById("rngOutputList");
+
+      const regenerateBtn = document.getElementById("regenerateBtn");
+      const resetRngBtn = document.getElementById("resetRngBtn");
+      const copyRngBtn = document.getElementById("copyRngBtn");
+      const downloadRngBtn = document.getElementById("downloadRngBtn");
+
+      let latestSummaryText = "";
+
+      function uniformRandomFloat() {
+        if (window.crypto && typeof window.crypto.getRandomValues === "function") {
+          const arr = new Uint32Array(1);
+          window.crypto.getRandomValues(arr);
+          return arr[0] / 4294967296;
+        }
+        return Math.random();
+      }
+
+      function randomIntInclusive(minInt, maxInt) {
+        const span = maxInt - minInt + 1;
+        if (window.crypto && typeof window.crypto.getRandomValues === "function" && span > 0 && span <= 4294967296) {
+          const maxUint = 4294967296;
+          const limit = maxUint - (maxUint % span);
+          const buf = new Uint32Array(1);
+          let r = 0;
+          do {
+            window.crypto.getRandomValues(buf);
+            r = buf[0];
+          } while (r >= limit);
+          return minInt + (r % span);
+        }
+        return minInt + Math.floor(Math.random() * span);
+      }
+
+      function setRngError(msg) {
+        rngPrimaryDisplay.className = "rng-hero-num error";
+        rngPrimaryDisplay.textContent = msg;
+        rngOutputList.value = "";
+        latestSummaryText = "";
+      }
+
+      function generateNumbers() {
+        const minRaw = parseFloat(rngMinInput.value);
+        const maxRaw = parseFloat(rngMaxInput.value);
+        const countRaw = parseInt(rngCountInput.value, 10);
+        const type = rngTypeSelect.value;
+        const uniqueOnly = rngUniqueChk.checked;
+        const sortAsc = rngSortChk.checked;
+
+        if (!Number.isFinite(minRaw) || !Number.isFinite(maxRaw)) {
+          setRngError("Enter valid Min and Max numbers");
+          return;
+        }
+        if (minRaw > maxRaw) {
+          setRngError("Min must be \u2264 Max");
+          return;
+        }
+        if (!Number.isFinite(countRaw) || countRaw < 1 || countRaw > 500) {
+          setRngError("Count must be between 1 and 500");
+          return;
+        }
+
+        const results = [];
+
+        if (type === "integer") {
+          const minInt = Math.trunc(minRaw);
+          const maxInt = Math.trunc(maxRaw);
+          if (String(minRaw) !== String(minInt) || String(maxRaw) !== String(maxInt)) {
+            setRngError("Use whole numbers for Integer mode");
+            return;
+          }
+          if (minInt > maxInt) {
+            setRngError("Min must be \u2264 Max");
+            return;
+          }
+
+          const poolSize = maxInt - minInt + 1;
+          if (uniqueOnly && countRaw > poolSize) {
+            setRngError(`Only ${poolSize} unique integers in [${minInt}, ${maxInt}]`);
+            return;
+          }
+
+          if (uniqueOnly) {
+            const seen = new Set();
+            while (results.length < countRaw) {
+              const val = randomIntInclusive(minInt, maxInt);
+              if (!seen.has(val)) {
+                seen.add(val);
+                results.push(val);
+              }
+            }
+          } else {
+            for (let i = 0; i < countRaw; i++) {
+              results.push(randomIntInclusive(minInt, maxInt));
+            }
+          }
+        } else {
+          // Decimal mode (2 places)
+          if (uniqueOnly) {
+            const seenDec = new Set();
+            let attempts = 0;
+            while (results.length < countRaw && attempts < countRaw * 200) {
+              attempts++;
+              const rawDec = minRaw + (uniformRandomFloat() * (maxRaw - minRaw));
+              const rounded = Number(rawDec.toFixed(2));
+              if (!seenDec.has(rounded)) {
+                seenDec.add(rounded);
+                results.push(rounded);
+              }
+            }
+            if (results.length < countRaw) {
+              setRngError("Not enough unique 2-decimal values in range");
+              return;
+            }
+          } else {
+            for (let i = 0; i < countRaw; i++) {
+              const rawDec = minRaw + (uniformRandomFloat() * (maxRaw - minRaw));
+              results.push(Number(rawDec.toFixed(2)));
+            }
+          }
+        }
+
+        if (sortAsc) {
+          results.sort(function (a, b) { return a - b; });
+        }
+
+        const formattedList = results.map(function (n) {
+          return type === "decimal" ? n.toFixed(2) : String(n);
+        });
+
+        rngPrimaryDisplay.className = "rng-hero-num";
+        rngPrimaryDisplay.textContent = countRaw === 1 ? formattedList[0] : `${countRaw} numbers`;
+        rngSummaryTitle.textContent = `${countRaw} ${type === "decimal" ? "Decimal" : "Integer"}${countRaw > 1 ? "s" : ""} (${minRaw} \u2013 ${maxRaw})`;
+        rngMetaSub.textContent = `${uniqueOnly ? "Unique" : "Duplicates allowed"} \u2022 ${sortAsc ? "Sorted asc" : "Unsorted"}`;
+        rngOutputList.value = formattedList.join(", ");
+
+        latestSummaryText = [
+          "PureWebKits Random Number Generator",
+          "------------------------------------",
+          `Range: [${minRaw}, ${maxRaw}] | Type: ${type} | Count: ${countRaw}`,
+          `Options: Unique = ${uniqueOnly ? "Yes" : "No"}, Sorted Ascending = ${sortAsc ? "Yes" : "No"}`,
+          `Generated Numbers: ${formattedList.join(", ")}`
+        ].join("\n");
+      }
+
+      regenerateBtn.addEventListener("click", generateNumbers);
+
+      [rngMinInput, rngMaxInput, rngCountInput, rngTypeSelect, rngUniqueChk, rngSortChk].forEach(function (el) {
+        el.addEventListener("input", generateNumbers);
+        el.addEventListener("change", generateNumbers);
+      });
+
+      resetRngBtn.addEventListener("click", function () {
+        rngMinInput.value = "1";
+        rngMaxInput.value = "100";
+        rngCountInput.value = "1";
+        rngTypeSelect.value = "integer";
+        rngUniqueChk.checked = false;
+        rngSortChk.checked = false;
+        generateNumbers();
+      });
+
+      copyRngBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyRngBtn.textContent;
+          copyRngBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyRngBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadRngBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "random-numbers.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      generateNumbers();
+    });
+  </script>
+</body>
+</html>

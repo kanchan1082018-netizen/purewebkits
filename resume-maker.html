@@ -1,0 +1,1527 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Resume Maker (Custom Tables, Photo Position/Size & A4 Print/PDF) — PureWebKits</title>
+  <meta name="description" content="Build a clean, 100% editable resume with custom tables, optional photo upload, left/right/up/down photo positioning, photo size control, and A4 print/PDF or PNG export online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/resume-maker.html" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 32px 20px 40px;
+    }
+    .container { max-width: 1240px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 840px; margin: 0 auto 22px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Studio Topbar */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .topbar-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 7px 13px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 15px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Side-by-Side Editor + Live Preview Grid */
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 22px;
+      align-items: start;
+    }
+    .form-col { display: flex; flex-direction: column; gap: 11px; }
+    .preview-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: sticky;
+      top: 84px;
+    }
+
+    .section-divider-lbl {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--primary-dark);
+      padding-top: 8px;
+      border-top: 1px dashed #CBD5E1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .two-col-fields, .three-col-fields, .four-col-fields {
+      display: grid;
+      gap: 8px;
+    }
+    .two-col-fields { grid-template-columns: 1fr 1fr; }
+    .three-col-fields { grid-template-columns: 1fr 1fr 1fr; }
+    .four-col-fields { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+    .field-group { display: flex; flex-direction: column; gap: 3px; }
+    .field-label { font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select, .std-textarea {
+      width: 100%;
+      height: 36px;
+      padding: 0 9px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-textarea {
+      height: 60px;
+      padding: 7px 9px;
+      resize: vertical;
+      line-height: 1.42;
+    }
+    .std-input:focus, .std-select:focus, .std-textarea:focus { border-color: var(--primary); background: #FFFFFF; }
+    .color-input {
+      width: 100%;
+      height: 36px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      background: #FFFFFF;
+      padding: 2px 4px;
+      cursor: pointer;
+    }
+
+    /* Photo Controls Box */
+    .photo-box {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .photo-btn-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .photo-slider-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .slider-lbl {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+    .range-inp {
+      width: 100%;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* Repeatable Entry Cards & Custom Table Builder */
+    .entry-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .entry-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .btn-mini-add {
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      border: 1px solid #BFDBFE;
+      border-radius: 6px;
+      padding: 3px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .btn-mini-del {
+      background: #FEF2F2;
+      color: #991B1B;
+      border: 1px solid #FECACA;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .mini-grid-editor {
+      overflow-x: auto;
+      border: 1px solid #CBD5E1;
+      border-radius: 7px;
+      background: #FFFFFF;
+    }
+    .mini-grid-editor table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.5px;
+    }
+    .mini-grid-editor td {
+      border: 1px solid #E2E8F0;
+      padding: 0;
+    }
+    .mini-cell-input {
+      width: 100%;
+      min-width: 78px;
+      height: 30px;
+      border: none;
+      padding: 0 7px;
+      font-family: inherit;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: transparent;
+      outline: none;
+    }
+    .mini-cell-input:focus {
+      background: var(--primary-soft);
+    }
+
+    /* Side Preview Stage */
+    .stage-box {
+      background: #0F172A;
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .stage-hud {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #93C5FD;
+    }
+    .zoom-controls { display: inline-flex; align-items: center; gap: 4px; }
+    .zoom-btn {
+      background: #1E293B;
+      color: #E2E8F0;
+      border: 1px solid #334155;
+      border-radius: 5px;
+      padding: 2px 7px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .zoom-btn:hover { background: #334155; }
+
+    .a4-viewport {
+      width: 100%;
+      height: 520px;
+      overflow: auto;
+      background: #1E293B;
+      border-radius: 7px;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .a4-scale-box {
+      position: relative;
+      flex-shrink: 0;
+    }
+    #resumeA4Sheet {
+      width: 794px;
+      min-height: 1123px;
+      background: #FFFFFF;
+      color: #0F172A;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+      transform-origin: top left;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .res-body-split { display: grid; grid-template-columns: 248px 1fr; flex: 1; }
+    .res-body-right { display: grid; grid-template-columns: 1fr 248px; flex: 1; }
+    .res-body-single { display: flex; flex-direction: column; flex: 1; padding: 26px 34px; gap: 14px; }
+
+    .res-sidebar { padding: 24px 18px; display: flex; flex-direction: column; gap: 14px; }
+    .res-main { padding: 24px 26px; display: flex; flex-direction: column; gap: 13px; }
+    .res-top-banner { padding: 22px 32px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+
+    /* Movable & Resizable Photo Layer */
+    .res-photo-box {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 3px solid rgba(255, 255, 255, 0.9);
+      background: rgba(148, 163, 184, 0.25);
+      flex-shrink: 0;
+    }
+    .res-photo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .res-photo-box.round { border-radius: 50%; }
+    .res-photo-box.square { border-radius: 10px; }
+
+    .res-name { font-size: 26px; font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; }
+    .res-headline { font-size: 13.5px; font-weight: 700; margin-top: 3px; }
+
+    .res-sec-title {
+      font-size: 11.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding-bottom: 4px;
+      margin-bottom: 7px;
+      border-bottom: 2px solid currentColor;
+    }
+
+    .res-contact-list { display: flex; flex-direction: column; gap: 5px; font-size: 11px; line-height: 1.4; word-break: break-word; }
+    .res-skill-pills { display: flex; flex-wrap: wrap; gap: 4px; }
+    .res-skill-tag { font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 4px; background: rgba(148, 163, 184, 0.2); }
+
+    .res-item { margin-bottom: 9px; }
+    .res-item:last-child { margin-bottom: 0; }
+    .res-item-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .res-item-title { font-size: 12.8px; font-weight: 800; }
+    .res-item-date { font-size: 11px; font-weight: 700; white-space: nowrap; opacity: 0.88; }
+    .res-item-sub { font-size: 11.5px; font-weight: 700; margin-bottom: 2px; opacity: 0.9; }
+    .res-item-desc { font-size: 11.3px; line-height: 1.42; white-space: pre-line; opacity: 0.94; }
+
+    .res-custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 6px;
+      font-size: 11px;
+    }
+    .res-custom-table th,
+    .res-custom-table td {
+      border: 1px solid #CBD5E1;
+      padding: 5px 8px;
+      text-align: left;
+    }
+    .res-custom-table th {
+      font-weight: 800;
+    }
+
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* Content Sections */
+    .main-content { max-width: 980px; margin: 32px auto 50px; padding: 0 20px; display: flex; flex-direction: column; gap: 26px; }
+    .content-card { background: #FFFFFF; border: 1px solid var(--border); border-radius: var(--radius); padding: 30px; }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box { background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-top: 12px; }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    .main-content table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    .main-content th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    .main-content td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    .main-content tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @page { size: A4 portrait; margin: 0; }
+    @media print {
+      body * { visibility: hidden !important; }
+      #resumeA4Sheet, #resumeA4Sheet * { visibility: visible !important; }
+      #resumeA4Sheet {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 210mm !important;
+        min-height: 297mm !important;
+        transform: none !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .calc-grid, .two-col-fields, .three-col-fields, .four-col-fields, .photo-slider-grid { grid-template-columns: 1fr; }
+      .preview-col { position: static; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Resume Maker</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Live side preview, custom tables, photo move/resize & remove, plus A4 Print/PDF
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13px; font-weight:700; color:var(--text-muted);">
+            Edit every field, add custom tables, move/resize your photo, and view live on the side:
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleDataBtn" class="btn-sec">Load Sample Resume</button>
+            <button type="button" id="resetAllResumeBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <!-- LEFT COLUMN: 100% EDITABLE CONTROLS -->
+          <div class="form-col">
+            <div class="section-divider-lbl">1. Profile Photo (Upload, Remove, Resize & Move Left/Right/Up/Down)</div>
+            <div class="photo-box">
+              <div class="photo-btn-row">
+                <div style="display:flex; gap:7px; flex-wrap:wrap; align-items:center;">
+                  <input type="file" id="photoFileInput" accept="image/*" style="display:none;" />
+                  <button type="button" id="uploadPhotoBtn" class="btn-primary" style="padding:7px 13px; font-size:12px;">Upload Photo</button>
+                  <button type="button" id="removePhotoBtn" class="btn-sec" style="display:none;">Remove Photo</button>
+                  <select id="photoShapeSelect" class="std-select" style="height:34px; width:auto; font-size:12px;">
+                    <option value="hide">No Photo</option>
+                    <option value="round" selected>Round Frame</option>
+                    <option value="square">Square / Portrait Frame</option>
+                  </select>
+                </div>
+                <span id="photoStatusLabel" style="font-size:11px; font-weight:700; color:var(--text-muted);">Sample / Ready</span>
+              </div>
+
+              <div class="photo-slider-grid">
+                <div class="field-group">
+                  <div class="slider-lbl">
+                    <label for="photoSizeSlider">Size</label>
+                    <span id="photoSizeVal">104px</span>
+                  </div>
+                  <input type="range" id="photoSizeSlider" class="range-inp" min="60" max="170" step="2" value="104" />
+                </div>
+                <div class="field-group">
+                  <div class="slider-lbl">
+                    <label for="photoPosXSlider">Left / Right (X)</label>
+                    <span id="photoPosXVal">0px</span>
+                  </div>
+                  <input type="range" id="photoPosXSlider" class="range-inp" min="-140" max="140" step="2" value="0" />
+                </div>
+                <div class="field-group">
+                  <div class="slider-lbl">
+                    <label for="photoPosYSlider">Up / Down (Y)</label>
+                    <span id="photoPosYVal">0px</span>
+                  </div>
+                  <input type="range" id="photoPosYSlider" class="range-inp" min="-120" max="140" step="2" value="0" />
+                </div>
+              </div>
+            </div>
+
+            <div class="section-divider-lbl">2. Personal & Contact Details</div>
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="fullNameInput" class="field-label">Full Name</label>
+                <input type="text" id="fullNameInput" class="std-input" value="Rohan Kumar Verma" />
+              </div>
+              <div class="field-group">
+                <label for="jobTitleInput" class="field-label">Role / Headline</label>
+                <input type="text" id="jobTitleInput" class="std-input" value="Web Developer & UI Specialist" />
+              </div>
+            </div>
+
+            <div class="three-col-fields">
+              <div class="field-group">
+                <label for="phoneInput" class="field-label">Phone</label>
+                <input type="text" id="phoneInput" class="std-input" value="+91 98765 43210" />
+              </div>
+              <div class="field-group">
+                <label for="emailInput" class="field-label">Email</label>
+                <input type="text" id="emailInput" class="std-input" value="rohan.verma@example.com" />
+              </div>
+              <div class="field-group">
+                <label for="cityInput" class="field-label">Location</label>
+                <input type="text" id="cityInput" class="std-input" value="Patna, Bihar" />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="summaryInput" class="field-label">Profile Summary</label>
+              <textarea id="summaryInput" class="std-textarea">Detail-oriented developer with experience building clean, fast, and responsive web interfaces and practical tools.</textarea>
+            </div>
+
+            <div class="section-divider-lbl">
+              <span>3. Experience</span>
+              <button type="button" id="addExpBtn" class="btn-mini-add">+ Add Experience</button>
+            </div>
+            <div id="expListEditor" style="display:flex; flex-direction:column; gap:8px;"></div>
+
+            <div class="section-divider-lbl">
+              <span>4. Education</span>
+              <button type="button" id="addEduBtn" class="btn-mini-add">+ Add Education</button>
+            </div>
+            <div id="eduListEditor" style="display:flex; flex-direction:column; gap:8px;"></div>
+
+            <div class="section-divider-lbl">
+              <span>5. Custom Tables (Create & Edit Tables)</span>
+              <button type="button" id="createTableBtn" class="btn-mini-add">+ Create Table</button>
+            </div>
+            <div id="customTablesEditor" style="display:flex; flex-direction:column; gap:9px;"></div>
+
+            <div class="section-divider-lbl">6. Skills & Theme Colors</div>
+            <div class="field-group">
+              <label for="skillsInput" class="field-label">Skills (Comma-Separated)</label>
+              <input type="text" id="skillsInput" class="std-input" value="HTML, CSS, JavaScript, React, UI Design, Git" />
+            </div>
+
+            <div class="three-col-fields">
+              <div class="field-group">
+                <label for="primaryColorInp" class="field-label">Primary Color</label>
+                <input type="color" id="primaryColorInp" class="color-input" value="#0F172A" />
+              </div>
+              <div class="field-group">
+                <label for="accentColorInp" class="field-label">Accent Color</label>
+                <input type="color" id="accentColorInp" class="color-input" value="#2563EB" />
+              </div>
+              <div class="field-group">
+                <label for="layoutStyleSel" class="field-label">Layout</label>
+                <select id="layoutStyleSel" class="std-select">
+                  <option value="left-sidebar" selected>Left Sidebar</option>
+                  <option value="right-sidebar">Right Sidebar</option>
+                  <option value="classic">Single Column</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: SIDE LIVE A4 PREVIEW -->
+          <div class="preview-col">
+            <div class="stage-box">
+              <div class="stage-hud">
+                <span>Live A4 Preview (210mm x 297mm)</span>
+                <div class="zoom-controls">
+                  <button type="button" id="zoomOutBtn" class="zoom-btn" title="Zoom Out">-</button>
+                  <span id="zoomPctTxt" style="color:#34D399; min-width:34px; text-align:center;">42%</span>
+                  <button type="button" id="zoomInBtn" class="zoom-btn" title="Zoom In">+</button>
+                </div>
+              </div>
+              <div class="a4-viewport" id="a4Viewport">
+                <div class="a4-scale-box" id="a4ScaleBox">
+                  <div id="resumeA4Sheet"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="printPdfBtn" class="btn-primary">Print / Save as PDF</button>
+              <button type="button" id="downloadPngBtn" class="btn-sec" style="height:36px;">Download PNG</button>
+              <button type="button" id="downloadTxtBtn" class="btn-sec" style="height:36px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW-TO GUIDE, TABLE, RELATED TOOLS & FAQs -->
+  <main class="main-content">
+    <article class="content-card">
+      <h2>Complete Guide to Using the Resume Maker, Custom Tables & Photo Controls</h2>
+      <h3>How to Build & Customize Your Resume on the Side Preview</h3>
+      <p>
+        This <strong>Resume Maker</strong> keeps your editing controls on one side and a live <code>A4</code> (<code>210mm x 297mm</code>) sheet preview right alongside it so every change you make appears immediately. You can edit your personal details, summary, experience, education, and skills, add custom structured tables for skills matrices or academic marks, and position or resize your photo with full control. Because everything runs locally in your browser, your photo and personal details stay on your device with zero server uploads.
+      </p>
+      <h3>How to Use This Tool in 3 Simple Steps</h3>
+      <ol>
+        <li><strong>Upload or Adjust Your Photo (Optional):</strong> Click <strong>Upload Photo</strong> to add a photo, use <strong>Size</strong> to make it smaller or larger, use <strong>Left / Right (X)</strong> and <strong>Up / Down (Y)</strong> sliders to position it, or choose <strong>No Photo</strong> / click <strong>Remove Photo</strong>.</li>
+        <li><strong>Edit Details & Create Custom Tables:</strong> Fill or edit your name, role, contact info, summary, experience, education, skills, and click <strong>+ Create Table</strong> to add rows, columns, and editable table cells.</li>
+        <li><strong>Print / Save as PDF or Download:</strong> Click <strong>Print / Save as PDF</strong> for an exact <code>A4</code> sheet, or click <strong>Download PNG</strong> / <strong>Download .txt</strong>.</li>
+      </ol>
+      <div class="formula-box">
+        A4 Sheet Size = 210mm x 297mm | Photo Position = (X offset, Y offset) + Custom Width/Height (px)
+      </div>
+      <div class="example-box">
+        <p><strong>Example:</strong> Click <strong>+ Create Table</strong> to add a 3-column skills/marks table, type your rows and cells, adjust your photo position slightly right and down, and click <strong>Print / Save as PDF</strong>.</p>
+      </div>
+    </article>
+
+    <section class="content-card" aria-labelledby="guide-table-heading">
+      <h2 id="guide-table-heading">Resume Maker Features & Controls Reference (16 Rows)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature / Control</th>
+              <th>How It Works</th>
+              <th>Purpose</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Upload Photo</strong></td><td>Loads local image file</td><td>Adds profile photo to resume</td><td>Supports JPG, PNG, WebP</td></tr>
+            <tr><td><strong>Remove Photo / No Photo</strong></td><td>Clears image or hides box</td><td>Text-only resume option</td><td>Instant toggle</td></tr>
+            <tr><td><strong>Photo Size Slider</strong></td><td><code>60px</code> to <code>170px</code></td><td>Makes photo smaller or larger</td><td>Live preview update</td></tr>
+            <tr><td><strong>Left / Right (X) Slider</strong></td><td><code>-140px</code> to <code>+140px</code></td><td>Shifts photo horizontally</td><td>Smooth fine-tuning</td></tr>
+            <tr><td><strong>Up / Down (Y) Slider</strong></td><td><code>-120px</code> to <code>+140px</code></td><td>Shifts photo vertically</td><td>Smooth fine-tuning</td></tr>
+            <tr><td><strong>+ Create Table</strong></td><td>Adds editable custom table</td><td>Skills, marks, or project grids</td><td>Add/delete rows & columns</td></tr>
+            <tr><td><strong>+ Add Row / + Add Col</strong></td><td>Expands custom table grid</td><td>Fits more items cleanly</td><td>Every cell is editable</td></tr>
+            <tr><td><strong>Experience Entries</strong></td><td>Add / edit / remove roles</td><td>Work & internship history</td><td>Supports multi-line bullets</td></tr>
+            <tr><td><strong>Education Entries</strong></td><td>Add / edit / remove degrees</td><td>Academic qualifications</td><td>Shows degree, school & year</td></tr>
+            <tr><td><strong>Skills Field</strong></td><td>Comma-separated tags</td><td>Highlights core skills</td><td>Rendered cleanly on resume</td></tr>
+            <tr><td><strong>Color & Layout Controls</strong></td><td>Primary, Accent & Layout</td><td>Matches personal style</td><td>Left, Right, Single Column</td></tr>
+            <tr><td><strong>Side A4 Preview</strong></td><td>Live <code>210mm x 297mm</code> view</td><td>Visual check while editing</td><td>Zoom - / + supported</td></tr>
+            <tr><td><strong>Print / Save as PDF</strong></td><td colspan="3">Exact A4 print stylesheet — haveless tool chrome and clean A4 output</td></tr>
+            <tr><td><strong>Download PNG & .txt</strong></td><td colspan="3">Exports image snapshot or plain text resume locally in browser</td></tr>
+            <tr><td><strong>Privacy Status</strong></td><td colspan="3"><span class="limit-badge">100% Client-Side</span> — Zero server uploads</td></tr>
+            <tr><td><strong>Cost & Sign-Up</strong></td><td colspan="3">Free to use with no sign-up required</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="content-card" aria-labelledby="related-heading">
+      <h2 id="related-heading">Related Tools</h2>
+      <div class="tools-grid">
+        <a class="related-link" href="visiting-card-maker.html"><span>Visiting Card Maker</span><span>-></span></a>
+        <a class="related-link" href="student-id-card-maker.html"><span>Student ID Card Maker</span><span>-></span></a>
+        <a class="related-link" href="inviting-card-maker.html"><span>Inviting Card Maker</span><span>-></span></a>
+        <a class="related-link" href="receipt-maker.html"><span>Receipt Maker</span><span>-></span></a>
+      </div>
+    </section>
+
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How do I create a custom table inside my resume?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Click <strong>+ Create Table</strong> under the <strong>Custom Tables</strong> section, type directly into any cell, and use <strong>+ Row</strong> or <strong>+ Col</strong> to expand the table as needed.
+          </div>
+        </div>
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How do I move or resize my photo on the resume?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Upload a photo, then use the <strong>Size</strong> slider to resize it and the <strong>Left / Right (X)</strong> and <strong>Up / Down (Y)</strong> sliders to position it. You can also remove it anytime with <strong>Remove Photo</strong>.
+          </div>
+        </div>
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Does the resume print on exact A4 paper size?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Yes. Clicking <strong>Print / Save as PDF</strong> uses an <code>A4</code> (<code>210mm x 297mm</code>) print layout so you can print or save as PDF cleanly.
+          </div>
+        </div>
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my photo and resume data uploaded to a server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            No. Everything runs 100% locally in your browser with zero server uploads.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">© 2026 PureWebKits.com. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var photoFileInput = document.getElementById("photoFileInput");
+      var uploadPhotoBtn = document.getElementById("uploadPhotoBtn");
+      var removePhotoBtn = document.getElementById("removePhotoBtn");
+      var photoShapeSelect = document.getElementById("photoShapeSelect");
+      var photoStatusLabel = document.getElementById("photoStatusLabel");
+
+      var photoSizeSlider = document.getElementById("photoSizeSlider");
+      var photoPosXSlider = document.getElementById("photoPosXSlider");
+      var photoPosYSlider = document.getElementById("photoPosYSlider");
+      var photoSizeVal = document.getElementById("photoSizeVal");
+      var photoPosXVal = document.getElementById("photoPosXVal");
+      var photoPosYVal = document.getElementById("photoPosYVal");
+
+      var fullNameInput = document.getElementById("fullNameInput");
+      var jobTitleInput = document.getElementById("jobTitleInput");
+      var phoneInput = document.getElementById("phoneInput");
+      var emailInput = document.getElementById("emailInput");
+      var cityInput = document.getElementById("cityInput");
+      var summaryInput = document.getElementById("summaryInput");
+      var skillsInput = document.getElementById("skillsInput");
+
+      var primaryColorInp = document.getElementById("primaryColorInp");
+      var accentColorInp = document.getElementById("accentColorInp");
+      var layoutStyleSel = document.getElementById("layoutStyleSel");
+
+      var expListEditor = document.getElementById("expListEditor");
+      var addExpBtn = document.getElementById("addExpBtn");
+      var eduListEditor = document.getElementById("eduListEditor");
+      var addEduBtn = document.getElementById("addEduBtn");
+
+      var createTableBtn = document.getElementById("createTableBtn");
+      var customTablesEditor = document.getElementById("customTablesEditor");
+
+      var a4Viewport = document.getElementById("a4Viewport");
+      var a4ScaleBox = document.getElementById("a4ScaleBox");
+      var resumeA4Sheet = document.getElementById("resumeA4Sheet");
+
+      var zoomOutBtn = document.getElementById("zoomOutBtn");
+      var zoomInBtn = document.getElementById("zoomInBtn");
+      var zoomPctTxt = document.getElementById("zoomPctTxt");
+
+      var printPdfBtn = document.getElementById("printPdfBtn");
+      var downloadPngBtn = document.getElementById("downloadPngBtn");
+      var downloadTxtBtn = document.getElementById("downloadTxtBtn");
+      var loadSampleDataBtn = document.getElementById("loadSampleDataBtn");
+      var resetAllResumeBtn = document.getElementById("resetAllResumeBtn");
+
+      var uploadedPhotoUrl = "";
+      var nextId = 100;
+      var zoomMult = 1.0;
+
+      var experiences = [
+        { id: 1, role: "Frontend Developer", org: "WebCraft Studio", period: "2023 - Present", desc: "- Built responsive web tools and clean user interfaces.\n- Improved page speed and usability across devices." }
+      ];
+      var educations = [
+        { id: 2, degree: "B.Sc. / B.Tech in Computer Science", school: "State University", period: "2020 - 2023", grade: "82%" }
+      ];
+      var customTables = [];
+
+      function esc(str) {
+        return String(str || "")
+          .replace(/&/g, "&")
+          .replace(/</g, "<")
+          .replace(/>/g, ">")
+          .replace(/"/g, """);
+      }
+
+      function renderExpEditor() {
+        expListEditor.innerHTML = "";
+        experiences.forEach(function (item, i) {
+          var box = document.createElement("div");
+          box.className = "entry-box";
+          box.innerHTML =
+            '<div class="entry-head"><span>Experience #' + (i + 1) + '</span>' +
+              (experiences.length > 1 ? '<button type="button" class="btn-mini-del">Remove</button>' : '') +
+            '</div>' +
+            '<div class="three-col-fields">' +
+              '<input type="text" class="std-input e-role" placeholder="Role" value="' + esc(item.role) + '" />' +
+              '<input type="text" class="std-input e-org" placeholder="Company" value="' + esc(item.org) + '" />' +
+              '<input type="text" class="std-input e-per" placeholder="Duration" value="' + esc(item.period) + '" />' +
+            '</div>' +
+            '<textarea class="std-textarea e-desc" style="height:48px;" placeholder="Details">' + esc(item.desc) + '</textarea>';
+
+          box.querySelector(".e-role").addEventListener("input", function (ev) { item.role = ev.target.value; renderPreview(); });
+          box.querySelector(".e-org").addEventListener("input", function (ev) { item.org = ev.target.value; renderPreview(); });
+          box.querySelector(".e-per").addEventListener("input", function (ev) { item.period = ev.target.value; renderPreview(); });
+          box.querySelector(".e-desc").addEventListener("input", function (ev) { item.desc = ev.target.value; renderPreview(); });
+
+          var del = box.querySelector(".btn-mini-del");
+          if (del) {
+            del.addEventListener("click", function () {
+              experiences = experiences.filter(function (x) { return x.id !== item.id; });
+              renderExpEditor();
+              renderPreview();
+            });
+          }
+          expListEditor.appendChild(box);
+        });
+      }
+
+      function renderEduEditor() {
+        eduListEditor.innerHTML = "";
+        educations.forEach(function (item, i) {
+          var box = document.createElement("div");
+          box.className = "entry-box";
+          box.innerHTML =
+            '<div class="entry-head"><span>Education #' + (i + 1) + '</span>' +
+              (educations.length > 1 ? '<button type="button" class="btn-mini-del">Remove</button>' : '') +
+            '</div>' +
+            '<div class="two-col-fields">' +
+              '<input type="text" class="std-input ed-deg" placeholder="Degree / Course" value="' + esc(item.degree) + '" />' +
+              '<input type="text" class="std-input ed-sch" placeholder="School / College" value="' + esc(item.school) + '" />' +
+            '</div>' +
+            '<div class="two-col-fields">' +
+              '<input type="text" class="std-input ed-per" placeholder="Year" value="' + esc(item.period) + '" />' +
+              '<input type="text" class="std-input ed-grd" placeholder="Marks / CGPA" value="' + esc(item.grade) + '" />' +
+            '</div>';
+
+          box.querySelector(".ed-deg").addEventListener("input", function (ev) { item.degree = ev.target.value; renderPreview(); });
+          box.querySelector(".ed-sch").addEventListener("input", function (ev) { item.school = ev.target.value; renderPreview(); });
+          box.querySelector(".ed-per").addEventListener("input", function (ev) { item.period = ev.target.value; renderPreview(); });
+          box.querySelector(".ed-grd").addEventListener("input", function (ev) { item.grade = ev.target.value; renderPreview(); });
+
+          var del = box.querySelector(".btn-mini-del");
+          if (del) {
+            del.addEventListener("click", function () {
+              educations = educations.filter(function (x) { return x.id !== item.id; });
+              renderEduEditor();
+              renderPreview();
+            });
+          }
+          eduListEditor.appendChild(box);
+        });
+      }
+
+      function renderCustomTablesEditor() {
+        customTablesEditor.innerHTML = "";
+        if (customTables.length === 0) {
+          customTablesEditor.innerHTML = '<div style="font-size:11.5px; color:var(--text-muted);">Click <strong>+ Create Table</strong> above to add a custom table inside your resume.</div>';
+          return;
+        }
+
+        customTables.forEach(function (tbl, tIdx) {
+          var box = document.createElement("div");
+          box.className = "entry-box";
+
+          var headHtml =
+            '<div class="entry-head">' +
+              '<input type="text" class="std-input t-title" style="height:30px; max-width:210px; font-size:12px;" value="' + esc(tbl.title) + '" placeholder="Table Heading" />' +
+              '<div style="display:flex; gap:5px; flex-wrap:wrap;">' +
+                '<button type="button" class="btn-mini-add t-add-row">+ Row</button>' +
+                '<button type="button" class="btn-mini-add t-add-col">+ Col</button>' +
+                '<button type="button" class="btn-mini-del t-del-tbl">Delete Table</button>' +
+              '</div>' +
+            '</div>';
+
+          var rowsHtml = tbl.rows.map(function (rArr, rIdx) {
+            var tds = rArr.map(function (cellVal, cIdx) {
+              return '<td><input type="text" class="mini-cell-input" data-r="' + rIdx + '" data-c="' + cIdx + '" value="' + esc(cellVal) + '" /></td>';
+            }).join("");
+            return "<tr>" + tds + "</tr>";
+          }).join("");
+
+          box.innerHTML = headHtml + '<div class="mini-grid-editor"><table><tbody>' + rowsHtml + '</tbody></table></div>';
+
+          box.querySelector(".t-title").addEventListener("input", function (ev) {
+            tbl.title = ev.target.value;
+            renderPreview();
+          });
+
+          box.querySelectorAll(".mini-cell-input").forEach(function (inp) {
+            inp.addEventListener("input", function (ev) {
+              var rr = parseInt(ev.target.getAttribute("data-r"), 10);
+              var cc = parseInt(ev.target.getAttribute("data-c"), 10);
+              if (tbl.rows[rr] && cc < tbl.rows[rr].length) {
+                tbl.rows[rr][cc] = ev.target.value;
+                renderPreview();
+              }
+            });
+          });
+
+          box.querySelector(".t-add-row").addEventListener("click", function () {
+            var cols = (tbl.rows[0] && tbl.rows[0].length) || 3;
+            var newRow = [];
+            for (var k = 0; k < cols; k++) newRow.push("");
+            tbl.rows.push(newRow);
+            renderCustomTablesEditor();
+            renderPreview();
+          });
+
+          box.querySelector(".t-add-col").addEventListener("click", function () {
+            tbl.rows.forEach(function (rArr, idx) {
+              rArr.push(idx === 0 ? "Column" : "");
+            });
+            renderCustomTablesEditor();
+            renderPreview();
+          });
+
+          box.querySelector(".t-del-tbl").addEventListener("click", function () {
+            customTables = customTables.filter(function (x) { return x.id !== tbl.id; });
+            renderCustomTablesEditor();
+            renderPreview();
+          });
+
+          customTablesEditor.appendChild(box);
+        });
+      }
+
+      function scaleSheet() {
+        var availW = Math.max(180, a4Viewport.clientWidth - 20);
+        var base = availW / 794;
+        var finalS = Math.max(0.24, Math.min(0.95, base * zoomMult));
+        resumeA4Sheet.style.transform = "scale(" + finalS + ")";
+        a4ScaleBox.style.width = Math.round(794 * finalS) + "px";
+        a4ScaleBox.style.height = Math.round(1123 * finalS) + "px";
+        zoomPctTxt.textContent = Math.round(finalS * 100) + "%";
+      }
+
+      function renderPreview() {
+        var pSize = parseInt(photoSizeSlider.value, 10) || 104;
+        var pX = parseInt(photoPosXSlider.value, 10) || 0;
+        var pY = parseInt(photoPosYSlider.value, 10) || 0;
+
+        photoSizeVal.textContent = pSize + "px";
+        photoPosXVal.textContent = pX + "px";
+        photoPosYVal.textContent = pY + "px";
+
+        var primary = primaryColorInp.value || "#0F172A";
+        var accent = accentColorInp.value || "#2563EB";
+        var layout = layoutStyleSel.value || "left-sidebar";
+        var shape = photoShapeSelect.value || "round";
+
+        var nameTxt = esc(fullNameInput.value.trim() || "Your Name");
+        var roleTxt = esc(jobTitleInput.value.trim() || "Job Title");
+        var phoneTxt = esc(phoneInput.value.trim());
+        var emailTxt = esc(emailInput.value.trim());
+        var cityTxt = esc(cityInput.value.trim());
+        var summaryTxt = esc(summaryInput.value.trim());
+        var skillsList = skillsInput.value.split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+
+        var photoBlock = "";
+        if (shape !== "hide") {
+          var shapeCls = shape === "square" ? "square" : "round";
+          var posStyle = "width:" + pSize + "px; height:" + pSize + "px; transform: translate(" + pX + "px, " + pY + "px);";
+          if (uploadedPhotoUrl) {
+            photoBlock = '<div class="res-photo-box ' + shapeCls + '" style="' + posStyle + '"><img src="' + uploadedPhotoUrl + '" alt="Photo" /></div>';
+          } else {
+            photoBlock = '<div class="res-photo-box ' + shapeCls + '" style="' + posStyle + ' color:#FFFFFF; font-weight:800; font-size:12px;">PHOTO</div>';
+          }
+        }
+
+        var expHtml = experiences.map(function (e) {
+          return (
+            '<div class="res-item">' +
+              '<div class="res-item-top"><span class="res-item-title" style="color:' + primary + ';">' + esc(e.role) + '</span><span class="res-item-date" style="color:' + accent + ';">' + esc(e.period) + '</span></div>' +
+              '<div class="res-item-sub">' + esc(e.org) + '</div>' +
+              '<div class="res-item-desc">' + esc(e.desc) + '</div>' +
+            '</div>'
+          );
+        }).join("");
+
+        var eduHtml = educations.map(function (ed) {
+          return (
+            '<div class="res-item">' +
+              '<div class="res-item-top"><span class="res-item-title" style="color:' + primary + ';">' + esc(ed.degree) + '</span><span class="res-item-date" style="color:' + accent + ';">' + esc(ed.period) + '</span></div>' +
+              '<div class="res-item-sub">' + esc(ed.school) + (ed.grade ? " | " + esc(ed.grade) : "") + '</div>' +
+            '</div>'
+          );
+        }).join("");
+
+        var tablesHtml = customTables.map(function (tbl) {
+          var headRow = tbl.rows[0] || [];
+          var bodyRows = tbl.rows.slice(1);
+          var ths = headRow.map(function (hCell) {
+            return '<th style="background:' + primary + '; color:#FFFFFF;">' + esc(hCell) + '</th>';
+          }).join("");
+          var trs = bodyRows.map(function (bRow) {
+            var tds = bRow.map(function (cCell) {
+              return '<td>' + esc(cCell) + '</td>';
+            }).join("");
+            return '<tr>' + tds + '</tr>';
+          }).join("");
+          return (
+            '<div>' +
+              '<div class="res-sec-title" style="color:' + primary + ';">' + esc(tbl.title || "Table") + '</div>' +
+              '<table class="res-custom-table"><thead><tr>' + ths + '</tr></thead><tbody>' + trs + '</tbody></table>' +
+            '</div>'
+          );
+        }).join("");
+
+        var skillsHtml = skillsList.map(function (sk) {
+          return '<span class="res-skill-tag">' + esc(sk) + '</span>';
+        }).join("");
+
+        if (layout === "left-sidebar" || layout === "right-sidebar") {
+          var side =
+            '<aside class="res-sidebar" style="background:' + primary + '; color:#F8FAFC;">' +
+              (photoBlock ? '<div style="display:flex; justify-content:center;">' + photoBlock + '</div>' : '') +
+              '<div>' +
+                '<div class="res-sec-title" style="color:' + accent + ';">Contact</div>' +
+                '<div class="res-contact-list">' +
+                  (phoneTxt ? '<div><strong>Tel:</strong> ' + phoneTxt + '</div>' : '') +
+                  (emailTxt ? '<div><strong>Email:</strong> ' + emailTxt + '</div>' : '') +
+                  (cityTxt ? '<div><strong>City:</strong> ' + cityTxt + '</div>' : '') +
+                '</div>' +
+              '</div>' +
+              (skillsList.length > 0 ?
+                '<div><div class="res-sec-title" style="color:' + accent + ';">Skills</div><div class="res-skill-pills">' + skillsHtml + '</div></div>' : '') +
+            '</aside>';
+
+          var main =
+            '<div class="res-main">' +
+              '<div style="border-bottom:3px solid ' + accent + '; padding-bottom:10px;">' +
+                '<div class="res-name" style="color:' + primary + ';">' + nameTxt + '</div>' +
+                '<div class="res-headline" style="color:' + accent + ';">' + roleTxt + '</div>' +
+              '</div>' +
+              (summaryTxt ? '<div><div class="res-sec-title" style="color:' + primary + ';">Summary</div><div class="res-item-desc">' + summaryTxt + '</div></div>' : '') +
+              (experiences.length > 0 ? '<div><div class="res-sec-title" style="color:' + primary + ';">Experience</div>' + expHtml + '</div>' : '') +
+              (educations.length > 0 ? '<div><div class="res-sec-title" style="color:' + primary + ';">Education</div>' + eduHtml + '</div>' : '') +
+              tablesHtml +
+            '</div>';
+
+          resumeA4Sheet.innerHTML = layout === "left-sidebar"
+            ? '<div class="res-body-split">' + side + main + '</div>'
+            : '<div class="res-body-right">' + main + side + '</div>';
+        } else {
+          resumeA4Sheet.innerHTML =
+            '<div class="res-body-single">' +
+              '<div style="display:flex; justify-content:space-between; align-items:center; gap:16px; border-bottom:3px solid ' + primary + '; padding-bottom:12px;">' +
+                '<div>' +
+                  '<div class="res-name" style="color:' + primary + ';">' + nameTxt + '</div>' +
+                  '<div class="res-headline" style="color:' + accent + ';">' + roleTxt + '</div>' +
+                  '<div style="font-size:11.5px; color:#334155; margin-top:4px;">' + [phoneTxt, emailTxt, cityTxt].filter(Boolean).join(" | ") + '</div>' +
+                '</div>' +
+                photoBlock +
+              '</div>' +
+              (summaryTxt ? '<div><div class="res-sec-title" style="color:' + primary + ';">Summary</div><div class="res-item-desc">' + summaryTxt + '</div></div>' : '') +
+              (experiences.length > 0 ? '<div><div class="res-sec-title" style="color:' + primary + ';">Experience</div>' + expHtml + '</div>' : '') +
+              (educations.length > 0 ? '<div><div class="res-sec-title" style="color:' + primary + ';">Education</div>' + eduHtml + '</div>' : '') +
+              tablesHtml +
+              (skillsList.length > 0 ? '<div><div class="res-sec-title" style="color:' + primary + ';">Skills</div><div style="font-size:12px; font-weight:600;">' + skillsList.map(esc).join(", ") + '</div></div>' : '') +
+            '</div>';
+        }
+
+        scaleSheet();
+      }
+
+      uploadPhotoBtn.addEventListener("click", function () {
+        photoFileInput.value = "";
+        photoFileInput.click();
+      });
+
+      photoFileInput.addEventListener("change", function () {
+        var file = photoFileInput.files && photoFileInput.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+          uploadedPhotoUrl = String(ev.target.result || "");
+          if (photoShapeSelect.value === "hide") photoShapeSelect.value = "round";
+          removePhotoBtn.style.display = "inline-flex";
+          photoStatusLabel.textContent = file.name;
+          renderPreview();
+        };
+        reader.readAsDataURL(file);
+      });
+
+      removePhotoBtn.addEventListener("click", function () {
+        uploadedPhotoUrl = "";
+        photoFileInput.value = "";
+        removePhotoBtn.style.display = "none";
+        photoShapeSelect.value = "hide";
+        photoStatusLabel.textContent = "Photo removed";
+        renderPreview();
+      });
+
+      addExpBtn.addEventListener("click", function () {
+        experiences.push({ id: nextId++, role: "Position", org: "Organization", period: "2022 - 2023", desc: "- Key work detail." });
+        renderExpEditor();
+        renderPreview();
+      });
+
+      addEduBtn.addEventListener("click", function () {
+        educations.push({ id: nextId++, degree: "Course / Degree", school: "Institute", period: "2019 - 2022", grade: "80%" });
+        renderEduEditor();
+        renderPreview();
+      });
+
+      createTableBtn.addEventListener("click", function () {
+        customTables.push({
+          id: nextId++,
+          title: "Skills & Details Table",
+          rows: [
+            ["Category", "Details", "Level"],
+            ["Core Skill", "Web & UI", "Advanced"],
+            ["Tools", "HTML / CSS / JS", "Proficient"]
+          ]
+        });
+        renderCustomTablesEditor();
+        renderPreview();
+      });
+
+      loadSampleDataBtn.addEventListener("click", function () {
+        fullNameInput.value = "Priya Sharma";
+        jobTitleInput.value = "Frontend & Product Engineer";
+        phoneInput.value = "+91 98111 22334";
+        emailInput.value = "priya.sharma@example.com";
+        cityInput.value = "New Delhi, India";
+        summaryInput.value = "Experienced developer creating clean interfaces, structured data tables, and fast client-side utilities.";
+        skillsInput.value = "HTML5, CSS3, JavaScript, TypeScript, React, Figma";
+        experiences = [
+          { id: nextId++, role: "Frontend Engineer", org: "Nova Web Labs", period: "2023 - Present", desc: "- Built fast client-side tools and responsive layouts.\n- Collaborated with design and product teams." }
+        ];
+        educations = [
+          { id: nextId++, degree: "B.Tech in Computer Science", school: "Delhi Technological Univ.", period: "2019 - 2023", grade: "8.7 CGPA" }
+        ];
+        customTables = [
+          {
+            id: nextId++,
+            title: "Technical Matrix",
+            rows: [
+              ["Area", "Technologies", "Proficiency"],
+              ["Frontend", "HTML, CSS, JS, React", "Expert"],
+              ["Backend", "Node.js, REST APIs", "Intermediate"]
+            ]
+          }
+        ];
+        renderExpEditor();
+        renderEduEditor();
+        renderCustomTablesEditor();
+        renderPreview();
+      });
+
+      resetAllResumeBtn.addEventListener("click", function () {
+        uploadedPhotoUrl = "";
+        photoFileInput.value = "";
+        removePhotoBtn.style.display = "none";
+        photoShapeSelect.value = "round";
+        photoStatusLabel.textContent = "Sample / Ready";
+        photoSizeSlider.value = "104";
+        photoPosXSlider.value = "0";
+        photoPosYSlider.value = "0";
+        zoomMult = 1.0;
+
+        fullNameInput.value = "Rohan Kumar Verma";
+        jobTitleInput.value = "Web Developer & UI Specialist";
+        phoneInput.value = "+91 98765 43210";
+        emailInput.value = "rohan.verma@example.com";
+        cityInput.value = "Patna, Bihar";
+        summaryInput.value = "Detail-oriented developer with experience building clean, fast, and responsive web interfaces and practical tools.";
+        skillsInput.value = "HTML, CSS, JavaScript, React, UI Design, Git";
+        primaryColorInp.value = "#0F172A";
+        accentColorInp.value = "#2563EB";
+        layoutStyleSel.value = "left-sidebar";
+
+        experiences = [
+          { id: nextId++, role: "Frontend Developer", org: "WebCraft Studio", period: "2023 - Present", desc: "- Built responsive web tools and clean user interfaces.\n- Improved page speed and usability across devices." }
+        ];
+        educations = [
+          { id: nextId++, degree: "B.Sc. / B.Tech in Computer Science", school: "State University", period: "2020 - 2023", grade: "82%" }
+        ];
+        customTables = [];
+
+        renderExpEditor();
+        renderEduEditor();
+        renderCustomTablesEditor();
+        renderPreview();
+      });
+
+      zoomOutBtn.addEventListener("click", function () {
+        zoomMult = Math.max(0.65, +(zoomMult - 0.1).toFixed(2));
+        scaleSheet();
+      });
+
+      zoomInBtn.addEventListener("click", function () {
+        zoomMult = Math.min(1.4, +(zoomMult + 0.1).toFixed(2));
+        scaleSheet();
+      });
+
+      [
+        photoShapeSelect, photoSizeSlider, photoPosXSlider, photoPosYSlider,
+        fullNameInput, jobTitleInput, phoneInput, emailInput, cityInput,
+        summaryInput, skillsInput, primaryColorInp, accentColorInp, layoutStyleSel
+      ].forEach(function (el) {
+        el.addEventListener("input", renderPreview);
+        el.addEventListener("change", renderPreview);
+      });
+
+      printPdfBtn.addEventListener("click", function () {
+        window.print();
+      });
+
+      downloadPngBtn.addEventListener("click", function () {
+        var c = document.createElement("canvas");
+        c.width = 1588;
+        c.height = 2246;
+        var ctx = c.getContext("2d");
+        var primary = primaryColorInp.value || "#0F172A";
+        var accent = accentColorInp.value || "#2563EB";
+
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(0, 0, c.width, c.height);
+
+        ctx.fillStyle = primary;
+        ctx.fillRect(0, 0, 500, c.height);
+
+        ctx.fillStyle = primary;
+        ctx.font = "800 52px Arial, sans-serif";
+        ctx.fillText(fullNameInput.value.trim() || "Your Name", 550, 110, 960);
+
+        ctx.fillStyle = accent;
+        ctx.font = "700 28px Arial, sans-serif";
+        ctx.fillText(jobTitleInput.value.trim() || "Job Title", 550, 156, 960);
+
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "600 22px Arial, sans-serif";
+        ctx.fillText("Contact", 40, 260);
+        ctx.font = "400 20px Arial, sans-serif";
+        ctx.fillText(phoneInput.value.trim(), 40, 300, 420);
+        ctx.fillText(emailInput.value.trim(), 40, 335, 420);
+        ctx.fillText(cityInput.value.trim(), 40, 370, 420);
+
+        ctx.fillStyle = "#0F172A";
+        ctx.font = "700 24px Arial, sans-serif";
+        ctx.fillText("Summary", 550, 235);
+        ctx.font = "400 21px Arial, sans-serif";
+        ctx.fillText(summaryInput.value.trim(), 550, 275, 960);
+
+        c.toBlob(function (blob) {
+          if (!blob) return;
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement("a");
+          a.href = url;
+          a.download = "resume-a4.png";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, "image/png");
+      });
+
+      downloadTxtBtn.addEventListener("click", function () {
+        var out = [
+          fullNameInput.value.trim(),
+          jobTitleInput.value.trim(),
+          [phoneInput.value.trim(), emailInput.value.trim(), cityInput.value.trim()].filter(Boolean).join(" | "),
+          "",
+          "SUMMARY",
+          summaryInput.value.trim(),
+          "",
+          "EXPERIENCE"
+        ];
+        experiences.forEach(function (e) {
+          out.push(e.role + " - " + e.org + " (" + e.period + ")");
+          out.push(e.desc);
+        });
+        out.push("", "EDUCATION");
+        educations.forEach(function (ed) {
+          out.push(ed.degree + " - " + ed.school + " (" + ed.period + ") " + ed.grade);
+        });
+        customTables.forEach(function (tbl) {
+          out.push("", (tbl.title || "TABLE").toUpperCase());
+          tbl.rows.forEach(function (r) { out.push(r.join(" | ")); });
+        });
+        out.push("", "SKILLS", skillsInput.value.trim());
+
+        var blob = new Blob([out.join("\n") + "\n"], { type: "text/plain;charset=utf-8" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "resume.txt";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+
+      window.addEventListener("resize", scaleSheet);
+
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var item = btn.closest(".faq-item");
+          var open = item.classList.contains("open");
+          item.classList.toggle("open", !open);
+          btn.setAttribute("aria-expanded", String(!open));
+        });
+      });
+
+      renderExpEditor();
+      renderEduEditor();
+      renderCustomTablesEditor();
+      renderPreview();
+    });
+  </script>
+</body>
+</html>

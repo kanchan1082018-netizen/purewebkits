@@ -1,0 +1,744 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service - PureWebKits</title>
+  <meta name="description" content="Read the Terms of Service for PureWebKits. Learn about free client-side tool usage, acceptable use, intellectual property, AdSense advertising, and limitation of liability." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://PureWebKits.com/terms" />
+  <meta property="og:title" content="Terms of Service - PureWebKits" />
+  <meta property="og:description" content="Terms of Service governing your use of PureWebKits' 240+ free, privacy-first, client-side web utilities." />
+  <meta property="og:url" content="https://PureWebKits.com/terms" />
+  <meta property="og:type" content="website" />
+  <style>
+    :root {
+      --bg-page: #FFFFFF;
+      --bg-hero: #F4F7FB;
+      --bg-footer: #182234;
+      --text-primary: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #64748B;
+      --border-color: #E2E8F0;
+      --brand-blue: #2563EB;
+      --brand-blue-dark: #1D4ED8;
+      --brand-blue-light: #EFF6FF;
+      --footer-text: #CBD5E1;
+      --footer-muted: #94A3B8;
+      --radius-lg: 14px;
+      --radius-md: 8px;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      color: var(--text-primary);
+      background-color: var(--bg-page);
+      line-height: 1.65;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    a {
+      color: var(--brand-blue);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    a:hover {
+      color: var(--brand-blue-dark);
+    }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background-color: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+    }
+
+    .header-inner {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-logo:hover {
+      color: var(--text-primary);
+    }
+
+    .brand-logo svg {
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 6px 2px;
+      position: relative;
+    }
+
+    .nav-links a:hover {
+      color: var(--brand-blue);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 6px 8px;
+      cursor: pointer;
+      color: var(--text-primary);
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Hero Banner */
+    .hero-banner {
+      background-color: var(--bg-hero);
+      border-bottom: 1px solid var(--border-color);
+      padding: 56px 24px;
+      text-align: center;
+    }
+
+    .hero-inner {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background-color: var(--brand-blue-light);
+      color: var(--brand-blue);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+      letter-spacing: 0.02em;
+    }
+
+    .hero-banner h1 {
+      font-size: 2.375rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 14px;
+    }
+
+    .hero-banner p {
+      font-size: 1.0625rem;
+      color: var(--text-secondary);
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    /* Main Content & Legal Document Card */
+    .main-content {
+      flex: 1;
+      padding: 0 24px 48px;
+      background-color: #FFFFFF;
+    }
+
+    .legal-card {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 40px;
+      background-color: #FFFFFF;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+    }
+
+    .toc-box {
+      background-color: var(--bg-hero);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 36px;
+    }
+
+    .toc-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .toc-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 8px 20px;
+      list-style: none;
+    }
+
+    .toc-list a {
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toc-list a:hover {
+      color: var(--brand-blue);
+      text-decoration: underline;
+    }
+
+    .legal-section {
+      padding-top: 8px;
+      margin-bottom: 32px;
+      scroll-margin-top: 90px;
+    }
+
+    .legal-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .legal-section h2 {
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.015em;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .legal-section p {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      margin-bottom: 14px;
+    }
+
+    .legal-section p:last-child {
+      margin-bottom: 0;
+    }
+
+    .legal-section ul {
+      margin: 12px 0 16px 22px;
+      color: var(--text-secondary);
+    }
+
+    .legal-section li {
+      margin-bottom: 8px;
+      padding-left: 4px;
+    }
+
+    .legal-section strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .highlight-note {
+      background-color: var(--brand-blue-light);
+      border-left: 4px solid var(--brand-blue);
+      padding: 14px 18px;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 16px 0;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+    }
+
+    .contact-callout {
+      background-color: var(--bg-hero);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .contact-callout-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--brand-blue);
+      color: #FFFFFF;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      padding: 10px 18px;
+      border-radius: var(--radius-md);
+      transition: background-color 0.15s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--brand-blue-dark);
+      color: #FFFFFF;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #FFFFFF;
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      font-weight: 600;
+      font-size: 0.9375rem;
+      padding: 10px 18px;
+      border-radius: var(--radius-md);
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--brand-blue);
+      color: var(--brand-blue);
+    }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer {
+      background-color: var(--bg-footer);
+      color: var(--footer-text);
+      padding: 60px 24px 0;
+      margin-top: auto;
+    }
+
+    .footer-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr;
+      gap: 36px;
+      padding-bottom: 48px;
+    }
+
+    .footer-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #FFFFFF;
+      font-weight: 800;
+      font-size: 1.2rem;
+      margin-bottom: 14px;
+      text-decoration: none;
+    }
+
+    .footer-brand:hover {
+      color: #FFFFFF;
+    }
+
+    .footer-desc {
+      color: var(--footer-muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      max-width: 280px;
+    }
+
+    .footer-col h3 {
+      color: #FFFFFF;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: 0.01em;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-links a {
+      color: var(--footer-muted);
+      font-size: 0.875rem;
+      transition: color 0.15s ease;
+    }
+
+    .footer-links a:hover {
+      color: #FFFFFF;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 22px 0;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--footer-muted);
+      font-size: 0.875rem;
+    }
+
+    .footer-bottom-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-bottom-links a {
+      color: var(--footer-muted);
+      font-size: 0.875rem;
+    }
+
+    .footer-bottom-links a:hover {
+      color: #FFFFFF;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 960px) {
+      .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .footer-brand-col {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background-color: #FFFFFF;
+        border-bottom: 1px solid var(--border-color);
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px 24px;
+        gap: 14px;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      }
+
+      .nav-links.open {
+        display: flex;
+      }
+
+      .mobile-menu-btn {
+        display: inline-flex;
+      }
+
+      .hero-banner {
+        padding: 40px 20px;
+      }
+
+      .hero-banner h1 {
+        font-size: 1.875rem;
+      }
+
+      .legal-card {
+        margin: 24px auto;
+        padding: 24px 20px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M16 3L28 9.75V22.25L16 29L4 22.25V9.75L16 3Z" fill="#2563EB"/>
+          <path d="M16 3L28 9.75L16 16.5L4 9.75L16 3Z" fill="#60A5FA"/>
+          <path d="M16 16.5L28 9.75V22.25L16 29V16.5Z" fill="#1D4ED8"/>
+          <path d="M16 16.5L4 9.75V22.25L16 29V16.5Z" fill="#3B82F6"/>
+        </svg>
+        <span>PureWebKits</span>
+      </a>
+
+      <nav aria-label="Primary Navigation">
+        <ul class="nav-links" id="navLinks">
+          <li><a href="index.html">All Tools</a></li>
+          <li><a href="index.html#categories">Categories</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+
+      <button class="mobile-menu-btn" id="mobileMenuBtn" type="button" aria-label="Toggle navigation menu" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="hero-banner">
+    <div class="hero-inner">
+      <span class="hero-badge">Legal Documentation</span>
+      <h1>Terms of Service</h1>
+      <p>Last Updated: November 2026 — Please read these terms carefully before using PureWebKits.</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <article class="legal-card">
+      <nav class="toc-box" aria-label="Terms of Service Sections">
+        <div class="toc-title">Table of Contents</div>
+        <ul class="toc-list">
+          <li><a href="#acceptance">1. Acceptance of Terms</a></li>
+          <li><a href="#client-side">2. Free Use &amp; Client-Side Architecture</a></li>
+          <li><a href="#acceptable-use">3. Acceptable Use Policy</a></li>
+          <li><a href="#intellectual-property">4. Intellectual Property</a></li>
+          <li><a href="#third-party">5. Third-Party Links &amp; Advertisements</a></li>
+          <li><a href="#liability">6. Limitation of Liability ("As-Is" Basis)</a></li>
+          <li><a href="#changes-contact">7. Changes to Terms &amp; Contact</a></li>
+        </ul>
+      </nav>
+
+      <section id="acceptance" class="legal-section">
+        <h2>1. Acceptance of Terms</h2>
+        <p>
+          Welcome to <strong>PureWebKits</strong> (accessible at <a href="https://PureWebKits.com">PureWebKits.com</a>). By accessing, browsing, or utilizing any of the web-based calculators, file converters, developer utilities, text tools, or related services provided on this website, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service, as well as our <a href="privacy-policy.html">Privacy Policy</a>.
+        </p>
+        <p>
+          If you do not agree with any part of these terms, you must discontinue use of PureWebKits.com immediately. These Terms of Service apply to all visitors, users, and others who access or use the website.
+        </p>
+      </section>
+
+      <section id="client-side" class="legal-section">
+        <h2>2. Free Use &amp; Client-Side Architecture</h2>
+        <p>
+          PureWebKits provides access to <strong>240+ online utilities free of charge</strong> for personal, educational, and commercial productivity. No account registration, subscription, or software installation is required to use our tools.
+        </p>
+        <div class="highlight-note">
+          <strong>100% Client-Side Processing:</strong> All file conversions, image edits, PDF operations, code formatting, and calculations occur locally inside your web browser using JavaScript and WebAssembly. PureWebKits does not upload, store, or inspect the files or data you process within our tools on remote servers.
+        </div>
+        <p>
+          Because processing takes place entirely on your device, performance and file size limits depend on your browser and local hardware capabilities. While we strive to maintain 24/7 availability, we reserve the right to modify, update, or discontinue any individual tool or feature at any time without prior notice.
+        </p>
+      </section>
+
+      <section id="acceptable-use" class="legal-section">
+        <h2>3. Acceptable Use Policy</h2>
+        <p>
+          You agree to use PureWebKits responsibly and solely for lawful purposes. When accessing or using our website, you strictly agree <strong>not</strong> to:
+        </p>
+        <ul>
+          <li>Use any tool or utility to facilitate, promote, or carry out illegal activities, fraud, or distribution of malicious code.</li>
+          <li>Conduct automated scraping, crawling, data harvesting, stress-testing, or Distributed Denial-of-Service (DDoS) attacks against PureWebKits.com or its hosting infrastructure.</li>
+          <li>Attempt to bypass security controls, reverse-engineer proprietary server configurations, or interfere with the normal operation of the site for other users.</li>
+          <li>Infringe upon third-party intellectual property, privacy, or copyright rights. Specifically, you represent and warrant that you own the rights to, or have explicit authorization to process, any PDF, document, image, audio, or text file that you edit, convert, compress, or watermark using our tools.</li>
+        </ul>
+      </section>
+
+      <section id="intellectual-property" class="legal-section">
+        <h2>4. Intellectual Property</h2>
+        <p>
+          All original content on PureWebKits—including the PureWebKits brand name, logo, user interface design, layout, custom graphics, source code, tool descriptions, and documentation—is the intellectual property of PureWebKits.com and is protected by applicable copyright, trademark, and intellectual property laws.
+        </p>
+        <p>
+          You may not copy, reproduce, redistribute, mirror, resell, or create derivative websites using our brand identity, layout, or proprietary codebase without prior written permission from PureWebKits.
+        </p>
+        <p>
+          <strong>Your Content &amp; Outputs:</strong> PureWebKits claims zero ownership over the files, text, code, or media you process using our client-side utilities. All outputs generated by you remain 100% yours.
+        </p>
+      </section>
+
+      <section id="third-party" class="legal-section">
+        <h2>5. Third-Party Links &amp; Advertisements</h2>
+        <p>
+          To keep all 240+ tools completely free for everyone, PureWebKits displays advertisements served by third-party advertising networks, including <strong>Google AdSense</strong>. These advertising partners may use cookies or similar technologies in accordance with their own privacy policies and your consent preferences.
+        </p>
+        <p>
+          PureWebKits may also include hyperlinks to external websites, open-source documentation, or third-party resources for informational convenience. We do not control, endorse, or assume any responsibility for the content, accuracy, privacy practices, or terms of service of any third-party websites or advertisers. Your interactions with external sites or advertised services are solely between you and the respective third party.
+        </p>
+      </section>
+
+      <section id="liability" class="legal-section">
+        <h2>6. Limitation of Liability ("As-Is" Basis)</h2>
+        <p>
+          All tools, calculators, converters, generators, and informational materials on PureWebKits are provided strictly on an <strong>"as-is" and "as-available" basis</strong> without warranties of any kind, whether express, implied, or statutory, including but not limited to implied warranties of merchantability, fitness for a particular purpose, accuracy, or non-infringement.
+        </p>
+        <p>
+          While we test our utilities thoroughly for precision and reliability, PureWebKits does not guarantee that every calculation, conversion, or output will be error-free or uninterrupted. <strong>You are solely responsible for independently verifying any critical outputs</strong>—especially results related to financial planning, taxes, accounting, engineering, healthcare, or legal matters—before relying on them.
+        </p>
+        <p>
+          To the maximum extent permitted by applicable law, PureWebKits and its operators shall not be liable for any direct, indirect, incidental, consequential, special, or exemplary damages (including loss of data, loss of profits, or business interruption) arising out of or in connection with your use of, or inability to use, this website.
+        </p>
+      </section>
+
+      <section id="changes-contact" class="legal-section">
+        <h2>7. Changes to Terms &amp; Contact</h2>
+        <p>
+          PureWebKits reserves the right to revise or update these Terms of Service at any time to reflect changes in our tools, legal requirements, or operational practices. Any updates will be posted on this page with a revised "Last Updated" date. Continued use of PureWebKits.com after changes are published constitutes your acceptance of the updated terms.
+        </p>
+        <p>
+          If you have any questions, concerns, or feedback regarding these Terms of Service, please reach out to us through our contact page or directly via email:
+        </p>
+        <div class="contact-callout">
+          <div>
+            <strong>PureWebKits Support</strong><br />
+            <span style="color: var(--text-secondary); font-size: 0.9375rem;">Email: <a href="mailto:website1082018@gmail.com">website1082018@gmail.com</a></span>
+          </div>
+          <div class="contact-callout-actions">
+            <a href="contact.html" class="btn-primary">Contact Us</a>
+            <a href="privacy-policy.html" class="btn-secondary">Privacy Policy</a>
+          </div>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-brand-col">
+        <a href="index.html" class="footer-brand">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M16 3L28 9.75V22.25L16 29L4 22.25V9.75L16 3Z" fill="#2563EB"/>
+            <path d="M16 3L28 9.75L16 16.5L4 9.75L16 3Z" fill="#60A5FA"/>
+            <path d="M16 16.5L28 9.75V22.25L16 29V16.5Z" fill="#1D4ED8"/>
+            <path d="M16 16.5L4 9.75V22.25L16 29V16.5Z" fill="#3B82F6"/>
+          </svg>
+          <span>PureWebKits</span>
+        </a>
+        <p class="footer-desc">
+          240+ fast, free, and privacy-first online tools running 100% client-side in your browser. Zero uploads, zero sign-ups.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h3>Categories</h3>
+        <ul class="footer-links">
+          <li><a href="index.html#categories">PDF &amp; Document Tools</a></li>
+          <li><a href="index.html#categories">Image &amp; Design Tools</a></li>
+          <li><a href="index.html#categories">Developer &amp; Code Tools</a></li>
+          <li><a href="index.html#categories">Text &amp; Writing Tools</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h3>Popular Utilities</h3>
+        <ul class="footer-links">
+          <li><a href="index.html">JSON Formatter</a></li>
+          <li><a href="index.html">Image Compressor</a></li>
+          <li><a href="index.html">PDF Merger</a></li>
+          <li><a href="index.html">Unit Converter</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h3>Company</h3>
+        <ul class="footer-links">
+          <li><a href="about.html">About PureWebKits</a></li>
+          <li><a href="contact.html">Contact Support</a></li>
+          <li><a href="index.html">All 240+ Tools</a></li>
+          <li><a href="index.html#categories">Browse Categories</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h3>Legal</h3>
+        <ul class="footer-links">
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="terms.html#acceptable-use">Acceptable Use</a></li>
+          <li><a href="terms.html#liability">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 PureWebKits.com. All rights reserved.</p>
+      <div class="footer-bottom-links">
+        <a href="privacy-policy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var menuBtn = document.getElementById('mobileMenuBtn');
+      var navLinks = document.getElementById('navLinks');
+
+      if (menuBtn && navLinks) {
+        menuBtn.addEventListener('click', function () {
+          var isOpen = navLinks.classList.toggle('open');
+          menuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+
+        document.addEventListener('click', function (e) {
+          if (!navLinks.contains(e.target) && !menuBtn.contains(e.target) && navLinks.classList.contains('open')) {
+            navLinks.classList.remove('open');
+            menuBtn.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

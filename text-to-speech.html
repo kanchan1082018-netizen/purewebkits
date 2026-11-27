@@ -1,0 +1,929 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Text to Speech Reader Online — Free Browser Voice Reader (TTS) | PureWebKits</title>
+  <meta name="description" content="Convert any text, article, or study notes into natural spoken audio directly in your web browser. Adjust voice, speaking speed, and pitch 100% locally with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/text-to-speech.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --success-soft: #ECFDF5;
+      --warning: #D97706;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1060px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Controls Top Grid */
+    .tts-controls-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 18px;
+      align-items: end;
+    }
+    .control-group { display: flex; flex-direction: column; gap: 6px; }
+    .control-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .val-tag { font-size: 12px; font-weight: 800; color: var(--primary); }
+    .voice-select {
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: #FFFFFF;
+      outline: none;
+    }
+    .voice-select:focus { border-color: var(--primary); }
+    .range-slider {
+      width: 100%;
+      height: 42px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* Text Area */
+    .tts-textarea {
+      width: 100%;
+      height: 220px;
+      padding: 16px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 16px;
+      line-height: 1.65;
+      color: var(--text-main);
+      background: #FFFFFF;
+      resize: vertical;
+      outline: none;
+    }
+    .tts-textarea:focus { border-color: var(--primary); }
+
+    /* Bottom Playback & Stats Bar */
+    .playback-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .play-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .btn-play {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 9px;
+      padding: 11px 22px;
+      font-size: 14.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .btn-play:hover { background: var(--primary-dark); }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 9px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+    .btn-stop {
+      background: #FEF2F2;
+      color: #DC2626;
+      border: 1px solid #FECACA;
+      border-radius: 9px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-stop:hover { background: #FEE2E2; }
+
+    .tts-meta-stats {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .status-badge {
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: #F1F5F9;
+      color: #334155;
+      font-size: 12.5px;
+    }
+    .status-badge.speaking {
+      background: var(--success-soft);
+      color: #065F46;
+    }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 860px) {
+      .tts-controls-grid { grid-template-columns: 1fr 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .tts-controls-grid, .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Text to Speech Reader -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Text to Speech Reader — Free Browser Voice & Audio Narrator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Uses your browser's built-in SpeechSynthesis engine — zero text uploaded
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tts-controls-grid">
+          <div class="control-group">
+            <div class="control-label-row">
+              <label for="voiceSelect">Select Voice & Language</label>
+            </div>
+            <select id="voiceSelect" class="voice-select">
+              <option value="">Default System Voice</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <label for="rateSlider">Speed (Rate)</label>
+              <span id="rateValTag" class="val-tag">1.0x</span>
+            </div>
+            <input type="range" id="rateSlider" class="range-slider" min="0.5" max="2" step="0.1" value="1" />
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <label for="pitchSlider">Voice Pitch</label>
+              <span id="pitchValTag" class="val-tag">1.0</span>
+            </div>
+            <input type="range" id="pitchSlider" class="range-slider" min="0.5" max="1.5" step="0.1" value="1" />
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <label for="volumeSlider">Volume</label>
+              <span id="volValTag" class="val-tag">100%</span>
+            </div>
+            <input type="range" id="volumeSlider" class="range-slider" min="0" max="1" step="0.1" value="1" />
+          </div>
+        </div>
+
+        <textarea id="ttsTextInput" class="tts-textarea" placeholder="Paste or type any article, email, essay, or study notes here to listen aloud...">Welcome to PureWebKits Text to Speech Reader. Paste any article, email, or study notes here to listen aloud directly in your web browser with customizable voice speed and pitch—100% private with zero server uploads.</textarea>
+
+        <div class="playback-bar">
+          <div class="play-actions">
+            <button type="button" id="playBtn" class="btn-play">▶ Listen / Speak</button>
+            <button type="button" id="pauseBtn" class="btn-sec">❚❚ Pause</button>
+            <button type="button" id="stopBtn" class="btn-stop">■ Stop</button>
+            <button type="button" id="sampleBtn" class="btn-sec">Sample Text</button>
+            <button type="button" id="clearBtn" class="btn-sec">Clear</button>
+          </div>
+
+          <div class="tts-meta-stats">
+            <span id="wordCountStat">38 words • ~15 sec</span>
+            <span id="ttsStatusBadge" class="status-badge">Ready</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Browser Text-to-Speech (TTS), Speech Synthesis & Speed Control Work</h2>
+
+      <h3>Why Listening to Written Text Boosts Proofreading, Learning & Accessibility</h3>
+      <p>
+        <strong>Text-to-Speech (TTS)</strong> technology converts written digital text into natural-sounding spoken audio using your operating system's native neural and phonetic voice engines via the W3C <strong>Web Speech API</strong>. Writers and editors rely on TTS proofreading because hearing your own articles, cover letters, or scripts read aloud immediately exposes awkward phrasing, missing words, and repetitive sentences that silent reading often misses. Students and researchers use adjustable playback speeds (<code>1.2x</code> to <code>1.5x</code>) to absorb long study notes hands-free, while users with dyslexia or visual fatigue benefit from effortless audio narration without installing heavy software.
+      </p>
+
+      <h3>How to Convert Text to Audio in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Paste or Type Your Text:</strong> Enter any paragraph, blog draft, email, or study notes into the editor box above.</li>
+        <li><strong>Customize Voice, Speed & Pitch:</strong> Select your preferred English, Hindi, or international system voice, and adjust the speaking rate (<code>0.5x</code> to <code>2.0x</code>) and pitch.</li>
+        <li><strong>Click Listen, Pause, or Stop:</strong> Press <em>Listen / Speak</em> to start immediate local narration, or use <em>Pause</em> and <em>Stop</em> anytime.</li>
+      </ol>
+
+      <h3>Spoken Narration Duration Formula & Worked Example</h3>
+      <p>
+        Average conversational English narration runs at approximately <strong>150 words per minute (WPM)</strong> at standard <code>1.0x</code> speed, scaling proportionally with your chosen playback rate multiplier:
+      </p>
+      <div class="formula-box">
+        Estimated Narration Time (Minutes) = Total Word Count / ( 150 WPM × Speed Rate )
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Suppose you paste a <strong>900-word</strong> blog article into the reader and set the speaking rate to <strong>1.5x speed</strong>.</p>
+        <p>Effective narration pace = <code>150 WPM × 1.5 = 225 words per minute</code>.</p>
+        <p>Total listening duration = <code>900 words / 225 WPM = 4.0 minutes (4 minutes 0 seconds)</code>—saving 2 full minutes compared to standard <code>1.0x</code> playback.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="tts-table-heading">
+      <h2 id="tts-table-heading">Text-to-Speech Speed, Pitch & Use-Case Optimization Chart (16 Profiles)</h2>
+      <p>Use this quick reference table to pick the ideal speaking rate, pitch, and voice settings for proofreading, studying, or accessibility.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Use Case / Activity</th>
+              <th>Recommended Speed</th>
+              <th>Effective WPM</th>
+              <th>Recommended Pitch & Tip</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Language Learning & Pronunciation</strong></td>
+              <td><span class="limit-badge">0.7x – 0.8x</span></td>
+              <td>105 – 120 WPM</td>
+              <td>1.0 Pitch • Clear syllable enunciation</td>
+            </tr>
+            <tr>
+              <td><strong>Proofreading Articles & Essays</strong></td>
+              <td><span class="limit-badge">0.9x – 1.0x</span></td>
+              <td>135 – 150 WPM</td>
+              <td>1.0 Pitch • Catches typos & missing words</td>
+            </tr>
+            <tr>
+              <td><strong>Casual Blog & News Listening</strong></td>
+              <td><span class="limit-badge">1.1x – 1.2x</span></td>
+              <td>165 – 180 WPM</td>
+              <td>1.0 Pitch • Natural podcast-like flow</td>
+            </tr>
+            <tr>
+              <td><strong>Exam Revision & Study Notes</strong></td>
+              <td><span class="limit-badge">1.3x – 1.5x</span></td>
+              <td>195 – 225 WPM</td>
+              <td>1.0 – 1.1 Pitch • Fast active recall</td>
+            </tr>
+            <tr>
+              <td><strong>Rapid Skimming of Long Reports</strong></td>
+              <td><span class="limit-badge">1.7x – 2.0x</span></td>
+              <td>255 – 300 WPM</td>
+              <td>1.0 Pitch • Best with crisp neural voices</td>
+            </tr>
+            <tr>
+              <td><strong>YouTube Script Timing Check</strong></td>
+              <td><span class="limit-badge">1.0x</span></td>
+              <td>150 WPM</td>
+              <td>1.0 Pitch • Accurate video runtime estimate</td>
+            </tr>
+            <tr>
+              <td><strong>Email & Business Proposal Review</strong></td>
+              <td><span class="limit-badge">1.1x</span></td>
+              <td>165 WPM</td>
+              <td>0.9 – 1.0 Pitch • Checks tone & clarity</td>
+            </tr>
+            <tr>
+              <td><strong>Dyslexia & Reading Support</strong></td>
+              <td><span class="limit-badge">0.9x – 1.1x</span></td>
+              <td>135 – 165 WPM</td>
+              <td>1.0 Pitch • Reduces visual eye strain</td>
+            </tr>
+            <tr>
+              <td><strong>500-Word Article Duration</strong></td>
+              <td><span class="limit-badge">1.0x / 1.5x</span></td>
+              <td>150 / 225 WPM</td>
+              <td>3 min 20 sec (1.0x) • 2 min 13 sec (1.5x)</td>
+            </tr>
+            <tr>
+              <td><strong>1,000-Word Article Duration</strong></td>
+              <td><span class="limit-badge">1.0x / 1.5x</span></td>
+              <td>150 / 225 WPM</td>
+              <td>6 min 40 sec (1.0x) • 4 min 27 sec (1.5x)</td>
+            </tr>
+            <tr>
+              <td><strong>2,500-Word Chapter Duration</strong></td>
+              <td><span class="limit-badge">1.0x / 1.5x</span></td>
+              <td>150 / 225 WPM</td>
+              <td>16 min 40 sec (1.0x) • 11 min 07 sec (1.5x)</td>
+            </tr>
+            <tr>
+              <td><strong>Windows 10 / 11 Edge Neural Voices</strong></td>
+              <td><span class="limit-badge">Microsoft Natural</span></td>
+              <td>Multi-Language</td>
+              <td>Supports Aria, Guy, Jenny, Neerja, Prabhat</td>
+            </tr>
+            <tr>
+              <td><strong>macOS & iOS Safari Voices</strong></td>
+              <td><span class="limit-badge">Apple Siri / Enhanced</span></td>
+              <td>Multi-Language</td>
+              <td>Supports Samantha, Daniel, Rishi, Lekha</td>
+            </tr>
+            <tr>
+              <td><strong>Android Chrome Voices</strong></td>
+              <td><span class="limit-badge">Google TTS Engine</span></td>
+              <td>Multi-Language</td>
+              <td>Supports English (US/UK/IN) & Hindi</td>
+            </tr>
+            <tr>
+              <td><strong>Punctuation Pause Handling</strong></td>
+              <td><span class="limit-badge">Commas & Periods</span></td>
+              <td>Automatic</td>
+              <td>Use periods & line breaks for natural pauses</td>
+            </tr>
+            <tr>
+              <td><strong>Data Privacy & Text Security</strong></td>
+              <td><span class="limit-badge">100% Local API</span></td>
+              <td>Zero Cloud Upload</td>
+              <td>Safe for confidential drafts & contracts</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Text, Writing & Productivity Tools</h2>
+      <p>Counting words, encoding Base64 strings, generating QR codes, or formatting JSON? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="word-counter.html"><span>Word & Char Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="base64-encode-decode.html"><span>Base64 Encoder/Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Password Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Exact Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="invoice-generator.html"><span>PDF Invoice Generator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Where do the voices in this Text to Speech Reader come from?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            This tool uses your browser's native <strong>Web Speech API (<code>speechSynthesis</code>)</strong>, which automatically loads all high-quality voices installed on your Windows, macOS, Android, or iOS device—including US English, UK English, Indian English, Hindi, Spanish, French, and more.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Why do I see more natural voices in Microsoft Edge or Google Chrome?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Modern browsers like <strong>Microsoft Edge</strong> and <strong>Google Chrome</strong> include built-in natural neural voices (such as Microsoft Aria, Jenny, Neerja, or Google US English) alongside your device's offline system voices.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Is there a character limit on how much text I can listen to at once?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Our reader automatically splits long articles into sentence chunks behind the scenes so browsers never time out or cut off mid-paragraph—allowing you to listen to long essays, chapters, and study notes smoothly.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is my pasted text, email, or script uploaded to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All speech synthesis runs 100% locally inside your web browser using JavaScript. Your private documents and unpublished scripts never leave your device.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Web Speech API Engine -->
+  <script>
+    (function () {
+      const synth = window.speechSynthesis;
+      const voiceSelect = document.getElementById("voiceSelect");
+      const rateSlider = document.getElementById("rateSlider");
+      const pitchSlider = document.getElementById("pitchSlider");
+      const volumeSlider = document.getElementById("volumeSlider");
+      const rateValTag = document.getElementById("rateValTag");
+      const pitchValTag = document.getElementById("pitchValTag");
+      const volValTag = document.getElementById("volValTag");
+
+      const ttsTextInput = document.getElementById("ttsTextInput");
+      const playBtn = document.getElementById("playBtn");
+      const pauseBtn = document.getElementById("pauseBtn");
+      const stopBtn = document.getElementById("stopBtn");
+      const sampleBtn = document.getElementById("sampleBtn");
+      const clearBtn = document.getElementById("clearBtn");
+      const wordCountStat = document.getElementById("wordCountStat");
+      const ttsStatusBadge = document.getElementById("ttsStatusBadge");
+
+      let voices = [];
+      let chunkQueue = [];
+      let isStoppedManually = false;
+
+      function populateVoices() {
+        if (!synth) return;
+        voices = synth.getVoices();
+        const prevVal = voiceSelect.value;
+        voiceSelect.innerHTML = "";
+
+        if (!voices.length) {
+          const opt = document.createElement("option");
+          opt.value = "";
+          opt.textContent = "Default System Voice";
+          voiceSelect.appendChild(opt);
+          return;
+        }
+
+        voices.forEach((v, index) => {
+          const opt = document.createElement("option");
+          opt.value = String(index);
+          opt.textContent = `${v.name} (${v.lang})`;
+          voiceSelect.appendChild(opt);
+        });
+
+        if (prevVal && voiceSelect.querySelector(`option[value="${prevVal}"]`)) {
+          voiceSelect.value = prevVal;
+        } else {
+          const enIdx = voices.findIndex((v) => v.lang && v.lang.toLowerCase().startsWith("en"));
+          if (enIdx >= 0) voiceSelect.value = String(enIdx);
+        }
+      }
+
+      if (synth) {
+        populateVoices();
+        if (typeof synth.onvoiceschanged !== "undefined") {
+          synth.onvoiceschanged = populateVoices;
+        }
+      }
+
+      function setStatus(label, isSpeaking) {
+        ttsStatusBadge.textContent = label;
+        ttsStatusBadge.classList.toggle("speaking", Boolean(isSpeaking));
+      }
+
+      function updateWordStats() {
+        const text = ttsTextInput.value.trim();
+        const words = text ? text.split(/\s+/).length : 0;
+        const rate = parseFloat(rateSlider.value) || 1;
+        const seconds = Math.round((words / (150 * rate)) * 60);
+        const mins = Math.floor(seconds / 60);
+        const remSec = seconds % 60;
+        const timeStr = mins > 0 ? `~${mins}m ${remSec}s` : `~${remSec} sec`;
+        wordCountStat.textContent = `${words.toLocaleString("en-US")} words • ${timeStr}`;
+      }
+
+      function splitIntoChunks(text) {
+        const rawSentences = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];
+        const chunks = [];
+        let current = "";
+        rawSentences.forEach((sentence) => {
+          if ((current + sentence).length > 220 && current.trim().length > 0) {
+            chunks.push(current.trim());
+            current = sentence;
+          } else {
+            current += sentence;
+          }
+        });
+        if (current.trim().length > 0) chunks.push(current.trim());
+        return chunks;
+      }
+
+      function speakNextChunk() {
+        if (isStoppedManually || chunkQueue.length === 0) {
+          setStatus("Ready", false);
+          pauseBtn.innerHTML = "❚❚ Pause";
+          return;
+        }
+
+        const nextText = chunkQueue.shift();
+        const utter = new SpeechSynthesisUtterance(nextText);
+        const selectedIdx = parseInt(voiceSelect.value, 10);
+        if (!isNaN(selectedIdx) && voices[selectedIdx]) {
+          utter.voice = voices[selectedIdx];
+        }
+        utter.rate = parseFloat(rateSlider.value) || 1;
+        utter.pitch = parseFloat(pitchSlider.value) || 1;
+        utter.volume = parseFloat(volumeSlider.value);
+
+        utter.onstart = () => setStatus("Speaking...", true);
+        utter.onend = () => {
+          if (!isStoppedManually) speakNextChunk();
+        };
+        utter.onerror = () => {
+          setStatus("Ready", false);
+        };
+
+        synth.speak(utter);
+      }
+
+      playBtn.addEventListener("click", () => {
+        if (!synth) {
+          alert("Your browser does not support Web Speech synthesis.");
+          return;
+        }
+        const text = ttsTextInput.value.trim();
+        if (!text) return;
+
+        if (synth.paused) {
+          synth.resume();
+          setStatus("Speaking...", true);
+          pauseBtn.innerHTML = "❚❚ Pause";
+          return;
+        }
+
+        isStoppedManually = true;
+        synth.cancel();
+        isStoppedManually = false;
+        chunkQueue = splitIntoChunks(text);
+        pauseBtn.innerHTML = "❚❚ Pause";
+        speakNextChunk();
+      });
+
+      pauseBtn.addEventListener("click", () => {
+        if (!synth) return;
+        if (synth.speaking && !synth.paused) {
+          synth.pause();
+          setStatus("Paused", false);
+          pauseBtn.innerHTML = "▶ Resume";
+        } else if (synth.paused) {
+          synth.resume();
+          setStatus("Speaking...", true);
+          pauseBtn.innerHTML = "❚❚ Pause";
+        }
+      });
+
+      stopBtn.addEventListener("click", () => {
+        if (!synth) return;
+        isStoppedManually = true;
+        chunkQueue = [];
+        synth.cancel();
+        setStatus("Stopped", false);
+        pauseBtn.innerHTML = "❚❚ Pause";
+      });
+
+      sampleBtn.addEventListener("click", () => {
+        ttsTextInput.value = "Productivity improves dramatically when you listen to your written drafts aloud. Hearing each sentence helps you spot awkward phrasing, improve clarity, and retain study notes faster—all locally inside your browser.";
+        updateWordStats();
+      });
+
+      clearBtn.addEventListener("click", () => {
+        if (synth) {
+          isStoppedManually = true;
+          chunkQueue = [];
+          synth.cancel();
+        }
+        ttsTextInput.value = "";
+        setStatus("Ready", false);
+        updateWordStats();
+      });
+
+      rateSlider.addEventListener("input", () => {
+        rateValTag.textContent = parseFloat(rateSlider.value).toFixed(1) + "x";
+        updateWordStats();
+      });
+
+      pitchSlider.addEventListener("input", () => {
+        pitchValTag.textContent = parseFloat(pitchSlider.value).toFixed(1);
+      });
+
+      volumeSlider.addEventListener("input", () => {
+        volValTag.textContent = Math.round(parseFloat(volumeSlider.value) * 100) + "%";
+      });
+
+      ttsTextInput.addEventListener("input", updateWordStats);
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      window.addEventListener("beforeunload", () => {
+        if (synth) synth.cancel();
+      });
+
+      updateWordStats();
+    })();
+  </script>
+</body>
+</html>

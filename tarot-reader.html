@@ -1,0 +1,1083 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Tarot Card Reader (Daily 1-Card, Past-Present-Future & Celtic Cross) — PureWebKits</title>
+  <meta name="description" content="Draw interactive 78-card Rider-Waite Tarot spreads including Daily 1-Card Pull, Past-Present-Future (3-Card), and 5-Card Relationship/Decision Spread with upright & reversed meanings online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/tarot-card-reader.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Tarot Reader Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      flex-wrap: wrap;
+      gap: 2px;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 13px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    .tarot-controls-bar {
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr 0.8fr auto;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 22px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 11.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      height: 42px;
+      padding: 0 22px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Tarot Spread Stage */
+    .spread-stage {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .spread-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .spread-cards-grid.single-col {
+      grid-template-columns: minmax(260px, 460px);
+      justify-content: center;
+    }
+    .spread-cards-grid.five-col {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .tarot-card-slot {
+      background: #FFFFFF;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+      transition: transform 0.18s ease, border-color 0.18s ease;
+    }
+    .tarot-card-slot:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+    .slot-pos-tag {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--primary-dark);
+      background: var(--primary-soft);
+      padding: 3px 9px;
+      border-radius: 6px;
+      align-self: flex-start;
+    }
+    .card-visual-face {
+      background: linear-gradient(145deg, #0F172A 0%, #1E293B 100%);
+      color: #F8FAFC;
+      border: 2px solid #334155;
+      border-radius: 10px;
+      padding: 16px 14px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 155px;
+      cursor: pointer;
+    }
+    .card-arcana-label {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #93C5FD;
+    }
+    .card-symbol-glyph {
+      font-size: 32px;
+      line-height: 1.1;
+      color: #FBBF24;
+      transition: transform 0.25s ease;
+    }
+    .card-visual-face.reversed .card-symbol-glyph {
+      transform: rotate(180deg);
+      color: #FCA5A5;
+    }
+    .card-name-title {
+      font-family: Georgia, "Times New Roman", Times, serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+    .card-orient-badge {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 9px;
+      border-radius: 999px;
+      background: rgba(52, 211, 153, 0.16);
+      color: #34D399;
+      border: 1px solid rgba(52, 211, 153, 0.35);
+    }
+    .card-visual-face.reversed .card-orient-badge {
+      background: rgba(252, 165, 165, 0.16);
+      color: #FCA5A5;
+      border-color: rgba(252, 165, 165, 0.35);
+    }
+
+    .card-keywords {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .card-meaning-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .reading-footer-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 860px) {
+      .tarot-controls-bar { grid-template-columns: 1fr 1fr; }
+      .spread-cards-grid, .spread-cards-grid.five-col { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .tarot-controls-bar { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Tarot Card Reader Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Tarot Card Reader (78-Card Deck)</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Crypto-shuffled 78-card Major & Minor Arcana spreads with upright & reversed meanings in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="Tarot spread selector">
+            <button type="button" class="mode-btn" data-spread="one">Daily 1-Card Pull</button>
+            <button type="button" class="mode-btn active" data-spread="three">Past • Present • Future (3)</button>
+            <button type="button" class="mode-btn" data-spread="five">Decision / Situation Spread (5)</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="flipAllOrientBtn" class="btn-sec">Toggle Upright / Reversed</button>
+          </div>
+        </div>
+
+        <div class="tarot-controls-bar">
+          <div class="field-group">
+            <label for="tarotQuestionInput" class="field-label">Focus Question or Intention (Optional)</label>
+            <input type="text" id="tarotQuestionInput" class="std-input" placeholder="e.g., What should I focus on in my career this month?" value="What energy should I focus on right now?" />
+          </div>
+
+          <div class="field-group">
+            <label for="deckScopeSelect" class="field-label">Deck Scope</label>
+            <select id="deckScopeSelect" class="std-select">
+              <option value="full" selected>Full 78-Card Deck</option>
+              <option value="major">Major Arcana Only (22)</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label for="reversalsSelect" class="field-label">Card Orientation</label>
+            <select id="reversalsSelect" class="std-select">
+              <option value="mixed" selected>Upright & Reversed (35% Rev.)</option>
+              <option value="upright">Upright Only</option>
+            </select>
+          </div>
+
+          <button type="button" id="drawSpreadBtn" class="btn-primary">Shuffle & Draw Cards</button>
+        </div>
+
+        <div class="spread-stage">
+          <div class="spread-cards-grid" id="spreadCardsContainer"></div>
+
+          <div class="reading-footer-bar">
+            <div style="font-size:12.5px; font-weight:700; color:var(--text-muted);" id="deckStatusLabel">
+              Shuffled with <code>window.crypto.getRandomValues()</code> • Click any card face to flip Upright / Reversed
+            </div>
+            <div class="btn-row">
+              <button type="button" id="copyReadingBtn" class="btn-sec" style="height: 38px;">Copy Tarot Reading</button>
+              <button type="button" id="downloadReadingBtn" class="btn-sec" style="height: 38px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, 78-Card Structure & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to the 78-Card Tarot Deck, Spread Positions & Upright vs. Reversed Meanings</h2>
+
+      <h3>How the 78-Card Rider-Waite Tarot Deck Is Organized</h3>
+      <p>
+        A traditional <strong>78-card Tarot deck</strong> is divided into two complementary sections: the <strong>22 Major Arcana</strong> cards (numbered <code>0 The Fool</code> through <code>XXI The World</code>, representing overarching life themes, milestones, and archetypal lessons) and the <strong>56 Minor Arcana</strong> cards (four suits of <code>14</code> cards each—<strong>Wands</strong>, <strong>Cups</strong>, <strong>Swords</strong>, and <strong>Pentacles</strong>—numbered <code>Ace through 10</code> plus <code>Page, Knight, Queen, and King</code>, reflecting day-to-day actions, emotions, thoughts, and material realities). In a digital reading, true fairness comes from drawing without replacement from a cryptographically shuffled deck via <code>window.crypto.getRandomValues()</code> so no duplicate card ever appears within the same spread. When a card appears <strong>Reversed</strong> (upside down), traditional readers interpret its energy as internalized, delayed, blocked, or calling for reflection rather than simple "bad luck." A browser-based <strong>Tarot Card Reader</strong> runs 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Perform a Tarot Reading in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Choose Your Spread Layout:</strong> Select <strong>Daily 1-Card Pull</strong> for a single daily focus, <strong>Past • Present • Future (3)</strong> for timeline clarity, or <strong>Decision / Situation Spread (5)</strong> for deeper context, hidden influences, advice, and likely trajectory.</li>
+        <li><strong>Set Your Intention, Deck Scope & Reversals:</strong> Enter an optional focus question, choose between the <strong>Full 78-Card Deck</strong> or <strong>Major Arcana Only (22)</strong>, and toggle whether reversed cards are included.</li>
+        <li><strong>Shuffle, Draw & Export Your Reading:</strong> Click <strong>Shuffle & Draw Cards</strong> (or click any drawn card face to manually flip between Upright and Reversed), then save your reading via <strong>Copy Tarot Reading</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Tarot Deck Composition & Four Elemental Suits</h3>
+      <p>
+        Each Minor Arcana suit aligns with one of the four classical elements:
+      </p>
+      <div class="formula-box">
+        78 Total Cards = 22 Major Arcana + 56 Minor Arcana (4 Suits × 14 Ranks)<br />
+        Wands (Fire: Action & Creativity) • Cups (Water: Emotion & Relationships) • Swords (Air: Mind & Truth) • Pentacles (Earth: Work & Finances)
+      </div>
+
+      <h3>Helpful Tips for Reflective Tarot Journaling</h3>
+      <ul>
+        <li><strong>Ask Open-Ended "What" or "How" Questions:</strong> Framing your question around <em>"What do I need to understand about..."</em> yields far more actionable insight than binary yes/no phrasing.</li>
+        <li><strong>Notice Patterns Across Suits and Major Arcana:</strong> Multiple Major Arcana cards in a 3- or 5-card spread point to pivotal turning points, while a cluster of one Minor suit highlights where your energy is concentrated.</li>
+        <li><strong>For Personal Reflection & Mindfulness:</strong> Tarot cards serve as a creative mirror for journaling, brainstorming, and self-reflection.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> In a 3-card <strong>Past • Present • Future</strong> spread, drawing <em>Eight of Pentacles (Upright)</em> in Past (dedicated skill-building), <em>The Hermit (Upright)</em> in Present (stepping back for clarity), and <em>Ace of Wands (Upright)</em> in Future signals that focused preparation and quiet reflection are clearing the way for an inspired new creative venture.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="tarot-table-heading">
+      <h2 id="tarot-table-heading">Major Arcana Milestones, Four Suits & Spread Reference Table (16 Rows)</h2>
+      <p>Use this reference table to review Major Arcana archetypes, the four Minor Arcana suits, and spread structures.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Arcana / Suit / Spread</th>
+              <th>Number / Element</th>
+              <th>Core Themes</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>0. The Fool</strong></td>
+              <td>Major Arcana <code>0</code></td>
+              <td>New beginnings, leap of faith, innocence</td>
+              <td>Start of the Fool's Journey</td>
+            </tr>
+            <tr>
+              <td><strong>I. The Magician</strong></td>
+              <td>Major Arcana <code>I</code></td>
+              <td>Manifestation, resourcefulness, skill</td>
+              <td>Bridges intention and action</td>
+            </tr>
+            <tr>
+              <td><strong>II. The High Priestess</strong></td>
+              <td>Major Arcana <code>II</code></td>
+              <td>Intuition, inner wisdom, mystery</td>
+              <td>Trusting quiet inner knowing</td>
+            </tr>
+            <tr>
+              <td><strong>VI. The Lovers</strong></td>
+              <td>Major Arcana <code>VI</code></td>
+              <td>Alignment, partnership, values choice</td>
+              <td>Harmony & conscious commitment</td>
+            </tr>
+            <tr>
+              <td><strong>X. Wheel of Fortune</strong></td>
+              <td>Major Arcana <code>X</code></td>
+              <td>Turning points, cycles, destiny</td>
+              <td>Change & opportune timing</td>
+            </tr>
+            <tr>
+              <td><strong>XIII. Death</strong></td>
+              <td>Major Arcana <code>XIII</code></td>
+              <td>Transformation, endings, renewal</td>
+              <td>Closing one chapter to begin another</td>
+            </tr>
+            <tr>
+              <td><strong>XVII. The Star</strong></td>
+              <td>Major Arcana <code>XVII</code></td>
+              <td>Hope, healing, renewal, inspiration</td>
+              <td>Calm clarity after challenge</td>
+            </tr>
+            <tr>
+              <td><strong>XXI. The World</strong></td>
+              <td>Major Arcana <code>XXI</code></td>
+              <td>Completion, integration, fulfillment</td>
+              <td>Culmination of a major cycle</td>
+            </tr>
+            <tr>
+              <td><strong>Suit of Wands (14 Cards)</strong></td>
+              <td>Fire Element</td>
+              <td>Passion, ambition, action, enterprise</td>
+              <td>Ace through King of Wands</td>
+            </tr>
+            <tr>
+              <td><strong>Suit of Cups (14 Cards)</strong></td>
+              <td>Water Element</td>
+              <td>Emotions, love, intuition, connection</td>
+              <td>Ace through King of Cups</td>
+            </tr>
+            <tr>
+              <td><strong>Suit of Swords (14 Cards)</strong></td>
+              <td>Air Element</td>
+              <td>Intellect, truth, clarity, conflict</td>
+              <td>Ace through King of Swords</td>
+            </tr>
+            <tr>
+              <td><strong>Suit of Pentacles (14 Cards)</strong></td>
+              <td>Earth Element</td>
+              <td>Career, finances, health, tangible craft</td>
+              <td>Ace through King of Pentacles</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript 78-Card Crypto-Shuffled Tarot Engine — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your focus questions and drawn spreads stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero personal questions or readings transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Astrology, Numerology, Randomizer & Everyday Utilities</h2>
+      <p>Exploring Numerology Life Path numbers, Zodiac signs, Vedic Kundli Milan, or spinning a wheel? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="numerology-number-calculator.html"><span>Numerology Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="zodiac-finder.html"><span>Zodiac Finder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="kundli-milan.html"><span>Kundli Milan</span><span class="arrow">→</span></a>
+        <a class="related-link" href="love-compatibility-calculator.html"><span>Love Compatibility Calc</span><span class="arrow">→</span></a>
+        <a class="related-link" href="spin-wheel.html"><span>Spin Wheel</span><span class="arrow">→</span></a>
+        <a class="related-link" href="random-name-picker.html"><span>Random Name Picker</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Does this Tarot Card Reader include all 78 Major and Minor Arcana cards?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It includes all <code>22</code> Major Arcana cards and all <code>56</code> Minor Arcana cards (Wands, Cups, Swords, and Pentacles from Ace to King), each with distinct upright and reversed interpretations.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How does the deck shuffle ensure no duplicate cards are drawn in a spread?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Each draw performs an in-memory <strong>Fisher–Yates shuffle</strong> seeded with <code>window.crypto.getRandomValues()</code> and deals without replacement, just like shuffling a physical 78-card deck.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my focus questions or Tarot readings sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All shuffling and card interpretations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Tarot Card Reader free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side 78-Card Major & Minor Arcana Tarot Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const MAJOR_ARCANA = [
+        { name: "0. The Fool", glyph: "\u2600", upKey: "New beginnings, leap of faith, curiosity", revKey: "Recklessness, hesitation, scattered focus", upDesc: "A fresh chapter invites open-minded exploration and trust in your next step.", revDesc: "Pause to weigh risks carefully before jumping into an unmapped commitment." },
+        { name: "I. The Magician", glyph: "\u2728", upKey: "Manifestation, skill, resourcefulness", revKey: "Untapped potential, scattered energy", upDesc: "You already hold the tools, focus, and initiative needed to turn ideas into reality.", revDesc: "Realign your intentions and avoid spreading effort across too many half-started plans." },
+        { name: "II. The High Priestess", glyph: "\u263D", upKey: "Intuition, inner knowing, stillness", revKey: "Overlooking inner voice, surface noise", upDesc: "Quiet reflection and pattern recognition reveal truths beneath the surface.", revDesc: "Step back from external noise and listen closely to what your intuition has been signaling." },
+        { name: "III. The Empress", glyph: "\u2640", upKey: "Abundance, nurturing, creative growth", revKey: "Creative block, self-neglect", upDesc: "Fertile ground for creativity, comfort, and supportive relationships.", revDesc: "Restore your own energy and boundaries before overextending for everyone else." },
+        { name: "IV. The Emperor", glyph: "\u2642", upKey: "Structure, leadership, clear boundaries", revKey: "Rigidity, over-control, resistance", upDesc: "Discipline, strategic order, and steady authority bring stability to the situation.", revDesc: "Loosen overly rigid expectations and lead through calm flexibility rather than force." },
+        { name: "V. The Hierophant", glyph: "\u269A", upKey: "Tradition, mentorship, shared wisdom", revKey: "Unconventional path, questioning norms", upDesc: "Proven frameworks, study, or guidance from a trusted mentor offer reliable direction.", revDesc: "Trust your own lived values where conventional rules no longer fit your growth." },
+        { name: "VI. The Lovers", glyph: "\u2665", upKey: "Harmony, alignment, heartfelt choice", revKey: "Disharmony, misaligned priorities", upDesc: "Meaningful connection and choosing what genuinely aligns with your core values.", revDesc: "Clarify your personal values before committing to a partnership or major decision." },
+        { name: "VII. The Chariot", glyph: "\u2694", upKey: "Determination, momentum, self-mastery", revKey: "Lack of direction, stalled momentum", upDesc: "Focused willpower and balanced direction carry you past obstacles.", revDesc: "Regather the reins and define one clear destination before accelerating." },
+        { name: "VIII. Strength", glyph: "\u221E", upKey: "Inner courage, patience, quiet resilience", revKey: "Self-doubt, impatience, low confidence", upDesc: "Gentle persistence and emotional composure achieve far more than brute force.", revDesc: "Treat yourself with patience and reconnect with the quiet resilience you have shown before." },
+        { name: "IX. The Hermit", glyph: "\u2605", upKey: "Introspection, solitude, inner guidance", revKey: "Isolation, avoiding reflection", upDesc: "Stepping back from the crowd brings valuable clarity and self-understanding.", revDesc: "Balance solitary reflection with trusted connection so introspection does not become isolation." },
+        { name: "X. Wheel of Fortune", glyph: "\u2638", upKey: "Turning point, cycles, serendipity", revKey: "Temporary setback, resisting change", upDesc: "A pivotal shift in momentum is underway—stay adaptable to catch rising opportunities.", revDesc: "Accept that cycles ebb and flow; focus on what remains within your control." },
+        { name: "XI. Justice", glyph: "\u2696", upKey: "Fairness, truth, accountability", revKey: "Imbalance, avoiding responsibility", upDesc: "Clear-eyed honesty and balanced cause-and-effect lead to a fair resolution.", revDesc: "Examine blind spots objectively and restore balance where expectations feel uneven." },
+        { name: "XII. The Hanged Man", glyph: "\u23F3", upKey: "New perspective, pause, surrender", revKey: "Stalling, needless resistance", upDesc: "A deliberate pause reveals an unexpected angle you could not see while rushing.", revDesc: "Stop resisting an inevitable shift—releasing control frees your energy." },
+        { name: "XIII. Death", glyph: "\u2625", upKey: "Transformation, closure, renewal", revKey: "Clinging to the past, fear of transition", upDesc: "A natural chapter closes so authentic renewal and growth can take root.", revDesc: "Letting go of an outdated habit or role opens space for healthier momentum." },
+        { name: "XIV. Temperance", glyph: "\u2697", upKey: "Balance, moderation, patient alchemy", revKey: "Excess, impatience, extremes", upDesc: "Blending opposing priorities with calm moderation creates lasting harmony.", revDesc: "Recalibrate your daily pace and bring extremes back toward a sustainable middle." },
+        { name: "XV. The Devil", glyph: "\u26D3", upKey: "Attachment, shadow patterns, awareness", revKey: "Breaking free, reclaiming agency", upDesc: "Notice where short-term habits, fear, or over-attachment are limiting your freedom.", revDesc: "Recognizing an unhelpful loop is the first step toward stepping out of it." },
+        { name: "XVI. The Tower", glyph: "\u26A1", upKey: "Sudden breakthrough, revelation, shake-up", revKey: "Averted upheaval, internal realization", upDesc: "An unexpected realization clears away unstable assumptions so truth can stand.", revDesc: "Quietly rebuild shaky foundations now before external pressure forces the issue." },
+        { name: "XVII. The Star", glyph: "\u2734", upKey: "Hope, renewal, serenity, inspiration", revKey: "Discouragement, temporary fatigue", upDesc: "A restorative period of optimism, healing, and renewed sense of purpose.", revDesc: "Reconnect with small daily practices that replenish your optimism and creative spark." },
+        { name: "XVIII. The Moon", glyph: "\u263E", upKey: "Subconscious, dreams, navigating uncertainty", revKey: "Clarifying confusion, releasing fear", upDesc: "Not every detail is visible yet—move thoughtfully and pay attention to subtle cues.", revDesc: "Fog begins to lift as assumptions give way to grounded facts." },
+        { name: "XIX. The Sun", glyph: "\u2609", upKey: "Joy, clarity, vitality, success", revKey: "Clouded optimism, minor delay", upDesc: "Warmth, transparent truth, and confident forward momentum illuminate your path.", revDesc: "Joy and progress are still present—step back into the light and celebrate small wins." },
+        { name: "XX. Judgement", glyph: "\u2604", upKey: "Awakening, clarity, decisive renewal", revKey: "Self-criticism, hesitation to answer call", upDesc: "A moment of honest reckoning invites you to step forward with renewed purpose.", revDesc: "Release harsh self-judgment and act on the lessons you have already integrated." },
+        { name: "XXI. The World", glyph: "\u25CE", upKey: "Completion, wholeness, milestone achieved", revKey: "Loose ends, nearing the finish line", upDesc: "A major cycle reaches successful fulfillment, ready for your next horizon.", revDesc: "Tie up the final remaining details to bring this chapter to a clean close." }
+      ];
+
+      const SUITS = [
+        { name: "Wands", glyph: "\u2663", domain: "action, creativity, and drive", revDomain: "restless energy or creative delays" },
+        { name: "Cups", glyph: "\u2665", domain: "emotions, relationships, and intuition", revDomain: "emotional Guardedness or inner reflection" },
+        { name: "Swords", glyph: "\u2660", domain: "intellect, communication, and clarity", revDomain: "overthinking or mental tension" },
+        { name: "Pentacles", glyph: "\u2666", domain: "work, finances, and practical stability", revDomain: "budgeting review or material delays" }
+      ];
+
+      const RANKS = [
+        { name: "Ace", up: "Pure spark & new opportunity in", rev: "Emerging potential needing focus in" },
+        { name: "Two", up: "Choice, balance & partnership in", rev: "Indecision or rebalancing needed in" },
+        { name: "Three", up: "Collaboration & early expansion in", rev: "Revising plans or teamwork in" },
+        { name: "Four", up: "Stability & consolidation in", rev: "Stagnation or need for fresh movement in" },
+        { name: "Five", up: "Constructive challenge & growth through", rev: "Moving past friction or recovery in" },
+        { name: "Six", up: "Harmony, progress & generosity in", rev: "Recalibrating give-and-take in" },
+        { name: "Seven", up: "Perseverance & strategic assessment in", rev: "Refocusing scattered effort in" },
+        { name: "Eight", up: "Focused mastery & swift momentum in", rev: "Slowing down to refine details in" },
+        { name: "Nine", up: "Resilience & near-completion in", rev: "Releasing worry & protecting energy in" },
+        { name: "Ten", up: "Culmination & full cycle in", rev: "Lightening heavy responsibilities in" },
+        { name: "Page", up: "Curious message & fresh study in", rev: "Scattered curiosity or delayed news in" },
+        { name: "Knight", up: "Bold pursuit & active movement in", rev: "Haste or uneven pacing in" },
+        { name: "Queen", up: "Mature mastery & warm command of", rev: "Inward reflection & self-care around" },
+        { name: "King", up: "Strategic leadership & steady authority in", rev: "Measured restraint & fair judgment in" }
+      ];
+
+      function buildFullDeck(scope) {
+        const deck = MAJOR_ARCANA.map(function (c) {
+          return {
+            arcana: "Major Arcana",
+            name: c.name,
+            glyph: c.glyph,
+            upKey: c.upKey,
+            revKey: c.revKey,
+            upDesc: c.upDesc,
+            revDesc: c.revDesc
+          };
+        });
+        if (scope === "major") return deck;
+
+        SUITS.forEach(function (suit) {
+          RANKS.forEach(function (rank) {
+            deck.push({
+              arcana: `Minor Arcana \u2022 ${suit.name}`,
+              name: `${rank.name} of ${suit.name}`,
+              glyph: suit.glyph,
+              upKey: `${rank.name} energy in ${suit.name}`,
+              revKey: `Reversed ${rank.name} of ${suit.name}`,
+              upDesc: `${rank.up} ${suit.domain}.`,
+              revDesc: `${rank.rev} ${suit.revDomain}.`
+            });
+          });
+        });
+        return deck;
+      }
+
+      const SPREAD_POSITIONS = {
+        one: ["Daily Guidance & Core Energy"],
+        three: ["1. Past / Foundation", "2. Present / Current Focus", "3. Future / Likely Trajectory"],
+        five: [
+          "1. Current Situation",
+          "2. Immediate Challenge / Influence",
+          "3. Hidden Foundation / Subconscious",
+          "4. Practical Advice",
+          "5. Potential Outcome"
+        ]
+      };
+
+      const spreadBtns = document.querySelectorAll(".mode-btn");
+      const flipAllOrientBtn = document.getElementById("flipAllOrientBtn");
+      const tarotQuestionInput = document.getElementById("tarotQuestionInput");
+      const deckScopeSelect = document.getElementById("deckScopeSelect");
+      const reversalsSelect = document.getElementById("reversalsSelect");
+      const drawSpreadBtn = document.getElementById("drawSpreadBtn");
+
+      const spreadCardsContainer = document.getElementById("spreadCardsContainer");
+      const deckStatusLabel = document.getElementById("deckStatusLabel");
+      const copyReadingBtn = document.getElementById("copyReadingBtn");
+      const downloadReadingBtn = document.getElementById("downloadReadingBtn");
+
+      let spreadType = "three";
+      let currentDrawn = [];
+      let latestReadingText = "";
+
+      function secureRandomInt(max) {
+        if (max <= 1) return 0;
+        if (window.crypto && window.crypto.getRandomValues) {
+          const range = 4294967296;
+          const limit = range - (range % max);
+          const arr = new Uint32Array(1);
+          let val = 0;
+          do {
+            window.crypto.getRandomValues(arr);
+            val = arr[0];
+          } while (val >= limit);
+          return val % max;
+        }
+        return Math.floor(Math.random() * max);
+      }
+
+      function shuffleDeck(deck) {
+        const copy = deck.slice();
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = secureRandomInt(i + 1);
+          const tmp = copy[i];
+          copy[i] = copy[j];
+          copy[j] = tmp;
+        }
+        return copy;
+      }
+
+      function renderSpread() {
+        spreadBtns.forEach(function (btn) {
+          btn.classList.toggle("active", btn.getAttribute("data-spread") === spreadType);
+        });
+
+        spreadCardsContainer.className = "spread-cards-grid"
+          + (spreadType === "one" ? " single-col" : (spreadType === "five" ? " five-col" : ""));
+        spreadCardsContainer.innerHTML = "";
+
+        const question = tarotQuestionInput.value.trim();
+        const exportLines = [
+          "PureWebKits Tarot Card Reading",
+          "-------------------------------",
+          question ? `Question / Intention: ${question}` : "Question / Intention: General Guidance",
+          `Spread: ${spreadType === "one" ? "Daily 1-Card Pull" : (spreadType === "five" ? "5-Card Decision Spread" : "Past / Present / Future (3-Card)")}`,
+          ""
+        ];
+
+        currentDrawn.forEach(function (entry, idx) {
+          const card = entry.card;
+          const isRev = entry.reversed;
+          const orientLabel = isRev ? "Reversed" : "Upright";
+          const keywords = isRev ? card.revKey : card.upKey;
+          const meaning = isRev ? card.revDesc : card.upDesc;
+
+          const slot = document.createElement("div");
+          slot.className = "tarot-card-slot";
+
+          const posTag = document.createElement("div");
+          posTag.className = "slot-pos-tag";
+          posTag.textContent = entry.position;
+
+          const face = document.createElement("div");
+          face.className = "card-visual-face" + (isRev ? " reversed" : "");
+          face.title = "Click to flip Upright / Reversed";
+          face.innerHTML = `
+            <div class="card-arcana-label">${card.arcana}</div>
+            <div class="card-symbol-glyph" aria-hidden="true">${card.glyph}</div>
+            <div class="card-name-title">${card.name}</div>
+            <div class="card-orient-badge">${orientLabel}</div>
+          `;
+          face.addEventListener("click", function () {
+            currentDrawn[idx].reversed = !currentDrawn[idx].reversed;
+            renderSpread();
+          });
+
+          const kwDiv = document.createElement("div");
+          kwDiv.className = "card-keywords";
+          kwDiv.textContent = keywords;
+
+          const descDiv = document.createElement("div");
+          descDiv.className = "card-meaning-text";
+          descDiv.textContent = meaning;
+
+          slot.appendChild(posTag);
+          slot.appendChild(face);
+          slot.appendChild(kwDiv);
+          slot.appendChild(descDiv);
+          spreadCardsContainer.appendChild(slot);
+
+          exportLines.push(`${entry.position}: ${card.name} (${orientLabel}) — ${meaning}`);
+        });
+
+        const deckCount = deckScopeSelect.value === "major" ? 22 : 78;
+        deckStatusLabel.innerHTML = `Dealt ${currentDrawn.length} cards from ${deckCount}-card crypto-shuffled deck • Click any card to flip Upright / Reversed`;
+        latestReadingText = exportLines.join("\n");
+      }
+
+      function drawNewSpread() {
+        const positions = SPREAD_POSITIONS[spreadType] || SPREAD_POSITIONS.three;
+        const deck = buildFullDeck(deckScopeSelect.value);
+        const shuffled = shuffleDeck(deck);
+        const allowReversals = reversalsSelect.value === "mixed";
+
+        currentDrawn = positions.map(function (posName, idx) {
+          const isRev = allowReversals ? (secureRandomInt(100) < 35) : false;
+          return {
+            position: posName,
+            card: shuffled[idx],
+            reversed: isRev
+          };
+        });
+
+        renderSpread();
+      }
+
+      spreadBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          spreadType = btn.getAttribute("data-spread") || "three";
+          drawNewSpread();
+        });
+      });
+
+      drawSpreadBtn.addEventListener("click", drawNewSpread);
+      deckScopeSelect.addEventListener("change", drawNewSpread);
+      reversalsSelect.addEventListener("change", drawNewSpread);
+      tarotQuestionInput.addEventListener("input", renderSpread);
+
+      flipAllOrientBtn.addEventListener("click", function () {
+        if (currentDrawn.length === 0) return;
+        const anyUpright = currentDrawn.some(function (c) { return !c.reversed; });
+        currentDrawn.forEach(function (c) {
+          c.reversed = anyUpright;
+        });
+        renderSpread();
+      });
+
+      copyReadingBtn.addEventListener("click", function () {
+        if (!latestReadingText) return;
+        navigator.clipboard.writeText(latestReadingText).then(function () {
+          const orig = copyReadingBtn.textContent;
+          copyReadingBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyReadingBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadReadingBtn.addEventListener("click", function () {
+        if (!latestReadingText) return;
+        const blob = new Blob([latestReadingText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "tarot-card-reading.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      drawNewSpread();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,655 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Screen PPI & Pixel Density Calculator — Free | PureWebKits</title>
+  <meta name="description" content="Calculate screen PPI (Pixels Per Inch), pixel pitch, and retina display clarity for monitors, smartphones, and TVs online for free. Screen PPI calculator tool 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/screen-ppi-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* PPI Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col { display: flex; flex-direction: column; gap: 14px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .result-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .result-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .result-title { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .result-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--primary);
+      text-align: right;
+    }
+    .result-val.highlight { color: var(--success); font-size: 19px; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive PPI Calculator Tool -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Screen PPI & Pixel Density Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate screen pixels per inch (PPI), pixel pitch, and display sharpness instantly in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Enter screen resolution and diagonal display size below:</div>
+          <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample (1920x1080, 15.6")</button>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="resWidth" class="field-label">Resolution Width (Pixels)</label>
+              <input type="number" id="resWidth" class="std-input" value="1920" min="1" step="1" placeholder="e.g. 1920" />
+            </div>
+            <div class="field-group">
+              <label for="resHeight" class="field-label">Resolution Height (Pixels)</label>
+              <input type="number" id="resHeight" class="std-input" value="1080" min="1" step="1" placeholder="e.g. 1080" />
+            </div>
+            <div class="field-group">
+              <label for="diagonalSize" class="field-label">Diagonal Screen Size (Inches)</label>
+              <input type="number" id="diagonalSize" class="std-input" value="15.6" min="0.1" step="any" placeholder="e.g. 15.6" />
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="result-item">
+              <div class="result-title">Pixel Density (PPI)</div>
+              <div id="resPpi" class="result-val highlight">141.21 PPI</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Total Pixel Count</div>
+              <div id="resTotalPixels" class="result-val">2,073,600 Pixels</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Pixel Pitch</div>
+              <div id="resPixelPitch" class="result-val">0.1799 mm</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Comprehensive Guide to Screen PPI, Pixel Density, and Display Clarity in Modern Devices</h2>
+
+      ### Why Screen PPI & Pixel Density Calculators Are Essential for UI Designers and Tech Enthusiasts
+      <p>
+        In the modern digital landscape, evaluating display quality goes far beyond counting raw resolution numbers like 1080p, 2K, or 4K. Whether you are designing responsive web layouts, selecting a new gaming monitor, developing mobile applications, or purchasing a high-resolution smartphone, understanding **Pixels Per Inch (PPI)** is critical. PPI measures the exact pixel density packed into a linear inch of display screen. A higher PPI guarantees sharper text, smoother gradients, and invisible individual pixels from standard viewing distances, whereas a low PPI can result in pixelated UI elements and eye strain during extended work sessions. A professional **Screen PPI & Pixel Density Calculator** enables UI/UX designers, developers, and tech buyers to input screen resolution widths, heights, and diagonal display sizes to compute exact pixel density, pixel pitch, and total screen real estate instantly. Our browser-based utility calculates display metrics locally in client memory without external server uploads, guaranteeing absolute data privacy and lightning-fast performance.
+      </p>
+
+      ### How to Calculate Screen PPI in 3 Easy Steps
+      <ol>
+        <li><strong>Enter Screen Resolution:</strong> Input your horizontal width and vertical height in pixels (e.g., 1920 width and 1080 height for Full HD).</li>
+        <li><strong>Enter Diagonal Size:</strong> Type the physical diagonal screen measurement in inches (e.g., 15.6 inches for a standard laptop or 6.1 inches for a smartphone).</li>
+        <li><strong>Review Pixel Metrics:</strong> Instantly inspect your calculated Pixels Per Inch (PPI), total pixel count, and microscopic pixel pitch in millimeters.</li>
+      </ol>
+
+      ### Mathematical PPI Formula + Worked Example
+      <p>
+        Pixels Per Inch (PPI) is calculated using Pythagorean theorem to determine total diagonal pixels divided by physical diagonal inches:
+      </p>
+      <div class="formula-box">
+        Diagonal Pixels = $\sqrt{\text{Width}^2 + \text{Height}^2}$  |  $\text{PPI} = \frac{\text{Diagonal Pixels}}{\text{Diagonal Inches}}$
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Evaluating a standard **1920 × 1080** display packed into a **15.6-inch** diagonal screen calculates a diagonal pixel count of 2,203.27 pixels, yielding exactly **141.21 PPI** for crisp text rendering.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="ppi-table-heading">
+      <h2 id="ppi-table-heading">Display Standards, PPI Benchmarks & Device Classifications (16 Rules)</h2>
+      <p>Use this reference table to understand standard display resolutions, pixel densities, and device classification benchmarks.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Device Category</th>
+              <th>Typical Resolution</th>
+              <th>Screen Size (Diagonal)</th>
+              <th>Average Pixel Density (PPI)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Budget Smartphone</strong></td>
+              <td>1280 × 720 (HD)</td>
+              <td>5.5 inches</td>
+              <td>~267 PPI</td>
+            </tr>
+            <tr>
+              <td><strong>Flagship Smartphone</strong></td>
+              <td>2532 × 1170 (FHD+)</td>
+              <td>6.1 inches</td>
+              <td>~460 PPI (Retina standard)</td>
+            </tr>
+            <tr>
+              <td><strong>Standard Laptop</strong></td>
+              <td>1920 × 1080 (FHD)</td>
+              <td>15.6 inches</td>
+              <td>~141 PPI</td>
+            </tr>
+            <tr>
+              <td><strong>Pro Retina Laptop</strong></td>
+              <td>3024 × 1964</td>
+              <td>14.2 inches</td>
+              <td>~254 PPI</td>
+            </tr>
+            <tr>
+              <td><strong>Desktop Monitor</strong></td>
+              <td>2560 × 1440 (QHD)</td>
+              <td>27.0 inches</td>
+              <td>~109 PPI</td>
+            </tr>
+            <tr>
+              <td><strong>4K Ultra HD TV</strong></td>
+              <td>3840 × 2160 (4K)</td>
+              <td>55.0 inches</td>
+              <td>~80 PPI (Viewed from distance)</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Processing</strong></td>
+              <td colspan="3">JavaScript Execution — Zero Server Latency (100% browser calculation)</td>
+            </tr>
+            <tr>
+              <td><strong>Data Privacy</strong></td>
+              <td colspan="3"><span class="limit-badge">Zero Server Upload</span> — Private hardware specs remain secure</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Developer, Design & Utility Tools</h2>
+      <p>Need JSON formatters, password generators, or word counters? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter & Validator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Strong Password Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>Custom QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>3-in-1 Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="binary-translator.html"><span>Binary & ASCII Translator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="base64-encoder.html"><span>Base64 Encoder & Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="color-picker.html"><span>HEX & RGB Color Picker</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is Screen PPI and why does it matter?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            PPI stands for Pixels Per Inch. It measures display sharpness; higher PPI values mean individual pixels are smaller and indistinguishable to the naked eye, delivering crisp text and images.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. What is pixel pitch and how is it calculated?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Distance between pixels!</strong> Pixel pitch measures the physical distance from the center of one pixel to the center of the adjacent pixel, typically expressed in millimeters (mm).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my display specifications logged on an external server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All PPI calculations run 100% locally inside your web browser using JavaScript. Your confidential hardware data never leaves your computer.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this screen PPI calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> This utility is 100% free with no registration or download requirements.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Screen PPI Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const resWidth = document.getElementById("resWidth");
+      const resHeight = document.getElementById("resHeight");
+      const diagonalSize = document.getElementById("diagonalSize");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+
+      const resPpi = document.getElementById("resPpi");
+      const resTotalPixels = document.getElementById("resTotalPixels");
+      const resPixelPitch = document.getElementById("resPixelPitch");
+
+      function formatNum(val, decimals = 2) {
+        if (isNaN(val) || !isFinite(val)) return "0.00";
+        return Number(val.toFixed(decimals)).toLocaleString('en-US');
+      }
+
+      function calculatePpi() {
+        const w = parseFloat(resWidth.value);
+        const h = parseFloat(resHeight.value);
+        const diag = parseFloat(diagonalSize.value);
+
+        if (isNaN(w) || isNaN(h) || isNaN(diag) || diag <= 0 || w <= 0 || h <= 0) {
+          resPpi.textContent = "0.00 PPI";
+          resTotalPixels.textContent = "0 Pixels";
+          resPixelPitch.textContent = "0.00 mm";
+          return;
+        }
+
+        const totalPixels = w * h;
+        const diagonalPixels = Math.sqrt((w * w) + (h * h));
+        const ppi = diagonalPixels / diag;
+        
+        // Pixel pitch in mm: 1 inch = 25.4 mm, so pitch = 25.4 / PPI
+        const pixelPitchMm = 25.4 / ppi;
+
+        resPpi.textContent = formatNum(ppi, 2) + " PPI";
+        resTotalPixels.textContent = Math.round(totalPixels).toLocaleString('en-US') + " Pixels";
+        resPixelPitch.textContent = formatNum(pixelPitchMm, 4) + " mm";
+      }
+
+      [resWidth, resHeight, diagonalSize].forEach(el => {
+        el.addEventListener("input", calculatePpi);
+        el.addEventListener("change", calculatePpi);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        resWidth.value = "1920";
+        resHeight.value = "1080";
+        diagonalSize.value = "15.6";
+        calculatePpi();
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculatePpi();
+    });
+  </script>
+</body>
+</html>

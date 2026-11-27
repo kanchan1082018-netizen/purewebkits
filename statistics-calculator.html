@@ -1,0 +1,907 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Statistics Calculator (Mean, Median, Mode & Std Dev) — PureWebKits</title>
+  <meta name="description" content="Calculate mean, median, mode, min, max, range, variance, and standard deviation (sample & population) online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/statistics-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Statistics Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-textarea {
+      width: 100%;
+      height: 195px;
+      padding: 12px 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+      resize: vertical;
+    }
+    .std-textarea:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .stats-strip {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .error-msg {
+      color: var(--danger);
+      font-size: 12.5px;
+      font-weight: 700;
+      min-height: 18px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-main);
+      word-break: break-word;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Statistics Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Statistics Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Compute mean, median, mode, min, max, range, and standard deviation in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Paste or type numbers separated by commas, spaces, or new lines:</div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample Dataset</button>
+            <button type="button" id="clearStatsBtn" class="btn-sec">Clear</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="statsInput" class="field-label">Numeric Dataset Input</label>
+              <textarea id="statsInput" class="std-textarea" placeholder="Enter numbers separated by commas, spaces, or newlines (e.g., 12, 15, 18, 20, 25)..."></textarea>
+            </div>
+
+            <div class="stats-strip">
+              <span id="validCountStat">Valid numbers: 0</span>
+              <span id="sumStat">Sum: 0</span>
+            </div>
+            <div class="error-msg" id="statsErrorMsg"></div>
+          </div>
+
+          <div class="result-col">
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Mean (Average)</div>
+                <div class="metric-val" id="meanVal">—</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Median</div>
+                <div class="metric-val" id="medianVal">—</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Mode</div>
+                <div class="metric-val" id="modeVal">—</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Min / Max / Range</div>
+                <div class="metric-val" id="minmaxRangeVal">—</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Sample Std Dev (s)</div>
+                <div class="metric-val" id="sampleSdVal">—</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Population Std Dev (σ)</div>
+                <div class="metric-val" id="popSdVal">—</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Sample Variance (s²)</div>
+                <div class="metric-val" id="sampleVarVal">—</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Population Variance (σ²)</div>
+                <div class="metric-val" id="popVarVal">—</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyStatsBtn" class="btn-primary">Copy Statistics</button>
+              <button type="button" id="downloadStatsBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Descriptive Statistics, Central Tendency, and Spread</h2>
+
+      <h3>Why Descriptive Statistics Help Summarize Data Clearly and Accurately</h3>
+      <p>
+        Raw lists of numbers—whether test scores, response times, sales figures, survey ratings, or lab measurements—are hard to interpret at a glance without summary metrics. Descriptive statistics summarize a dataset along two complementary dimensions: <strong>central tendency</strong> (mean, median, and mode, which describe typical values) and <strong>dispersion or spread</strong> (minimum, maximum, range, variance, and standard deviation, which describe how widely values vary). A browser-based <strong>Statistics Calculator</strong> computes all of these measures automatically as you type—100% locally in your browser with zero server uploads.
+      </p>
+
+      <h3>How to Calculate Summary Statistics in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Paste or Enter Your Numbers:</strong> Type or paste numbers separated by commas, spaces, or line breaks into the <strong>Numeric Dataset Input</strong> box, or click <strong>Load Sample Dataset</strong>.</li>
+        <li><strong>Inspect Central Tendency & Spread:</strong> Review the mean, median, mode, min/max/range, sample and population standard deviations, and variances in the summary cards.</li>
+        <li><strong>Copy or Export Your Report:</strong> Click <strong>Copy Statistics</strong> to copy a clean summary to your clipboard or <strong>Download .txt</strong> to save it locally.</li>
+      </ol>
+
+      <h3>Mean, Variance & Standard Deviation Formulas</h3>
+      <p>
+        For <code>n</code> observations <code>x₁, x₂, ..., xₛ</code> with arithmetic mean <code>μ</code> (or sample mean <code>x̄</code>):
+      </p>
+      <div class="formula-box">
+        Mean = (Σ xᵢ) / n  |  Population Variance (σ²) = [Σ(xᵢ − μ)²] / n<br />
+        Sample Variance (s²) = [Σ(xᵢ − x̄)²] / (n − 1)   (for n > 1)
+      </div>
+
+      <h3>Choosing Between Mean vs. Median and Sample vs. Population</h3>
+      <ul>
+        <li><strong>Use Median When Outliers Are Present:</strong> Extreme high or low values pull the mean toward them, whereas the middle value of sorted data (the median) stays resistant to skew.</li>
+        <li><strong>Use Sample (n − 1) for a Subset of Data:</strong> When your numbers represent a sample drawn from a larger population, dividing by <code>n − 1</code> (Bessel's correction) provides an unbiased variance estimate.</li>
+        <li><strong>Use Population (n) When Measuring the Entire Group:</strong> When your numbers cover every member of the defined population, divide by <code>n</code>.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> For the dataset <code>12, 15, 18, 20, 25</code> (<code>n = 5</code>, sum = <code>90</code>), the <strong>Mean</strong> is <code>18</code>, the <strong>Median</strong> is <code>18</code>, the <strong>Range</strong> is <code>25 − 12 = 13</code>, and the <strong>Sample Standard Deviation</strong> is approximately <code>4.95</code>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="stats-table-heading">
+      <h2 id="stats-table-heading">Descriptive Statistics Formulas, Definitions & Rules Reference (16 Rules)</h2>
+      <p>Use this reference table to check formulas, denominator rules, and edge cases across statistical metrics.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Statistic / Rule</th>
+              <th>Formula / Definition</th>
+              <th>Denominator / Rule</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Mean (Average)</strong></td>
+              <td><code>Sum / n</code></td>
+              <td><code>n</code> values</td>
+              <td>Sensitive to extreme outliers</td>
+            </tr>
+            <tr>
+              <td><strong>Median</strong></td>
+              <td>Middle sorted value (or avg of two middle)</td>
+              <td>Sorted order</td>
+              <td>Resistant to skew & outliers</td>
+            </tr>
+            <tr>
+              <td><strong>Mode</strong></td>
+              <td>Most frequently occurring value(s)</td>
+              <td>Frequency count</td>
+              <td>Shows <code>None</code> if all appear once</td>
+            </tr>
+            <tr>
+              <td><strong>Minimum & Maximum</strong></td>
+              <td>Smallest and largest values</td>
+              <td>Full dataset</td>
+              <td>Defines data bounds</td>
+            </tr>
+            <tr>
+              <td><strong>Range</strong></td>
+              <td><code>Max − Min</code></td>
+              <td>Two extreme values</td>
+              <td>Simple total spread measure</td>
+            </tr>
+            <tr>
+              <td><strong>Population Variance (σ²)</strong></td>
+              <td><code>Σ(xᵢ − μ)² / n</code></td>
+              <td>Divides by <code>n</code></td>
+              <td>For complete population data</td>
+            </tr>
+            <tr>
+              <td><strong>Population Std Dev (σ)</strong></td>
+              <td><code>√(σ²)</code></td>
+              <td>Square root of <code>σ²</code></td>
+              <td>In original measurement units</td>
+            </tr>
+            <tr>
+              <td><strong>Sample Variance (s²)</strong></td>
+              <td><code>Σ(xᵢ − x̄)² / (n − 1)</code></td>
+              <td>Divides by <code>n − 1</code></td>
+              <td>Unbiased sample variance (<code>n > 1</code>)</td>
+            </tr>
+            <tr>
+              <td><strong>Sample Std Dev (s)</strong></td>
+              <td><code>√(s²)</code></td>
+              <td>Square root of <code>s²</code></td>
+              <td>Standard sample spread metric</td>
+            </tr>
+            <tr>
+              <td><strong>Flexible Input Delimiters</strong></td>
+              <td>Commas, spaces, tabs, newlines</td>
+              <td>Token splitter</td>
+              <td>Paste directly from sheets or lists</td>
+            </tr>
+            <tr>
+              <td><strong>Invalid Token Notice</strong></td>
+              <td>Flags non-numeric tokens</td>
+              <td>Ignores non-numbers in math</td>
+              <td>Helps catch typos quickly</td>
+            </tr>
+            <tr>
+              <td><strong>Copy Statistics</strong></td>
+              <td>Clipboard export</td>
+              <td>Copies formatted report</td>
+              <td>One-click clipboard copy</td>
+            </tr>
+            <tr>
+              <td><strong>Download .txt</strong></td>
+              <td>File export</td>
+              <td>Saves as <code>statistics-report.txt</code></td>
+              <td>Local plain-text summary</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Statistical Engine — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — All calculations run locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Your dataset stays strictly on your device</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Math, Data & Number Utilities</h2>
+      <p>Working with percentages, fractions, matrices, or random numbers? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="fraction-calculator.html"><span>Fraction Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="matrix-calculator.html"><span>Matrix Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="gcd-lcm-calculator.html"><span>GCD & LCM Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="random-number.html"><span>Random Number Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="quadratic-equation-solver.html"><span>Quadratic Equation Solver</span><span class="arrow">→</span></a>
+        <a class="related-link" href="unit-converter.html"><span>Unit Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is the difference between Sample Standard Deviation (s) and Population Standard Deviation (σ)?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Sample standard deviation divides squared deviations by <code>n − 1</code> for a sample of a larger group, whereas population standard deviation divides by <code>n</code> when your data represents the entire population.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How is the median calculated when there is an even number of values?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            After sorting the numbers from smallest to largest, the median is the average of the two middle values.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Is my dataset sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Statistics Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Descriptive Statistics Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const statsInput = document.getElementById("statsInput");
+      const validCountStat = document.getElementById("validCountStat");
+      const sumStat = document.getElementById("sumStat");
+      const statsErrorMsg = document.getElementById("statsErrorMsg");
+
+      const meanVal = document.getElementById("meanVal");
+      const medianVal = document.getElementById("medianVal");
+      const modeVal = document.getElementById("modeVal");
+      const minmaxRangeVal = document.getElementById("minmaxRangeVal");
+      const sampleSdVal = document.getElementById("sampleSdVal");
+      const popSdVal = document.getElementById("popSdVal");
+      const sampleVarVal = document.getElementById("sampleVarVal");
+      const popVarVal = document.getElementById("popVarVal");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const clearStatsBtn = document.getElementById("clearStatsBtn");
+      const copyStatsBtn = document.getElementById("copyStatsBtn");
+      const downloadStatsBtn = document.getElementById("downloadStatsBtn");
+
+      let latestReportText = "";
+
+      function fmtStat(n) {
+        if (!Number.isFinite(n)) return "—";
+        const clean = Math.abs(n) < 1e-12 ? 0 : n;
+        if (Number.isInteger(clean)) return clean.toLocaleString("en-US");
+        return Number(clean.toFixed(4)).toLocaleString("en-US", { maximumFractionDigits: 4 });
+      }
+
+      function resetOutputs() {
+        meanVal.textContent = "—";
+        medianVal.textContent = "—";
+        modeVal.textContent = "—";
+        minmaxRangeVal.textContent = "—";
+        sampleSdVal.textContent = "—";
+        popSdVal.textContent = "—";
+        sampleVarVal.textContent = "—";
+        popVarVal.textContent = "—";
+        latestReportText = "";
+      }
+
+      function calculateStatistics() {
+        const raw = String(statsInput.value || "").trim();
+        if (!raw) {
+          validCountStat.textContent = "Valid numbers: 0";
+          sumStat.textContent = "Sum: 0";
+          statsErrorMsg.textContent = "";
+          resetOutputs();
+          return;
+        }
+
+        const tokens = raw.split(/[\s,;]+/).filter(Boolean);
+        const nums = [];
+        const badTokens = [];
+
+        tokens.forEach(function (tok) {
+          const parsed = Number(tok);
+          if (Number.isFinite(parsed)) {
+            nums.push(parsed);
+          } else {
+            badTokens.push(tok);
+          }
+        });
+
+        validCountStat.textContent = `Valid numbers: ${nums.length}`;
+        const totalSum = nums.reduce(function (acc, v) { return acc + v; }, 0);
+        sumStat.textContent = `Sum: ${fmtStat(totalSum)}`;
+
+        if (badTokens.length > 0) {
+          statsErrorMsg.textContent = `Ignored non-numeric values: ${badTokens.slice(0, 5).join(", ")}${badTokens.length > 5 ? "..." : ""}`;
+        } else {
+          statsErrorMsg.textContent = "";
+        }
+
+        if (nums.length === 0) {
+          resetOutputs();
+          return;
+        }
+
+        const n = nums.length;
+        const sorted = nums.slice().sort(function (a, b) { return a - b; });
+        const minVal = sorted[0];
+        const maxVal = sorted[n - 1];
+        const rangeVal = maxVal - minVal;
+
+        const mean = totalSum / n;
+
+        const mid = Math.floor(n / 2);
+        const median = n % 2 === 1 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+
+        // Mode calculation
+        const freqMap = new Map();
+        let maxFreq = 0;
+        nums.forEach(function (v) {
+          const count = (freqMap.get(v) || 0) + 1;
+          freqMap.set(v, count);
+          if (count > maxFreq) maxFreq = count;
+        });
+
+        let modeStr = "None";
+        if (maxFreq > 1) {
+          const modes = [];
+          freqMap.forEach(function (count, val) {
+            if (count === maxFreq) modes.push(fmtStat(val));
+          });
+          modeStr = modes.join(", ");
+        }
+
+        let sqDiffSum = 0;
+        for (let i = 0; i < n; i++) {
+          const diff = nums[i] - mean;
+          sqDiffSum += diff * diff;
+        }
+
+        const popVar = sqDiffSum / n;
+        const popSd = Math.sqrt(popVar);
+        const sampleVar = n > 1 ? sqDiffSum / (n - 1) : NaN;
+        const sampleSd = n > 1 ? Math.sqrt(sampleVar) : NaN;
+
+        meanVal.textContent = fmtStat(mean);
+        medianVal.textContent = fmtStat(median);
+        modeVal.textContent = modeStr;
+        minmaxRangeVal.textContent = `${fmtStat(minVal)} / ${fmtStat(maxVal)} / ${fmtStat(rangeVal)}`;
+        sampleSdVal.textContent = n > 1 ? fmtStat(sampleSd) : "N/A (n=1)";
+        popSdVal.textContent = fmtStat(popSd);
+        sampleVarVal.textContent = n > 1 ? fmtStat(sampleVar) : "N/A (n=1)";
+        popVarVal.textContent = fmtStat(popVar);
+
+        latestReportText = [
+          "PureWebKits Descriptive Statistics Report",
+          "----------------------------------------",
+          `Count (n): ${n} | Sum: ${fmtStat(totalSum)}`,
+          `Mean: ${fmtStat(mean)} | Median: ${fmtStat(median)} | Mode: ${modeStr}`,
+          `Min: ${fmtStat(minVal)} | Max: ${fmtStat(maxVal)} | Range: ${fmtStat(rangeVal)}`,
+          `Sample Std Dev (s): ${n > 1 ? fmtStat(sampleSd) : "N/A"} | Sample Variance (s^2): ${n > 1 ? fmtStat(sampleVar) : "N/A"}`,
+          `Population Std Dev (\u03c3): ${fmtStat(popSd)} | Population Variance (\u03c3^2): ${fmtStat(popVar)}`
+        ].join("\n");
+      }
+
+      statsInput.addEventListener("input", calculateStatistics);
+
+      loadSampleBtn.addEventListener("click", function () {
+        statsInput.value = "12, 15, 18, 20, 25";
+        calculateStatistics();
+      });
+
+      clearStatsBtn.addEventListener("click", function () {
+        statsInput.value = "";
+        calculateStatistics();
+      });
+
+      copyStatsBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        navigator.clipboard.writeText(latestReportText).then(function () {
+          const orig = copyStatsBtn.textContent;
+          copyStatsBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyStatsBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadStatsBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        const blob = new Blob([latestReportText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "statistics-report.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      loadSampleBtn.click();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,967 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stock Average Calculator Online — Share Buy Price & Target Average Planner | PureWebKits</title>
+  <meta name="description" content="Free online stock average calculator. Calculate weighted average share buy price across multiple purchases, unrealized profit/loss, and exact shares needed to reach a target average price." />
+  <link rel="canonical" href="https://PureWebKits.com/stock-average-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --success-soft: #ECFDF5;
+      --danger: #DC2626;
+      --danger-soft: #FEF2F2;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Top Bar */
+    .calc-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; }
+    .currency-select {
+      height: 36px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-weight: 700;
+      background: #FFFFFF;
+      color: var(--text-main);
+    }
+    .topbar-actions { display: flex; gap: 8px; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 15px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-secondary:hover { background: #E2E8F0; }
+
+    /* Main Workspace Grid */
+    .stock-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .lots-list { display: flex; flex-direction: column; gap: 12px; }
+    .lot-row {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: auto 1fr 1fr auto;
+      gap: 12px;
+      align-items: end;
+    }
+    .lot-badge {
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 12.5px;
+      font-weight: 800;
+      padding: 8px 11px;
+      border-radius: 8px;
+      text-align: center;
+      min-width: 62px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-group label { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+    .num-input {
+      height: 40px;
+      width: 100%;
+      padding: 0 11px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #FFFFFF;
+      outline: none;
+    }
+    .num-input:focus { border-color: var(--primary); }
+    .remove-lot-btn {
+      height: 40px;
+      width: 36px;
+      border: 1px solid #FECACA;
+      background: #FEF2F2;
+      color: #DC2626;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .remove-lot-btn:hover { background: #FEE2E2; }
+
+    /* Target Average & Market Price Box */
+    .planner-box {
+      margin-top: 16px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 16px;
+    }
+    .planner-title { font-size: 13.5px; font-weight: 800; margin-bottom: 10px; color: var(--text-main); }
+    .planner-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .planner-result {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: var(--primary-soft);
+      color: #1E3A8A;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    /* Results Column */
+    .results-col {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .avg-banner {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+    }
+    .avg-sub { font-size: 12.5px; font-weight: 600; opacity: 0.92; text-transform: uppercase; letter-spacing: 0.04em; }
+    .avg-val { font-size: clamp(28px, 3.6vw, 36px); font-weight: 800; margin: 4px 0; }
+    .avg-meta { font-size: 13px; font-weight: 600; opacity: 0.95; }
+
+    .summary-box {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .sum-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .sum-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .sum-lbl { font-weight: 600; color: var(--text-muted); }
+    .sum-val { font-weight: 800; color: var(--text-main); }
+    .sum-val.profit { color: var(--success); }
+    .sum-val.loss { color: var(--danger); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 860px) {
+      .stock-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .lot-row { grid-template-columns: 1fr 1fr; }
+      .lot-badge { grid-column: span 2; }
+      .planner-inputs { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Stock Average Calculator -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Stock Average Calculator — Weighted Buy Price & Target Planner</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate multi-lot share averages, unrealized P&L & target averaging locally in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="calc-topbar">
+          <div class="topbar-left">
+            <label for="currencySelect">Currency:</label>
+            <select id="currencySelect" class="currency-select">
+              <option value="₹" selected>₹ INR (NSE / BSE)</option>
+              <option value="$">$ USD (NYSE / NASDAQ)</option>
+              <option value="€">€ EUR (Eurozone)</option>
+              <option value="£">£ GBP (LSE)</option>
+            </select>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="resetLotsBtn" class="btn-secondary">Reset</button>
+            <button type="button" id="addLotBtn" class="btn-primary">+ Add Buy Lot</button>
+          </div>
+        </div>
+
+        <div class="stock-grid">
+          <!-- Left Column: Buy Lots + Target Price Planner -->
+          <div>
+            <div id="lotsContainer" class="lots-list"></div>
+
+            <div class="planner-box">
+              <div class="planner-title">Unrealized P&L & Target Average Price Planner</div>
+              <div class="planner-inputs">
+                <div class="field-group">
+                  <label for="cmpInput">Current Market Price (CMP)</label>
+                  <input type="number" id="cmpInput" class="num-input" min="0" step="any" value="420" />
+                </div>
+                <div class="field-group">
+                  <label for="targetAvgInput">Desired Target Average Price</label>
+                  <input type="number" id="targetAvgInput" class="num-input" min="0" step="any" value="450" />
+                </div>
+              </div>
+              <div id="plannerOutput" class="planner-result">
+                Buy <strong>150 more shares</strong> at ₹420.00 (₹63,000.00) to lower your average to ₹450.00.
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Summary Results -->
+          <div class="results-col" aria-live="polite">
+            <div class="avg-banner">
+              <div class="avg-sub">Weighted Average Share Price</div>
+              <div id="avgPriceVal" class="avg-val">₹466.67</div>
+              <div id="totalSharesMeta" class="avg-meta">Total Holdings: 150 Shares</div>
+            </div>
+
+            <div class="summary-box">
+              <div class="sum-row">
+                <span class="sum-lbl">Total Invested Capital</span>
+                <span id="totalInvestedVal" class="sum-val">₹70,000.00</span>
+              </div>
+              <div class="sum-row">
+                <span class="sum-lbl">Current Portfolio Value (at CMP)</span>
+                <span id="currentValueVal" class="sum-val">₹63,000.00</span>
+              </div>
+              <div class="sum-row">
+                <span class="sum-lbl">Unrealized Profit / Loss</span>
+                <span id="pnlVal" class="sum-val loss">-₹7,000.00 (-10.00%)</span>
+              </div>
+              <div class="sum-row">
+                <span class="sum-lbl">Breakeven Move Needed</span>
+                <span id="breakevenMoveVal" class="sum-val">+11.11%</span>
+              </div>
+            </div>
+
+            <button type="button" id="copyStockBtn" class="btn-secondary" style="width:100%;">Copy Summary</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Stock Averaging, Weighted Cost Basis & Target Averaging Work</h2>
+
+      <h3>What Is Stock Averaging (Dollar-Cost & Rupee-Cost Averaging)?</h3>
+      <p>
+        When you buy shares of the same company or ETF across different dates and price levels, your true cost basis is not a simple midpoint of the share prices—it is a <strong>quantity-weighted average price</strong>. Investors use <strong>averaging down</strong> (buying additional shares after a price dip) to lower their breakeven threshold, or <strong>pyramiding / averaging up</strong> (adding to winning stocks during an uptrend) while keeping strict control over total capital deployed. Knowing your exact weighted average price helps you set accurate stop-losses, calculate capital gains taxes, and avoid over-allocating capital to a single stock position.
+      </p>
+
+      <h3>How to Calculate Average Share Price in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter Each Buy Lot:</strong> Type the number of shares purchased and the exact execution price for Buy #1 and Buy #2 (click <em>+ Add Buy Lot</em> for additional tranches).</li>
+        <li><strong>Check Weighted Average & P&L:</strong> Instantly view your total share count, total invested capital, weighted average cost per share, and unrealized Profit/Loss at the Current Market Price (CMP).</li>
+        <li><strong>Plan Target Average Price:</strong> Enter your desired target average price to calculate the exact number of additional shares and fresh capital required at today's market price.</li>
+      </ol>
+
+      <h3>Weighted Average & Target Quantity Formulas + Worked Example</h3>
+      <p>
+        Brokers and portfolio trackers compute your weighted average buy price and target averaging quantity using two exact algebraic equations:
+      </p>
+      <div class="formula-box">
+        Average Price = Σ(Shares<sub>i</sub> × Price<sub>i</sub>) / ΣShares<sub>i</sub>  |  Extra Shares = Total Shares × (Avg − Target) / (Target − CMP)
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Suppose you first buy <strong>100 shares at ₹500</strong> (₹50,000) and later buy <strong>50 shares at ₹400</strong> (₹20,000) during a market pullback.</p>
+        <p>Total Invested Capital = <code>₹50,000 + ₹20,000 = ₹70,000</code> across <code>100 + 50 = 150 shares</code>.</p>
+        <p>Weighted Average Buy Price = <code>₹70,000 / 150 = ₹466.67 per share</code>. If the stock trades at <code>CMP = ₹420</code> and you want to lower your average to <code>₹450</code>, you need <code>150 × (466.67 − 450) / (450 − 420) = 84 additional shares</code>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="stock-table-heading">
+      <h2 id="stock-table-heading">Stock Averaging Scenarios & Drawdown Recovery Reference Chart (16 Cases)</h2>
+      <p>Use this quick reference chart to compare how different buy-lot ratios reduce your breakeven price and how much gain is needed to recover from a drawdown.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Initial Buy (Lot 1)</th>
+              <th>Second Buy (Lot 2)</th>
+              <th>New Weighted Avg</th>
+              <th>Capital & Breakeven Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>100 @ ₹100</td>
+              <td>100 @ ₹80 (1:1 Ratio)</td>
+              <td><span class="limit-badge">₹90.00</span></td>
+              <td>10% lower breakeven; 2x capital</td>
+            </tr>
+            <tr>
+              <td>100 @ ₹100</td>
+              <td>200 @ ₹80 (1:2 Ratio)</td>
+              <td><span class="limit-badge">₹86.67</span></td>
+              <td>13.3% lower breakeven; 3x capital</td>
+            </tr>
+            <tr>
+              <td>100 @ ₹100</td>
+              <td>300 @ ₹80 (1:3 Ratio)</td>
+              <td><span class="limit-badge">₹85.00</span></td>
+              <td>15% lower breakeven; 4x capital</td>
+            </tr>
+            <tr>
+              <td>100 @ ₹200</td>
+              <td>100 @ ₹150 (-25% dip)</td>
+              <td><span class="limit-badge">₹175.00</span></td>
+              <td>Needs +16.7% bounce instead of +33.3%</td>
+            </tr>
+            <tr>
+              <td>100 @ ₹200</td>
+              <td>200 @ ₹150 (-25% dip)</td>
+              <td><span class="limit-badge">₹166.67</span></td>
+              <td>Needs +11.1% bounce to breakeven</td>
+            </tr>
+            <tr>
+              <td>50 @ ₹500</td>
+              <td>50 @ ₹400 (-20% dip)</td>
+              <td><span class="limit-badge">₹450.00</span></td>
+              <td>Total 100 shares; ₹45,000 invested</td>
+            </tr>
+            <tr>
+              <td>50 @ ₹500</td>
+              <td>100 @ ₹400 (-20% dip)</td>
+              <td><span class="limit-badge">₹433.33</span></td>
+              <td>Total 150 shares; ₹65,000 invested</td>
+            </tr>
+            <tr>
+              <td>100 @ ₹1,000</td>
+              <td>100 @ ₹700 (-30% dip)</td>
+              <td><span class="limit-badge">₹850.00</span></td>
+              <td>Cuts recovery gain from +42.9% to +21.4%</td>
+            </tr>
+            <tr>
+              <td>100 @ ₹1,000</td>
+              <td>100 @ ₹500 (-50% dip)</td>
+              <td><span class="limit-badge">₹750.00</span></td>
+              <td>Cuts recovery gain from +100% to +50%</td>
+            </tr>
+            <tr>
+              <td>100 @ ₹100</td>
+              <td>100 @ ₹120 (Averaging Up)</td>
+              <td><span class="limit-badge">₹110.00</span></td>
+              <td>Pyramiding into strength; +9.1% profit buffer</td>
+            </tr>
+            <tr>
+              <td>200 @ ₹100</td>
+              <td>100 @ ₹130 (Averaging Up)</td>
+              <td><span class="limit-badge">₹110.00</span></td>
+              <td>Maintains +18.2% unrealized gain cushion</td>
+            </tr>
+            <tr>
+              <td>10 @ $100 (USD)</td>
+              <td>10 @ $80 (USD)</td>
+              <td><span class="limit-badge">$90.00</span></td>
+              <td>20 shares total; $1,800 cost basis</td>
+            </tr>
+            <tr>
+              <td>25 @ $200 (USD)</td>
+              <td>25 @ $160 (USD)</td>
+              <td><span class="limit-badge">$180.00</span></td>
+              <td>50 shares total; $9,000 cost basis</td>
+            </tr>
+            <tr>
+              <td>10% Portfolio Drawdown</td>
+              <td>No Averaging</td>
+              <td><span class="limit-badge">+11.11% Gain Needed</span></td>
+              <td>Standard mathematical recovery hurdle</td>
+            </tr>
+            <tr>
+              <td>25% Portfolio Drawdown</td>
+              <td>No Averaging</td>
+              <td><span class="limit-badge">+33.33% Gain Needed</span></td>
+              <td>Moderate drawdown recovery hurdle</td>
+            </tr>
+            <tr>
+              <td>50% Portfolio Drawdown</td>
+              <td>No Averaging</td>
+              <td><span class="limit-badge">+100.00% Gain Needed</span></td>
+              <td>Stock must double to return to entry price</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Investment, Finance & Percentage Calculators</h2>
+      <p>Calculating percentage gains, loan EMIs, currency exchange rates, or GST? Explore our companion financial calculators:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="emi-calculator.html"><span>Loan & EMI Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="indian-gst-calculator.html"><span>Indian GST Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="us-paycheck-calculator.html"><span>US Paycheck Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="uk-vat-calculator.html"><span>UK VAT Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="uae-gratuity-calculator.html"><span>UAE Gratuity Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Exact Age Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Why is stock average price a weighted average rather than a simple average?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Because different purchase orders usually involve different share quantities. Buying 200 shares at ₹100 and 50 shares at ₹200 puts far more capital at ₹100—so the true weighted cost basis is <code>(20,000 + 10,000) / 250 = ₹120.00</code>, not the simple midpoint of ₹150.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How does the Target Average Price Planner calculate extra shares needed?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            It solves the linear weighted equation <code>Extra Shares = Current Shares × (Current Avg − Target Avg) / (Target Avg − CMP)</code>. Note that to average down to a lower target price, the Current Market Price (CMP) must be strictly lower than your desired Target Average Price.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. When is averaging down risky for retail investors?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Averaging down works well on broad index ETFs or fundamentally strong companies experiencing temporary market dips, but buying more of a structurally declining stock can concentrate portfolio risk. Always cap maximum position size (e.g., 5%–10% of total portfolio) before adding a second or third lot.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my stock holdings or trade prices stored on any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All multi-lot calculations, P&L percentages, and target share formulas run 100% locally inside your web browser using JavaScript. Your portfolio positions never leave your device.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Stock Average Calculator Engine -->
+  <script>
+    (function () {
+      const currencySelect = document.getElementById("currencySelect");
+      const lotsContainer = document.getElementById("lotsContainer");
+      const addLotBtn = document.getElementById("addLotBtn");
+      const resetLotsBtn = document.getElementById("resetLotsBtn");
+      const cmpInput = document.getElementById("cmpInput");
+      const targetAvgInput = document.getElementById("targetAvgInput");
+      const plannerOutput = document.getElementById("plannerOutput");
+
+      const avgPriceVal = document.getElementById("avgPriceVal");
+      const totalSharesMeta = document.getElementById("totalSharesMeta");
+      const totalInvestedVal = document.getElementById("totalInvestedVal");
+      const currentValueVal = document.getElementById("currentValueVal");
+      const pnlVal = document.getElementById("pnlVal");
+      const breakevenMoveVal = document.getElementById("breakevenMoveVal");
+      const copyStockBtn = document.getElementById("copyStockBtn");
+
+      let lots = [
+        { qty: 100, price: 500 },
+        { qty: 50, price: 400 }
+      ];
+
+      function formatMoney(num) {
+        const sym = currencySelect.value;
+        const locale = sym === "₹" ? "en-IN" : "en-US";
+        return sym + num.toLocaleString(locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+
+      function renderLots() {
+        lotsContainer.innerHTML = "";
+        lots.forEach((lot, idx) => {
+          const row = document.createElement("div");
+          row.className = "lot-row";
+          row.innerHTML = `
+            <div class="lot-badge">Buy #${idx + 1}</div>
+            <div class="field-group">
+              <label>Quantity (Shares)</label>
+              <input type="number" class="num-input lot-qty" data-idx="${idx}" min="0" step="any" value="${lot.qty}" />
+            </div>
+            <div class="field-group">
+              <label>Buy Price (${currencySelect.value})</label>
+              <input type="number" class="num-input lot-price" data-idx="${idx}" min="0" step="any" value="${lot.price}" />
+            </div>
+            <button type="button" class="remove-lot-btn" data-idx="${idx}" title="Remove Buy Lot" ${lots.length <= 1 ? "disabled style='opacity:0.4;cursor:not-allowed;'" : ""}>×</button>
+          `;
+          lotsContainer.appendChild(row);
+        });
+
+        lotsContainer.querySelectorAll(".lot-qty").forEach((inp) => {
+          inp.addEventListener("input", (e) => {
+            const i = parseInt(e.target.getAttribute("data-idx"), 10);
+            lots[i].qty = Math.max(0, parseFloat(e.target.value) || 0);
+            calculateStockAverage();
+          });
+        });
+
+        lotsContainer.querySelectorAll(".lot-price").forEach((inp) => {
+          inp.addEventListener("input", (e) => {
+            const i = parseInt(e.target.getAttribute("data-idx"), 10);
+            lots[i].price = Math.max(0, parseFloat(e.target.value) || 0);
+            calculateStockAverage();
+          });
+        });
+
+        lotsContainer.querySelectorAll(".remove-lot-btn").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            if (lots.length <= 1) return;
+            const i = parseInt(e.target.getAttribute("data-idx"), 10);
+            lots.splice(i, 1);
+            renderLots();
+            calculateStockAverage();
+          });
+        });
+      }
+
+      function calculateStockAverage() {
+        let totalQty = 0;
+        let totalCost = 0;
+
+        lots.forEach((l) => {
+          const q = Math.max(0, parseFloat(l.qty) || 0);
+          const p = Math.max(0, parseFloat(l.price) || 0);
+          totalQty += q;
+          totalCost += q * p;
+        });
+
+        const avgPrice = totalQty > 0 ? totalCost / totalQty : 0;
+        const cmp = Math.max(0, parseFloat(cmpInput.value) || 0);
+        const currentValue = totalQty * cmp;
+        const pnl = currentValue - totalCost;
+        const pnlPct = totalCost > 0 ? (pnl / totalCost) * 100 : 0;
+
+        avgPriceVal.textContent = formatMoney(avgPrice);
+        totalSharesMeta.textContent = `Total Holdings: ${totalQty.toLocaleString("en-US")} Shares`;
+        totalInvestedVal.textContent = formatMoney(totalCost);
+        currentValueVal.textContent = formatMoney(currentValue);
+
+        if (pnl >= 0) {
+          pnlVal.className = "sum-val profit";
+          pnlVal.textContent = `+${formatMoney(pnl)} (+${pnlPct.toFixed(2)}%)`;
+          breakevenMoveVal.textContent = "In Profit";
+        } else {
+          pnlVal.className = "sum-val loss";
+          pnlVal.textContent = `-${formatMoney(Math.abs(pnl))} (${pnlPct.toFixed(2)}%)`;
+          const movePct = cmp > 0 ? ((avgPrice - cmp) / cmp) * 100 : 0;
+          breakevenMoveVal.textContent = `+${movePct.toFixed(2)}%`;
+        }
+
+        // Target Average Price Planner
+        const targetAvg = Math.max(0, parseFloat(targetAvgInput.value) || 0);
+        if (totalQty === 0 || avgPrice === 0) {
+          plannerOutput.textContent = "Enter at least one buy lot above to plan your target average price.";
+        } else if (Math.abs(targetAvg - avgPrice) < 0.01) {
+          plannerOutput.textContent = `Your current average (${formatMoney(avgPrice)}) already matches your target.`;
+        } else if (targetAvg < avgPrice) {
+          if (cmp >= targetAvg) {
+            plannerOutput.textContent = `To lower your average to ${formatMoney(targetAvg)}, Current Market Price (${formatMoney(cmp)}) must be below ${formatMoney(targetAvg)}.`;
+          } else {
+            const extraShares = Math.ceil((totalQty * (avgPrice - targetAvg)) / (targetAvg - cmp));
+            const extraCapital = extraShares * cmp;
+            plannerOutput.innerHTML = `Buy <strong>${extraShares.toLocaleString("en-US")} more shares</strong> at ${formatMoney(cmp)} (${formatMoney(extraCapital)}) to lower your average to <strong>${formatMoney(targetAvg)}</strong>.`;
+          }
+        } else {
+          if (cmp <= targetAvg) {
+            plannerOutput.textContent = `To average up to ${formatMoney(targetAvg)}, Current Market Price (${formatMoney(cmp)}) must be above ${formatMoney(targetAvg)}.`;
+          } else {
+            const extraShares = Math.ceil((totalQty * (targetAvg - avgPrice)) / (cmp - targetAvg));
+            const extraCapital = extraShares * cmp;
+            plannerOutput.innerHTML = `Buy <strong>${extraShares.toLocaleString("en-US")} more shares</strong> at ${formatMoney(cmp)} (${formatMoney(extraCapital)}) to average up to <strong>${formatMoney(targetAvg)}</strong>.`;
+          }
+        }
+      }
+
+      addLotBtn.addEventListener("click", () => {
+        const defaultPrice = parseFloat(cmpInput.value) || 100;
+        lots.push({ qty: 50, price: defaultPrice });
+        renderLots();
+        calculateStockAverage();
+      });
+
+      resetLotsBtn.addEventListener("click", () => {
+        lots = [
+          { qty: 100, price: 500 },
+          { qty: 50, price: 400 }
+        ];
+        cmpInput.value = 420;
+        targetAvgInput.value = 450;
+        renderLots();
+        calculateStockAverage();
+      });
+
+      currencySelect.addEventListener("change", () => {
+        renderLots();
+        calculateStockAverage();
+      });
+
+      cmpInput.addEventListener("input", calculateStockAverage);
+      targetAvgInput.addEventListener("input", calculateStockAverage);
+
+      copyStockBtn.addEventListener("click", async () => {
+        const text = `Stock Average Summary: Avg Price ${avgPriceVal.textContent} | ${totalSharesMeta.textContent} | Invested: ${totalInvestedVal.textContent} | P&L: ${pnlVal.textContent}`;
+        try {
+          await navigator.clipboard.writeText(text);
+          const orig = copyStockBtn.textContent;
+          copyStockBtn.textContent = "Copied!";
+          setTimeout(() => { copyStockBtn.textContent = orig; }, 1400);
+        } catch (e) {}
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      renderLots();
+      calculateStockAverage();
+    })();
+  </script>
+</body>
+</html>
