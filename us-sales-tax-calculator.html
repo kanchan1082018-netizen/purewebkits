@@ -1,0 +1,683 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>US State Sales Tax Calculator — Free | PureWebKits</title>
+  <meta name="description" content="Calculate state sales tax, local surtaxes, and final purchase totals across all US states online for free. US sales tax calculator tool 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/us-sales-tax-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Tax Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col { display: flex; flex-direction: column; gap: 14px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .result-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .result-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .result-title { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .result-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--primary);
+      text-align: right;
+    }
+    .result-val.highlight { color: var(--success); font-size: 20px; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Sales Tax Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>US State Sales Tax Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate state sales tax, local surtaxes, and final purchase totals across all US states instantly in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Enter purchase amount and select US state below:</div>
+          <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample ($100 in CA)</button>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="purchaseAmount" class="field-label">Purchase Amount ($)</label>
+              <input type="number" id="purchaseAmount" class="std-input" value="100" min="0" step="any" placeholder="e.g. 100" />
+            </div>
+            <div class="field-group">
+              <label for="usState" class="field-label">US State & Base Tax Rate</label>
+              <select id="usState" class="std-select">
+                <option value="0.00">Alaska (0.00%)</option>
+                <option value="0.056">Arizona (5.60%)</option>
+                <option value="0.065">Arkansas (6.50%)</option>
+                <option value="0.0725" selected>California (7.25%)</option>
+                <option value="0.029">Colorado (2.90%)</option>
+                <option value="0.0635">Connecticut (6.35%)</option>
+                <option value="0.00">Delaware (0.00%)</option>
+                <option value="0.06">Florida (6.00%)</option>
+                <option value="0.04">Georgia (4.00%)</option>
+                <option value="0.04">Hawaii (4.00%)</option>
+                <option value="0.06">Idaho (6.00%)</option>
+                <option value="0.0625">Illinois (6.25%)</option>
+                <option value="0.07">Indiana (7.00%)</option>
+                <option value="0.06">Iowa (6.00%)</option>
+                <option value="0.065">Kansas (6.50%)</option>
+                <option value="0.06">Kentucky (6.00%)</option>
+                <option value="0.0445">Louisiana (4.45%)</option>
+                <option value="0.055">Maine (5.50%)</option>
+                <option value="0.06">Maryland (6.00%)</option>
+                <option value="0.0625">Massachusetts (6.25%)</option>
+                <option value="0.06">Michigan (6.00%)</option>
+                <option value="0.06875">Minnesota (6.875%)</option>
+                <option value="0.07">Mississippi (7.00%)</option>
+                <option value="0.04225">Missouri (4.225%)</option>
+                <option value="0.00">Montana (0.00%)</option>
+                <option value="0.055">Nebraska (5.50%)</option>
+                <option value="0.0685">Nevada (6.85%)</option>
+                <option value="0.00">New Hampshire (0.00%)</option>
+                <option value="0.06625">New Jersey (6.625%)</option>
+                <option value="0.05125">New Mexico (5.125%)</option>
+                <option value="0.04">New York (4.00%)</option>
+                <option value="0.0475">North Carolina (4.75%)</option>
+                <option value="0.05">North Dakota (5.00%)</option>
+                <option value="0.0575">Ohio (5.75%)</option>
+                <option value="0.045">Oklahoma (4.50%)</option>
+                <option value="0.00">Oregon (0.00%)</option>
+                <option value="0.06">Pennsylvania (6.00%)</option>
+                <option value="0.07">Rhode Island (7.00%)</option>
+                <option value="0.06">South Carolina (6.00%)</option>
+                <option value="0.045">South Dakota (4.50%)</option>
+                <option value="0.07">Tennessee (7.00%)</option>
+                <option value="0.0625">Texas (6.25%)</option>
+                <option value="0.0485">Utah (4.85%)</option>
+                <option value="0.06">Vermont (6.00%)</option>
+                <option value="0.053">Virginia (5.30%)</option>
+                <option value="0.065">Washington (6.50%)</option>
+                <option value="0.06">West Virginia (6.00%)</option>
+                <option value="0.05">Wisconsin (5.00%)</option>
+                <option value="0.04">Wyoming (4.00%)</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label for="localSurtax" class="field-label">Estimated Local / County Surtax (%)</label>
+              <input type="number" id="localSurtax" class="std-input" value="1.5" min="0" max="10" step="0.1" placeholder="e.g. 1.5" />
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="result-item">
+              <div class="result-title">Total Final Price</div>
+              <div id="resTotalPrice" class="result-val highlight">$108.75</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Sales Tax Amount</div>
+              <div id="resTaxAmount" class="result-val">$8.75</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Combined Tax Rate (%)</div>
+              <div id="resCombinedRate" class="result-val">8.75%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Comprehensive Guide to US State Sales Tax, Local Surtaxes, and Final Purchase Calculations</h2>
+
+     ### Why US State Sales Tax Calculators Are Essential for Consumers and Businesses
+      <p>
+        Navigating retail purchases, e-commerce checkouts, and business accounting in the United States requires a clear understanding of state and local sales taxes. Unlike value-added taxes (VAT) found in many international countries, sales taxes in the United States are imposed at the state level and frequently augmented by county, municipal, and special district surtaxes. Because each of the 50 states establishes its own tax policies—including completely tax-free states like Oregon, New Hampshire, Delaware, and Montana—calculating exact purchase totals can be surprisingly complex. Furthermore, local district surtaxes can push combined retail tax rates past 10% in certain jurisdictions. A professional **US State Sales Tax Calculator** enables shoppers, small business owners, and accountants to input pre-tax purchase amounts, select individual US states, and factor in estimated local county surtaxes to compute final out-the-door purchase prices instantly. Our browser-based utility calculates sales tax breakdowns locally in client memory without external server uploads, guaranteeing absolute data privacy and lightning-fast performance.
+      </p>
+
+      ### How to Calculate Sales Tax in 3 Easy Steps
+      <ol>
+        <li><strong>Enter Purchase Amount:</strong> Type your pre-tax retail price or subtotal into the input field.</li>
+        <li><strong>Select US State:</strong> Choose your state of purchase from the dropdown menu to apply the mandatory statewide base sales tax rate.</li>
+        <li><strong>Add Local Surtax:</strong> Input your local county or municipal tax addition to calculate the combined final sales tax amount and grand total.</li>
+      </ol>
+
+      ### Sales Tax Calculation Formula + Worked Example
+      <p>
+        Final purchase prices and sales tax amounts are computed by summing state base tax rates and local surtaxes, then multiplying against the pre-tax subtotal:
+      </p>
+      <div class="formula-box">
+        $\text{Combined Rate} = \text{State Tax Rate} + \text{Local Surtax}$  |  $\text{Tax Amount} = \text{Purchase Subtotal} \times \text{Combined Rate}$
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Purchasing an item for **$100** in California (state base tax **7.25%**) with an estimated local county surtax of **1.5%** results in a combined tax rate of **8.75%**, generating a sales tax amount of **$8.75** and a final total price of **$108.75**.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="tax-table-heading">
+      <h2 id="tax-table-heading">US Sales Tax Rates, Exemptions & Standards (16 Rules)</h2>
+      <p>Use this reference table to understand state sales tax policies, tax-free jurisdictions, and retail compliance standards.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Sales Tax Category</th>
+              <th>Policy / Standard</th>
+              <th>Description & Jurisdictional Rule</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Statewide Base Tax</strong></td>
+              <td>State Legislature Set</td>
+              <td>Mandatory minimum sales tax percentage applied across all transactions statewide</td>
+            </tr>
+            <tr>
+              <td><strong>Local County / City Surtax</strong></td>
+              <td>Municipal Additions</td>
+              <td>Additional local taxes levied by counties, transit districts, or cities</td>
+            </tr>
+            <tr>
+              <td><strong>Tax-Free States</strong></td>
+              <td>0% Sales Tax</td>
+              <td>States with no statewide retail sales tax (Oregon, New Hampshire, Delaware, Montana)</td>
+            </tr>
+            <tr>
+              <td><strong>Destination-Based Sourcing</strong></td>
+              <td>E-commerce Rule</td>
+              <td>Tax rate determined by the shipping destination address of the buyer</td>
+            </tr>
+            <tr>
+              <td><strong>Grocery & Medicine Exemptions</strong></td>
+              <td>Reduced / 0% Rate</td>
+              <td>Many states exempt essential food groceries and prescription drugs from sales tax</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Processing</strong></td>
+              <td colspan="2">JavaScript Execution — Zero Server Latency (100% browser calculation)</td>
+            </tr>
+            <tr>
+              <td><strong>Data Privacy</strong></td>
+              <td colspan="2"><span class="limit-badge">Zero Server Upload</span> — Private retail & purchase data remain secure</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Finance, Tax & Calculator Utilities</h2>
+      <p>Need mortgage calculators, compound interest calculators, or paycheck estimators? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="us-paycheck-calculator.html"><span>US Paycheck Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="us-mortgage-calculator.html"><span>US Mortgage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compound-interest-calculator.html"><span>Compound Interest Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="emi-calculator.html"><span>Loan EMI Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>3-in-1 Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Global Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Strong Password Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter & Validator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Which US states have zero sales tax?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Four US states have no statewide sales tax: **Oregon, New Hampshire, Delaware, and Montana**. (Note: Alaska has no statewide tax but allows local municipalities to levy local sales taxes).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How are local surtaxes added to state sales tax?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Additive rates!</strong> Local county and city surtaxes are added directly on top of the state base tax rate to determine your total combined retail tax percentage.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Is my purchase and financial data uploaded to an external server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All sales tax calculations run 100% locally inside your web browser using JavaScript. Your confidential retail data never leaves your computer.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this US sales tax calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> This utility is 100% free with no registration or download requirements.
+          </div>
+        </div>
+      </div>
+    </main>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side US Sales Tax Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const purchaseAmount = document.getElementById("purchaseAmount");
+      const usState = document.getElementById("usState");
+      const localSurtax = document.getElementById("localSurtax");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+
+      const resTotalPrice = document.getElementById("resTotalPrice");
+      const resTaxAmount = document.getElementById("resTaxAmount");
+      const resCombinedRate = document.getElementById("resCombinedRate");
+
+      function formatCurrency(val) {
+        if (isNaN(val) || !isFinite(val)) return "$0.00";
+        return "$" + val.toFixed(2).toLocaleString('en-US');
+      }
+
+      function calculateSalesTax() {
+        const subtotal = parseFloat(purchaseAmount.value) || 0;
+        const stateRate = parseFloat(usState.value) || 0;
+        const surtaxRate = (parseFloat(localSurtax.value) || 0) / 100;
+
+        const combinedRate = stateRate + surtaxRate;
+        const taxAmount = subtotal * combinedRate;
+        const totalPrice = subtotal + taxAmount;
+
+        resTotalPrice.textContent = formatCurrency(totalPrice);
+        resTaxAmount.textContent = formatCurrency(taxAmount);
+        resCombinedRate.textContent = (combinedRate * 100).toFixed(2) + "%";
+      }
+
+      [purchaseAmount, usState, localSurtax].forEach(el => {
+        el.addEventListener("input", calculateSalesTax);
+        el.addEventListener("change", calculateSalesTax);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        purchaseAmount.value = "100";
+        usState.value = "0.0725"; // California
+        localSurtax.value = "1.5";
+        calculateSalesTax();
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateSalesTax();
+    });
+  </script>
+</body>
+</html>

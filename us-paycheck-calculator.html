@@ -1,0 +1,1032 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>US Paycheck Calculator Online — Net Take-Home Pay & Tax Estimator | PureWebKits</title>
+  <meta name="description" content="Calculate your exact US net take-home paycheck after Federal income tax, Social Security, Medicare (FICA), 401(k), and State income taxes across all 50 states. 100% client-side." />
+  <link rel="canonical" href="https://PureWebKits.com/us-paycheck-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --success-soft: #ECFDF5;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1120px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Mode Tabs */
+    .mode-tabs {
+      display: flex;
+      gap: 10px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 22px;
+    }
+    .mode-tab {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      border-radius: 9px;
+      padding: 9px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+    }
+    .mode-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    /* 2-Column Paycheck Grid */
+    .pay-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 26px;
+      align-items: start;
+    }
+    .inputs-col { display: flex; flex-direction: column; gap: 15px; }
+    .row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-group label { font-size: 13px; font-weight: 700; color: var(--text-main); }
+    .field-group input, .field-group select {
+      height: 44px;
+      padding: 0 13px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: #FFFFFF;
+      outline: none;
+    }
+    .field-group input:focus, .field-group select:focus { border-color: var(--primary); }
+
+    /* Results Breakdown Column */
+    .results-col {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .net-pay-banner {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+    }
+    .net-pay-sub { font-size: 13px; font-weight: 600; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.04em; }
+    .net-pay-val { font-size: clamp(28px, 3.6vw, 36px); font-weight: 800; margin: 4px 0; }
+    .net-pay-annual { font-size: 13.5px; font-weight: 600; opacity: 0.95; }
+
+    .breakdown-box {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+    .line-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      padding-bottom: 9px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .line-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .line-label { font-weight: 600; color: var(--text-muted); }
+    .line-val { font-weight: 800; color: var(--text-main); }
+    .line-val.deduct { color: #DC2626; }
+    .line-val.net { color: var(--success); font-size: 16px; }
+
+    .tax-bar-wrap {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .tax-bar-top { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 700; margin-bottom: 6px; }
+    .tax-track { height: 10px; background: #E2E8F0; border-radius: 999px; overflow: hidden; display: flex; }
+    .bar-net { background: #10B981; height: 100%; }
+    .bar-tax { background: #2563EB; height: 100%; }
+    .bar-pre { background: #F59E0B; height: 100%; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 860px) {
+      .pay-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .row-2col { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive US Paycheck Calculator -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>US Paycheck Calculator — Net Take-Home Pay & Tax Estimator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Estimate Federal, State, Social Security & Medicare taxes privately in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="mode-tabs" role="tablist" aria-label="Pay Type">
+          <button type="button" class="mode-tab active" data-paytype="salary" role="tab" aria-selected="true">Annual Salary ($/yr)</button>
+          <button type="button" class="mode-tab" data-paytype="hourly" role="tab" aria-selected="false">Hourly Wage ($/hr)</button>
+        </div>
+
+        <div class="pay-grid">
+          <!-- Inputs Column -->
+          <div class="inputs-col">
+            <div id="salaryBox" class="field-group">
+              <label for="annualSalaryInput">Gross Annual Salary ($ USD)</label>
+              <input type="number" id="annualSalaryInput" min="0" step="500" value="85000" />
+            </div>
+
+            <div id="hourlyBox" class="row-2col" style="display:none;">
+              <div class="field-group">
+                <label for="hourlyRateInput">Hourly Pay Rate ($ USD)</label>
+                <input type="number" id="hourlyRateInput" min="0" step="0.5" value="35" />
+              </div>
+              <div class="field-group">
+                <label for="hoursPerWeekInput">Hours Worked / Week</label>
+                <input type="number" id="hoursPerWeekInput" min="1" max="100" step="1" value="40" />
+              </div>
+            </div>
+
+            <div class="row-2col">
+              <div class="field-group">
+                <label for="payFreqSelect">Pay Frequency</label>
+                <select id="payFreqSelect">
+                  <option value="52">Weekly (52 paychecks/yr)</option>
+                  <option value="26" selected>Bi-Weekly (26 paychecks/yr)</option>
+                  <option value="24">Semi-Monthly (24 paychecks/yr)</option>
+                  <option value="12">Monthly (12 paychecks/yr)</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="filingStatusSelect">Federal Filing Status</label>
+                <select id="filingStatusSelect">
+                  <option value="single" selected>Single</option>
+                  <option value="married">Married Filing Jointly</option>
+                  <option value="hoh">Head of Household</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="stateSelect">Work / Residence State (All 50 States + DC)</label>
+              <select id="stateSelect"></select>
+            </div>
+
+            <div class="row-2col">
+              <div class="field-group">
+                <label for="k401Input">Pre-Tax 401(k) Contribution (%)</label>
+                <input type="number" id="k401Input" min="0" max="50" step="0.5" value="5" />
+              </div>
+
+              <div class="field-group">
+                <label for="medicalInput">Pre-Tax Health / HSA ($ / Paycheck)</label>
+                <input type="number" id="medicalInput" min="0" step="10" value="75" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Results Column -->
+          <div class="results-col" aria-live="polite">
+            <div class="net-pay-banner">
+              <div id="payPeriodSub" class="net-pay-sub">Estimated Bi-Weekly Net Take-Home Pay</div>
+              <div id="netPaycheckVal" class="net-pay-val">$2,438.12</div>
+              <div id="netAnnualVal" class="net-pay-annual">Annual Take-Home: $63,391 / yr (Effective Tax: 20.4%)</div>
+            </div>
+
+            <div class="tax-bar-wrap">
+              <div class="tax-bar-top">
+                <span id="takeHomePctLabel">Take-Home: 74.6%</span>
+                <span id="taxPctLabel">Taxes: 18.1% • Pre-Tax: 7.3%</span>
+              </div>
+              <div class="tax-track">
+                <div id="barNet" class="bar-net" style="width:74.6%;"></div>
+                <div id="barTax" class="bar-tax" style="width:18.1%;"></div>
+                <div id="barPre" class="bar-pre" style="width:7.3%;"></div>
+              </div>
+            </div>
+
+            <div class="breakdown-box">
+              <div class="line-item">
+                <span class="line-label">Gross Pay (Per Paycheck)</span>
+                <span id="grossCheckVal" class="line-val">$3,269.23</span>
+              </div>
+              <div class="line-item">
+                <span class="line-label">Pre-Tax Deductions (401k + Medical)</span>
+                <span id="preTaxCheckVal" class="line-val deduct">-$238.46</span>
+              </div>
+              <div class="line-item">
+                <span class="line-label">Federal Income Tax</span>
+                <span id="fedTaxCheckVal" class="line-val deduct">-$315.40</span>
+              </div>
+              <div class="line-item">
+                <span class="line-label">FICA (Social Security 6.2% + Medicare 1.45%)</span>
+                <span id="ficaCheckVal" class="line-val deduct">-$244.36</span>
+              </div>
+              <div class="line-item">
+                <span id="stateTaxLabel" class="line-label">State Income Tax</span>
+                <span id="stateTaxCheckVal" class="line-val deduct">-$32.89</span>
+              </div>
+              <div class="line-item">
+                <span class="line-label"><strong>Net Take-Home Paycheck</strong></span>
+                <span id="netCheckBottomVal" class="line-val net">$2,438.12</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How US Paycheck Withholding, Federal Brackets & FICA Taxes Work</h2>
+
+      <h3>Understanding Gross Salary vs. Net Take-Home Paycheck</h3>
+      <p>
+        When negotiating a US job offer or switching from hourly wages to an annual salary, your <strong>gross pay</strong> is only the starting number. Before your paycheck hits direct deposit, employers withhold mandatory payroll taxes and voluntary pre-tax benefits. First, <strong>pre-tax deductions</strong>—such as Traditional <code>401(k)</code> retirement contributions and employer-sponsored health insurance or HSA premiums—are subtracted from gross pay, lowering your federal taxable income. Next, progressive <strong>Federal Income Tax</strong>, flat-rate <strong>FICA payroll taxes</strong> (<code>6.2%</code> Social Security up to the annual wage cap plus <code>1.45%</code> Medicare), and applicable <strong>State Income Tax</strong> are withheld based on your W-4 filing status and work state.
+      </p>
+
+      <h3>How to Estimate Your US Paycheck in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Choose Salary or Hourly Mode:</strong> Enter your annual gross salary or hourly rate and weekly hours, then select your pay frequency (<em>Weekly</em>, <em>Bi-Weekly</em>, <em>Semi-Monthly</em>, or <em>Monthly</em>).</li>
+        <li><strong>Select Filing Status & State:</strong> Pick <em>Single</em>, <em>Married Filing Jointly</em>, or <em>Head of Household</em> along with any of the 50 US states (including zero-tax states like Texas, Florida, and Washington).</li>
+        <li><strong>Adjust Pre-Tax Benefits:</strong> Enter your 401(k) contribution percentage and per-paycheck health/HSA deduction to view exact per-paycheck and annual net take-home pay.</li>
+      </ol>
+
+      <h3>Net Paycheck Mathematical Formula & Worked Example</h3>
+      <p>
+        Payroll systems compute per-paycheck net take-home pay by dividing annual tax obligations across the number of annual pay periods (<em>N</em>):
+      </p>
+      <div class="formula-box">
+        Net Paycheck = Gross Paycheck − Pre-Tax Deductions − (Federal Tax + FICA + State Tax)
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Suppose a Single employee in <strong>Texas (0% state income tax)</strong> earns an annual salary of <strong>$80,000</strong> paid <strong>Bi-Weekly (26 paychecks/year)</strong>, contributing <strong>5% to a 401(k)</strong> with <strong>$50/paycheck</strong> in medical insurance.</p>
+        <p>Bi-Weekly Gross Pay = <code>$80,000 / 26 = $3,076.92</code>. Pre-Tax Deductions = <code>$153.85 (401k) + $50.00 (Medical) = $203.85</code>.</p>
+        <p>After subtracting Federal withholding (<code>~$346</code>) and FICA payroll taxes (<code>~$231.56</code>), the employee receives approximately <strong>$2,295.51 net take-home pay</strong> every two weeks.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="state-tax-heading">
+      <h2 id="state-tax-heading">US State Income Tax & Payroll Withholding Benchmark Reference (16 Key States)</h2>
+      <p>Use this quick reference table to compare state income tax structures across major US employment hubs and zero-income-tax states.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>US State</th>
+              <th>State Income Tax Type</th>
+              <th>Top / Effective Rate</th>
+              <th>Payroll Tax Takeaway</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Texas (TX)</strong></td>
+              <td><span class="limit-badge">No State Income Tax</span></td>
+              <td>0.00%</td>
+              <td>Only Federal + FICA taxes withheld</td>
+            </tr>
+            <tr>
+              <td><strong>Florida (FL)</strong></td>
+              <td><span class="limit-badge">No State Income Tax</span></td>
+              <td>0.00%</td>
+              <td>Zero state wage withholding</td>
+            </tr>
+            <tr>
+              <td><strong>Washington (WA)</strong></td>
+              <td><span class="limit-badge">No State Income Tax</span></td>
+              <td>0.00% (0.58% WA Cares)</td>
+              <td>No personal income tax on wages</td>
+            </tr>
+            <tr>
+              <td><strong>Nevada (NV)</strong></td>
+              <td><span class="limit-badge">No State Income Tax</span></td>
+              <td>0.00%</td>
+              <td>Zero state personal income tax</td>
+            </tr>
+            <tr>
+              <td><strong>Tennessee (TN)</strong></td>
+              <td><span class="limit-badge">No State Income Tax</span></td>
+              <td>0.00%</td>
+              <td>100% free of state wage tax</td>
+            </tr>
+            <tr>
+              <td><strong>Illinois (IL)</strong></td>
+              <td>Flat Rate Income Tax</td>
+              <td><span class="limit-badge">4.95% Flat</span></td>
+              <td>Single flat rate across all income levels</td>
+            </tr>
+            <tr>
+              <td><strong>Pennsylvania (PA)</strong></td>
+              <td>Flat Rate Income Tax</td>
+              <td><span class="limit-badge">3.07% Flat</span></td>
+              <td>Lowest flat state income tax in the US</td>
+            </tr>
+            <tr>
+              <td><strong>Massachusetts (MA)</strong></td>
+              <td>Flat Rate (+ Surtax >$1M)</td>
+              <td><span class="limit-badge">5.00% Base</span></td>
+              <td>5% standard rate on wages under $1M</td>
+            </tr>
+            <tr>
+              <td><strong>North Carolina (NC)</strong></td>
+              <td>Flat Rate Income Tax</td>
+              <td><span class="limit-badge">4.50% Flat</span></td>
+              <td>Simplified flat withholding</td>
+            </tr>
+            <tr>
+              <td><strong>Colorado (CO)</strong></td>
+              <td>Flat Rate Income Tax</td>
+              <td><span class="limit-badge">4.40% Flat</span></td>
+              <td>Applied to federal taxable income</td>
+            </tr>
+            <tr>
+              <td><strong>Georgia (GA)</strong></td>
+              <td>Flat Rate Income Tax</td>
+              <td><span class="limit-badge">5.39% Flat</span></td>
+              <td>Transitioned from brackets to flat rate</td>
+            </tr>
+            <tr>
+              <td><strong>California (CA)</strong></td>
+              <td>Progressive Brackets</td>
+              <td><span class="limit-badge">1.0% – 13.3% (+1.1% SDI)</span></td>
+              <td>Highest top marginal rate in the US</td>
+            </tr>
+            <tr>
+              <td><strong>New York (NY)</strong></td>
+              <td>Progressive Brackets</td>
+              <td><span class="limit-badge">4.0% – 10.9% (+NYC Local)</span></td>
+              <td>NYC residents also pay 3.078%–3.876% city tax</td>
+            </tr>
+            <tr>
+              <td><strong>New Jersey (NJ)</strong></td>
+              <td>Progressive Brackets</td>
+              <td><span class="limit-badge">1.4% – 10.75%</span></td>
+              <td>Low rates under $75k; higher above $500k</td>
+            </tr>
+            <tr>
+              <td><strong>Virginia (VA)</strong></td>
+              <td>Progressive Brackets</td>
+              <td><span class="limit-badge">2.0% – 5.75%</span></td>
+              <td>Top bracket starts at $17,000 taxable income</td>
+            </tr>
+            <tr>
+              <td><strong>Ohio (OH)</strong></td>
+              <td>Progressive Brackets</td>
+              <td><span class="limit-badge">0.0% – 3.50%</span></td>
+              <td>First $26,050 exempt from state tax</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Finance, Tax & Currency Calculators</h2>
+      <p>Comparing international tax rates, loan EMIs, or currency exchange rates? Explore our companion financial calculators:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="emi-calculator.html"><span>Loan & EMI Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="uk-vat-calculator.html"><span>UK VAT Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="indian-gst-calculator.html"><span>Indian GST Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="uae-gratuity-calculator.html"><span>UAE Gratuity Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="stock-average-calculator.html"><span>Stock Average Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Exact Age Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is FICA tax on a US paycheck?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>FICA (Federal Insurance Contributions Act)</strong> consists of two mandatory payroll taxes: <strong>6.2% for Social Security</strong> (applied on wages up to the annual IRS wage base limit of $176,100) and <strong>1.45% for Medicare</strong> (applied on all wages, plus an extra 0.9% above $200,000 for single filers). Your employer also pays a matching 7.65%.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How does contributing to a Traditional 401(k) reduce my paycheck taxes?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Traditional <code>401(k)</code> and Section 125 health insurance/HSA contributions are deducted <strong>before Federal and State income taxes are calculated</strong>. For example, if you are in the 22% federal bracket, contributing $200 per paycheck to a Traditional 401(k) reduces your federal tax withholding by $44 on that same paycheck.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. What is the difference between Bi-Weekly (26) and Semi-Monthly (24) paychecks?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Bi-Weekly</strong> pays every two weeks (52 weeks ÷ 2 = <strong>26 paychecks per year</strong>, meaning two months each year have 3 paydays). <strong>Semi-Monthly</strong> pays twice per month—usually on the 1st and 15th—resulting in <strong>24 slightly larger paychecks per year</strong>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is my salary or personal tax data sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All tax bracket calculations, FICA deductions, and net paycheck breakdowns execute 100% locally inside your web browser using JavaScript. Your income details never leave your device.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side US Paycheck & Tax Calculator Engine -->
+  <script>
+    (function () {
+      const modeTabs = document.querySelectorAll(".mode-tab");
+      const salaryBox = document.getElementById("salaryBox");
+      const hourlyBox = document.getElementById("hourlyBox");
+      const annualSalaryInput = document.getElementById("annualSalaryInput");
+      const hourlyRateInput = document.getElementById("hourlyRateInput");
+      const hoursPerWeekInput = document.getElementById("hoursPerWeekInput");
+      const payFreqSelect = document.getElementById("payFreqSelect");
+      const filingStatusSelect = document.getElementById("filingStatusSelect");
+      const stateSelect = document.getElementById("stateSelect");
+      const k401Input = document.getElementById("k401Input");
+      const medicalInput = document.getElementById("medicalInput");
+
+      const payPeriodSub = document.getElementById("payPeriodSub");
+      const netPaycheckVal = document.getElementById("netPaycheckVal");
+      const netAnnualVal = document.getElementById("netAnnualVal");
+      const takeHomePctLabel = document.getElementById("takeHomePctLabel");
+      const taxPctLabel = document.getElementById("taxPctLabel");
+      const barNet = document.getElementById("barNet");
+      const barTax = document.getElementById("barTax");
+      const barPre = document.getElementById("barPre");
+
+      const grossCheckVal = document.getElementById("grossCheckVal");
+      const preTaxCheckVal = document.getElementById("preTaxCheckVal");
+      const fedTaxCheckVal = document.getElementById("fedTaxCheckVal");
+      const ficaCheckVal = document.getElementById("ficaCheckVal");
+      const stateTaxLabel = document.getElementById("stateTaxLabel");
+      const stateTaxCheckVal = document.getElementById("stateTaxCheckVal");
+      const netCheckBottomVal = document.getElementById("netCheckBottomVal");
+
+      let payType = "salary";
+
+      // Effective state income tax approximations across all 50 US states + DC
+      const US_STATES = [
+        { code: "TX", name: "Texas (No State Tax)", rate: 0.00 },
+        { code: "FL", name: "Florida (No State Tax)", rate: 0.00 },
+        { code: "WA", name: "Washington (No State Tax)", rate: 0.00 },
+        { code: "NV", name: "Nevada (No State Tax)", rate: 0.00 },
+        { code: "TN", name: "Tennessee (No State Tax)", rate: 0.00 },
+        { code: "SD", name: "South Dakota (No State Tax)", rate: 0.00 },
+        { code: "WY", name: "Wyoming (No State Tax)", rate: 0.00 },
+        { code: "AK", name: "Alaska (No State Tax)", rate: 0.00 },
+        { code: "NH", name: "New Hampshire (No Wage Tax)", rate: 0.00 },
+        { code: "AL", name: "Alabama", rate: 0.045 },
+        { code: "AZ", name: "Arizona", rate: 0.025 },
+        { code: "AR", name: "Arkansas", rate: 0.039 },
+        { code: "CA", name: "California", rate: 0.068 },
+        { code: "CO", name: "Colorado", rate: 0.044 },
+        { code: "CT", name: "Connecticut", rate: 0.050 },
+        { code: "DE", name: "Delaware", rate: 0.052 },
+        { code: "DC", name: "District of Columbia", rate: 0.065 },
+        { code: "GA", name: "Georgia", rate: 0.0539 },
+        { code: "HI", name: "Hawaii", rate: 0.068 },
+        { code: "ID", name: "Idaho", rate: 0.0569 },
+        { code: "IL", name: "Illinois", rate: 0.0495 },
+        { code: "IN", name: "Indiana", rate: 0.0305 },
+        { code: "IA", name: "Iowa", rate: 0.038 },
+        { code: "KS", name: "Kansas", rate: 0.048 },
+        { code: "KY", name: "Kentucky", rate: 0.040 },
+        { code: "LA", name: "Louisiana", rate: 0.030 },
+        { code: "ME", name: "Maine", rate: 0.058 },
+        { code: "MD", name: "Maryland", rate: 0.0475 },
+        { code: "MA", name: "Massachusetts", rate: 0.050 },
+        { code: "MI", name: "Michigan", rate: 0.0425 },
+        { code: "MN", name: "Minnesota", rate: 0.062 },
+        { code: "MS", name: "Mississippi", rate: 0.044 },
+        { code: "MO", name: "Missouri", rate: 0.047 },
+        { code: "MT", name: "Montana", rate: 0.052 },
+        { code: "NE", name: "Nebraska", rate: 0.048 },
+        { code: "NJ", name: "New Jersey", rate: 0.052 },
+        { code: "NM", name: "New Mexico", rate: 0.045 },
+        { code: "NY", name: "New York", rate: 0.060 },
+        { code: "NC", name: "North Carolina", rate: 0.045 },
+        { code: "ND", name: "North Dakota", rate: 0.0195 },
+        { code: "OH", name: "Ohio", rate: 0.0275 },
+        { code: "OK", name: "Oklahoma", rate: 0.042 },
+        { code: "OR", name: "Oregon", rate: 0.078 },
+        { code: "PA", name: "Pennsylvania", rate: 0.0307 },
+        { code: "RI", name: "Rhode Island", rate: 0.045 },
+        { code: "SC", name: "South Carolina", rate: 0.054 },
+        { code: "UT", name: "Utah", rate: 0.0455 },
+        { code: "VT", name: "Vermont", rate: 0.055 },
+        { code: "VA", name: "Virginia", rate: 0.050 },
+        { code: "WV", name: "West Virginia", rate: 0.045 },
+        { code: "WI", name: "Wisconsin", rate: 0.048 }
+      ];
+
+      function populateStates() {
+        US_STATES.forEach((st) => {
+          const opt = document.createElement("option");
+          opt.value = st.code;
+          opt.textContent = `${st.name} (${(st.rate * 100).toFixed(2)}%)`;
+          stateSelect.appendChild(opt);
+        });
+        stateSelect.value = "CA";
+      }
+
+      function formatUSD(val) {
+        return "$" + val.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function computeFederalTax(taxableIncome, status) {
+        if (taxableIncome <= 0) return 0;
+
+        const brackets = {
+          single: [
+            { limit: 11925, rate: 0.10 },
+            { limit: 48475, rate: 0.12 },
+            { limit: 103350, rate: 0.22 },
+            { limit: 197300, rate: 0.24 },
+            { limit: 250525, rate: 0.32 },
+            { limit: 626350, rate: 0.35 },
+            { limit: Infinity, rate: 0.37 }
+          ],
+          married: [
+            { limit: 23850, rate: 0.10 },
+            { limit: 96950, rate: 0.12 },
+            { limit: 206700, rate: 0.22 },
+            { limit: 394600, rate: 0.24 },
+            { limit: 501050, rate: 0.32 },
+            { limit: 751600, rate: 0.35 },
+            { limit: Infinity, rate: 0.37 }
+          ],
+          hoh: [
+            { limit: 17000, rate: 0.10 },
+            { limit: 64850, rate: 0.12 },
+            { limit: 103350, rate: 0.22 },
+            { limit: 197300, rate: 0.24 },
+            { limit: 250500, rate: 0.32 },
+            { limit: 626350, rate: 0.35 },
+            { limit: Infinity, rate: 0.37 }
+          ]
+        };
+
+        const table = brackets[status] || brackets.single;
+        let tax = 0;
+        let prevLimit = 0;
+
+        for (let i = 0; i < table.length; i++) {
+          const b = table[i];
+          if (taxableIncome > prevLimit) {
+            const taxableInBracket = Math.min(taxableIncome, b.limit) - prevLimit;
+            tax += taxableInBracket * b.rate;
+            prevLimit = b.limit;
+          } else {
+            break;
+          }
+        }
+        return tax;
+      }
+
+      function calculatePaycheck() {
+        const periods = parseInt(payFreqSelect.value, 10) || 26;
+        const status = filingStatusSelect.value;
+        const stateObj = US_STATES.find((s) => s.code === stateSelect.value) || US_STATES[0];
+
+        let annualGross = 0;
+        if (payType === "salary") {
+          annualGross = Math.max(0, parseFloat(annualSalaryInput.value) || 0);
+        } else {
+          const hr = Math.max(0, parseFloat(hourlyRateInput.value) || 0);
+          const hrs = Math.max(0, parseFloat(hoursPerWeekInput.value) || 0);
+          annualGross = hr * hrs * 52;
+        }
+
+        const k401Pct = Math.max(0, Math.min(80, parseFloat(k401Input.value) || 0)) / 100;
+        const medicalPerCheck = Math.max(0, parseFloat(medicalInput.value) || 0);
+
+        const annual401k = annualGross * k401Pct;
+        const annualMedical = medicalPerCheck * periods;
+        const annualPreTax = Math.min(annualGross, annual401k + annualMedical);
+
+        // Standard Deduction by filing status
+        const stdDeduction = status === "married" ? 30000 : (status === "hoh" ? 22500 : 15000);
+        const fedTaxable = Math.max(0, annualGross - annualPreTax - stdDeduction);
+        const annualFedTax = computeFederalTax(fedTaxable, status);
+
+        // FICA (Social Security 6.2% up to $176,100 + Medicare 1.45% + 0.9% Addl Medicare > $200k)
+        const ficaWages = Math.max(0, annualGross - annualMedical);
+        const ssTax = Math.min(ficaWages, 176100) * 0.062;
+        const medTax = ficaWages * 0.0145 + Math.max(0, ficaWages - 200000) * 0.009;
+        const annualFica = ssTax + medTax;
+
+        // State Income Tax (on AGI after pre-tax deductions)
+        const stateTaxable = Math.max(0, annualGross - annualPreTax - (stdDeduction * 0.35));
+        const annualStateTax = stateTaxable * stateObj.rate;
+
+        const totalTaxes = annualFedTax + annualFica + annualStateTax;
+        const annualNet = Math.max(0, annualGross - annualPreTax - totalTaxes);
+
+        const grossCheck = annualGross / periods;
+        const preTaxCheck = annualPreTax / periods;
+        const fedCheck = annualFedTax / periods;
+        const ficaCheck = annualFica / periods;
+        const stateCheck = annualStateTax / periods;
+        const netCheck = annualNet / periods;
+
+        const periodNames = { 52: "Weekly", 26: "Bi-Weekly", 24: "Semi-Monthly", 12: "Monthly" };
+        payPeriodSub.textContent = `Estimated ${periodNames[periods] || "Bi-Weekly"} Net Take-Home Pay`;
+        netPaycheckVal.textContent = formatUSD(netCheck);
+
+        const effTaxPct = annualGross > 0 ? ((totalTaxes / annualGross) * 100).toFixed(1) : "0.0";
+        netAnnualVal.textContent = `Annual Take-Home: $${Math.round(annualNet).toLocaleString("en-US")} / yr (Effective Tax: ${effTaxPct}%)`;
+
+        grossCheckVal.textContent = formatUSD(grossCheck);
+        preTaxCheckVal.textContent = "-" + formatUSD(preTaxCheck);
+        fedTaxCheckVal.textContent = "-" + formatUSD(fedCheck);
+        ficaCheckVal.textContent = "-" + formatUSD(ficaCheck);
+        stateTaxLabel.textContent = `State Income Tax (${stateObj.code})`;
+        stateTaxCheckVal.textContent = "-" + formatUSD(stateCheck);
+        netCheckBottomVal.textContent = formatUSD(netCheck);
+
+        // Update Distribution Bar
+        if (annualGross > 0) {
+          const netPct = (annualNet / annualGross) * 100;
+          const taxPct = (totalTaxes / annualGross) * 100;
+          const prePct = (annualPreTax / annualGross) * 100;
+          takeHomePctLabel.textContent = `Take-Home: ${netPct.toFixed(1)}%`;
+          taxPctLabel.textContent = `Taxes: ${taxPct.toFixed(1)}% • Pre-Tax: ${prePct.toFixed(1)}%`;
+          barNet.style.width = netPct + "%";
+          barTax.style.width = taxPct + "%";
+          barPre.style.width = prePct + "%";
+        } else {
+          takeHomePctLabel.textContent = "Take-Home: 0%";
+          taxPctLabel.textContent = "Taxes: 0% • Pre-Tax: 0%";
+          barNet.style.width = "0%";
+          barTax.style.width = "0%";
+          barPre.style.width = "0%";
+        }
+      }
+
+      modeTabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          modeTabs.forEach((t) => {
+            t.classList.remove("active");
+            t.setAttribute("aria-selected", "false");
+          });
+          tab.classList.add("active");
+          tab.setAttribute("aria-selected", "true");
+          payType = tab.getAttribute("data-paytype");
+
+          salaryBox.style.display = payType === "salary" ? "flex" : "none";
+          hourlyBox.style.display = payType === "hourly" ? "grid" : "none";
+          calculatePaycheck();
+        });
+      });
+
+      [
+        annualSalaryInput,
+        hourlyRateInput,
+        hoursPerWeekInput,
+        payFreqSelect,
+        filingStatusSelect,
+        stateSelect,
+        k401Input,
+        medicalInput
+      ].forEach((el) => {
+        el.addEventListener("input", calculatePaycheck);
+        el.addEventListener("change", calculatePaycheck);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      populateStates();
+      calculatePaycheck();
+    })();
+  </script>
+</body>
+</html>

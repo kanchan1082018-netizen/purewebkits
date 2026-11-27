@@ -1,0 +1,945 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online UK PAYE Tax & National Insurance Calculator — PureWebKits</title>
+  <meta name="description" content="Estimate UK PAYE Income Tax, Employee National Insurance, pension deductions, and annual/monthly take-home pay online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/uk-paye-tax-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* UK PAYE Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .paye-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .paye-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .paye-hero-title { font-size: 16px; font-weight: 800; }
+    .paye-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .paye-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 25px;
+      font-weight: 800;
+      color: #38BDF8;
+      white-space: nowrap;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive UK PAYE Tax Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online UK PAYE Tax Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Estimate UK PAYE Income Tax, National Insurance, pension & take-home pay in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Enter gross annual salary, pension contribution, and tax region to model UK PAYE take-home pay:</div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample (£45,000)</button>
+            <button type="button" id="resetPayeBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="grossSalaryInput" class="field-label">Gross Annual Salary (£)</label>
+                <input type="number" id="grossSalaryInput" class="std-input" min="0" step="1000" value="45000" />
+              </div>
+
+              <div class="field-group">
+                <label for="taxRegionSelect" class="field-label">Income Tax Band Preset</label>
+                <select id="taxRegionSelect" class="std-select">
+                  <option value="england" selected>England / Wales / NI (Standard Bands)</option>
+                  <option value="scotland">Scotland (Scottish Income Tax Bands)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="pensionPctInput" class="field-label">Pension Contribution (%)</label>
+                <input type="number" id="pensionPctInput" class="std-input" min="0" max="80" step="0.5" value="5" />
+              </div>
+
+              <div class="field-group">
+                <label for="personalAllowanceInput" class="field-label">Personal Allowance (£)</label>
+                <input type="number" id="personalAllowanceInput" class="std-input" min="0" max="50000" step="500" value="12570" />
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="paye-hero-box">
+              <div>
+                <div class="paye-hero-kicker">Estimated Monthly Take-Home</div>
+                <div class="paye-hero-title" id="payeSummaryTitle">Net Pay After Tax & NI</div>
+                <div class="paye-hero-sub" id="payeAnnualSub">Annual net: £35,088.00</div>
+              </div>
+              <div class="paye-hero-num" id="monthlyNetDisplay">£2,924.00</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Annual Income Tax</div>
+                <div class="metric-val" id="annualIncomeTaxVal">£5,436.00</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Annual National Insurance</div>
+                <div class="metric-val" id="annualNiVal">£2,226.00</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Annual Pension Deduction</div>
+                <div class="metric-val" id="annualPensionVal">£2,250.00</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Effective Total Deduction</div>
+                <div class="metric-val" id="effectiveDedPctVal">22.0%</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyPayeBtn" class="btn-primary">Copy PAYE Summary</button>
+              <button type="button" id="downloadPayeBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to UK PAYE Income Tax, National Insurance, Personal Allowance & Take-Home Pay</h2>
+
+      <h3>How Pay As You Earn (PAYE) Works on UK Employment Income</h3>
+      <p>
+        In the United Kingdom, most employees have Income Tax and Employee National Insurance deducted automatically from their pay before they receive it under the <strong>Pay As You Earn (PAYE)</strong> system. Your take-home pay depends on your gross salary, your tax-free <strong>Personal Allowance</strong>, applicable income tax rate bands (which differ between England/Wales/Northern Ireland and Scotland), employee National Insurance thresholds and rates, and any workplace pension contributions. Because salary and deduction numbers are personal, a browser-based <strong>UK PAYE Tax Calculator</strong> computes all estimates 100% locally in your browser using JavaScript—with zero server uploads.
+      </p>
+
+      <h3>How to Estimate UK Take-Home Pay in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter Gross Salary & Tax Region:</strong> Type your gross annual salary in pounds (<code>£</code>) and choose whether to model standard England/Wales/NI bands or Scottish bands, or click <strong>Load Sample (£45,000)</strong>.</li>
+        <li><strong>Set Pension & Personal Allowance:</strong> Adjust your pension contribution percentage (<code>%</code>) and Personal Allowance (defaulting to <code>£12,570</code>, with automatic taper above <code>£100,000</code> in this model).</li>
+        <li><strong>Review Monthly & Annual Figures:</strong> Inspect monthly net pay, annual Income Tax, National Insurance, and pension totals, then click <strong>Copy PAYE Summary</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>PAYE Taxable Income & Net Pay Formula</h3>
+      <p>
+        Using gross salary <code>G</code>, pension deduction <code>P_ded</code>, tapered Personal Allowance <code>PA</code>, Income Tax <code>IT</code>, and Employee National Insurance <code>NI</code>:
+      </p>
+      <div class="formula-box">
+        Taxable Income = max(0, G − P_ded − PA)<br />
+        Annual Net Pay = G − P_ded − IT − NI  |  Monthly Net Pay = Annual Net Pay / 12
+      </div>
+
+      <h3>Helpful Notes When Reviewing UK Payslip Estimates</h3>
+      <ul>
+        <li><strong>Personal Allowance Taper Above £100,000:</strong> In standard UK rules, the Personal Allowance reduces by <code>£1</code> for every <code>£2</code> of adjusted net income above <code>£100,000</code> until reaching <code>£0</code> at <code>£125,140</code>.</li>
+        <li><strong>Pension Relief & Student Loans:</strong> Real payslips can vary depending on relief-at-source vs. net-pay pension arrangements, student loan repayment plans, taxable benefits, or mid-year tax code changes.</li>
+        <li><strong>Verify Tax Years & HMRC Codes:</strong> Tax thresholds and rates can be updated in UK budgets; verify exact figures against official HMRC guidance or your payslip.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> For a gross salary of <code>£45,000</code> (England/Wales/NI bands) with a <code>5%</code> pension contribution (<code>£2,250.00</code>) and a <code>£12,570</code> Personal Allowance, estimated annual Income Tax is <code>£5,436.00</code> and Employee National Insurance is <code>£2,226.00</code>, leaving roughly <code>£35,088.00/yr</code> (<code>£2,924.00/mo</code>) net.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="paye-table-heading">
+      <h2 id="paye-table-heading">UK PAYE Tax Bands, National Insurance & Reference Table (16 Rules)</h2>
+      <p>Use this reference table to review PAYE deduction components, Personal Allowance rules, and calculator behavior.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Component / Rule</th>
+              <th>Threshold / Rate</th>
+              <th>Role in Calculation</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Personal Allowance (PA)</strong></td>
+              <td><code>£12,570</code> standard</td>
+              <td>Tax-free income threshold</td>
+              <td>Tapers by <code>£1</code> per <code>£2</code> over <code>£100,000</code></td>
+            </tr>
+            <tr>
+              <td><strong>Basic Rate (rUK)</strong></td>
+              <td><code>20%</code></td>
+              <td>Applied up to <code>£50,270</code> gross</td>
+              <td>England, Wales & Northern Ireland</td>
+            </tr>
+            <tr>
+              <td><strong>Higher Rate (rUK)</strong></td>
+              <td><code>40%</code></td>
+              <td>Applied from <code>£50,270</code> to <code>£125,140</code></td>
+              <td>Upper band before additional rate</td>
+            </tr>
+            <tr>
+              <td><strong>Additional Rate (rUK)</strong></td>
+              <td><code>45%</code></td>
+              <td>Applied above <code>£125,140</code></td>
+              <td>Top marginal income tax band</td>
+            </tr>
+            <tr>
+              <td><strong>Scottish Bands Preset</strong></td>
+              <td>Progressive <code>19% – 48%</code></td>
+              <td>Models Scottish income tax tiers</td>
+              <td>Applies when Scotland preset is selected</td>
+            </tr>
+            <tr>
+              <td><strong>Employee NI Main Rate</strong></td>
+              <td><code>8%</code></td>
+              <td>Between <code>£12,570</code> and <code>£50,270</code></td>
+              <td>Standard Class 1 employee NI band</td>
+            </tr>
+            <tr>
+              <td><strong>Employee NI Upper Rate</strong></td>
+              <td><code>2%</code></td>
+              <td>Above <code>£50,270</code></td>
+              <td>Lower rate on earnings above upper limit</td>
+            </tr>
+            <tr>
+              <td><strong>Pension Contribution</strong></td>
+              <td>Custom <code>%</code> of gross</td>
+              <td>Deducted before tax/NI in model</td>
+              <td>Reduces taxable & NI-able base</td>
+            </tr>
+            <tr>
+              <td><strong>Annual Net Pay</strong></td>
+              <td><code>Gross − Pension − Tax − NI</code></td>
+              <td>Full-year take-home pay</td>
+              <td>Excludes student loans or benefits</td>
+            </tr>
+            <tr>
+              <td><strong>Monthly Take-Home</strong></td>
+              <td><code>Annual Net Pay / 12</code></td>
+              <td>Monthly paycheck estimate</td>
+              <td>Primary headline display</td>
+            </tr>
+            <tr>
+              <td><strong>Effective Deduction %</strong></td>
+              <td><code>((Gross − Net) / Gross) × 100</code></td>
+              <td>Overall share deducted</td>
+              <td><code>0%</code> when gross salary is <code>0</code></td>
+            </tr>
+            <tr>
+              <td><strong>Copy PAYE Summary</strong></td>
+              <td>Clipboard export</td>
+              <td>Copies full payslip estimate</td>
+              <td>One-click clipboard copy</td>
+            </tr>
+            <tr>
+              <td><strong>Download .txt</strong></td>
+              <td>File export</td>
+              <td>Saves as <code>uk-paye-estimate.txt</code></td>
+              <td>Local plain-text summary</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript PAYE Model — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — All salary and tax figures stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Your earnings data never leaves your device</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Tax, Payroll, Finance & Everyday Calculators</h2>
+      <p>Estimating sales tax, property tax, retirement savings, or percentages? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="sales-tax-calculator.html"><span>Sales Tax Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="property-tax-calculator.html"><span>Property Tax Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="retirement-savings-calculator.html"><span>Retirement Savings Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="emi-calculator.html"><span>EMI Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What happens to the Personal Allowance when gross salary exceeds £100,000?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            The Personal Allowance tapers by <code>£1</code> for every <code>£2</code> earned above <code>£100,000</code>, reaching <code>£0</code> once income above <code>£100,000</code> equals twice the starting allowance.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I switch between England/Wales/NI and Scotland tax bands?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> Select either <strong>England / Wales / NI</strong> or <strong>Scotland</strong> from the <strong>Income Tax Band Preset</strong> dropdown.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my salary or pension figures sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this UK PAYE Tax Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side UK PAYE Tax Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const grossSalaryInput = document.getElementById("grossSalaryInput");
+      const taxRegionSelect = document.getElementById("taxRegionSelect");
+      const pensionPctInput = document.getElementById("pensionPctInput");
+      const personalAllowanceInput = document.getElementById("personalAllowanceInput");
+
+      const payeSummaryTitle = document.getElementById("payeSummaryTitle");
+      const payeAnnualSub = document.getElementById("payeAnnualSub");
+      const monthlyNetDisplay = document.getElementById("monthlyNetDisplay");
+
+      const annualIncomeTaxVal = document.getElementById("annualIncomeTaxVal");
+      const annualNiVal = document.getElementById("annualNiVal");
+      const annualPensionVal = document.getElementById("annualPensionVal");
+      const effectiveDedPctVal = document.getElementById("effectiveDedPctVal");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetPayeBtn = document.getElementById("resetPayeBtn");
+      const copyPayeBtn = document.getElementById("copyPayeBtn");
+      const downloadPayeBtn = document.getElementById("downloadPayeBtn");
+
+      let latestSummaryText = "";
+
+      function fmtGbp(amt) {
+        const safe = Number.isFinite(amt) ? amt : 0;
+        return "\u00a3" + safe.toLocaleString("en-GB", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+
+      function computeProgressiveTax(taxable, region) {
+        if (taxable <= 0) return 0;
+
+        if (region === "scotland") {
+          // Progressive Scottish income tax bands above personal allowance
+          const bands = [
+            { width: 2827, rate: 0.19 },
+            { width: 12094, rate: 0.20 },
+            { width: 28067, rate: 0.42 },
+            { width: 49442, rate: 0.45 },
+            { width: Infinity, rate: 0.48 }
+          ];
+          let rem = taxable;
+          let tax = 0;
+          for (let i = 0; i < bands.length && rem > 0; i++) {
+            const slice = Math.min(rem, bands[i].width);
+            tax += slice * bands[i].rate;
+            rem -= slice;
+          }
+          return tax;
+        }
+
+        // Standard England / Wales / NI bands above personal allowance
+        // Basic up to £37,700 above allowance, Higher £37,701 to £112,570 above allowance, Additional above
+        const basicWidth = 37700;
+        const higherWidth = 74870; // 125,140 - 12,570 - 37,700
+        let rem = taxable;
+        let tax = 0;
+
+        const basicSlice = Math.min(rem, basicWidth);
+        tax += basicSlice * 0.20;
+        rem -= basicSlice;
+
+        if (rem > 0) {
+          const higherSlice = Math.min(rem, higherWidth);
+          tax += higherSlice * 0.40;
+          rem -= higherSlice;
+        }
+        if (rem > 0) {
+          tax += rem * 0.45;
+        }
+        return tax;
+      }
+
+      function computeNationalInsurance(niableEarnings) {
+        // Class 1 Employee NI thresholds: PT £12,570, UEL £50,270
+        const pt = 12570;
+        const uel = 50270;
+        if (niableEarnings <= pt) return 0;
+
+        const mainBand = Math.min(niableEarnings, uel) - pt;
+        const upperBand = Math.max(0, niableEarnings - uel);
+        return (mainBand * 0.08) + (upperBand * 0.02);
+      }
+
+      function calculateUkPaye() {
+        const gross = parseFloat(grossSalaryInput.value);
+        const region = taxRegionSelect.value;
+        const pensionPct = parseFloat(pensionPctInput.value);
+        const baseAllowance = parseFloat(personalAllowanceInput.value);
+
+        if (
+          !Number.isFinite(gross) || gross < 0 ||
+          !Number.isFinite(pensionPct) || pensionPct < 0 ||
+          !Number.isFinite(baseAllowance) || baseAllowance < 0
+        ) {
+          monthlyNetDisplay.textContent = "—";
+          payeAnnualSub.textContent = "Enter valid non-negative inputs";
+          annualIncomeTaxVal.textContent = "—";
+          annualNiVal.textContent = "—";
+          annualPensionVal.textContent = "—";
+          effectiveDedPctVal.textContent = "—";
+          latestSummaryText = "";
+          return;
+        }
+
+        const pensionDed = gross * (pensionPct / 100);
+        const adjIncome = Math.max(0, gross - pensionDed);
+
+        // Taper personal allowance by £1 for every £2 over £100,000
+        let effectiveAllowance = baseAllowance;
+        if (adjIncome > 100000) {
+          const excess = adjIncome - 100000;
+          effectiveAllowance = Math.max(0, baseAllowance - (excess / 2));
+        }
+
+        const taxableIncome = Math.max(0, adjIncome - effectiveAllowance);
+        const incomeTax = computeProgressiveTax(taxableIncome, region);
+        const nationalInsurance = computeNationalInsurance(adjIncome);
+
+        const totalDeductions = pensionDed + incomeTax + nationalInsurance;
+        const annualNet = Math.max(0, gross - totalDeductions);
+        const monthlyNet = annualNet / 12;
+        const effDedPct = gross > 0 ? (totalDeductions / gross) * 100 : 0;
+
+        payeSummaryTitle.textContent = region === "scotland" ? "Scottish PAYE Net Pay" : "Standard PAYE Net Pay";
+        payeAnnualSub.textContent = `Annual net: ${fmtGbp(annualNet)}`;
+        monthlyNetDisplay.textContent = fmtGbp(monthlyNet);
+
+        annualIncomeTaxVal.textContent = fmtGbp(incomeTax);
+        annualNiVal.textContent = fmtGbp(nationalInsurance);
+        annualPensionVal.textContent = fmtGbp(pensionDed);
+        effectiveDedPctVal.textContent = `${effDedPct.toFixed(1)}%`;
+
+        latestSummaryText = [
+          "PureWebKits UK PAYE Tax Estimate",
+          "---------------------------------",
+          `Gross Annual Salary: ${fmtGbp(gross)} | Region: ${region === "scotland" ? "Scotland" : "England / Wales / NI"}`,
+          `Pension (${pensionPct}%): ${fmtGbp(pensionDed)} | Effective Allowance: ${fmtGbp(effectiveAllowance)}`,
+          `Estimated Annual Income Tax: ${fmtGbp(incomeTax)} | National Insurance: ${fmtGbp(nationalInsurance)}`,
+          `Estimated Annual Net Pay: ${fmtGbp(annualNet)} (${fmtGbp(monthlyNet)}/month) | Total Deduction: ${effDedPct.toFixed(1)}%`
+        ].join("\n");
+      }
+
+      [grossSalaryInput, taxRegionSelect, pensionPctInput, personalAllowanceInput].forEach(function (el) {
+        el.addEventListener("input", calculateUkPaye);
+        el.addEventListener("change", calculateUkPaye);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        grossSalaryInput.value = "45000";
+        taxRegionSelect.value = "england";
+        pensionPctInput.value = "5";
+        personalAllowanceInput.value = "12570";
+        calculateUkPaye();
+      });
+
+      resetPayeBtn.addEventListener("click", function () {
+        grossSalaryInput.value = "";
+        pensionPctInput.value = "0";
+        personalAllowanceInput.value = "12570";
+        calculateUkPaye();
+      });
+
+      copyPayeBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyPayeBtn.textContent;
+          copyPayeBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyPayeBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadPayeBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "uk-paye-estimate.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateUkPaye();
+    });
+  </script>
+</body>
+</html>

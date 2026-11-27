@@ -1,0 +1,928 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UAE Gratuity Calculator Online — End of Service Benefits (UAE Labour Law) | PureWebKits</title>
+  <meta name="description" content="Free online UAE Gratuity Calculator based on UAE Federal Decree-Law No. 33 of 2021. Calculate your exact end-of-service indemnity in AED using basic salary and years of service." />
+  <link rel="canonical" href="https://PureWebKits.com/uae-gratuity-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --success-soft: #ECFDF5;
+      --warning: #D97706;
+      --warning-soft: #FFFBEB;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    .mode-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 22px;
+    }
+    .mode-tab {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      border-radius: 9px;
+      padding: 9px 16px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+    }
+    .mode-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .uae-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 26px;
+      align-items: start;
+    }
+    .inputs-col { display: flex; flex-direction: column; gap: 16px; }
+    .row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .row-3col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-group label { font-size: 13px; font-weight: 700; color: var(--text-main); }
+    .field-hint { font-size: 11.5px; color: var(--text-muted); }
+
+    .aed-wrap {
+      display: flex;
+      align-items: center;
+      height: 46px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 9px;
+      padding: 0 12px;
+      background: #FFFFFF;
+    }
+    .aed-wrap:focus-within { border-color: var(--primary); }
+    .aed-prefix { font-size: 14px; font-weight: 800; color: var(--primary); margin-right: 8px; }
+    .aed-input {
+      width: 100%;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+      background: transparent;
+    }
+
+    .std-input {
+      height: 44px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: #FFFFFF;
+      outline: none;
+      width: 100%;
+    }
+    .std-input:focus { border-color: var(--primary); }
+
+    /* Results Panel */
+    .results-col {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .gratuity-banner {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+    }
+    .grat-sub { font-size: 12.5px; font-weight: 600; opacity: 0.92; text-transform: uppercase; letter-spacing: 0.04em; }
+    .grat-val { font-size: clamp(28px, 3.6vw, 36px); font-weight: 800; margin: 4px 0; }
+    .grat-tenure-note { font-size: 13px; font-weight: 600; opacity: 0.95; }
+
+    .status-note {
+      display: none;
+      padding: 11px 14px;
+      border-radius: 9px;
+      background: var(--warning-soft);
+      border: 1px solid #FDE68A;
+      color: #92400E;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .breakdown-box {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+    .line-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      padding-bottom: 9px;
+      border-bottom: 1px dashed var(--border);
+      gap: 10px;
+    }
+    .line-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .line-label { font-weight: 600; color: var(--text-muted); }
+    .line-val { font-weight: 800; color: var(--text-main); text-align: right; }
+    .line-val.highlight { color: var(--success); font-size: 16px; }
+
+    .btn-copy {
+      background: #FFFFFF;
+      color: var(--primary);
+      border: 1.5px solid #BFDBFE;
+      border-radius: 9px;
+      padding: 10px 16px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+    }
+    .btn-copy:hover { background: var(--primary-soft); border-color: var(--primary); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 860px) {
+      .uae-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .row-2col, .row-3col { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive UAE Gratuity Calculator -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>UAE Gratuity Calculator — End of Service Benefits (AED)</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Updated for UAE Federal Decree-Law No. 33 of 2021 — zero data uploaded
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="mode-tabs" role="tablist" aria-label="Tenure Input Method">
+          <button type="button" class="mode-tab active" data-tmode="duration" role="tab" aria-selected="true">Enter Years & Months</button>
+          <button type="button" class="mode-tab" data-tmode="dates" role="tab" aria-selected="false">Select Joining & Last Working Dates</button>
+        </div>
+
+        <div class="uae-grid">
+          <!-- Inputs Column -->
+          <div class="inputs-col">
+            <div class="row-2col">
+              <div class="field-group">
+                <label for="basicSalaryInput">Monthly Basic Salary (AED)</label>
+                <div class="aed-wrap">
+                  <span class="aed-prefix">AED</span>
+                  <input type="number" id="basicSalaryInput" class="aed-input" min="0" step="100" value="10000" />
+                </div>
+                <span class="field-hint">Exclude housing, transport & food allowances</span>
+              </div>
+
+              <div class="field-group">
+                <label for="totalSalaryInput">Total Monthly Salary (Optional)</label>
+                <div class="aed-wrap">
+                  <span class="aed-prefix">AED</span>
+                  <input type="number" id="totalSalaryInput" class="aed-input" min="0" step="100" value="15000" />
+                </div>
+                <span class="field-hint">Used only to check the 2-year total wage cap</span>
+              </div>
+            </div>
+
+            <!-- Duration Inputs -->
+            <div id="durationBox" class="row-3col">
+              <div class="field-group">
+                <label for="yearsInput">Completed Years</label>
+                <input type="number" id="yearsInput" class="std-input" min="0" max="50" step="1" value="6" />
+              </div>
+              <div class="field-group">
+                <label for="monthsInput">Extra Months</label>
+                <input type="number" id="monthsInput" class="std-input" min="0" max="11" step="1" value="6" />
+              </div>
+              <div class="field-group">
+                <label for="daysInput">Extra Days</label>
+                <input type="number" id="daysInput" class="std-input" min="0" max="30" step="1" value="0" />
+              </div>
+            </div>
+
+            <!-- Date Picker Inputs -->
+            <div id="datesBox" class="row-2col" style="display:none;">
+              <div class="field-group">
+                <label for="joinDateInput">Joining Date</label>
+                <input type="date" id="joinDateInput" class="std-input" value="2020-05-01" />
+              </div>
+              <div class="field-group">
+                <label for="endDateInput">Last Working Date</label>
+                <input type="date" id="endDateInput" class="std-input" value="2026-11-01" />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="unpaidDaysInput">Unpaid Leave Days During Service (Optional)</label>
+              <input type="number" id="unpaidDaysInput" class="std-input" min="0" max="3650" step="1" value="0" />
+              <span class="field-hint">Unpaid leave days are excluded from eligible gratuity service under UAE Labour Law</span>
+            </div>
+          </div>
+
+          <!-- Results Breakdown Column -->
+          <div class="results-col" aria-live="polite">
+            <div class="gratuity-banner">
+              <div class="grat-sub">Total End-of-Service Gratuity</div>
+              <div id="totalGratuityVal" class="grat-val">AED 50,000.00</div>
+              <div id="eligibleTenureLabel" class="grat-tenure-note">Eligible Service: 6.50 Years (2,373 Days)</div>
+            </div>
+
+            <div id="statusNote" class="status-note" role="alert"></div>
+
+            <div class="breakdown-box">
+              <div class="line-item">
+                <span class="line-label">Daily Basic Wage (Basic ÷ 30)</span>
+                <span id="dailyWageVal" class="line-val">AED 333.33</span>
+              </div>
+              <div class="line-item">
+                <span class="line-label">First 5 Years (21 Days / Year)</span>
+                <span id="first5Val" class="line-val">AED 35,000.00</span>
+              </div>
+              <div class="line-item">
+                <span class="line-label">Above 5 Years (30 Days / Year)</span>
+                <span id="after5Val" class="line-val">AED 15,000.00</span>
+              </div>
+              <div class="line-item">
+                <span class="line-label"><strong>Final Payable Gratuity</strong></span>
+                <span id="finalPayableVal" class="line-val highlight">AED 50,000.00</span>
+              </div>
+            </div>
+
+            <button type="button" id="copyGratBtn" class="btn-copy">Copy Gratuity Breakdown</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How UAE End-of-Service Gratuity Calculation Works Under UAE Labour Law</h2>
+
+      <h3>Key Rules Under UAE Federal Decree-Law No. 33 of 2021</h3>
+      <p>
+        Under <strong>Article 51 of UAE Federal Decree-Law No. 33 of 2021</strong> (effective February 2022 across Dubai, Abu Dhabi, Sharjah, and all mainland private-sector employers), every full-time expatriate employee who completes at least <strong>1 full year of continuous service</strong> is entitled to an end-of-service gratuity payment upon resignation or termination. Unlike older UAE labour laws that reduced gratuity for employees who resigned early on unlimited contracts, the updated UAE Labour Law grants <strong>100% of the accrued gratuity</strong> regardless of whether the employee resigns or is terminated—provided the minimum 1-year service threshold is met.
+      </p>
+
+      <h3>How to Calculate Your UAE Gratuity in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter Monthly Basic Salary:</strong> Input only your <em>Basic Salary</em> in <code>AED</code> from your MOHRE employment contract—excluding housing, transportation, phone, or utility allowances.</li>
+        <li><strong>Enter Service Duration or Exact Dates:</strong> Type your completed years, months, and days—or switch to <em>Select Joining & Last Working Dates</em> and subtract any unpaid leave days.</li>
+        <li><strong>Review 21-Day & 30-Day Breakdown:</strong> View your daily basic wage, first 5-year indemnity (21 days/year), post-5-year indemnity (30 days/year), and statutory 2-year total wage cap check.</li>
+      </ol>
+
+      <h3>UAE Gratuity Mathematical Formula & Worked Example</h3>
+      <p>
+        MOHRE calculates daily basic wage by dividing monthly basic salary by <strong>30 calendar days</strong>, then applies two progressive tiers:
+      </p>
+      <div class="formula-box">
+        Daily Basic Wage = Monthly Basic / 30  |  Years 1–5: 21 Days/Yr  |  Years 5+: 30 Days/Yr
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Suppose an engineer in Dubai earns a <strong>Monthly Basic Salary of AED 12,000</strong> (Total package AED 18,000) and completes exactly <strong>7 years of continuous service</strong> with zero unpaid leave.</p>
+        <p>Daily Basic Wage = <code>AED 12,000 / 30 = AED 400.00 per day</code>.</p>
+        <p>First 5 Years = <code>5 × 21 days × AED 400 = AED 42,000</code>. Remaining 2 Years = <code>2 × 30 days × AED 400 = AED 24,000</code>. Total Payable Gratuity = <strong>AED 66,000.00</strong>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="uae-table-heading">
+      <h2 id="uae-table-heading">UAE Gratuity Quick Reference Chart by Basic Salary & Years of Service</h2>
+      <p>Use this benchmark table (calculated under UAE Federal Decree-Law No. 33 of 2021) to estimate end-of-service indemnity across common salary tiers.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Monthly Basic Salary (AED)</th>
+              <th>Service Duration</th>
+              <th>Gratuity Rate Applied</th>
+              <th>Estimated Payable Gratuity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>AED 5,000</strong></td>
+              <td>Less than 1 Year (e.g., 10 mo)</td>
+              <td>Not Eligible (<1 Yr)</td>
+              <td><span class="limit-badge">AED 0.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>AED 5,000</strong></td>
+              <td>2 Years</td>
+              <td>21 Days / Year</td>
+              <td><span class="limit-badge">AED 7,000.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>AED 5,000</strong></td>
+              <td>5 Years</td>
+              <td>21 Days / Year</td>
+              <td><span class="limit-badge">AED 17,500.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>AED 5,000</strong></td>
+              <td>8 Years</td>
+              <td>21 Days (5y) + 30 Days (3y)</td>
+              <td><span class="limit-badge">AED 32,500.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>AED 8,000</strong></td>
+              <td>3 Years</td>
+              <td>21 Days / Year</td>
+              <td><span class="limit-badge">AED 16,800.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>AED 8,000</strong></td>
+              <td>5 Years</td>
+              <td>21 Days / Year</td>
+              <td><span class="limit-badge">AED 28,000.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>AED 8,000</strong></td>
+              <td>10 Years</td>
+              <td>21 Days (5y) + 30 Days (5y)</td>
+              <td><span class="limit-badge">AED 68,000.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>AED 10,000</strong></td>
+              <td>1 Year</td>
+              <td>21 Days / Year</td>
+              <td><span class="limit-badge">AED 7,000.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>AED 10,000</strong></td>
+              <td>5 Years</td>
+              <td>21 Days / Year</td>
+              <td><span class="limit-badge">AED 35,000.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>AED 10,000</strong></td>
+              <td>7 Years</td>
+              <td>21 Days (5y) + 30 Days (2y)</td>
+              <td><span class="limit-badge">AED 55,000.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>AED 15,000</strong></td>
+              <td>4 Years</td>
+              <td>21 Days / Year</td>
+              <td><span class="limit-badge">AED 42,000.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>AED 15,000</strong></td>
+              <td>6 Years</td>
+              <td>21 Days (5y) + 30 Days (1y)</td>
+              <td><span class="limit-badge">AED 67,500.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>AED 20,000</strong></td>
+              <td>5 Years</td>
+              <td>21 Days / Year</td>
+              <td><span class="limit-badge">AED 70,000.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>AED 20,000</strong></td>
+              <td>10 Years</td>
+              <td>21 Days (5y) + 30 Days (5y)</td>
+              <td><span class="limit-badge">AED 170,000.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>AED 30,000</strong></td>
+              <td>5 Years</td>
+              <td>21 Days / Year</td>
+              <td><span class="limit-badge">AED 105,000.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>AED 30,000</strong></td>
+              <td>12 Years</td>
+              <td>21 Days (5y) + 30 Days (7y)</td>
+              <td><span class="limit-badge">AED 315,000.00</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Middle East, Currency & Finance Calculators</h2>
+      <p>Converting AED to INR/USD, calculating loan EMIs, or checking international payroll taxes? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter (AED)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="emi-calculator.html"><span>Loan & EMI Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="indian-gst-calculator.html"><span>Indian GST Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="us-paycheck-calculator.html"><span>US Paycheck Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="uk-vat-calculator.html"><span>UK VAT Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Exact Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="stock-average-calculator.html"><span>Stock Average Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Does resigning voluntarily reduce my UAE gratuity under the new Labour Law?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            No. Under <strong>UAE Federal Decree-Law No. 33 of 2021</strong>, the old resignation reductions (one-third or two-thirds cuts) were abolished. As long as you have completed at least <strong>1 full year of continuous service</strong>, you receive 100% of your calculated gratuity upon resignation.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Are housing and transport allowances included when calculating UAE gratuity?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            No. UAE gratuity is calculated strictly on your <strong>last drawn monthly Basic Salary</strong> stated in your MOHRE employment contract. Housing, transportation, food, and commission allowances are excluded unless explicitly stipulated otherwise in your contract.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Is there a maximum cap on total UAE end-of-service gratuity?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Yes. Under Article 51(5) of the UAE Labour Law, the total end-of-service gratuity payable to an employee cannot exceed <strong>2 years' worth of total remuneration (24 × Total Monthly Salary)</strong>, regardless of how many decades the employee worked.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my salary details or employment dates stored on any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All service-day calculations, 21-day/30-day gratuity formulas, and cap checks run 100% locally inside your web browser using JavaScript. Your salary data never leaves your device.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side UAE Gratuity Calculator Engine -->
+  <script>
+    (function () {
+      const modeTabs = document.querySelectorAll("[data-tmode]");
+      const durationBox = document.getElementById("durationBox");
+      const datesBox = document.getElementById("datesBox");
+
+      const basicSalaryInput = document.getElementById("basicSalaryInput");
+      const totalSalaryInput = document.getElementById("totalSalaryInput");
+      const yearsInput = document.getElementById("yearsInput");
+      const monthsInput = document.getElementById("monthsInput");
+      const daysInput = document.getElementById("daysInput");
+      const joinDateInput = document.getElementById("joinDateInput");
+      const endDateInput = document.getElementById("endDateInput");
+      const unpaidDaysInput = document.getElementById("unpaidDaysInput");
+
+      const totalGratuityVal = document.getElementById("totalGratuityVal");
+      const eligibleTenureLabel = document.getElementById("eligibleTenureLabel");
+      const statusNote = document.getElementById("statusNote");
+      const dailyWageVal = document.getElementById("dailyWageVal");
+      const first5Val = document.getElementById("first5Val");
+      const after5Val = document.getElementById("after5Val");
+      const finalPayableVal = document.getElementById("finalPayableVal");
+      const copyGratBtn = document.getElementById("copyGratBtn");
+
+      let tenureMode = "duration";
+
+      function formatAED(num) {
+        return "AED " + num.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+
+      function calculateGratuity() {
+        statusNote.style.display = "none";
+        statusNote.textContent = "";
+
+        const basic = Math.max(0, parseFloat(basicSalaryInput.value) || 0);
+        const totalMonthly = Math.max(basic, parseFloat(totalSalaryInput.value) || basic);
+        const unpaidDays = Math.max(0, parseInt(unpaidDaysInput.value, 10) || 0);
+
+        let totalServiceDays = 0;
+
+        if (tenureMode === "duration") {
+          const yrs = Math.max(0, parseFloat(yearsInput.value) || 0);
+          const mos = Math.max(0, parseFloat(monthsInput.value) || 0);
+          const dys = Math.max(0, parseFloat(daysInput.value) || 0);
+          totalServiceDays = Math.round(yrs * 365 + mos * (365 / 12) + dys);
+        } else {
+          const start = new Date(joinDateInput.value);
+          const end = new Date(endDateInput.value);
+          if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && end > start) {
+            totalServiceDays = Math.round((end - start) / (1000 * 60 * 60 * 24));
+          } else {
+            totalServiceDays = 0;
+          }
+        }
+
+        const eligibleDays = Math.max(0, totalServiceDays - unpaidDays);
+        const eligibleYears = eligibleDays / 365;
+        const dailyBasic = basic / 30;
+
+        dailyWageVal.textContent = formatAED(dailyBasic);
+        eligibleTenureLabel.textContent = `Eligible Service: ${eligibleYears.toFixed(2)} Years (${eligibleDays.toLocaleString("en-US")} Days)`;
+
+        if (eligibleYears < 1) {
+          totalGratuityVal.textContent = "AED 0.00";
+          first5Val.textContent = "AED 0.00";
+          after5Val.textContent = "AED 0.00";
+          finalPayableVal.textContent = "AED 0.00";
+          statusNote.textContent = "Under UAE Labour Law, employees must complete at least 1 full year (365 days) of continuous service to qualify for gratuity.";
+          statusNote.style.display = "block";
+          return;
+        }
+
+        const yearsFirst5 = Math.min(5, eligibleYears);
+        const yearsAfter5 = Math.max(0, eligibleYears - 5);
+
+        const gratuityFirst5 = yearsFirst5 * 21 * dailyBasic;
+        const gratuityAfter5 = yearsAfter5 * 30 * dailyBasic;
+        let rawTotal = gratuityFirst5 + gratuityAfter5;
+
+        const maxCap = totalMonthly * 24;
+        let finalPayable = rawTotal;
+
+        if (totalMonthly > 0 && rawTotal > maxCap) {
+          finalPayable = maxCap;
+          statusNote.textContent = `Statutory Cap Applied: Total gratuity cannot exceed 2 years of total salary (${formatAED(maxCap)}).`;
+          statusNote.style.display = "block";
+        }
+
+        totalGratuityVal.textContent = formatAED(finalPayable);
+        first5Val.textContent = formatAED(gratuityFirst5);
+        after5Val.textContent = formatAED(gratuityAfter5);
+        finalPayableVal.textContent = formatAED(finalPayable);
+      }
+
+      modeTabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          modeTabs.forEach((t) => {
+            t.classList.remove("active");
+            t.setAttribute("aria-selected", "false");
+          });
+          tab.classList.add("active");
+          tab.setAttribute("aria-selected", "true");
+          tenureMode = tab.getAttribute("data-tmode");
+
+          durationBox.style.display = tenureMode === "duration" ? "grid" : "none";
+          datesBox.style.display = tenureMode === "dates" ? "grid" : "none";
+          calculateGratuity();
+        });
+      });
+
+      [
+        basicSalaryInput,
+        totalSalaryInput,
+        yearsInput,
+        monthsInput,
+        daysInput,
+        joinDateInput,
+        endDateInput,
+        unpaidDaysInput
+      ].forEach((el) => {
+        el.addEventListener("input", calculateGratuity);
+        el.addEventListener("change", calculateGratuity);
+      });
+
+      copyGratBtn.addEventListener("click", async () => {
+        const text = `UAE Gratuity Estimate: ${totalGratuityVal.textContent} (${eligibleTenureLabel.textContent}) | First 5 Yrs: ${first5Val.textContent} | After 5 Yrs: ${after5Val.textContent}`;
+        try {
+          await navigator.clipboard.writeText(text);
+          const orig = copyGratBtn.textContent;
+          copyGratBtn.textContent = "Copied!";
+          setTimeout(() => { copyGratBtn.textContent = orig; }, 1400);
+        } catch (e) {}
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateGratuity();
+    })();
+  </script>
+</body>
+</html>

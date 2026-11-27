@@ -1,0 +1,1166 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Zodiac Sign Finder (Western Sun Sign, Vedic Rashi & Chinese Zodiac) — PureWebKits</title>
+  <meta name="description" content="Find your Western Tropical Sun Sign, Vedic Sidereal Rashi, Chinese Zodiac Animal & Element, ruling planet, birthstone, and cusp status from your birth date online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/zodiac-finder.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Zodiac Finder Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      flex-wrap: wrap;
+      gap: 2px;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 13px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    /* Quick 12-Sign Picker Grid */
+    .sign-pills-wrap {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .sign-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+    .sign-chip {
+      border: 1px solid #CBD5E1;
+      background: #FFFFFF;
+      border-radius: 7px;
+      padding: 6px 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+    .sign-chip:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+    .sign-chip.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .zod-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .zod-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .zod-hero-title { font-size: 18px; font-weight: 800; }
+    .zod-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .zod-hero-glyph {
+      font-size: 32px;
+      font-weight: 800;
+      color: #38BDF8;
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .traits-banner {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .sign-grid { grid-template-columns: repeat(3, 1fr); }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Zodiac Finder Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Zodiac Sign Finder</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Discover your Western Sun Sign, Vedic Sidereal Rashi & Chinese Zodiac Animal in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="Zodiac system highlight">
+            <button type="button" class="mode-btn active" id="westernModeBtn" data-view="western">Western Tropical Sign</button>
+            <button type="button" class="mode-btn" id="vedicModeBtn" data-view="vedic">Vedic Sidereal Rashi</button>
+            <button type="button" class="mode-btn" id="chineseModeBtn" data-view="chinese">Chinese Zodiac (12-Year)</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="todayBtn" class="btn-sec">Use Today's Date</button>
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="zodiacDobInput" class="field-label">Date of Birth</label>
+                <input type="date" id="zodiacDobInput" class="std-input" value="1996-08-18" />
+              </div>
+
+              <div class="field-group">
+                <label for="personLabelInput" class="field-label">Name (Optional)</label>
+                <input type="text" id="personLabelInput" class="std-input" placeholder="e.g., Maya" value="Maya" />
+              </div>
+            </div>
+
+            <div class="sign-pills-wrap">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="field-label">Quick Explore All 12 Signs</span>
+                <span style="font-size:11px; font-weight:700; color:var(--text-muted);" id="cuspIndicatorBadge">Core Sign Date</span>
+              </div>
+              <div class="sign-grid" id="quickSignGrid"></div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="zod-hero-box">
+              <div>
+                <div class="zod-hero-kicker" id="zodHeroKicker">Western Tropical Sun Sign</div>
+                <div class="zod-hero-title" id="zodHeroTitle">Leo (July 23 – August 22)</div>
+                <div class="zod-hero-sub" id="zodHeroSub">Fire Element • Fixed Modality • Ruled by Sun</div>
+              </div>
+              <div class="zod-hero-glyph" id="zodGlyphDisplay" aria-hidden="true">♌</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Western Sun Sign</div>
+                <div class="metric-val" id="westernSignVal">Leo (Fire • Fixed)</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Vedic Sidereal Sun Rashi</div>
+                <div class="metric-val" id="vedicRashiVal">Simha (Aug 17 – Sep 16)</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Chinese Zodiac & Element</div>
+                <div class="metric-val" id="chineseSignVal">Fire Rat (1996)</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Ruling Planet & Birthstone</div>
+                <div class="metric-val" id="planetStoneVal">Sun • Peridot</div>
+              </div>
+            </div>
+
+            <div class="traits-banner" id="zodTraitsBanner">
+              <strong>Key Traits & Compatibility:</strong> Confident, generous, creative, and warm-hearted. Most compatible with Aries, Sagittarius, Gemini, and Libra.
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyZodBtn" class="btn-primary">Copy Zodiac Profile</button>
+              <button type="button" id="downloadZodBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Western vs Vedic vs Chinese & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Western Sun Signs, Vedic Sidereal Rashis & Chinese Zodiac Cycles</h2>
+
+      <h3>Why Western Tropical, Vedic Sidereal, and Chinese Zodiac Dates Differ</h3>
+      <p>
+        When people ask for their "zodiac sign," they are usually referring to their <strong>Western Tropical Sun Sign</strong>—the <code>12</code> thirty-degree sectors of the ecliptic anchored to the Northern Hemisphere spring equinox (Aries beginning around March 21). Each Western sign belongs to one of four classical <strong>Elements</strong> (<strong>Fire</strong>, <strong>Earth</strong>, <strong>Air</strong>, or <strong>Water</strong>) and one of three <strong>Modalities</strong> (<strong>Cardinal</strong>, <strong>Fixed</strong>, or <strong>Mutable</strong>). In contrast, <strong>Vedic (Jyotish)</strong> astrology uses the <strong>Sidereal</strong> zodiac, which accounts for the ~<code>24°</code> precession of the equinoxes (Lahiri Ayanamsa)—shifting Sun-sign date boundaries back by roughly <code>23 to 24 days</code> (and placing even greater emphasis on your lunar <em>Chandra Rashi</em>). Meanwhile, the traditional <strong>Chinese Zodiac</strong> follows a <code>12-year</code> animal cycle (Rat, Ox, Tiger, Rabbit, Dragon, Snake, Horse, Goat, Monkey, Rooster, Dog, Pig) paired with a <code>5-element</code> stem cycle (Wood, Fire, Earth, Metal, Water) anchored around Lunar New Year. A browser-based <strong>Zodiac Finder</strong> computes all three systems simultaneously 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Look Up Your Zodiac Profile in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter Your Date of Birth (or Click Any of the 12 Sign Chips):</strong> Pick your birth date in <strong>Date of Birth</strong>—or click any sign button in <strong>Quick Explore All 12 Signs</strong> to inspect its dates, element, ruling planet, and compatible signs.</li>
+        <li><strong>Switch Focus Tabs:</strong> Toggle between <strong>Western Tropical Sign</strong>, <strong>Vedic Sidereal Rashi</strong>, and <strong>Chinese Zodiac (12-Year)</strong> at the top of the studio to highlight each system in the main banner.</li>
+        <li><strong>Inspect Cusp Status & Export:</strong> Check whether your birth date falls within <code>2 days</code> of a sign boundary (a zodiac cusp) and export your full multi-system profile via <strong>Copy Zodiac Profile</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Western vs. Vedic vs. Chinese Zodiac Mapping Logic</h3>
+      <p>
+        Three complementary calendar structures define the lookup:
+      </p>
+      <div class="formula-box">
+        Western Tropical: 12 Solar Date Ranges (March 21 Equinox Anchor) + 4 Elements × 3 Modalities<br />
+        Vedic Sidereal (Surya Rashi): ~24° Ayanamsa Offset  |  Chinese Zodiac: (Lunar Year − 4) mod 12
+      </div>
+
+      <h3>Helpful Tips for Exploring Zodiac & Compatibility Profiles</h3>
+      <ul>
+        <li><strong>Notice Cusp Dates Within 48 Hours of a Boundary:</strong> Because the Sun's exact ingress into a zodiac sign shifts by several hours from year to year (and around leap years), births within <code>2 days</code> of a boundary are flagged as cusp dates.</li>
+        <li><strong>Combine Sun Sign With Lunar Nakshatra & Life Path:</strong> For Vedic Moon sign compatibility, pair this tool with our <strong>Kundli Milan</strong> calculator, or check your birth-date reduction in our <strong>Numerology Number Calculator</strong>.</li>
+        <li><strong>Cultural & Self-Reflection Tool:</strong> Astrology systems are traditional symbolic frameworks for cultural study and personal reflection.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Someone born on <code>August 18, 1996</code> is a <strong>Leo</strong> in Western Tropical astrology (Fire • Fixed, ruled by the Sun, birthstone Peridot), falls under <strong>Simha (Leo)</strong> in Vedic Sidereal solar dates (<code>Aug 17 – Sep 16</code>), and belongs to the <strong>Fire Rat</strong> year in the Chinese 60-year sexagenary cycle.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="zodiac-table-heading">
+      <h2 id="zodiac-table-heading">All 12 Zodiac Signs, Date Ranges, Elements & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to check Western date ranges, Vedic Rashi names, elements, modalities, and ruling planets.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Western Sign / Vedic Rashi</th>
+              <th>Western Date Range</th>
+              <th>Element & Modality</th>
+              <th>Ruling Planet & Birthstone</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Aries (♈) / Mesha</strong></td>
+              <td>Mar 21 – Apr 19</td>
+              <td>Fire • Cardinal</td>
+              <td>Mars • Diamond / Bloodstone</td>
+            </tr>
+            <tr>
+              <td><strong>Taurus (♉) / Vrishabha</strong></td>
+              <td>Apr 20 – May 20</td>
+              <td>Earth • Fixed</td>
+              <td>Venus • Emerald</td>
+            </tr>
+            <tr>
+              <td><strong>Gemini (♊) / Mithuna</strong></td>
+              <td>May 21 – Jun 20</td>
+              <td>Air • Mutable</td>
+              <td>Mercury • Pearl / Agate</td>
+            </tr>
+            <tr>
+              <td><strong>Cancer (♋) / Karka</strong></td>
+              <td>Jun 21 – Jul 22</td>
+              <td>Water • Cardinal</td>
+              <td>Moon • Ruby</td>
+            </tr>
+            <tr>
+              <td><strong>Leo (♌) / Simha</strong></td>
+              <td>Jul 23 – Aug 22</td>
+              <td>Fire • Fixed</td>
+              <td>Sun • Peridot</td>
+            </tr>
+            <tr>
+              <td><strong>Virgo (♍) / Kanya</strong></td>
+              <td>Aug 23 – Sep 22</td>
+              <td>Earth • Mutable</td>
+              <td>Mercury • Sapphire</td>
+            </tr>
+            <tr>
+              <td><strong>Libra (♎) / Tula</strong></td>
+              <td>Sep 23 – Oct 22</td>
+              <td>Air • Cardinal</td>
+              <td>Venus • Opal / Tourmaline</td>
+            </tr>
+            <tr>
+              <td><strong>Scorpio (♏) / Vrishchika</strong></td>
+              <td>Oct 23 – Nov 21</td>
+              <td>Water • Fixed</td>
+              <td>Pluto / Mars • Topaz / Citrine</td>
+            </tr>
+            <tr>
+              <td><strong>Sagittarius (♐) / Dhanu</strong></td>
+              <td>Nov 22 – Dec 21</td>
+              <td>Fire • Mutable</td>
+              <td>Jupiter • Turquoise / Tanzanite</td>
+            </tr>
+            <tr>
+              <td><strong>Capricorn (♑) / Makara</strong></td>
+              <td>Dec 22 – Jan 19</td>
+              <td>Earth • Cardinal</td>
+              <td>Saturn • Garnet</td>
+            </tr>
+            <tr>
+              <td><strong>Aquarius (♒) / Kumbha</strong></td>
+              <td>Jan 20 – Feb 18</td>
+              <td>Air • Fixed</td>
+              <td>Uranus / Saturn • Amethyst</td>
+            </tr>
+            <tr>
+              <td><strong>Pisces (♓) / Meena</strong></td>
+              <td>Feb 19 – Mar 20</td>
+              <td>Water • Mutable</td>
+              <td>Neptune / Jupiter • Aquamarine</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Western, Vedic & Chinese Zodiac Lookup — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your birth date and name stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero personal birth dates transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Astrology, Numerology, Age & Everyday Calculators</h2>
+      <p>Calculating Numerology Life Path numbers, Vedic Kundli Milan, exact age, or spinning a wheel? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="numerology-number-calculator.html"><span>Numerology Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="kundli-milan.html"><span>Kundli Milan</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="spin-wheel.html"><span>Spin Wheel</span><span class="arrow">→</span></a>
+        <a class="related-link" href="bmi-sleep-calculator.html"><span>BMI & Sleep Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Why is my Vedic Sidereal Rashi different from my Western Zodiac sign?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Western astrology uses the seasonal <strong>Tropical</strong> zodiac anchored to the March equinox, while Vedic (Jyotish) astrology uses the star-aligned <strong>Sidereal</strong> zodiac—which differs by roughly <code>24 degrees</code> (~23–24 calendar days) due to Earth's axial precession.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How is the Chinese Zodiac Animal and Element determined?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            The Chinese zodiac rotates through <code>12</code> animal signs and <code>5</code> elements (Wood, Fire, Earth, Metal, Water) across a 60-year cycle—with the annual transition occurring on Lunar New Year (typically between January 21 and February 20).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my birth date or name sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All zodiac lookups run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Zodiac Finder free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Western, Vedic & Chinese Zodiac Finder Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const WESTERN_SIGNS = [
+        {
+          id: "aries", name: "Aries", vedic: "Mesha", glyph: "\u2648",
+          range: "March 21 \u2013 April 19", sampleDate: "1996-04-05",
+          startM: 3, startD: 21, endM: 4, endD: 19,
+          element: "Fire", modality: "Cardinal", planet: "Mars", stone: "Diamond / Bloodstone",
+          traits: "Courageous, energetic, pioneering, and decisive. Most compatible with Leo, Sagittarius, Gemini, and Aquarius."
+        },
+        {
+          id: "taurus", name: "Taurus", vedic: "Vrishabha", glyph: "\u2649",
+          range: "April 20 \u2013 May 20", sampleDate: "1996-05-05",
+          startM: 4, startD: 20, endM: 5, endD: 20,
+          element: "Earth", modality: "Fixed", planet: "Venus", stone: "Emerald",
+          traits: "Grounded, patient, loyal, and practical. Most compatible with Virgo, Capricorn, Cancer, and Pisces."
+        },
+        {
+          id: "gemini", name: "Gemini", vedic: "Mithuna", glyph: "\u264A",
+          range: "May 21 \u2013 June 20", sampleDate: "1996-06-05",
+          startM: 5, startD: 21, endM: 6, endD: 20,
+          element: "Air", modality: "Mutable", planet: "Mercury", stone: "Pearl / Agate",
+          traits: "Curious, expressive, quick-witted, and adaptable. Most compatible with Libra, Aquarius, Aries, and Leo."
+        },
+        {
+          id: "cancer", name: "Cancer", vedic: "Karka", glyph: "\u264B",
+          range: "June 21 \u2013 July 22", sampleDate: "1996-07-07",
+          startM: 6, startD: 21, endM: 7, endD: 22,
+          element: "Water", modality: "Cardinal", planet: "Moon", stone: "Ruby",
+          traits: "Intuitive, protective, empathetic, and nurturing. Most compatible with Scorpio, Pisces, Taurus, and Virgo."
+        },
+        {
+          id: "leo", name: "Leo", vedic: "Simha", glyph: "\u264C",
+          range: "July 23 \u2013 August 22", sampleDate: "1996-08-18",
+          startM: 7, startD: 23, endM: 8, endD: 22,
+          element: "Fire", modality: "Fixed", planet: "Sun", stone: "Peridot",
+          traits: "Confident, generous, creative, and warm-hearted. Most compatible with Aries, Sagittarius, Gemini, and Libra."
+        },
+        {
+          id: "virgo", name: "Virgo", vedic: "Kanya", glyph: "\u264D",
+          range: "August 23 \u2013 September 22", sampleDate: "1996-09-08",
+          startM: 8, startD: 23, endM: 9, endD: 22,
+          element: "Earth", modality: "Mutable", planet: "Mercury", stone: "Sapphire",
+          traits: "Analytical, observant, helpful, and detail-oriented. Most compatible with Taurus, Capricorn, Cancer, and Scorpio."
+        },
+        {
+          id: "libra", name: "Libra", vedic: "Tula", glyph: "\u264E",
+          range: "September 23 \u2013 October 22", sampleDate: "1996-10-08",
+          startM: 9, startD: 23, endM: 10, endD: 22,
+          element: "Air", modality: "Cardinal", planet: "Venus", stone: "Opal / Tourmaline",
+          traits: "Diplomatic, fair-minded, artistic, and cooperative. Most compatible with Gemini, Aquarius, Leo, and Sagittarius."
+        },
+        {
+          id: "scorpio", name: "Scorpio", vedic: "Vrishchika", glyph: "\u264F",
+          range: "October 23 \u2013 November 21", sampleDate: "1996-11-08",
+          startM: 10, startD: 23, endM: 11, endD: 21,
+          element: "Water", modality: "Fixed", planet: "Pluto / Mars", stone: "Topaz / Citrine",
+          traits: "Passionate, resourceful, determined, and deeply perceptive. Most compatible with Cancer, Pisces, Virgo, and Capricorn."
+        },
+        {
+          id: "sagittarius", name: "Sagittarius", vedic: "Dhanu", glyph: "\u2650",
+          range: "November 22 \u2013 December 21", sampleDate: "1996-12-08",
+          startM: 11, startD: 22, endM: 12, endD: 21,
+          element: "Fire", modality: "Mutable", planet: "Jupiter", stone: "Turquoise / Tanzanite",
+          traits: "Adventurous, philosophical, optimistic, and candid. Most compatible with Aries, Leo, Libra, and Aquarius."
+        },
+        {
+          id: "capricorn", name: "Capricorn", vedic: "Makara", glyph: "\u2651",
+          range: "December 22 \u2013 January 19", sampleDate: "1996-01-08",
+          startM: 12, startD: 22, endM: 1, endD: 19,
+          element: "Earth", modality: "Cardinal", planet: "Saturn", stone: "Garnet",
+          traits: "Disciplined, strategic, resilient, and responsible. Most compatible with Taurus, Virgo, Scorpio, and Pisces."
+        },
+        {
+          id: "aquarius", name: "Aquarius", vedic: "Kumbha", glyph: "\u2652",
+          range: "January 20 \u2013 February 18", sampleDate: "1996-02-05",
+          startM: 1, startD: 20, endM: 2, endD: 18,
+          element: "Air", modality: "Fixed", planet: "Uranus / Saturn", stone: "Amethyst",
+          traits: "Innovative, independent, humanitarian, and forward-thinking. Most compatible with Gemini, Libra, Aries, and Sagittarius."
+        },
+        {
+          id: "pisces", name: "Pisces", vedic: "Meena", glyph: "\u2653",
+          range: "February 19 \u2013 March 20", sampleDate: "1996-03-05",
+          startM: 2, startD: 19, endM: 3, endD: 20,
+          element: "Water", modality: "Mutable", planet: "Neptune / Jupiter", stone: "Aquamarine",
+          traits: "Compassionate, imaginative, intuitive, and gentle. Most compatible with Cancer, Scorpio, Taurus, and Capricorn."
+        }
+      ];
+
+      // Approximate Sidereal Surya Rashi boundaries (Lahiri Ayanamsa)
+      const VEDIC_SURYA_RASHIS = [
+        { name: "Makara (Capricorn)", range: "Jan 15 \u2013 Feb 12", start: 115, end: 212, lord: "Saturn", glyph: "\u2651" },
+        { name: "Kumbha (Aquarius)", range: "Feb 13 \u2013 Mar 14", start: 213, end: 314, lord: "Saturn", glyph: "\u2652" },
+        { name: "Meena (Pisces)", range: "Mar 15 \u2013 Apr 13", start: 315, end: 413, lord: "Jupiter", glyph: "\u2653" },
+        { name: "Mesha (Aries)", range: "Apr 14 \u2013 May 14", start: 414, end: 514, lord: "Mars", glyph: "\u2648" },
+        { name: "Vrishabha (Taurus)", range: "May 15 \u2013 Jun 14", start: 515, end: 614, lord: "Venus", glyph: "\u2649" },
+        { name: "Mithuna (Gemini)", range: "Jun 15 \u2013 Jul 16", start: 615, end: 716, lord: "Mercury", glyph: "\u264A" },
+        { name: "Karka (Cancer)", range: "Jul 17 \u2013 Aug 16", start: 717, end: 816, lord: "Moon", glyph: "\u264B" },
+        { name: "Simha (Leo)", range: "Aug 17 \u2013 Sep 16", start: 817, end: 916, lord: "Sun", glyph: "\u264C" },
+        { name: "Kanya (Virgo)", range: "Sep 17 \u2013 Oct 17", start: 917, end: 1017, lord: "Mercury", glyph: "\u264D" },
+        { name: "Tula (Libra)", range: "Oct 18 \u2013 Nov 16", start: 1018, end: 1116, lord: "Venus", glyph: "\u264E" },
+        { name: "Vrishchika (Scorpio)", range: "Nov 17 \u2013 Dec 15", start: 1117, end: 1215, lord: "Mars", glyph: "\u264F" },
+        { name: "Dhanu (Sagittarius)", range: "Dec 16 \u2013 Jan 14", start: 1216, end: 1231, lord: "Jupiter", glyph: "\u2650" }
+      ];
+
+      const CHINESE_ANIMALS = [
+        "Rat", "Ox", "Tiger", "Rabbit", "Dragon", "Snake",
+        "Horse", "Goat", "Monkey", "Rooster", "Dog", "Pig"
+      ];
+
+      const CHINESE_ELEMENTS_BY_LAST_DIGIT = {
+        0: "Metal", 1: "Metal",
+        2: "Water", 3: "Water",
+        4: "Wood", 5: "Wood",
+        6: "Fire", 7: "Fire",
+        8: "Earth", 9: "Earth"
+      };
+
+      // Approximate Lunar New Year (month*100 + day) for common birth years
+      const LUNAR_NEW_YEAR_MD = {
+        1950: 217, 1951: 206, 1952: 127, 1953: 214, 1954: 203, 1955: 124, 1956: 212, 1957: 131, 1958: 218, 1959: 208,
+        1960: 128, 1961: 215, 1962: 205, 1963: 125, 1964: 213, 1965: 202, 1966: 121, 1967: 209, 1968: 130, 1969: 217,
+        1970: 206, 1971: 127, 1972: 215, 1973: 203, 1974: 123, 1975: 211, 1976: 131, 1977: 218, 1978: 207, 1979: 128,
+        1980: 216, 1981: 205, 1982: 125, 1983: 213, 1984: 202, 1985: 220, 1986: 209, 1987: 129, 1988: 217, 1989: 206,
+        1990: 127, 1991: 215, 1992: 204, 1993: 123, 1994: 210, 1995: 131, 1996: 219, 1997: 207, 1998: 128, 1999: 216,
+        2000: 205, 2001: 124, 2002: 212, 2003: 201, 2004: 122, 2005: 209, 2006: 129, 2007: 218, 2008: 207, 2009: 126,
+        2010: 214, 2011: 203, 2012: 123, 2013: 210, 2014: 131, 2015: 219, 2016: 208, 2017: 128, 2018: 216, 2019: 205,
+        2020: 125, 2021: 212, 2022: 201, 2023: 122, 2024: 210, 2025: 129, 2026: 217, 2027: 206, 2028: 126, 2029: 213
+      };
+
+      const viewBtns = document.querySelectorAll(".mode-btn");
+      const todayBtn = document.getElementById("todayBtn");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+
+      const zodiacDobInput = document.getElementById("zodiacDobInput");
+      const personLabelInput = document.getElementById("personLabelInput");
+      const cuspIndicatorBadge = document.getElementById("cuspIndicatorBadge");
+      const quickSignGrid = document.getElementById("quickSignGrid");
+
+      const zodHeroKicker = document.getElementById("zodHeroKicker");
+      const zodHeroTitle = document.getElementById("zodHeroTitle");
+      const zodHeroSub = document.getElementById("zodHeroSub");
+      const zodGlyphDisplay = document.getElementById("zodGlyphDisplay");
+
+      const westernSignVal = document.getElementById("westernSignVal");
+      const vedicRashiVal = document.getElementById("vedicRashiVal");
+      const chineseSignVal = document.getElementById("chineseSignVal");
+      const planetStoneVal = document.getElementById("planetStoneVal");
+      const zodTraitsBanner = document.getElementById("zodTraitsBanner");
+
+      const copyZodBtn = document.getElementById("copyZodBtn");
+      const downloadZodBtn = document.getElementById("downloadZodBtn");
+
+      let focusView = "western";
+      let latestSummaryText = "";
+
+      function getWesternSign(month, day) {
+        const md = month * 100 + day;
+        if (md >= 1222 || md <= 119) return WESTERN_SIGNS[9]; // Capricorn
+        for (let i = 0; i < WESTERN_SIGNS.length; i++) {
+          const s = WESTERN_SIGNS[i];
+          if (s.id === "capricorn") continue;
+          const start = s.startM * 100 + s.startD;
+          const end = s.endM * 100 + s.endD;
+          if (md >= start && md <= end) return s;
+        }
+        return WESTERN_SIGNS[4];
+      }
+
+      function checkCuspStatus(year, month, day, currentSign) {
+        const targetUtc = Date.UTC(year, month - 1, day);
+        const startUtc = Date.UTC(year, currentSign.startM - 1, currentSign.startD);
+        const endUtc = Date.UTC(year, currentSign.endM - 1, currentSign.endD);
+        const diffStart = Math.abs(Math.round((targetUtc - startUtc) / 86400000));
+        const diffEnd = Math.abs(Math.round((endUtc - targetUtc) / 86400000));
+        if (diffStart <= 2 || diffEnd <= 2) {
+          return "Cusp Date (Within 2 Days of Boundary)";
+        }
+        return "Core Sign Date";
+      }
+
+      function getVedicSuryaRashi(month, day) {
+        const md = month * 100 + day;
+        if (md >= 1216 || md <= 114) return VEDIC_SURYA_RASHIS[11]; // Dhanu
+        for (let i = 0; i < VEDIC_SURYA_RASHIS.length - 1; i++) {
+          const r = VEDIC_SURYA_RASHIS[i];
+          if (md >= r.start && md <= r.end) return r;
+        }
+        return VEDIC_SURYA_RASHIS[7];
+      }
+
+      function getChineseZodiac(year, month, day) {
+        const lnyMd = LUNAR_NEW_YEAR_MD[year] || 205;
+        const md = month * 100 + day;
+        const lunarYear = md < lnyMd ? year - 1 : year;
+        const animalIdx = (((lunarYear - 4) % 12) + 12) % 12;
+        const animal = CHINESE_ANIMALS[animalIdx];
+        const lastDigit = Math.abs(lunarYear) % 10;
+        const element = CHINESE_ELEMENTS_BY_LAST_DIGIT[lastDigit] || "Earth";
+        return {
+          lunarYear: lunarYear,
+          animal: animal,
+          element: element,
+          label: `${element} ${animal} (${lunarYear})`
+        };
+      }
+
+      function renderQuickSignButtons(activeId) {
+        quickSignGrid.innerHTML = "";
+        WESTERN_SIGNS.forEach(function (s) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "sign-chip" + (s.id === activeId ? " active" : "");
+          btn.textContent = `${s.glyph} ${s.name}`;
+          btn.addEventListener("click", function () {
+            zodiacDobInput.value = s.sampleDate;
+            updateZodiacProfile();
+          });
+          quickSignGrid.appendChild(btn);
+        });
+      }
+
+      function updateZodiacProfile() {
+        viewBtns.forEach(function (b) {
+          b.classList.toggle("active", b.getAttribute("data-view") === focusView);
+        });
+
+        const dobStr = zodiacDobInput.value || "1996-08-18";
+        const parts = dobStr.split("-").map(Number);
+        const yr = parts[0] || 1996;
+        const mo = parts[1] || 8;
+        const dy = parts[2] || 18;
+
+        const west = getWesternSign(mo, dy);
+        const vedic = getVedicSuryaRashi(mo, dy);
+        const chinese = getChineseZodiac(yr, mo, dy);
+        const cuspStatus = checkCuspStatus(yr, mo, dy, west);
+
+        cuspIndicatorBadge.textContent = cuspStatus;
+        renderQuickSignButtons(west.id);
+
+        if (focusView === "vedic") {
+          zodHeroKicker.textContent = "Vedic Sidereal Sun Rashi (Surya Rashi)";
+          zodHeroTitle.textContent = `${vedic.name} (${vedic.range})`;
+          zodHeroSub.textContent = `Rashi Lord: ${vedic.lord} \u2022 Western Sign: ${west.name}`;
+          zodGlyphDisplay.textContent = vedic.glyph;
+        } else if (focusView === "chinese") {
+          zodHeroKicker.textContent = "Chinese 12-Year Animal & 5-Element Cycle";
+          zodHeroTitle.textContent = `${chinese.element} ${chinese.animal}`;
+          zodHeroSub.textContent = `Lunar Year ${chinese.lunarYear} \u2022 Western Sun Sign: ${west.name}`;
+          zodGlyphDisplay.textContent = "\u262F";
+        } else {
+          zodHeroKicker.textContent = "Western Tropical Sun Sign";
+          zodHeroTitle.textContent = `${west.name} (${west.range})`;
+          zodHeroSub.textContent = `${west.element} Element \u2022 ${west.modality} Modality \u2022 Ruled by ${west.planet}`;
+          zodGlyphDisplay.textContent = west.glyph;
+        }
+
+        westernSignVal.textContent = `${west.name} (${west.element} \u2022 ${west.modality})`;
+        vedicRashiVal.textContent = `${vedic.name.split(" ")[0]} (${vedic.range})`;
+        chineseSignVal.textContent = chinese.label;
+        planetStoneVal.textContent = `${west.planet} \u2022 ${west.stone}`;
+        zodTraitsBanner.innerHTML = `<strong>Key Traits & Compatibility:</strong> ${west.traits}`;
+
+        const personName = personLabelInput.value.trim();
+        const headerLine = personName
+          ? `PureWebKits Zodiac Profile — ${personName} (${dobStr})`
+          : `PureWebKits Zodiac Profile (${dobStr})`;
+
+        latestSummaryText = [
+          headerLine,
+          "----------------------------------------------",
+          `Western Sun Sign: ${west.name} (${west.range}) | ${west.element} / ${west.modality} | ${cuspStatus}`,
+          `Vedic Sidereal Sun Rashi: ${vedic.name} (${vedic.range}) | Rashi Lord: ${vedic.lord}`,
+          `Chinese Zodiac: ${chinese.label}`,
+          `Ruling Planet: ${west.planet} | Birthstone: ${west.stone}`,
+          `Traits & Compatibility: ${west.traits}`
+        ].join("\n");
+      }
+
+      viewBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          focusView = btn.getAttribute("data-view") || "western";
+          updateZodiacProfile();
+        });
+      });
+
+      zodiacDobInput.addEventListener("input", updateZodiacProfile);
+      zodiacDobInput.addEventListener("change", updateZodiacProfile);
+      personLabelInput.addEventListener("input", updateZodiacProfile);
+
+      todayBtn.addEventListener("click", function () {
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, "0");
+        const dd = String(now.getDate()).padStart(2, "0");
+        zodiacDobInput.value = `${yyyy}-${mm}-${dd}`;
+        updateZodiacProfile();
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        focusView = "western";
+        zodiacDobInput.value = "1996-08-18";
+        personLabelInput.value = "Maya";
+        updateZodiacProfile();
+      });
+
+      copyZodBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyZodBtn.textContent;
+          copyZodBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyZodBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadZodBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "zodiac-profile.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      updateZodiacProfile();
+    });
+  </script>
+</body>
+</html>

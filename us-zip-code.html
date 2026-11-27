@@ -1,0 +1,1074 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online US ZIP Code & Timezone Finder — PureWebKits</title>
+  <meta name="description" content="Look up U.S. ZIP code prefixes (3-digit SCF zones), state/territory regions, primary time zones, UTC offsets, and live local time online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/us-zip-code-timezone-finder.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* ZIP & Timezone Finder Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      align-self: flex-start;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 44px;
+      padding: 0 13px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .quick-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .zip-chip {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 7px;
+      padding: 5px 11px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .zip-chip:hover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary-dark);
+    }
+
+    .zip-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .zip-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .zip-hero-title { font-size: 17px; font-weight: 800; }
+    .zip-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .zip-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 20px;
+      font-weight: 800;
+      color: #38BDF8;
+      text-align: right;
+      white-space: nowrap;
+    }
+    .zip-hero-num.error { color: #FCA5A5; font-size: 13.5px; text-align: left; white-space: normal; }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+      word-break: break-word;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive US ZIP Code & Timezone Finder Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online US ZIP Code & Timezone Finder</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Look up U.S. 5-digit ZIP codes, 3-digit prefixes, states, time zones, and live local time
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Search by 3- or 5-digit U.S. ZIP code or browse by U.S. State / Territory:</div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample (10001)</button>
+            <button type="button" id="resetZipBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="mode-pills" role="tablist" aria-label="Lookup mode">
+              <button type="button" class="mode-btn active" id="byZipModeBtn" data-mode="zip">Lookup by ZIP Code</button>
+              <button type="button" class="mode-btn" id="byStateModeBtn" data-mode="state">Browse by State</button>
+            </div>
+
+            <div class="field-group" id="zipSearchGroup">
+              <label for="usZipInput" class="field-label">5-Digit (or 3-Digit Prefix) U.S. ZIP Code</label>
+              <input type="text" id="usZipInput" class="std-input" maxlength="10" value="10001" placeholder="e.g., 10001, 60601, 80202, 90210" autocomplete="off" />
+            </div>
+
+            <div class="field-group" id="stateSelectGroup" style="display: none;">
+              <label for="usStateSelect" class="field-label">Select U.S. State or Territory</label>
+              <select id="usStateSelect" class="std-select"></select>
+            </div>
+
+            <div class="quick-chips" aria-label="Popular sample ZIP codes">
+              <button type="button" class="zip-chip" data-zip-sample="10001">10001 (NY)</button>
+              <button type="button" class="zip-chip" data-zip-sample="33101">33101 (FL)</button>
+              <button type="button" class="zip-chip" data-zip-sample="60601">60601 (IL)</button>
+              <button type="button" class="zip-chip" data-zip-sample="75201">75201 (TX)</button>
+              <button type="button" class="zip-chip" data-zip-sample="80202">80202 (CO)</button>
+              <button type="button" class="zip-chip" data-zip-sample="90210">90210 (CA)</button>
+              <button type="button" class="zip-chip" data-zip-sample="96801">96801 (HI)</button>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="zip-hero-box">
+              <div>
+                <div class="zip-hero-kicker" id="zipHeroKicker">ZIP 10001 • Prefix 100</div>
+                <div class="zip-hero-title" id="zipStateTitle">New York (NY)</div>
+                <div class="zip-hero-sub" id="zipTzSubtitle">Eastern Time (America/New_York)</div>
+              </div>
+              <div class="zip-hero-num" id="zipLiveClockDisplay">—</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Primary Time Zone</div>
+                <div class="metric-val" id="tzNameVal">Eastern (ET)</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Standard / DST Offset</div>
+                <div class="metric-val" id="utcOffsetVal">UTC−5 / UTC−4</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">3-Digit ZIP Prefix Range</div>
+                <div class="metric-val" id="zipRangeVal">100 – 149</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Daylight Saving (DST)</div>
+                <div class="metric-val" id="dstStatusVal">Observed</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyZipBtn" class="btn-primary">Copy Result</button>
+              <button type="button" id="downloadZipBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Structure & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to U.S. ZIP Code Prefixes, State Assignments, and Time Zones</h2>
+
+      <h3>How U.S. ZIP Codes Map to States and Time Zones</h3>
+      <p>
+        Every five-digit U.S. Postal Service <strong>ZIP Code</strong> follows a structured geographic hierarchy: the first digit identifies a broad national group of states (<code>0</code> in the Northeast through <code>9</code> on the West Coast, Alaska, and Hawaii), while the first three digits identify a specific <strong>Sectional Center Facility (SCF)</strong> regional sorting area assigned to a single state or territory. Because state boundaries align closely with U.S. time zones, looking up the 3-digit prefix of any valid U.S. ZIP code immediately identifies its state/territory, primary time zone, standard and daylight saving UTC offsets, and current local time—100% locally in your browser with zero external API calls or server uploads.
+      </p>
+
+      <h3>How to Look Up a ZIP Code or State Time Zone in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Choose Lookup Mode:</strong> Stay on <strong>Lookup by ZIP Code</strong> to enter any 3- or 5-digit U.S. ZIP code (or <code>ZIP+4</code>), or switch to <strong>Browse by State</strong> to pick any U.S. state or territory.</li>
+        <li><strong>Enter a ZIP or Click a Quick Preset:</strong> Type a ZIP code like <code>10001</code>, <code>60601</code>, <code>80202</code>, or <code>90210</code>, or click one of the quick preset chips.</li>
+        <li><strong>View Live Clock & Export:</strong> Check the live local clock (computed via your browser's built-in IANA <code>Intl.DateTimeFormat</code> engine), UTC offset, and DST status, then click <strong>Copy Result</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>ZIP Prefix & Time Zone Lookup Logic</h3>
+      <p>
+        Each 5-digit ZIP code <code>DDDDD</code> extracts its 3-digit numeric prefix <code>P = parseInt(ZIP.slice(0, 3), 10)</code> and matches against U.S. 3-digit prefix blocks:
+      </p>
+      <div class="formula-box">
+        Prefix = First 3 Digits of ZIP (005 – 999) → State/Territory → Primary IANA Time Zone<br />
+        Live Local Time = Intl.DateTimeFormat("en-US", { timeZone: ianaZone }).format(new Date())
+      </div>
+
+      <h3>Helpful Notes on Split-Zone States & Daylight Saving Time</h3>
+      <ul>
+        <li><strong>Split-Timezone States:</strong> A dozen U.S. states (including Texas, Florida, Tennessee, Kentucky, Indiana, Michigan, Kansas, Nebraska, North Dakota, South Dakota, Oregon, and Idaho) span two time zones; this tool shows the primary state time zone and notes split-zone status where applicable.</li>
+        <li><strong>Arizona & Hawaii Daylight Saving Rules:</strong> Hawaii (<code>UTC−10</code>) and most of Arizona (<code>UTC−7</code>, excluding the Navajo Nation) do not observe Daylight Saving Time.</li>
+        <li><strong>Supports 3-Digit Prefixes & ZIP+4:</strong> Entering <code>100</code>, <code>10001</code>, or <code>10001-1234</code> all resolve cleanly to New York (<code>America/New_York</code>).</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Entering <code>90210</code> extracts 3-digit prefix <code>902</code>, which maps to <strong>California (CA)</strong> (prefix range <code>900–961</code>) in the <strong>Pacific Time Zone</strong> (<code>America/Los_Angeles</code>, <code>UTC−8</code> standard / <code>UTC−7</code> daylight).</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="zip-table-heading">
+      <h2 id="zip-table-heading">U.S. ZIP Code Regions & Time Zones Reference (16 Rules)</h2>
+      <p>Use this reference table to review national ZIP digit groups, major U.S. time zones, and lookup rules.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ZIP Group / Time Zone</th>
+              <th>Prefix / IANA Zone</th>
+              <th>UTC Offset (Std / DST)</th>
+              <th>Coverage / Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>ZIP Group 0</strong></td>
+              <td><code>005 – 099</code></td>
+              <td><code>UTC−5 / UTC−4</code> (<code>UTC−4</code> PR/VI)</td>
+              <td>CT, MA, ME, NH, NJ, PR, RI, VT, VI, AE</td>
+            </tr>
+            <tr>
+              <td><strong>ZIP Group 1</strong></td>
+              <td><code>100 – 199</code></td>
+              <td><code>UTC−5 / UTC−4</code></td>
+              <td>DE, NY, PA</td>
+            </tr>
+            <tr>
+              <td><strong>ZIP Group 2</strong></td>
+              <td><code>200 – 299</code></td>
+              <td><code>UTC−5 / UTC−4</code></td>
+              <td>DC, MD, NC, SC, VA, WV</td>
+            </tr>
+            <tr>
+              <td><strong>ZIP Group 3</strong></td>
+              <td><code>300 – 399</code></td>
+              <td><code>UTC−5</code> / <code>UTC−6</code></td>
+              <td>AL, FL, GA, MS, TN, AA</td>
+            </tr>
+            <tr>
+              <td><strong>ZIP Group 4</strong></td>
+              <td><code>400 – 499</code></td>
+              <td><code>UTC−5 / UTC−4</code></td>
+              <td>IN, KY, MI, OH</td>
+            </tr>
+            <tr>
+              <td><strong>ZIP Group 5</strong></td>
+              <td><code>500 – 599</code></td>
+              <td><code>UTC−6</code> / <code>UTC−7</code></td>
+              <td>IA, MN, MT, ND, SD, WI</td>
+            </tr>
+            <tr>
+              <td><strong>ZIP Group 6</strong></td>
+              <td><code>600 – 699</code></td>
+              <td><code>UTC−6 / UTC−5</code></td>
+              <td>IL, KS, MO, NE</td>
+            </tr>
+            <tr>
+              <td><strong>ZIP Group 7</strong></td>
+              <td><code>700 – 799</code></td>
+              <td><code>UTC−6 / UTC−5</code></td>
+              <td>AR, LA, OK, TX</td>
+            </tr>
+            <tr>
+              <td><strong>ZIP Group 8</strong></td>
+              <td><code>800 – 899</code></td>
+              <td><code>UTC−7</code> / <code>UTC−8</code></td>
+              <td>AZ, CO, ID, NM, NV, UT, WY</td>
+            </tr>
+            <tr>
+              <td><strong>ZIP Group 9</strong></td>
+              <td><code>900 – 999</code></td>
+              <td><code>UTC−8</code> / <code>UTC−9</code> / <code>UTC−10</code></td>
+              <td>AK, CA, HI, OR, WA, AP</td>
+            </tr>
+            <tr>
+              <td><strong>Eastern Time (ET)</strong></td>
+              <td><code>America/New_York</code></td>
+              <td><code>UTC−5</code> / <code>UTC−4</code></td>
+              <td>Observes DST</td>
+            </tr>
+            <tr>
+              <td><strong>Central Time (CT)</strong></td>
+              <td><code>America/Chicago</code></td>
+              <td><code>UTC−6</code> / <code>UTC−5</code></td>
+              <td>Observes DST</td>
+            </tr>
+            <tr>
+              <td><strong>Mountain & Pacific</strong></td>
+              <td><code>America/Denver</code> & <code>America/Los_Angeles</code></td>
+              <td><code>UTC−7/−6</code> & <code>UTC−8/−7</code></td>
+              <td>Phoenix (<code>America/Phoenix</code>) stays <code>UTC−7</code></td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Prefix Table + Native Intl TimeZone API — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — All ZIP and timezone lookups run locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Your lookups stay strictly on your device</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Date, Time, Finance & Everyday Utilities</h2>
+      <p>Calculating age, travel time, or U.S. tax estimates? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="speed-distance-time-calculator.html"><span>Speed Distance Time Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="sales-tax-calculator.html"><span>Sales Tax Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="property-tax-calculator.html"><span>Property Tax Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="social-security-retirement-estimator.html"><span>Social Security Estimator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="401k-calculator.html"><span>401(k) Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="unit-converter.html"><span>Unit Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How does this tool identify a U.S. state and time zone from a ZIP code?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            U.S. Postal Service 3-digit ZIP code prefixes (<code>005</code> through <code>999</code>) are assigned exclusively to specific U.S. states or territories, which maps directly to each state's primary time zone and live local clock.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I enter a 3-digit prefix or a 9-digit ZIP+4 code?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> Entering a 3-digit prefix (like <code>902</code>), a 5-digit ZIP (like <code>90210</code>), or a <code>ZIP+4</code> code (like <code>90210-1234</code>) resolves the exact same state and time zone.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my ZIP code searches sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All lookups and live clocks run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this US ZIP Code & Timezone Finder free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side US ZIP Code & Timezone Finder Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Complete U.S. State & Territory 3-digit ZIP prefix ranges + primary timezones
+      const STATE_DATA = [
+        { code: "PR", name: "Puerto Rico", ranges: [[6, 9]], rangeLabel: "006 – 009", tzLabel: "Atlantic (AST)", iana: "America/Puerto_Rico", utc: "UTC−4 (No DST)", dst: "Not Observed", sampleZip: "00901" },
+        { code: "MA", name: "Massachusetts", ranges: [[10, 27], [55, 55]], rangeLabel: "010 – 027, 055", tzLabel: "Eastern (ET)", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "02108" },
+        { code: "RI", name: "Rhode Island", ranges: [[28, 29]], rangeLabel: "028 – 029", tzLabel: "Eastern (ET)", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "02903" },
+        { code: "NH", name: "New Hampshire", ranges: [[30, 38]], rangeLabel: "030 – 038", tzLabel: "Eastern (ET)", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "03101" },
+        { code: "ME", name: "Maine", ranges: [[39, 49]], rangeLabel: "039 – 049", tzLabel: "Eastern (ET)", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "04101" },
+        { code: "VT", name: "Vermont", ranges: [[50, 54], [56, 59]], rangeLabel: "050 – 054, 056 – 059", tzLabel: "Eastern (ET)", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "05401" },
+        { code: "CT", name: "Connecticut", ranges: [[60, 69]], rangeLabel: "060 – 069", tzLabel: "Eastern (ET)", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "06103" },
+        { code: "NJ", name: "New Jersey", ranges: [[70, 89]], rangeLabel: "070 – 089", tzLabel: "Eastern (ET)", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "07102" },
+        { code: "VI", name: "U.S. Virgin Islands", ranges: [[8, 8]], rangeLabel: "008", tzLabel: "Atlantic (AST)", iana: "America/St_Thomas", utc: "UTC−4 (No DST)", dst: "Not Observed", sampleZip: "00802" },
+        { code: "NY", name: "New York", ranges: [[5, 5], [100, 149]], rangeLabel: "005, 100 – 149", tzLabel: "Eastern (ET)", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "10001" },
+        { code: "PA", name: "Pennsylvania", ranges: [[150, 196]], rangeLabel: "150 – 196", tzLabel: "Eastern (ET)", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "19102" },
+        { code: "DE", name: "Delaware", ranges: [[197, 199]], rangeLabel: "197 – 199", tzLabel: "Eastern (ET)", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "19801" },
+        { code: "DC", name: "District of Columbia", ranges: [[200, 200], [202, 205], [569, 569]], rangeLabel: "200, 202 – 205", tzLabel: "Eastern (ET)", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "20001" },
+        { code: "MD", name: "Maryland", ranges: [[206, 219]], rangeLabel: "206 – 219", tzLabel: "Eastern (ET)", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "21201" },
+        { code: "VA", name: "Virginia", ranges: [[201, 201], [220, 246]], rangeLabel: "201, 220 – 246", tzLabel: "Eastern (ET)", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "23219" },
+        { code: "WV", name: "West Virginia", ranges: [[247, 268]], rangeLabel: "247 – 268", tzLabel: "Eastern (ET)", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "25301" },
+        { code: "NC", name: "North Carolina", ranges: [[270, 289]], rangeLabel: "270 – 289", tzLabel: "Eastern (ET)", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "28202" },
+        { code: "SC", name: "South Carolina", ranges: [[290, 299]], rangeLabel: "290 – 299", tzLabel: "Eastern (ET)", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "29201" },
+        { code: "GA", name: "Georgia", ranges: [[300, 319], [398, 399]], rangeLabel: "300 – 319, 398 – 399", tzLabel: "Eastern (ET)", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "30301" },
+        { code: "FL", name: "Florida", ranges: [[320, 349]], rangeLabel: "320 – 349", tzLabel: "Eastern (ET) • Panhandle CT", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "33101" },
+        { code: "AL", name: "Alabama", ranges: [[350, 369]], rangeLabel: "350 – 369", tzLabel: "Central (CT)", iana: "America/Chicago", utc: "UTC−6 / UTC−5", dst: "Observed", sampleZip: "35203" },
+        { code: "TN", name: "Tennessee", ranges: [[370, 385]], rangeLabel: "370 – 385", tzLabel: "Central (CT) • East TN ET", iana: "America/Chicago", utc: "UTC−6 / UTC−5", dst: "Observed", sampleZip: "37201" },
+        { code: "MS", name: "Mississippi", ranges: [[386, 397]], rangeLabel: "386 – 397", tzLabel: "Central (CT)", iana: "America/Chicago", utc: "UTC−6 / UTC−5", dst: "Observed", sampleZip: "39201" },
+        { code: "KY", name: "Kentucky", ranges: [[400, 427]], rangeLabel: "400 – 427", tzLabel: "Eastern (ET) • West KY CT", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "40202" },
+        { code: "OH", name: "Ohio", ranges: [[430, 459]], rangeLabel: "430 – 459", tzLabel: "Eastern (ET)", iana: "America/New_York", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "43215" },
+        { code: "IN", name: "Indiana", ranges: [[460, 479]], rangeLabel: "460 – 479", tzLabel: "Eastern (ET) • NW/SW CT", iana: "America/Indiana/Indianapolis", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "46204" },
+        { code: "MI", name: "Michigan", ranges: [[480, 499]], rangeLabel: "480 – 499", tzLabel: "Eastern (ET) • West UP CT", iana: "America/Detroit", utc: "UTC−5 / UTC−4", dst: "Observed", sampleZip: "48226" },
+        { code: "IA", name: "Iowa", ranges: [[500, 528]], rangeLabel: "500 – 528", tzLabel: "Central (CT)", iana: "America/Chicago", utc: "UTC−6 / UTC−5", dst: "Observed", sampleZip: "50309" },
+        { code: "WI", name: "Wisconsin", ranges: [[530, 549]], rangeLabel: "530 – 549", tzLabel: "Central (CT)", iana: "America/Chicago", utc: "UTC−6 / UTC−5", dst: "Observed", sampleZip: "53202" },
+        { code: "MN", name: "Minnesota", ranges: [[550, 567]], rangeLabel: "550 – 567", tzLabel: "Central (CT)", iana: "America/Chicago", utc: "UTC−6 / UTC−5", dst: "Observed", sampleZip: "55401" },
+        { code: "SD", name: "South Dakota", ranges: [[570, 577]], rangeLabel: "570 – 577", tzLabel: "Central (CT) • West SD MT", iana: "America/Chicago", utc: "UTC−6 / UTC−5", dst: "Observed", sampleZip: "57104" },
+        { code: "ND", name: "North Dakota", ranges: [[580, 588]], rangeLabel: "580 – 588", tzLabel: "Central (CT) • SW ND MT", iana: "America/Chicago", utc: "UTC−6 / UTC−5", dst: "Observed", sampleZip: "58102" },
+        { code: "MT", name: "Montana", ranges: [[590, 599]], rangeLabel: "590 – 599", tzLabel: "Mountain (MT)", iana: "America/Denver", utc: "UTC−7 / UTC−6", dst: "Observed", sampleZip: "59101" },
+        { code: "IL", name: "Illinois", ranges: [[600, 629]], rangeLabel: "600 – 629", tzLabel: "Central (CT)", iana: "America/Chicago", utc: "UTC−6 / UTC−5", dst: "Observed", sampleZip: "60601" },
+        { code: "MO", name: "Missouri", ranges: [[630, 658]], rangeLabel: "630 – 658", tzLabel: "Central (CT)", iana: "America/Chicago", utc: "UTC−6 / UTC−5", dst: "Observed", sampleZip: "63101" },
+        { code: "KS", name: "Kansas", ranges: [[660, 679]], rangeLabel: "660 – 679", tzLabel: "Central (CT) • Far West MT", iana: "America/Chicago", utc: "UTC−6 / UTC−5", dst: "Observed", sampleZip: "66101" },
+        { code: "NE", name: "Nebraska", ranges: [[680, 693]], rangeLabel: "680 – 693", tzLabel: "Central (CT) • Panhandle MT", iana: "America/Chicago", utc: "UTC−6 / UTC−5", dst: "Observed", sampleZip: "68102" },
+        { code: "LA", name: "Louisiana", ranges: [[700, 714]], rangeLabel: "700 – 714", tzLabel: "Central (CT)", iana: "America/Chicago", utc: "UTC−6 / UTC−5", dst: "Observed", sampleZip: "70112" },
+        { code: "AR", name: "Arkansas", ranges: [[716, 729]], rangeLabel: "716 – 729", tzLabel: "Central (CT)", iana: "America/Chicago", utc: "UTC−6 / UTC−5", dst: "Observed", sampleZip: "72201" },
+        { code: "OK", name: "Oklahoma", ranges: [[730, 731], [734, 749]], rangeLabel: "730 – 731, 734 – 749", tzLabel: "Central (CT)", iana: "America/Chicago", utc: "UTC−6 / UTC−5", dst: "Observed", sampleZip: "73102" },
+        { code: "TX", name: "Texas", ranges: [[733, 733], [750, 799], [885, 885]], rangeLabel: "733, 750 – 799, 885", tzLabel: "Central (CT) • El Paso MT", iana: "America/Chicago", utc: "UTC−6 / UTC−5", dst: "Observed", sampleZip: "75201" },
+        { code: "CO", name: "Colorado", ranges: [[800, 816]], rangeLabel: "800 – 816", tzLabel: "Mountain (MT)", iana: "America/Denver", utc: "UTC−7 / UTC−6", dst: "Observed", sampleZip: "80202" },
+        { code: "WY", name: "Wyoming", ranges: [[820, 831]], rangeLabel: "820 – 831", tzLabel: "Mountain (MT)", iana: "America/Denver", utc: "UTC−7 / UTC−6", dst: "Observed", sampleZip: "82001" },
+        { code: "ID", name: "Idaho", ranges: [[832, 838]], rangeLabel: "832 – 838", tzLabel: "Mountain (MT) • North ID PT", iana: "America/Boise", utc: "UTC−7 / UTC−6", dst: "Observed", sampleZip: "83702" },
+        { code: "UT", name: "Utah", ranges: [[840, 847]], rangeLabel: "840 – 847", tzLabel: "Mountain (MT)", iana: "America/Denver", utc: "UTC−7 / UTC−6", dst: "Observed", sampleZip: "84101" },
+        { code: "AZ", name: "Arizona", ranges: [[850, 865]], rangeLabel: "850 – 865", tzLabel: "Mountain Standard (MST)", iana: "America/Phoenix", utc: "UTC−7 (No DST)", dst: "Not Observed (Most of AZ)", sampleZip: "85001" },
+        { code: "NM", name: "New Mexico", ranges: [[870, 884]], rangeLabel: "870 – 884", tzLabel: "Mountain (MT)", iana: "America/Denver", utc: "UTC−7 / UTC−6", dst: "Observed", sampleZip: "87101" },
+        { code: "NV", name: "Nevada", ranges: [[889, 898]], rangeLabel: "889 – 898", tzLabel: "Pacific (PT)", iana: "America/Los_Angeles", utc: "UTC−8 / UTC−7", dst: "Observed", sampleZip: "89101" },
+        { code: "CA", name: "California", ranges: [[900, 961]], rangeLabel: "900 – 961", tzLabel: "Pacific (PT)", iana: "America/Los_Angeles", utc: "UTC−8 / UTC−7", dst: "Observed", sampleZip: "90210" },
+        { code: "HI", name: "Hawaii", ranges: [[967, 968]], rangeLabel: "967 – 968", tzLabel: "Hawaii-Aleutian (HST)", iana: "Pacific/Honolulu", utc: "UTC−10 (No DST)", dst: "Not Observed", sampleZip: "96801" },
+        { code: "OR", name: "Oregon", ranges: [[970, 979]], rangeLabel: "970 – 979", tzLabel: "Pacific (PT) • Malheur MT", iana: "America/Los_Angeles", utc: "UTC−8 / UTC−7", dst: "Observed", sampleZip: "97201" },
+        { code: "WA", name: "Washington", ranges: [[980, 994]], rangeLabel: "980 – 994", tzLabel: "Pacific (PT)", iana: "America/Los_Angeles", utc: "UTC−8 / UTC−7", dst: "Observed", sampleZip: "98101" },
+        { code: "AK", name: "Alaska", ranges: [[995, 999]], rangeLabel: "995 – 999", tzLabel: "Alaska (AKT)", iana: "America/Anchorage", utc: "UTC−9 / UTC−8", dst: "Observed", sampleZip: "99501" }
+      ];
+
+      const byZipModeBtn = document.getElementById("byZipModeBtn");
+      const byStateModeBtn = document.getElementById("byStateModeBtn");
+      const zipSearchGroup = document.getElementById("zipSearchGroup");
+      const stateSelectGroup = document.getElementById("stateSelectGroup");
+      const usZipInput = document.getElementById("usZipInput");
+      const usStateSelect = document.getElementById("usStateSelect");
+
+      const zipHeroKicker = document.getElementById("zipHeroKicker");
+      const zipStateTitle = document.getElementById("zipStateTitle");
+      const zipTzSubtitle = document.getElementById("zipTzSubtitle");
+      const zipLiveClockDisplay = document.getElementById("zipLiveClockDisplay");
+
+      const tzNameVal = document.getElementById("tzNameVal");
+      const utcOffsetVal = document.getElementById("utcOffsetVal");
+      const zipRangeVal = document.getElementById("zipRangeVal");
+      const dstStatusVal = document.getElementById("dstStatusVal");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetZipBtn = document.getElementById("resetZipBtn");
+      const copyZipBtn = document.getElementById("copyZipBtn");
+      const downloadZipBtn = document.getElementById("downloadZipBtn");
+      const zipChips = document.querySelectorAll(".zip-chip");
+
+      let lookupMode = "zip";
+      let activeRecord = null;
+      let activeZipDisplay = "10001";
+      let latestSummaryText = "";
+
+      // Populate state select sorted alphabetically
+      const sortedStates = STATE_DATA.slice().sort(function (a, b) {
+        return a.name.localeCompare(b.name);
+      });
+      sortedStates.forEach(function (st) {
+        const opt = document.createElement("option");
+        opt.value = st.code;
+        opt.textContent = `${st.name} (${st.code}) — ZIP ${st.rangeLabel}`;
+        if (st.code === "NY") opt.selected = true;
+        usStateSelect.appendChild(opt);
+      });
+
+      function findStateByPrefix(prefixNum) {
+        for (let i = 0; i < STATE_DATA.length; i++) {
+          const st = STATE_DATA[i];
+          for (let j = 0; j < st.ranges.length; j++) {
+            const pair = st.ranges[j];
+            if (prefixNum >= pair[0] && prefixNum <= pair[1]) {
+              return st;
+            }
+          }
+        }
+        return null;
+      }
+
+      function formatLiveTime(ianaZone) {
+        try {
+          return new Intl.DateTimeFormat("en-US", {
+            timeZone: ianaZone,
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: true
+          }).format(new Date());
+        } catch (e) {
+          return "Local Clock";
+        }
+      }
+
+      function renderInvalid(title, sub, msg) {
+        activeRecord = null;
+        zipHeroKicker.textContent = "U.S. ZIP Lookup";
+        zipStateTitle.textContent = title;
+        zipTzSubtitle.textContent = sub;
+        zipLiveClockDisplay.className = "zip-hero-num error";
+        zipLiveClockDisplay.textContent = msg;
+        tzNameVal.textContent = "—";
+        utcOffsetVal.textContent = "—";
+        zipRangeVal.textContent = "—";
+        dstStatusVal.textContent = "—";
+        latestSummaryText = "";
+      }
+
+      function renderRecord(rec, zipLabel, prefixStr) {
+        activeRecord = rec;
+        activeZipDisplay = zipLabel;
+
+        zipHeroKicker.textContent = prefixStr ? `ZIP ${zipLabel} \u2022 Prefix ${prefixStr}` : `State Sample ZIP ${zipLabel}`;
+        zipStateTitle.textContent = `${rec.name} (${rec.code})`;
+        zipTzSubtitle.textContent = `${rec.tzLabel} (${rec.iana})`;
+        zipLiveClockDisplay.className = "zip-hero-num";
+        zipLiveClockDisplay.textContent = formatLiveTime(rec.iana);
+
+        tzNameVal.textContent = rec.tzLabel;
+        utcOffsetVal.textContent = rec.utc;
+        zipRangeVal.textContent = rec.rangeLabel;
+        dstStatusVal.textContent = rec.dst;
+
+        latestSummaryText = [
+          "PureWebKits US ZIP Code & Timezone Lookup",
+          "------------------------------------------",
+          `ZIP / Reference: ${zipLabel}${prefixStr ? ` (3-Digit Prefix: ${prefixStr})` : ""}`,
+          `State / Territory: ${rec.name} (${rec.code}) | ZIP Prefix Range: ${rec.rangeLabel}`,
+          `Time Zone: ${rec.tzLabel} (${rec.iana})`,
+          `UTC Offset: ${rec.utc} | Daylight Saving: ${rec.dst}`,
+          `Local Time at Lookup: ${formatLiveTime(rec.iana)}`
+        ].join("\n");
+      }
+
+      function performLookup() {
+        byZipModeBtn.classList.toggle("active", lookupMode === "zip");
+        byStateModeBtn.classList.toggle("active", lookupMode === "state");
+        zipSearchGroup.style.display = lookupMode === "zip" ? "flex" : "none";
+        stateSelectGroup.style.display = lookupMode === "state" ? "flex" : "none";
+
+        if (lookupMode === "state") {
+          const code = usStateSelect.value;
+          const found = STATE_DATA.find(function (s) { return s.code === code; }) || STATE_DATA[0];
+          renderRecord(found, found.sampleZip, found.sampleZip.slice(0, 3));
+          return;
+        }
+
+        const raw = String(usZipInput.value || "").trim();
+        if (!raw) {
+          renderInvalid("Enter a U.S. ZIP Code", "3-digit prefix or 5-digit ZIP", "Enter ZIP");
+          return;
+        }
+
+        const cleanMatch = raw.match(/^(\d{3})(\d{2})?(?:-\d{4})?$/);
+        if (!cleanMatch) {
+          renderInvalid("Invalid ZIP Format", "Use 3 digits (100), 5 digits (10001), or ZIP+4", "Invalid ZIP");
+          return;
+        }
+
+        const prefixStr = cleanMatch[1];
+        const prefixNum = parseInt(prefixStr, 10);
+
+        // Check military APO/FPO/DPO prefixes
+        if (prefixNum >= 90 && prefixNum <= 98) {
+          renderInvalid("APO / FPO / DPO (AE)", "Armed Forces Europe / Middle East / Africa", "Military Mail");
+          return;
+        }
+        if (prefixNum === 340) {
+          renderInvalid("APO / FPO / DPO (AA)", "Armed Forces Americas", "Military Mail");
+          return;
+        }
+        if (prefixNum >= 962 && prefixNum <= 966) {
+          renderInvalid("APO / FPO / DPO (AP)", "Armed Forces Pacific", "Military Mail");
+          return;
+        }
+
+        const foundState = findStateByPrefix(prefixNum);
+        if (!foundState) {
+          renderInvalid("Unassigned ZIP Prefix", `Prefix ${prefixStr} is not assigned to a U.S. state`, "Unassigned");
+          return;
+        }
+
+        const displayZip = cleanMatch[2] ? `${prefixStr}${cleanMatch[2]}` : `${prefixStr}xx`;
+        renderRecord(foundState, displayZip, prefixStr);
+      }
+
+      byZipModeBtn.addEventListener("click", function () { lookupMode = "zip"; performLookup(); });
+      byStateModeBtn.addEventListener("click", function () { lookupMode = "state"; performLookup(); });
+      usZipInput.addEventListener("input", performLookup);
+      usStateSelect.addEventListener("change", performLookup);
+
+      zipChips.forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          lookupMode = "zip";
+          usZipInput.value = chip.getAttribute("data-zip-sample");
+          performLookup();
+        });
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        lookupMode = "zip";
+        usZipInput.value = "10001";
+        performLookup();
+      });
+
+      resetZipBtn.addEventListener("click", function () {
+        if (lookupMode === "zip") {
+          usZipInput.value = "";
+        } else {
+          usStateSelect.value = "NY";
+        }
+        performLookup();
+      });
+
+      copyZipBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyZipBtn.textContent;
+          copyZipBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyZipBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadZipBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "us-zip-timezone-info.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Keep live clock ticking every second
+      setInterval(function () {
+        if (activeRecord && activeRecord.iana) {
+          zipLiveClockDisplay.textContent = formatLiveTime(activeRecord.iana);
+        }
+      }, 1000);
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      performLookup();
+    });
+  </script>
+</body>
+</html>

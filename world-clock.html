@@ -1,0 +1,1057 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online World Clock & Time Zone Converter — PureWebKits</title>
+  <meta name="description" content="Track real-time clocks across major global cities and convert a chosen date/time across time zones online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/world-clock.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* World Clock Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    .wc-featured-bar {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .wc-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .wc-hero-title { font-size: 16px; font-weight: 800; }
+    .wc-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .wc-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 22px;
+      font-weight: 800;
+      color: #38BDF8;
+      text-align: right;
+    }
+
+    .world-clocks-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .clock-tile {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .clock-city-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .clock-city { font-size: 13.5px; font-weight: 800; color: var(--text-main); }
+    .clock-offset {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--primary-dark);
+      background: var(--primary-soft);
+      padding: 1px 6px;
+      border-radius: 5px;
+    }
+    .clock-time-str {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .clock-date-str { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+
+    /* Converter Panel */
+    .converter-panel {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #FFFFFF;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 900px) {
+      .world-clocks-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 820px) {
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields, .world-clocks-grid { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive World Clock Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online World Clock</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Live global city clocks & instant time zone converter powered by your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="Clock display mode">
+            <button type="button" class="mode-btn active" id="liveClocksBtn" data-mode="live">Live Clocks</button>
+            <button type="button" class="mode-btn" id="convertTimeBtn" data-mode="convert">Convert Time Zone</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="syncNowBtn" class="btn-sec">Use Current Time</button>
+            <button type="button" id="resetWcBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="wc-featured-bar">
+          <div>
+            <div class="wc-hero-kicker" id="wcHeroKicker">Featured City Clock</div>
+            <div class="wc-hero-title" id="wcHeroTitle">New York (America/New_York)</div>
+            <div class="wc-hero-sub" id="wcHeroSub">Live local time & date</div>
+          </div>
+          <div class="wc-hero-num" id="wcFeaturedTimeDisplay">—</div>
+        </div>
+
+        <div class="world-clocks-grid" id="worldClocksGrid" aria-label="Global city clocks"></div>
+
+        <div class="converter-panel" id="converterPanel" style="display: none;">
+          <div class="two-col-fields">
+            <div class="field-group">
+              <label for="sourceZoneSelect" class="field-label">Source City / Time Zone</label>
+              <select id="sourceZoneSelect" class="std-select"></select>
+            </div>
+
+            <div class="field-group">
+              <label for="targetZoneSelect" class="field-label">Target City / Time Zone</label>
+              <select id="targetZoneSelect" class="std-select"></select>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="sourceDateTimeInput" class="field-label">Source Date & Time</label>
+            <input type="datetime-local" id="sourceDateTimeInput" class="std-input" />
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button type="button" id="copyWcBtn" class="btn-primary">Copy World Times</button>
+          <button type="button" id="downloadWcBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Time Zone Math & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to World Clocks, UTC Offsets, Daylight Saving Time, and Time Zone Conversion</h2>
+
+      <h3>Why Coordinating Across Time Zones Requires IANA Rules and DST Awareness</h3>
+      <p>
+        Working, traveling, or scheduling meetings across borders means accounting for differences in <strong>Coordinated Universal Time (UTC)</strong> offsets as well as seasonal shifts caused by <strong>Daylight Saving Time (DST)</strong>. Many countries and regions adjust their clocks forward or backward in spring and autumn—and not all regions shift on the same dates, while places such as India (<code>UTC+5:30</code>), Japan (<code>UTC+9</code>), and most of Arizona observe a fixed offset year-round. Using standard <strong>IANA time zone identifiers</strong> (such as <code>America/New_York</code>, <code>Europe/London</code>, <code>Asia/Kolkata</code>, and <code>Asia/Tokyo</code>) lets your browser apply historical and current DST rules automatically. A browser-based <strong>World Clock</strong> runs 100% locally in your browser using JavaScript's built-in <code>Intl.DateTimeFormat</code> engine—with zero server uploads or external clock APIs.
+      </p>
+
+      <h3>How to Track Live Cities or Convert a Meeting Time in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Track Live Global City Clocks:</strong> Stay in <strong>Live Clocks</strong> mode to watch real-time clocks update every second across major cities and pick any city in the <strong>Featured City Clock</strong> selector.</li>
+        <li><strong>Convert a Specific Date & Time:</strong> Switch to <strong>Convert Time Zone</strong>, select a <strong>Source City / Time Zone</strong>, pick a <strong>Target City / Time Zone</strong>, and choose your date and time (or click <strong>Use Current Time</strong>).</li>
+        <li><strong>Copy or Export the Schedule:</strong> Click <strong>Copy World Times</strong> to copy the formatted readout to your clipboard, or click <strong>Download .txt</strong> to save a text summary locally.</li>
+      </ol>
+
+      <h3>How UTC Offsets & Time Zone Conversion Work</h3>
+      <p>
+        Each time zone sits at an offset relative to <code>UTC</code> (including half-hour and 45-minute offsets such as <code>UTC+5:30</code> in India or <code>UTC+5:45</code> in Nepal):
+      </p>
+      <div class="formula-box">
+        Local Time = UTC Time + Zone Offset (including active DST adjustment for that date)<br />
+        Time Difference Between Zones = Target Offset − Source Offset
+      </div>
+
+      <h3>Helpful Tips for Cross-Border Scheduling</h3>
+      <ul>
+        <li><strong>Check Both Sides Around DST Transition Weeks:</strong> Spring-forward and fall-back shifts in North America and Europe happen on different Sundays, briefly changing the hour gap with fixed-offset regions.</li>
+        <li><strong>Specify Time Zone Abbreviations & Date Clearly:</strong> Always include the city or time zone alongside the hour when inviting international participants so nobody misreads midnight or noon.</li>
+        <li><strong>Use Convert Mode for Future Dates:</strong> Testing a future date in <strong>Convert Time Zone</strong> reflects the DST rule applicable on that specific calendar date.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> When it is <code>12:00 PM (Noon)</code> in <strong>London</strong> (<code>UTC+0</code> in winter / <code>BST UTC+1</code> in summer), <strong>India Standard Time (IST, UTC+5:30)</strong> is <code>5 hours 30 minutes</code> ahead (<code>5:30 PM</code> in winter or <code>4:30 PM</code> during BST), while <strong>New York (ET, UTC−5)</strong> is <code>5 hours</code> behind (<code>7:00 AM</code>).</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="wc-table-heading">
+      <h2 id="wc-table-heading">Major World Time Zones, IANA Identifiers & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to check standard offsets, IANA zone names, and clock behaviors.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>City / Region</th>
+              <th>IANA Time Zone</th>
+              <th>Standard UTC Offset</th>
+              <th>DST / Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>New York</strong></td>
+              <td><code>America/New_York</code></td>
+              <td><code>UTC−5</code> (EST)</td>
+              <td><code>UTC−4</code> (EDT) during DST</td>
+            </tr>
+            <tr>
+              <td><strong>Chicago</strong></td>
+              <td><code>America/Chicago</code></td>
+              <td><code>UTC−6</code> (CST)</td>
+              <td><code>UTC−5</code> (CDT) during DST</td>
+            </tr>
+            <tr>
+              <td><strong>Los Angeles</strong></td>
+              <td><code>America/Los_Angeles</code></td>
+              <td><code>UTC−8</code> (PST)</td>
+              <td><code>UTC−7</code> (PDT) during DST</td>
+            </tr>
+            <tr>
+              <td><strong>São Paulo</strong></td>
+              <td><code>America/Sao_Paulo</code></td>
+              <td><code>UTC−3</code> (BRT)</td>
+              <td>Fixed <code>UTC−3</code></td>
+            </tr>
+            <tr>
+              <td><strong>London</strong></td>
+              <td><code>Europe/London</code></td>
+              <td><code>UTC+0</code> (GMT)</td>
+              <td><code>UTC+1</code> (BST) during summer</td>
+            </tr>
+            <tr>
+              <td><strong>Paris / Berlin</strong></td>
+              <td><code>Europe/Paris</code> / <code>Europe/Berlin</code></td>
+              <td><code>UTC+1</code> (CET)</td>
+              <td><code>UTC+2</code> (CEST) during summer</td>
+            </tr>
+            <tr>
+              <td><strong>Dubai</strong></td>
+              <td><code>Asia/Dubai</code></td>
+              <td><code>UTC+4</code> (GST)</td>
+              <td>No DST observed</td>
+            </tr>
+            <tr>
+              <td><strong>Mumbai / New Delhi</strong></td>
+              <td><code>Asia/Kolkata</code></td>
+              <td><code>UTC+5:30</code> (IST)</td>
+              <td>Half-hour offset; no DST</td>
+            </tr>
+            <tr>
+              <td><strong>Singapore</strong></td>
+              <td><code>Asia/Singapore</code></td>
+              <td><code>UTC+8</code> (SGT)</td>
+              <td>No DST observed</td>
+            </tr>
+            <tr>
+              <td><strong>Tokyo</strong></td>
+              <td><code>Asia/Tokyo</code></td>
+              <td><code>UTC+9</code> (JST)</td>
+              <td>No DST observed</td>
+            </tr>
+            <tr>
+              <td><strong>Sydney</strong></td>
+              <td><code>Australia/Sydney</code></td>
+              <td><code>UTC+10</code> (AEST)</td>
+              <td><code>UTC+11</code> (AEDT) in summer</td>
+            </tr>
+            <tr>
+              <td><strong>Auckland</strong></td>
+              <td><code>Pacific/Auckland</code></td>
+              <td><code>UTC+12</code> (NZST)</td>
+              <td><code>UTC+13</code> (NZDT) in summer</td>
+            </tr>
+            <tr>
+              <td><strong>Live Clocks Mode</strong></td>
+              <td>1-second tick interval</td>
+              <td>Updates all city cards live</td>
+              <td>Uses browser <code>Intl.DateTimeFormat</code></td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript IANA TimeZone Engine — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — All clock ticks and conversions run locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Your time zone lookups stay strictly on your device</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Time, Date, Travel & Everyday Utilities</h2>
+      <p>Looking up U.S. ZIP time zones, calculating age, or estimating travel time? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="us-zip-code-timezone-finder.html"><span>US ZIP & Timezone Finder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="speed-distance-time-calculator.html"><span>Speed Distance Time Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="tip-calculator.html"><span>Tip & Bill Split Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="random-number.html"><span>Random Number Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How does the World Clock handle Daylight Saving Time (DST)?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            It uses IANA time zone identifiers (such as <code>America/New_York</code> and <code>Europe/London</code>) with your browser's built-in <code>Intl.DateTimeFormat</code> engine, which automatically applies DST offsets for the current or selected date.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How do I convert a specific date and time from one city to another?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Click <strong>Convert Time Zone</strong> at the top of the studio, choose your <strong>Source City / Time Zone</strong> and <strong>Target City / Time Zone</strong>, and pick your date and time in the <strong>Source Date & Time</strong> field.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my time zone selections sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All clocks and conversions run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this World Clock free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side World Clock & Time Zone Converter Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const CITIES = [
+        { id: "ny", city: "New York", iana: "America/New_York", stdLabel: "UTC\u22125" },
+        { id: "chi", city: "Chicago", iana: "America/Chicago", stdLabel: "UTC\u22126" },
+        { id: "la", city: "Los Angeles", iana: "America/Los_Angeles", stdLabel: "UTC\u22128" },
+        { id: "lon", city: "London", iana: "Europe/London", stdLabel: "UTC+0" },
+        { id: "par", city: "Paris", iana: "Europe/Paris", stdLabel: "UTC+1" },
+        { id: "dxb", city: "Dubai", iana: "Asia/Dubai", stdLabel: "UTC+4" },
+        { id: "del", city: "New Delhi / Mumbai", iana: "Asia/Kolkata", stdLabel: "UTC+5:30" },
+        { id: "sin", city: "Singapore", iana: "Asia/Singapore", stdLabel: "UTC+8" },
+        { id: "tyo", city: "Tokyo", iana: "Asia/Tokyo", stdLabel: "UTC+9" },
+        { id: "syd", city: "Sydney", iana: "Australia/Sydney", stdLabel: "UTC+10" },
+        { id: "sao", city: "S\u00e3o Paulo", iana: "America/Sao_Paulo", stdLabel: "UTC\u22123" },
+        { id: "akl", city: "Auckland", iana: "Pacific/Auckland", stdLabel: "UTC+12" }
+      ];
+
+      const liveClocksBtn = document.getElementById("liveClocksBtn");
+      const convertTimeBtn = document.getElementById("convertTimeBtn");
+      const syncNowBtn = document.getElementById("syncNowBtn");
+      const resetWcBtn = document.getElementById("resetWcBtn");
+
+      const wcHeroKicker = document.getElementById("wcHeroKicker");
+      const wcHeroTitle = document.getElementById("wcHeroTitle");
+      const wcHeroSub = document.getElementById("wcHeroSub");
+      const wcFeaturedTimeDisplay = document.getElementById("wcFeaturedTimeDisplay");
+
+      const worldClocksGrid = document.getElementById("worldClocksGrid");
+      const converterPanel = document.getElementById("converterPanel");
+      const sourceZoneSelect = document.getElementById("sourceZoneSelect");
+      const targetZoneSelect = document.getElementById("targetZoneSelect");
+      const sourceDateTimeInput = document.getElementById("sourceDateTimeInput");
+
+      const copyWcBtn = document.getElementById("copyWcBtn");
+      const downloadWcBtn = document.getElementById("downloadWcBtn");
+
+      let activeMode = "live";
+      let latestSummaryText = "";
+
+      function populateZoneSelects() {
+        CITIES.forEach(function (c) {
+          const opt1 = document.createElement("option");
+          opt1.value = c.id;
+          opt1.textContent = `${c.city} (${c.stdLabel})`;
+          if (c.id === "del") opt1.selected = true;
+          sourceZoneSelect.appendChild(opt1);
+
+          const opt2 = document.createElement("option");
+          opt2.value = c.id;
+          opt2.textContent = `${c.city} (${c.stdLabel})`;
+          if (c.id === "ny") opt2.selected = true;
+          targetZoneSelect.appendChild(opt2);
+        });
+      }
+
+      function buildClockCards() {
+        worldClocksGrid.innerHTML = "";
+        CITIES.slice(0, 8).forEach(function (c) {
+          const tile = document.createElement("div");
+          tile.className = "clock-tile";
+          tile.setAttribute("data-city-id", c.id);
+
+          const topLine = document.createElement("div");
+          topLine.className = "clock-city-line";
+
+          const citySpan = document.createElement("span");
+          citySpan.className = "clock-city";
+          citySpan.textContent = c.city;
+
+          const offSpan = document.createElement("span");
+          offSpan.className = "clock-offset";
+          offSpan.textContent = c.stdLabel;
+
+          topLine.appendChild(citySpan);
+          topLine.appendChild(offSpan);
+
+          const timeDiv = document.createElement("div");
+          timeDiv.className = "clock-time-str";
+          timeDiv.id = `wcTime_${c.id}`;
+          timeDiv.textContent = "--:--:--";
+
+          const dateDiv = document.createElement("div");
+          dateDiv.className = "clock-date-str";
+          dateDiv.id = `wcDate_${c.id}`;
+          dateDiv.textContent = "---";
+
+          tile.appendChild(topLine);
+          tile.appendChild(timeDiv);
+          tile.appendChild(dateDiv);
+          worldClocksGrid.appendChild(tile);
+        });
+      }
+
+      function formatTimeForZone(dateObj, ianaZone, includeSeconds) {
+        try {
+          return new Intl.DateTimeFormat("en-US", {
+            timeZone: ianaZone,
+            hour: "2-digit",
+            minute: "2-digit",
+            second: includeSeconds ? "2-digit" : undefined,
+            hour12: true
+          }).format(dateObj);
+        } catch (e) {
+          return "--:--";
+        }
+      }
+
+      function formatDateForZone(dateObj, ianaZone) {
+        try {
+          return new Intl.DateTimeFormat("en-US", {
+            timeZone: ianaZone,
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+            year: "numeric"
+          }).format(dateObj);
+        } catch (e) {
+          return "";
+        }
+      }
+
+      function getZoneParts(dateObj, ianaZone) {
+        const fmt = new Intl.DateTimeFormat("en-CA", {
+          timeZone: ianaZone,
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false
+        });
+        const parts = {};
+        fmt.formatToParts(dateObj).forEach(function (p) {
+          parts[p.type] = p.value;
+        });
+        return parts;
+      }
+
+      function zonedLocalToDate(dtStr, ianaZone) {
+        // Parse YYYY-MM-DDTHH:mm and find UTC instant that formats to that wall-clock in ianaZone
+        const m = String(dtStr || "").match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
+        if (!m) return null;
+        const year = parseInt(m[1], 10);
+        const month = parseInt(m[2], 10) - 1;
+        const day = parseInt(m[3], 10);
+        const hour = parseInt(m[4], 10);
+        const minute = parseInt(m[5], 10);
+
+        let utcGuess = Date.UTC(year, month, day, hour, minute, 0);
+        for (let iter = 0; iter < 3; iter++) {
+          const p = getZoneParts(new Date(utcGuess), ianaZone);
+          const actualAsUtc = Date.UTC(
+            parseInt(p.year, 10),
+            parseInt(p.month, 10) - 1,
+            parseInt(p.day, 10),
+            parseInt(p.hour, 10) % 24,
+            parseInt(p.minute, 10),
+            parseInt(p.second, 10)
+          );
+          const desiredAsUtc = Date.UTC(year, month, day, hour, minute, 0);
+          utcGuess += (desiredAsUtc - actualAsUtc);
+        }
+        return new Date(utcGuess);
+      }
+
+      function setDefaultDateTimeInput() {
+        const now = new Date();
+        const pad = function (n) { return String(n).padStart(2, "0"); };
+        sourceDateTimeInput.value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      }
+
+      function refreshWorldClock() {
+        const isLive = activeMode === "live";
+        liveClocksBtn.classList.toggle("active", isLive);
+        convertTimeBtn.classList.toggle("active", !isLive);
+        converterPanel.style.display = isLive ? "none" : "block";
+
+        const now = new Date();
+        CITIES.slice(0, 8).forEach(function (c) {
+          const tEl = document.getElementById(`wcTime_${c.id}`);
+          const dEl = document.getElementById(`wcDate_${c.id}`);
+          if (tEl) tEl.textContent = formatTimeForZone(now, c.iana, true);
+          if (dEl) dEl.textContent = formatDateForZone(now, c.iana);
+        });
+
+        if (isLive) {
+          const srcCity = CITIES.find(function (c) { return c.id === sourceZoneSelect.value; }) || CITIES[6];
+          wcHeroKicker.textContent = "Live City Clock";
+          wcHeroTitle.textContent = `${srcCity.city} (${srcCity.iana})`;
+          wcHeroSub.textContent = formatDateForZone(now, srcCity.iana);
+          wcFeaturedTimeDisplay.textContent = formatTimeForZone(now, srcCity.iana, true);
+
+          const lines = CITIES.slice(0, 8).map(function (c) {
+            return `${c.city} (${c.iana}): ${formatTimeForZone(now, c.iana, true)} \u2014 ${formatDateForZone(now, c.iana)}`;
+          });
+          latestSummaryText = [
+            "PureWebKits Live World Clock Snapshot",
+            "------------------------------------",
+            ...lines
+          ].join("\n");
+        } else {
+          const srcCity = CITIES.find(function (c) { return c.id === sourceZoneSelect.value; }) || CITIES[6];
+          const tgtCity = CITIES.find(function (c) { return c.id === targetZoneSelect.value; }) || CITIES[0];
+          const parsedDate = zonedLocalToDate(sourceDateTimeInput.value, srcCity.iana);
+
+          if (!parsedDate) {
+            wcHeroKicker.textContent = "Time Zone Conversion";
+            wcHeroTitle.textContent = `${srcCity.city} \u2192 ${tgtCity.city}`;
+            wcHeroSub.textContent = "Select a valid date and time";
+            wcFeaturedTimeDisplay.textContent = "—";
+            latestSummaryText = "";
+            return;
+          }
+
+          const srcFormatted = `${formatTimeForZone(parsedDate, srcCity.iana, false)} (${formatDateForZone(parsedDate, srcCity.iana)})`;
+          const tgtTimeStr = formatTimeForZone(parsedDate, tgtCity.iana, false);
+          const tgtDateStr = formatDateForZone(parsedDate, tgtCity.iana);
+
+          wcHeroKicker.textContent = `${srcCity.city} \u2192 ${tgtCity.city}`;
+          wcHeroTitle.textContent = `Converted Time in ${tgtCity.city}`;
+          wcHeroSub.textContent = `${tgtDateStr} \u2022 Source: ${srcFormatted}`;
+          wcFeaturedTimeDisplay.textContent = tgtTimeStr;
+
+          latestSummaryText = [
+            "PureWebKits Time Zone Conversion",
+            "---------------------------------",
+            `Source (${srcCity.city} / ${srcCity.iana}): ${srcFormatted}`,
+            `Target (${tgtCity.city} / ${tgtCity.iana}): ${tgtTimeStr} (${tgtDateStr})`
+          ].join("\n");
+        }
+      }
+
+      liveClocksBtn.addEventListener("click", function () {
+        activeMode = "live";
+        refreshWorldClock();
+      });
+
+      convertTimeBtn.addEventListener("click", function () {
+        if (!sourceDateTimeInput.value) {
+          setDefaultDateTimeInput();
+        }
+        activeMode = "convert";
+        refreshWorldClock();
+      });
+
+      syncNowBtn.addEventListener("click", function () {
+        setDefaultDateTimeInput();
+        refreshWorldClock();
+      });
+
+      resetWcBtn.addEventListener("click", function () {
+        activeMode = "live";
+        sourceZoneSelect.value = "del";
+        targetZoneSelect.value = "ny";
+        setDefaultDateTimeInput();
+        refreshWorldClock();
+      });
+
+      [sourceZoneSelect, targetZoneSelect, sourceDateTimeInput].forEach(function (el) {
+        el.addEventListener("change", refreshWorldClock);
+        el.addEventListener("input", refreshWorldClock);
+      });
+
+      copyWcBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyWcBtn.textContent;
+          copyWcBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyWcBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadWcBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "world-clock-times.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      populateZoneSelects();
+      buildClockCards();
+      setDefaultDateTimeInput();
+      refreshWorldClock();
+
+      setInterval(refreshWorldClock, 1000);
+    });
+  </script>
+</body>
+</html>

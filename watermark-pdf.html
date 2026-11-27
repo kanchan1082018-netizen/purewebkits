@@ -1,0 +1,1130 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Text or Image Watermark to PDF Online — Confidential & Draft Stamp | PureWebKits</title>
+  <meta name="description" content="Stamp custom diagonal text watermarks (CONFIDENTIAL, DRAFT) or PNG brand logos onto every page of your PDF online for free. 100% client-side in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/watermark-pdf.html" />
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1060px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Dropzone */
+    .dropzone {
+      border: 2px dashed #93C5FD;
+      background: #F8FAFC;
+      border-radius: 13px;
+      padding: 38px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .dropzone:hover, .dropzone.dragover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+    }
+    .drop-title { font-size: 16.5px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
+    .drop-sub { font-size: 13.5px; color: var(--text-muted); margin-bottom: 14px; }
+    .btn-primary {
+      display: inline-block;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 9px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .err-banner {
+      display: none;
+      margin-top: 14px;
+      padding: 12px 15px;
+      border-radius: 9px;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: var(--danger);
+      font-size: 13.5px;
+      font-weight: 700;
+    }
+
+    /* Workspace */
+    .wm-workspace { display: none; }
+    .file-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .file-badge-pill {
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 13.5px;
+      font-weight: 800;
+      padding: 7px 14px;
+      border-radius: 8px;
+    }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    /* Mode Tabs */
+    .wm-mode-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .wm-mode-btn {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 15px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+    }
+    .wm-mode-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .config-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .controls-col { display: flex; flex-direction: column; gap: 14px; }
+    .row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-group label { font-size: 12.5px; font-weight: 700; color: var(--text-main); }
+    .std-input, .std-select {
+      height: 41px;
+      padding: 0 11px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #FFFFFF;
+    }
+    .color-inp {
+      width: 100%;
+      height: 41px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 2px;
+      background: #FFFFFF;
+      cursor: pointer;
+    }
+
+    /* Live PDF Watermark Preview Sheet */
+    .preview-col {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .mock-sheet {
+      width: 214px;
+      height: 276px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+      position: relative;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+    .mock-line { height: 7px; background: #E2E8F0; border-radius: 4px; width: 100%; }
+    .mock-wm-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      padding: 12px;
+    }
+    .mock-wm-txt {
+      font-weight: 900;
+      font-size: 20px;
+      color: #DC2626;
+      opacity: 0.3;
+      transform: rotate(-35deg);
+      text-align: center;
+      white-space: nowrap;
+    }
+    .mock-wm-img {
+      max-width: 110px;
+      max-height: 110px;
+      opacity: 0.35;
+      display: none;
+    }
+
+    .btn-apply-pdf {
+      width: 100%;
+      background: var(--success);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 14.5px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .btn-apply-pdf:hover { background: #047857; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .config-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .row-2col { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Add Watermark to PDF Tool -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Add Text or Image Watermark to PDF — Confidential & Brand Stamp</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Stamp diagonal text watermarks or PNG company logos onto every PDF page locally
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Upload a PDF file to add watermark">
+          <div class="drop-title">Drag & drop a PDF document here, or click to select</div>
+          <div class="drop-sub">Stamp CONFIDENTIAL, DRAFT, COPY, or your transparent PNG logo across all pages</div>
+          <span class="btn-primary">Choose PDF File</span>
+          <input type="file" id="wmPdfInput" accept="application/pdf,.pdf" style="display:none;" />
+        </div>
+
+        <div id="errBanner" class="err-banner" role="alert"></div>
+
+        <div id="wmWorkspace" class="wm-workspace" aria-live="polite">
+          <div class="file-topbar">
+            <div id="fileBadgePill" class="file-badge-pill">document.pdf • 5 Pages</div>
+            <button type="button" id="changePdfBtn" class="btn-sec">Change PDF</button>
+          </div>
+
+          <div class="wm-mode-tabs" role="tablist" aria-label="Watermark Style">
+            <button type="button" class="wm-mode-btn active" data-pwmode="text" role="tab" aria-selected="true">Text Watermark Stamp</button>
+            <button type="button" class="wm-mode-btn" data-pwmode="image" role="tab" aria-selected="false">Logo / Stamp Image (PNG/JPG)</button>
+          </div>
+
+          <div class="config-grid">
+            <div class="controls-col">
+              <!-- Text Mode Inputs -->
+              <div id="textControlsBox" style="display:flex;flex-direction:column;gap:12px;">
+                <div class="field-group">
+                  <label for="wmTextInput">Watermark Stamp Text</label>
+                  <input type="text" id="wmTextInput" class="std-input" value="CONFIDENTIAL" placeholder="e.g. DRAFT, COPY, DO NOT DISTRIBUTE..." />
+                </div>
+
+                <div class="row-2col">
+                  <div class="field-group">
+                    <label for="wmFontSizeSelect">Font Size</label>
+                    <select id="wmFontSizeSelect" class="std-select">
+                      <option value="28">28 pt (Subtle Header/Footer)</option>
+                      <option value="44" selected>44 pt (Standard Diagonal)</option>
+                      <option value="58">58 pt (Large Page Stamp)</option>
+                      <option value="72">72 pt (Full-Page Bold)</option>
+                    </select>
+                  </div>
+
+                  <div class="field-group">
+                    <label for="wmColorInput">Stamp Color</label>
+                    <input type="color" id="wmColorInput" class="color-inp" value="#DC2626" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Image Mode Inputs -->
+              <div id="imageControlsBox" style="display:none;flex-direction:column;gap:12px;">
+                <div class="field-group">
+                  <label for="wmLogoInput">Upload Transparent PNG or JPG Logo</label>
+                  <input type="file" id="wmLogoInput" accept="image/png,image/jpeg" class="std-input" style="padding-top:7px;" />
+                </div>
+              </div>
+
+              <div class="row-2col">
+                <div class="field-group">
+                  <label for="wmLayoutSelect">Placement & Rotation</label>
+                  <select id="wmLayoutSelect" class="std-select">
+                    <option value="diagonal" selected>Diagonal Center (-35°)</option>
+                    <option value="center">Horizontal Center (0°)</option>
+                    <option value="tiled">Repeated Tiled Grid (-30°)</option>
+                    <option value="bottom-right">Bottom Right Corner</option>
+                  </select>
+                </div>
+
+                <div class="field-group">
+                  <label for="wmOpacitySelect">Transparency / Opacity</label>
+                  <select id="wmOpacitySelect" class="std-select">
+                    <option value="0.15">15% Very Light (Underlay)</option>
+                    <option value="0.28" selected>28% Balanced (Recommended)</option>
+                    <option value="0.45">45% Medium Stamp</option>
+                    <option value="0.75">75% Bold Stamp</option>
+                  </select>
+                </div>
+              </div>
+
+              <button type="button" id="applyWmPdfBtn" class="btn-apply-pdf">Apply Watermark & Download PDF</button>
+            </div>
+
+            <!-- Live Sheet Preview -->
+            <div class="preview-col">
+              <div style="font-size:12.5px;font-weight:800;text-transform:uppercase;color:var(--text-muted);">Live Page Stamp Preview</div>
+              <div class="mock-sheet">
+                <div class="mock-line" style="width:65%;"></div>
+                <div class="mock-line"></div>
+                <div class="mock-line"></div>
+                <div class="mock-line" style="width:88%;"></div>
+                <div class="mock-line"></div>
+                <div class="mock-line" style="width:76%;"></div>
+                <div class="mock-line"></div>
+
+                <div class="mock-wm-overlay">
+                  <div id="mockWmTxt" class="mock-wm-txt">CONFIDENTIAL</div>
+                  <img id="mockWmImg" class="mock-wm-img" alt="Logo Stamp Preview" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Vector PDF Watermarking, Alpha Opacity & Diagonal Page Geometry Work</h2>
+
+      <h3>Why Law Firms, Startups & Real Estate Agencies Watermark PDFs Before Sharing</h3>
+      <p>
+        Before sending unsigned contract drafts, confidential pitch decks, financial statements, or property floor plans to external recipients, stamping a semi-transparent <strong>vector text or brand logo watermark</strong> prevents unauthorized redistribution and clearly communicates document status (such as <code>CONFIDENTIAL</code>, <code>DRAFT — DO NOT FILE</code>, or <code>FOR AUDIT REVIEW ONLY</code>). Unlike tools that rasterize your entire PDF into blurry low-resolution JPEG pages just to draw a watermark, our browser-based engine uses <code>pdf-lib</code> native graphics states (<code>opacity</code> and <code>degrees()</code> rotation) to draw crisp vector text or embedded PNG/JPG logos directly onto every page—keeping underlying body text 100% sharp and searchable.
+      </p>
+
+      <h3>How to Add a Watermark to a PDF in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Upload Your PDF Document:</strong> Drop any single-page or multi-page <code>.pdf</code> file into the dropzone above—processing happens 100% locally in your browser.</li>
+        <li><strong>Configure Text or Logo Stamp:</strong> Choose <em>Text Watermark Stamp</em> (and type your label, color, and font size) or upload a transparent <em>PNG/JPG Logo</em>, then select <em>Diagonal Center</em>, <em>Repeated Tiled Grid</em>, or corner placement.</li>
+        <li><strong>Download Watermarked PDF:</strong> Click <em>Apply Watermark & Download PDF</em> to save your stamped document immediately.</li>
+      </ol>
+
+      <h3>Diagonal Bounding-Box Centering & Opacity Formula + Worked Example</h3>
+      <p>
+        When rotating a watermark string of width <code>W<sub>text</sub></code> and height <code>H<sub>text</sub></code> by angle <code>θ</code> onto a PDF page of size <code>W<sub>page</sub> × H<sub>page</sub></code>, centered origin coordinates are calculated via:
+      </p>
+      <div class="formula-box">
+        X<sub>origin</sub> = (W<sub>page</sub> / 2) − (W<sub>text</sub> / 2)·cos(θ) + (H<sub>text</sub> / 2)·sin(θ)
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Suppose you stamp <code>"CONFIDENTIAL"</code> (<code>44 pt</code> Helvetica Bold, width <code>312 pt</code>) at a <strong>-35° diagonal angle</strong> and <strong>28% opacity (<code>0.28</code>)</strong> onto a standard US Letter page (<code>612 × 792 pt</code>).</p>
+        <p>The stamp centers cleanly across the middle of the page at <code>28%</code> alpha transparency—remaining unmistakable to every reader while allowing underlying black paragraph text to stay 100% legible.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="wm-pdf-table-heading">
+      <h2 id="wm-pdf-table-heading">Corporate, Legal & Compliance PDF Watermark Presets (16 Use Cases)</h2>
+      <p>Use this document governance cheat sheet to choose the right watermark label, color, and opacity level for external PDF sharing.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Document Type</th>
+              <th>Recommended Watermark Text</th>
+              <th>Recommended Color & Layout</th>
+              <th>Ideal Opacity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Unsigned Contract / NDA Draft</strong></td>
+              <td><code>DRAFT — FOR REVIEW ONLY</code></td>
+              <td><span class="limit-badge">Red (#DC2626) • Diagonal</span></td>
+              <td>25% – 30%</td>
+            </tr>
+            <tr>
+              <td><strong>Investor Pitch Deck / Financials</strong></td>
+              <td><code>CONFIDENTIAL — [RECIPIENT]</code></td>
+              <td><span class="limit-badge">Slate (#334155) • Diagonal</span></td>
+              <td>20% – 28%</td>
+            </tr>
+            <tr>
+              <td><strong>Executed / Cancelled Agreement</strong></td>
+              <td><code>VOID / CANCELLED</code></td>
+              <td><span class="limit-badge">Crimson (#B91C1C) • Center</span></td>
+              <td>45% – 60%</td>
+            </tr>
+            <tr>
+              <td><strong>Paid Customer Invoice Receipt</strong></td>
+              <td><code>PAID IN FULL</code></td>
+              <td><span class="limit-badge">Emerald (#059669) • Diagonal</span></td>
+              <td>35% – 45%</td>
+            </tr>
+            <tr>
+              <td><strong>KYC / ID Document Copy</strong></td>
+              <td><code>COPY — FOR VERIFICATION ONLY</code></td>
+              <td><span class="limit-badge">Blue (#1D4ED8) • Tiled Grid</span></td>
+              <td>25% – 35%</td>
+            </tr>
+            <tr>
+              <td><strong>Architectural / Engineering Drawings</strong></td>
+              <td><code>PRELIMINARY — NOT FOR CONSTRUCTION</code></td>
+              <td><span class="limit-badge">Red (#DC2626) • Diagonal</span></td>
+              <td>30% – 40%</td>
+            </tr>
+            <tr>
+              <td><strong>Course Study Notes & E-Books</strong></td>
+              <td><code>© YourAcademy.com</code></td>
+              <td><span class="limit-badge">Brand Blue • Bottom Right</span></td>
+              <td>45% – 65%</td>
+            </tr>
+            <tr>
+              <td><strong>Branded Company Proposals</strong></td>
+              <td>Transparent Company PNG Logo</td>
+              <td><span class="limit-badge">Logo Mode • Center/Corner</span></td>
+              <td>15% – 25% (Watermark)</td>
+            </tr>
+            <tr>
+              <td><strong>Uncontrolled Internal SOP Copy</strong></td>
+              <td><code>UNCONTROLLED COPY WHEN PRINTED</code></td>
+              <td><span class="limit-badge">Amber/Red • Diagonal</span></td>
+              <td>25% – 35%</td>
+            </tr>
+            <tr>
+              <td><strong>Sample / Demo Quotation</strong></td>
+              <td><code>SAMPLE QUOTE — NOT VALID</code></td>
+              <td><span class="limit-badge">Slate (#475569) • Diagonal</span></td>
+              <td>30% – 40%</td>
+            </tr>
+            <tr>
+              <td><strong>Vector Text Sharpness</strong></td>
+              <td>Native PDF Font Glyphs</td>
+              <td>Zero Pixelation at 400% Zoom</td>
+              <td>Preserves searchable text</td>
+            </tr>
+            <tr>
+              <td><strong>Supported Logo Formats</strong></td>
+              <td>24-bit RGBA PNG & JPEG</td>
+              <td>Embedded via <code>pdf-lib</code></td>
+              <td>Preserves PNG alpha channel</td>
+            </tr>
+            <tr>
+              <td><strong>Multi-Page Batch Stamping</strong></td>
+              <td>Applies to All Pages (1..N)</td>
+              <td>Adapts to Portrait & Landscape</td>
+              <td>Processes 50+ pages in < 1 sec</td>
+            </tr>
+            <tr>
+              <td><strong>Repeated Tiled Grid Protection</strong></td>
+              <td>Multi-Row Diagonal Matrix</td>
+              <td>Harder to crop out</td>
+              <td>Best for sensitive ID/legal scans</td>
+            </tr>
+            <tr>
+              <td><strong>File Size Impact</strong></td>
+              <td>~2 KB – 15 KB Total</td>
+              <td>Single Shared Font/Image Object</td>
+              <td>Reuses resource across all pages</td>
+            </tr>
+            <tr>
+              <td><strong>Confidential Document Privacy</strong></td>
+              <td>100% Browser Memory</td>
+              <td><span class="limit-badge">Zero Server Upload</span></td>
+              <td>Private contracts stay on your PC</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related PDF Security, Numbering & Document Tools</h2>
+      <p>Need to add sequential Bates numbers, password-protect a confidential PDF, merge exhibits, or compress file size? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="add-page-numbers-pdf.html"><span>Add Page / Bates Numbers</span><span class="arrow">→</span></a>
+        <a class="related-link" href="merge-pdf.html"><span>Merge PDF Files</span><span class="arrow">→</span></a>
+        <a class="related-link" href="organize-pdf-pages.html"><span>Reorder / Delete Pages</span><span class="arrow">→</span></a>
+        <a class="related-link" href="split-pdf.html"><span>Split PDF Pages</span><span class="arrow">→</span></a>
+        <a class="related-link" href="rotate-pdf.html"><span>Rotate PDF Pages</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compress-pdf.html"><span>Compress PDF Size</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-watermark.html"><span>Bulk Image Watermark</span><span class="arrow">→</span></a>
+        <a class="related-link" href="invoice-generator.html"><span>PDF Invoice Generator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Will adding a diagonal watermark hide or block the text underneath it?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            No. By default, our tool applies a <strong>28% opacity (<code>0.28</code> alpha)</strong> setting so the watermark stamp is clearly visible across the page while keeping every paragraph, table number, and signature underneath 100% readable.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I stamp my company's transparent PNG logo onto every page of a PDF?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Yes! Click the <strong>Logo / Stamp Image (PNG/JPG)</strong> tab, upload your transparent <code>.PNG</code> logo, choose <em>Diagonal Center</em>, <em>Horizontal Center</em>, or <em>Bottom Right Corner</em>, and download your branded PDF.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Does watermarking a 50-page PDF make the file size 50 times larger?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            No. Because <code>pdf-lib</code> embeds the watermark font or logo image once as a shared PDF XObject resource and references it across all pages, adding a watermark adds only a few kilobytes to the entire document.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my confidential PDFs or company logos uploaded to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All PDF parsing and watermark stamping run 100% locally inside your web browser. Your confidential contracts and financial files never leave your computer.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side PDF Text & Logo Watermark Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const dropzone = document.getElementById("dropzone");
+      const wmPdfInput = document.getElementById("wmPdfInput");
+      const errBanner = document.getElementById("errBanner");
+      const wmWorkspace = document.getElementById("wmWorkspace");
+      const fileBadgePill = document.getElementById("fileBadgePill");
+      const changePdfBtn = document.getElementById("changePdfBtn");
+
+      const wmModeBtns = document.querySelectorAll(".wm-mode-btn");
+      const textControlsBox = document.getElementById("textControlsBox");
+      const imageControlsBox = document.getElementById("imageControlsBox");
+
+      const wmTextInput = document.getElementById("wmTextInput");
+      const wmFontSizeSelect = document.getElementById("wmFontSizeSelect");
+      const wmColorInput = document.getElementById("wmColorInput");
+      const wmLogoInput = document.getElementById("wmLogoInput");
+      const wmLayoutSelect = document.getElementById("wmLayoutSelect");
+      const wmOpacitySelect = document.getElementById("wmOpacitySelect");
+      const applyWmPdfBtn = document.getElementById("applyWmPdfBtn");
+
+      const mockWmTxt = document.getElementById("mockWmTxt");
+      const mockWmImg = document.getElementById("mockWmImg");
+
+      let currentPdfBuffer = null;
+      let baseFileName = "document";
+      let wmMode = "text"; // "text" or "image"
+      let logoBytes = null;
+      let logoMime = "";
+
+      function showErr(msg) {
+        errBanner.textContent = msg;
+        errBanner.style.display = "block";
+      }
+
+      function hideErr() {
+        errBanner.style.display = "none";
+      }
+
+      function hexToRgbNorm(hex) {
+        const clean = (hex || "#DC2626").replace("#", "");
+        return {
+          r: (parseInt(clean.slice(0, 2), 16) || 0) / 255,
+          g: (parseInt(clean.slice(2, 4), 16) || 0) / 255,
+          b: (parseInt(clean.slice(4, 6), 16) || 0) / 255
+        };
+      }
+
+      function updatePreview() {
+        const opacity = parseFloat(wmOpacitySelect.value) || 0.28;
+        const layout = wmLayoutSelect.value;
+
+        if (wmMode === "image" && logoBytes) {
+          mockWmTxt.style.display = "none";
+          mockWmImg.style.display = "block";
+          mockWmImg.style.opacity = String(opacity);
+          mockWmImg.style.transform = layout === "diagonal" ? "rotate(-30deg)" : "none";
+        } else {
+          mockWmImg.style.display = "none";
+          mockWmTxt.style.display = "block";
+          mockWmTxt.textContent = (wmTextInput.value || "CONFIDENTIAL").trim();
+          mockWmTxt.style.color = wmColorInput.value || "#DC2626";
+          mockWmTxt.style.opacity = String(opacity);
+          mockWmTxt.style.transform = (layout === "diagonal" || layout === "tiled") ? "rotate(-35deg)" : "none";
+        }
+      }
+
+      wmModeBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          wmModeBtns.forEach(function (b) {
+            b.classList.remove("active");
+            b.setAttribute("aria-selected", "false");
+          });
+          btn.classList.add("active");
+          btn.setAttribute("aria-selected", "true");
+          wmMode = btn.getAttribute("data-pwmode");
+
+          textControlsBox.style.display = wmMode === "text" ? "flex" : "none";
+          imageControlsBox.style.display = wmMode === "image" ? "flex" : "none";
+          updatePreview();
+        });
+      });
+
+      wmLogoInput.addEventListener("change", async function (e) {
+        const f = e.target.files && e.target.files[0];
+        if (!f) return;
+        logoMime = f.type;
+        logoBytes = await f.arrayBuffer();
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          mockWmImg.src = ev.target.result;
+          updatePreview();
+        };
+        reader.readAsDataURL(f);
+      });
+
+      [wmTextInput, wmColorInput].forEach(function (el) {
+        el.addEventListener("input", updatePreview);
+      });
+      [wmFontSizeSelect, wmLayoutSelect, wmOpacitySelect].forEach(function (el) {
+        el.addEventListener("change", updatePreview);
+      });
+
+      async function handlePdfUpload(file) {
+        hideErr();
+        if (!file || (!file.name.toLowerCase().endsWith(".pdf") && file.type !== "application/pdf")) {
+          showErr("Please select a valid .PDF document.");
+          return;
+        }
+        if (!window.PDFLib) {
+          showErr("PDF engine is still loading. Please check internet connection and refresh.");
+          return;
+        }
+
+        try {
+          const buf = await file.arrayBuffer();
+          const doc = await PDFLib.PDFDocument.load(buf, { ignoreEncryption: false });
+          const count = doc.getPageCount();
+          currentPdfBuffer = buf;
+          baseFileName = file.name.replace(/\.pdf$/i, "") || "document";
+
+          fileBadgePill.textContent = file.name + " • " + count + (count === 1 ? " Page" : " Pages");
+          dropzone.style.display = "none";
+          wmWorkspace.style.display = "block";
+          updatePreview();
+        } catch (err) {
+          showErr("Unable to read this PDF. If it is password-protected, please unlock it first.");
+        }
+      }
+
+      dropzone.addEventListener("click", function () { wmPdfInput.click(); });
+      dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+      dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+      dropzone.addEventListener("drop", function (e) {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handlePdfUpload(e.dataTransfer.files[0]);
+        }
+      });
+
+      wmPdfInput.addEventListener("change", function (e) {
+        if (e.target.files && e.target.files[0]) handlePdfUpload(e.target.files[0]);
+        e.target.value = "";
+      });
+
+      changePdfBtn.addEventListener("click", function () {
+        currentPdfBuffer = null;
+        wmWorkspace.style.display = "none";
+        dropzone.style.display = "block";
+        hideErr();
+      });
+
+      applyWmPdfBtn.addEventListener("click", async function () {
+        if (!currentPdfBuffer) return;
+        hideErr();
+
+        if (wmMode === "image" && !logoBytes) {
+          showErr("Please upload a PNG or JPG logo image first, or switch to Text Watermark Stamp.");
+          return;
+        }
+
+        applyWmPdfBtn.disabled = true;
+        applyWmPdfBtn.textContent = "Stamping PDF...";
+
+        try {
+          const pdfDoc = await PDFLib.PDFDocument.load(currentPdfBuffer);
+          const pages = pdfDoc.getPages();
+          const opacity = parseFloat(wmOpacitySelect.value) || 0.28;
+          const layout = wmLayoutSelect.value;
+
+          let embeddedImg = null;
+          if (wmMode === "image" && logoBytes) {
+            embeddedImg = logoMime === "image/png"
+              ? await pdfDoc.embedPng(logoBytes)
+              : await pdfDoc.embedJpg(logoBytes);
+          }
+
+          const font = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
+          const fontSize = parseInt(wmFontSizeSelect.value, 10) || 44;
+          const rgbNorm = hexToRgbNorm(wmColorInput.value);
+          const stampColor = PDFLib.rgb(rgbNorm.r, rgbNorm.g, rgbNorm.b);
+          const textStr = (wmTextInput.value || "CONFIDENTIAL").trim();
+
+          for (let i = 0; i < pages.length; i++) {
+            const page = pages[i];
+            const { width, height } = page.getSize();
+
+            if (wmMode === "image" && embeddedImg) {
+              const targetW = Math.min(width * 0.36, 220);
+              const scale = targetW / embeddedImg.width;
+              const targetH = embeddedImg.height * scale;
+
+              if (layout === "bottom-right") {
+                page.drawImage(embeddedImg, {
+                  x: width - targetW - 28,
+                  y: 28,
+                  width: targetW,
+                  height: targetH,
+                  opacity: opacity
+                });
+              } else {
+                const angle = layout === "diagonal" ? 30 : 0;
+                page.drawImage(embeddedImg, {
+                  x: (width - targetW) / 2,
+                  y: (height - targetH) / 2,
+                  width: targetW,
+                  height: targetH,
+                  rotate: PDFLib.degrees(angle),
+                  opacity: opacity
+                });
+              }
+            } else {
+              const txtW = font.widthOfTextAtSize(textStr, fontSize);
+
+              if (layout === "tiled") {
+                const tileSize = Math.max(18, Math.round(fontSize * 0.55));
+                const tileW = font.widthOfTextAtSize(textStr, tileSize);
+                const stepX = tileW + 90;
+                const stepY = 140;
+                for (let y = 60; y < height; y += stepY) {
+                  for (let x = 20; x < width; x += stepX) {
+                    page.drawText(textStr, {
+                      x: x,
+                      y: y,
+                      size: tileSize,
+                      font: font,
+                      color: stampColor,
+                      rotate: PDFLib.degrees(30),
+                      opacity: opacity
+                    });
+                  }
+                }
+              } else if (layout === "bottom-right") {
+                const cornerSize = Math.max(12, Math.round(fontSize * 0.42));
+                const cW = font.widthOfTextAtSize(textStr, cornerSize);
+                page.drawText(textStr, {
+                  x: Math.max(16, width - cW - 28),
+                  y: 28,
+                  size: cornerSize,
+                  font: font,
+                  color: stampColor,
+                  opacity: opacity
+                });
+              } else if (layout === "center") {
+                page.drawText(textStr, {
+                  x: Math.max(16, (width - txtW) / 2),
+                  y: (height - fontSize) / 2,
+                  size: fontSize,
+                  font: font,
+                  color: stampColor,
+                  opacity: opacity
+                });
+              } else {
+                // Diagonal Center (35 deg upward slope)
+                const rad = (35 * Math.PI) / 180;
+                const x = (width / 2) - (txtW / 2) * Math.cos(rad) + (fontSize / 2) * Math.sin(rad);
+                const y = (height / 2) - (txtW / 2) * Math.sin(rad) - (fontSize / 2) * Math.cos(rad);
+                page.drawText(textStr, {
+                  x: x,
+                  y: y,
+                  size: fontSize,
+                  font: font,
+                  color: stampColor,
+                  rotate: PDFLib.degrees(35),
+                  opacity: opacity
+                });
+              }
+            }
+          }
+
+          const outBytes = await pdfDoc.save({ useObjectStreams: true });
+          const blob = new Blob([outBytes], { type: "application/pdf" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = baseFileName + "-watermarked.pdf";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        } catch (err) {
+          showErr("Failed to watermark PDF: " + (err && err.message ? err.message : "Unexpected error."));
+        } finally {
+          applyWmPdfBtn.disabled = false;
+          applyWmPdfBtn.textContent = "Apply Watermark & Download PDF";
+        }
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

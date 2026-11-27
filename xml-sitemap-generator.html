@@ -1,0 +1,678 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online XML Sitemap Generator — PureWebKits</title>
+  <meta name="description" content="Generate valid XML sitemaps for your website online for free. 100% client-side browser XML sitemap generator tool with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/xml-sitemap-generator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Sitemap Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col { display: flex; flex-direction: column; gap: 14px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select, .std-textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus, .std-select:focus, .std-textarea:focus { border-color: var(--primary); background: #FFFFFF; }
+    .std-textarea { height: 160px; resize: vertical; font-family: monospace; }
+
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .code-output {
+      width: 100%;
+      height: 240px;
+      background: #0F172A;
+      color: #E2E8F0;
+      font-family: monospace;
+      font-size: 13px;
+      padding: 14px;
+      border-radius: 8px;
+      border: none;
+      resize: none;
+      outline: none;
+      white-space: pre;
+      overflow: auto;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 24px;
+      font-size: 14.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive XML Sitemap Generator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online XML Sitemap Generator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Generate valid search engine XML sitemaps from your website URL list instantly in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Paste your website URLs and configure sitemap tags below:</div>
+          <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample URLs</button>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="baseUrl" class="field-label">Base Website URL</label>
+              <input type="text" id="baseUrl" class="std-input" value="https://PureWebKits.com" placeholder="https://example.com" />
+            </div>
+            <div class="field-group">
+              <label for="urlList" class="field-label">Website URLs (One per line)</label>
+              <textarea id="urlList" class="std-textarea" placeholder="https://example.com/
+https://example.com/about
+https://example.com/contact"></textarea>
+            </div>
+            <div class="field-group">
+              <label for="defaultPriority" class="field-label">Default Priority Tag</label>
+              <select id="defaultPriority" class="std-select">
+                <option value="1.0" selected>1.0 (Highest)</option>
+                <option value="0.8">0.8 (High)</option>
+                <option value="0.5">0.5 (Medium)</option>
+                <option value="0.3">0.3 (Low)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); text-align: left;">Generated XML Sitemap Output:</div>
+            <textarea id="xmlOutput" class="code-output" readonly placeholder="XML sitemap code will appear here..."></textarea>
+            <button type="button" id="downloadBtn" class="btn-primary" style="display:none;">Download sitemap.xml</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Comprehensive Guide to XML Sitemaps, Search Engine Optimization (SEO), and Crawler Indexing</h2>
+
+      ### Why Online XML Sitemap Generators Are Essential for Webmasters and SEO Professionals
+      <p>
+        Ensuring that search engines like Google, Bing, and Yahoo efficiently discover, crawl, and index every important page on your website is fundamental to successful Search Engine Optimization (**SEO**). An XML Sitemap acts as a structured blueprint of your web domain, listing all valid URLs along with metadata such as last modification dates, change frequencies, and relative priority levels. While search engine web crawlers can discover pages through internal hyperlinks, complex website architectures, orphaned pages, or newly published content benefit immensely from an explicit <code>sitemap.xml</code> file submitted directly via Google Search Console. Manually writing XML tags and schema syntax for dozens or hundreds of URLs is tedious and prone to syntax errors. A professional **XML Sitemap Generator** enables webmasters and developers to paste their domain URLs, configure priority levels and change frequencies, and instantly generate valid, compliant XML sitemaps ready for immediate server deployment. Our browser-based utility processes all document markup generation 100% locally inside client memory, ensuring absolute data privacy, zero server storage, and lightning-fast execution speed.
+      </p>
+
+      ### How to Generate an XML Sitemap in 3 Easy Steps
+      <ol>
+        <li><strong>Enter Base Domain:</strong> Type your website base URL (e.g., <code>https://example.com</code>) into the input field.</li>
+        <li><strong>Paste URL List:</strong> Paste your website page paths or full URLs (one per line) into the text area.</li>
+        <li><strong>Download sitemap.xml:</strong> Review your valid XML sitemap output in real-time and click the download button to save your file.</li>
+      </ol>
+
+      ### XML Sitemap Schema Structure Formula + Worked Example
+      <p>
+        Valid XML sitemaps follow strict W3C standards and Sitemaps.org protocol specifications using root urlset nodes and child url elements:
+      </p>
+      <div class="formula-box">
+        $\text{Root Tag: } <urlset\ xmlns="..."> \implies \text{Child Elements: } <loc>, <lastmod>, <priority>
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Generating a sitemap for a homepage and contact page produces clean XML containing <code><loc>https://example.com/</loc></code> with priority <code>1.0</code> and modification timestamps formatted to ISO 8601 standards.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="sitemap-table-heading">
+      <h2 id="sitemap-table-heading">XML Sitemap Tags, SEO Best Practices & Specifications (16 Rules)</h2>
+      <p>Use this reference table to understand XML sitemap tags, schema requirements, and search engine crawling rules.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>XML Sitemap Tag</th>
+              <th>Schema Element</th>
+              <th>SEO Purpose & Function</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Urlset</strong></td>
+              <td><code><urlset></code></td>
+              <td>Root container compliant with Sitemaps.org protocol</td>
+            </tr>
+            <tr>
+              <td><strong>Location</strong></td>
+              <td><code><loc></code></td>
+              <td>Absolute URL of the individual web page</td>
+            </tr>
+            <tr>
+              <td><strong>Last Modified</strong></td>
+              <td><code><lastmod></code></td>
+              <td>ISO 8601 date of last page revision</td>
+            </tr>
+            <tr>
+              <td><strong>Priority</strong></td>
+              <td><code><priority></code></td>
+              <td>Relative page importance (0.0 to 1.0)</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Processing</strong></td>
+              <td colspan="2">JavaScript DOM Builder — Zero Server Latency (100% browser calculation)</td>
+            </tr>
+            <tr>
+              <td><strong>Data Privacy</strong></td>
+              <td colspan="2"><span class="limit-badge">Zero Server Upload</span> — Private domain URL structures remain secure</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related SEO, Developer & Text Utilities</h2>
+      <p>Need JSON formatters, password generators, or word counters? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter & Validator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Strong Password Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="merge-pdf.html"><span>Merge PDF</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compress-image-to-exact-kb.html"><span>Compress Image to KB</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>3-in-1 Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Global Currency Converter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <main-content>
+      <section class="content-card" aria-labelledby="faq-heading">
+        <h2 id="faq-heading">Frequently Asked Questions</h2>
+        <div class="faq-list">
+          <div class="faq-item open">
+            <button type="button" class="faq-btn" aria-expanded="true">
+              <span>1. How do I generate an XML sitemap for my website?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-panel">
+              Simply enter your domain base URL, paste your website page links into the text area, and download your ready-to-use <code>sitemap.xml</code> file.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button type="button" class="faq-btn" aria-expanded="false">
+              <span>2. Are my website URL lists uploaded to an external server?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-panel">
+              Never. All XML string generation runs 100% locally inside your web browser using JavaScript. Your confidential website structure never leaves your computer.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button type="button" class="faq-btn" aria-expanded="false">
+              <span>3. Where should I upload my generated sitemap.xml file?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-panel">
+              <strong>Root Directory!</strong> Upload your generated sitemap file to the root directory of your domain (e.g., <code>https://example.com/sitemap.xml</code>) and submit it via Google Search Console.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button type="button" class="faq-btn" aria-expanded="false">
+              <span>4. Is this XML sitemap generator tool free to use?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-panel">
+              <strong>Yes!</strong> This utility is 100% free with no registration or download requirements.
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side XML Sitemap Generator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const baseUrlInput = document.getElementById("baseUrl");
+      const urlListInput = document.getElementById("urlList");
+      const defaultPriority = document.getElementById("defaultPriority");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+
+      const xmlOutput = document.getElementById("xmlOutput");
+      const downloadBtn = document.getElementById("downloadBtn");
+
+      function generateSitemap() {
+        const base = baseUrlInput.value.trim().replace(/\/$/, "");
+        const lines = urlListInput.value.split("\n");
+        const priority = defaultPriority.value;
+        const today = new Date().toISOString().slice(0, 10);
+
+        let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+        xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+
+        let count = 0;
+        lines.forEach(line => {
+          let path = line.trim();
+          if (!path) return;
+
+          let loc = path;
+          if (!path.startsWith("http://") && !path.startsWith("https://")) {
+            if (!path.startsWith("/")) path = "/" + path;
+            loc = base + path;
+          }
+
+          // Escape XML special characters
+          loc = loc.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+
+          xml += '  <url>\n';
+          xml += `    <loc>${loc}</loc>\n`;
+          xml += `    <lastmod>${today}</lastmod>\n`;
+          xml += `    <changefreq>weekly</changefreq>\n`;
+          xml += `    <priority>${priority}</priority>\n`;
+          xml += '  </url>\n';
+          count++;
+        });
+
+        xml += '</urlset>';
+
+        xmlOutput.value = xml;
+        if (count > 0) {
+          downloadBtn.style.display = "inline-flex";
+        } else {
+          downloadBtn.style.display = "none";
+        }
+      }
+
+      [baseUrlInput, urlListInput, defaultPriority].forEach(el => {
+        el.addEventListener("input", generateSitemap);
+        el.addEventListener("change", generateSitemap);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        baseUrlInput.value = "https://PureWebKits.com";
+        urlListInput.value = "/\n/about.html\n/contact.html\n/image-resizer.html\n/merge-pdf.html\n/json-formatter.html";
+        defaultPriority.value = "1.0";
+        generateSitemap();
+      });
+
+      downloadBtn.addEventListener("click", function () {
+        if (!xmlOutput.value) return;
+        const blob = new Blob([xmlOutput.value], { type: "application/xml" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "sitemap.xml";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      loadSampleBtn.click();
+    });
+  </script>
+</body>
+</html>

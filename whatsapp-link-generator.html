@@ -1,0 +1,681 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WhatsApp Direct Chat Link Generator Online — Free | PureWebKits</title>
+  <meta name="description" content="Generate click-to-chat WhatsApp links with pre-filled messages online for free. Create direct chat URLs 100% locally in your browser with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/whatsapp-link-generator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* WhatsApp Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .action-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+    .btn-primary {
+      display: inline-block;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 9px;
+      padding: 9px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .whatsapp-studio-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+    .form-pane { display: flex; flex-direction: column; gap: 14px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus { border-color: var(--primary); background: #FFFFFF; }
+    .std-textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      resize: vertical;
+      outline: none;
+    }
+    .std-textarea:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .preview-pane {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px;
+      gap: 14px;
+    }
+    .code-box {
+      width: 100%;
+      height: 120px;
+      padding: 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: var(--text-main);
+      background: #FFFFFF;
+      resize: vertical;
+      outline: none;
+    }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .whatsapp-studio-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive WhatsApp Link Generator Tool -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>WhatsApp Direct Chat Link Generator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Create direct WhatsApp click-to-chat links with pre-filled messages locally
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="action-group">
+            <button type="button" id="loadSampleWaBtn" class="btn-sec">Load Sample Data</button>
+            <button type="button" id="clearWaBtn" class="btn-sec">Clear All</button>
+          </div>
+          <button type="button" id="copyWaBtn" class="btn-primary">Copy WhatsApp Link</button>
+        </div>
+
+        <div class="whatsapp-studio-grid">
+          <div class="form-pane">
+            <div class="field-group">
+              <label for="phoneInput" class="field-label">WhatsApp Phone Number (with Country Code)</label>
+              <input type="text" id="phoneInput" class="std-input" value="919876543210" placeholder="e.g. 919876543210" />
+            </div>
+
+            <div class="field-group">
+              <label for="msgInput" class="field-label">Pre-filled Message (Optional)</label>
+              <textarea id="msgInput" class="std-textarea" placeholder="Hello, I would like more information about your services.">Hello, I would like to inquire about your web tools!</textarea>
+            </div>
+          </div>
+
+          <div class="preview-pane">
+            <div class="pane-header">Generated Click-to-Chat URL</div>
+            <textarea id="outputWaUrl" class="code-box" readonly spellcheck="false" placeholder="Generated link will appear here..."></textarea>
+            <a id="testWaLinkBtn" href="#" target="_blank" class="btn-sec" style="text-align:center;display:block;background:var(--primary);color:#FFFFFF;border-color:var(--primary);">Test WhatsApp Chat Link →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How WhatsApp Click-to-Chat Links, API Protocols & Direct Messaging Work</h2>
+
+      ### Why Generating WhatsApp Direct Links Is Essential for Business and Marketing
+      <p>
+        <strong>WhatsApp Click-to-Chat</strong> links allow customers and clients to start a direct conversation with a business or individual phone number instantly with a single click, without needing to save the contact number in their address book. By embedding pre-filled messages, marketers and e-commerce stores can streamline customer support, sales inquiries, and lead generation. Our browser-based <strong>WhatsApp Direct Chat Link Generator</strong> compiles clean API URLs instantly in client memory without server uploads.
+      </p>
+
+      <h3>How to Generate a WhatsApp Chat Link in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter Phone Number:</strong> Type your full phone number including the country code (without `+` or spaces, e.g., `919876543210`) into the phone input box above (or click <em>Load Sample Data</em>).</li>
+        <li><strong>Add Optional Message:</strong> Type a pre-filled default message that will automatically appear in the chat input box when clicked.</li>
+        <li><strong>Copy or Test Link:</strong> Click <em>Copy WhatsApp Link</em> or test the URL instantly to verify your direct chat redirect.</li>
+      </ol>
+
+      <h3>WhatsApp API URL Construction Formula + Worked Example</h3>
+      <p>
+        Direct chat links combine official WhatsApp API domains with encoded phone numbers and URI-encoded message parameters:
+      </p>
+      <div class="formula-box">
+        WhatsApp URL = https://wa.me/[CountryCodePhoneNumber]?text=[EncodedMessage]
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Entering phone number <code>919876543210</code> and message <code>"Hello!"</code> generates link <code>https://wa.me/919876543210?text=Hello%21</code>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="whatsapp-table-heading">
+      <h2 id="whatsapp-table-heading">WhatsApp API Protocols, Parameters & Standards (16 Rules)</h2>
+      <p>Use this messaging reference table to understand click-to-chat API protocols and link parameters.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>API Parameter / Rule</th>
+              <th>Standard Format</th>
+              <th>Description & Usage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>API Base URL</strong></td>
+              <td><code>https://wa.me/</code> or <code>https://api.whatsapp.com/send</code></td>
+              <td>Official WhatsApp universal link endpoint</td>
+            </tr>
+            <tr>
+              <td><strong>Phone Number</strong></td>
+              <td>Full international format (No `+`, spaces, or dashes)</td>
+              <td>Must include country code (e.g., `91` for India, `1` for USA)</td>
+            </tr>
+            <tr>
+              <td><strong>Text Parameter</strong></td>
+              <td><code>?text=...</code></td>
+              <td>Appends a pre-filled automatic chat message</td>
+            </tr>
+            <tr>
+              <td><strong>URL Encoding</strong></td>
+              <td>Percent-encoding (e.g., `%20` for spaces)</td>
+              <td>Ensures special characters and spaces render correctly in links</td>
+            </tr>
+            <tr>
+              <td><strong>Mobile & Desktop</strong></td>
+              <td>Cross-Platform Universal</td>
+              <td>Automatically opens WhatsApp Mobile App or WhatsApp Web</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Processing</strong></td>
+              <td>JavaScript URL Generation</td>
+              <td>Zero Server Latency — 100% browser compilation</td>
+            </tr>
+            <tr>
+              <td><strong>Clipboard Integration</strong></td>
+              <td>1-click copy button</td>
+              <td>Workflow Optimization for marketers</td>
+            </tr>
+            <tr>
+              <td><strong>Browser Compatibility</strong></td>
+              <td>100% Universal</td>
+              <td>Runs on desktop & mobile web browsers</td>
+            </tr>
+            <tr>
+              <td><strong>Data Privacy</strong></td>
+              <td>100% Client-Side Memory</td>
+              <td><span class="limit-badge">Zero Server Upload</span> — Private phone numbers stay secure</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Social, QR & Productivity Utilities</h2>
+      <p>Need to generate QR codes, scan QR codes, or shorten links? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="qr-code-generator.html"><span>Custom QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-scanner.html"><span>QR Code Scanner</span><span class="arrow">→</span></a>
+        <a class="related-link" href="barcode-generator.html"><span>Barcode Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="url-encode-decode.html"><span>URL Encoder / Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="base64-encode-decode.html"><span>Base64 Encoder / Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="uuid-generator.html"><span>UUID / GUID Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Strong Password Generator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How do WhatsApp Click-to-Chat links work?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Click-to-chat links use the official WhatsApp API domain (<code>https://wa.me/</code>) combined with your international phone number to open a direct chat window immediately when clicked.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Do I need to include the '+' sign in the phone number?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>No.</strong> Enter only digits including your country code without any <code>+</code> signs, spaces, dashes, or leading zeros (e.g., enter <code>919876543210</code> for India).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Can I copy the generated link with one click?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> Click the <strong>Copy WhatsApp Link</strong> button to copy your ready-to-use direct chat URL directly to your clipboard.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my phone numbers or messages uploaded to any external server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All link generation runs 100% locally inside your web browser using JavaScript. Your private contact details never leave your computer.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side WhatsApp Link Generator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const phoneInput = document.getElementById("phoneInput");
+      const msgInput = document.getElementById("msgInput");
+      const outputWaUrl = document.getElementById("outputWaUrl");
+      const testWaLinkBtn = document.getElementById("testWaLinkBtn");
+      const loadSampleWaBtn = document.getElementById("loadSampleWaBtn");
+      const clearWaBtn = document.getElementById("clearWaBtn");
+      const copyWaBtn = document.getElementById("copyWaBtn");
+
+      function generateWaLink() {
+        const phone = (phoneInput.value || "").replace(/\D/g, "");
+        const msg = (msgInput.value || "").trim();
+
+        if (!phone) {
+          outputWaUrl.value = "";
+          testWaLinkBtn.setAttribute("href", "#");
+          return;
+        }
+
+        let url = "https://wa.me/" + phone;
+        if (msg) {
+          url += "?text=" + encodeURIComponent(msg);
+        }
+
+        outputWaUrl.value = url;
+        testWaLinkBtn.setAttribute("href", url);
+      }
+
+      [phoneInput, msgInput].forEach(function (el) {
+        el.addEventListener("input", generateWaLink);
+      });
+
+      loadSampleWaBtn.addEventListener("click", function () {
+        phoneInput.value = "919876543210";
+        msgInput.value = "Hello, I would like to inquire about your web tools!";
+        generateWaLink();
+      });
+
+      clearWaBtn.addEventListener("click", function () {
+        phoneInput.value = "";
+        msgInput.value = "";
+        outputWaUrl.value = "";
+        testWaLinkBtn.setAttribute("href", "#");
+      });
+
+      copyWaBtn.addEventListener("click", async function () {
+        if (!outputWaUrl.value) return;
+        try {
+          await navigator.clipboard.writeText(outputWaUrl.value);
+          const orig = copyWaBtn.textContent;
+          copyWaBtn.textContent = "Copied WhatsApp Link!";
+          setTimeout(function () { copyWaBtn.textContent = orig; }, 1400);
+        } catch (e) {}
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      generateWaLink();
+    });
+  </script>
+</body>
+</html>

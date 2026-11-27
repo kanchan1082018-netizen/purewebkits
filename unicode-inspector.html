@@ -1,0 +1,924 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Unicode Character Inspector (Code Points, UTF-8 & UTF-16) — PureWebKits</title>
+  <meta name="description" content="Inspect any character or text string to see Unicode code points (U+XXXX), decimal/hex values, UTF-8 byte sequences, UTF-16 code units, and HTML entities online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/unicode-character-inspector.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Unicode Character Inspector Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .uni-input-area {
+      width: 100%;
+      min-height: 150px;
+      padding: 13px 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: "Noto Sans Devanagari", "Apple Color Emoji", "Segoe UI Emoji", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: #F8FAFC;
+      line-height: 1.65;
+      resize: vertical;
+      outline: none;
+    }
+    .uni-input-area:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .quick-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .uc-chip {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 7px;
+      padding: 5px 11px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .uc-chip:hover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary-dark);
+    }
+
+    .uc-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .uc-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .uc-hero-title { font-size: 15.5px; font-weight: 800; }
+    .uc-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .uc-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 19px;
+      font-weight: 800;
+      color: #38BDF8;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .cp-scroll-wrap {
+      max-height: 310px;
+      overflow-y: auto;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #FFFFFF;
+    }
+    table.cp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+    table.cp-table th {
+      position: sticky;
+      top: 0;
+      background: #F1F5F9;
+      font-weight: 800;
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-main);
+    }
+    table.cp-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+    table.cp-table tr:last-child td { border-bottom: none; }
+    .glyph-badge {
+      display: inline-block;
+      min-width: 32px;
+      text-align: center;
+      padding: 2px 6px;
+      border-radius: 5px;
+      background: #F8FAFC;
+      border: 1px solid #CBD5E1;
+      color: var(--text-main);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table.ref-table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    table.ref-table th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    table.ref-table td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    table.ref-table tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Unicode Character Inspector Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Unicode Character Inspector</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Inspect Unicode code points (U+XXXX), UTF-8 bytes, UTF-16 units & HTML entities in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Paste or type any text, emoji, or Devanagari/non-Latin characters to inspect every Unicode code point:</div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample</button>
+            <button type="button" id="clearUcBtn" class="btn-sec">Clear</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="unicodeInspectInput" class="field-label">Text / Characters to Inspect</label>
+              <textarea id="unicodeInspectInput" class="uni-input-area" placeholder="Type or paste text, symbols, Devanagari, or emojis..."></textarea>
+            </div>
+
+            <div class="quick-chips" aria-label="Sample Unicode character sets">
+              <button type="button" class="uc-chip" data-sample="नमस्ते">Devanagari (नमस्ते)</button>
+              <button type="button" class="uc-chip" data-sample="₹ € £ $">Currency Symbols</button>
+              <button type="button" class="uc-chip" data-sample="🚀✨🎉">Astral Emoji (🚀✨🎉)</button>
+              <button type="button" class="uc-chip" data-sample="A—B…“Q”">Typographic Punct.</button>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="uc-hero-box">
+              <div>
+                <div class="uc-hero-kicker">Code Point Summary</div>
+                <div class="uc-hero-title" id="ucSummaryTitle">6 Code Points Inspected</div>
+                <div class="uc-hero-sub" id="ucSummarySub">UTF-8 bytes & UTF-16 code units shown per code point</div>
+              </div>
+              <div class="uc-hero-num" id="ucByteCountDisplay">18 UTF-8 B</div>
+            </div>
+
+            <div class="cp-scroll-wrap">
+              <table class="cp-table" aria-label="Unicode Code Point Breakdown">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Char</th>
+                    <th>Code Point</th>
+                    <th>Dec</th>
+                    <th>UTF-8 Hex</th>
+                    <th>HTML</th>
+                  </tr>
+                </thead>
+                <tbody id="codePointTableBody"></tbody>
+              </table>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyUcBtn" class="btn-primary">Copy Code Points</button>
+              <button type="button" id="downloadUcBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Encoding Rules & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Unicode Code Points, UTF-8 Bytes, UTF-16 Surrogate Pairs & HTML Entities</h2>
+
+      <h3>How Unicode Code Points Differ From UTF-8 Bytes and UTF-16 Units</h3>
+      <p>
+        In Unicode, every abstract character or symbol is assigned a unique number called a <strong>code point</strong>, written in standard notation as <code>U+XXXX</code> (for example, <code>U+0041</code> for <code>A</code>, <code>U+0928</code> for <code>न</code>, or <code>U+1F680</code> for <code>🚀</code>). However, computers store and transmit code points using byte-oriented encodings such as <strong>UTF-8</strong> (which uses <code>1 to 4 bytes</code> per code point) or <strong>UTF-16</strong> (which uses one 16-bit code unit for Basic Multilingual Plane characters <code>U+0000–U+FFFF</code> and a <strong>surrogate pair</strong> of two 16-bit code units for supplementary code points above <code>U+FFFF</code>). That is why a string's <code>.length</code> in UTF-16 JavaScript code units can differ from the number of visible code points or UTF-8 bytes. A browser-based <strong>Unicode Character Inspector</strong> breaks down every code point 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Inspect Characters & Code Points in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Paste or Type Characters:</strong> Enter text, accented letters, currency signs, Devanagari scripts, or emojis into <strong>Text / Characters to Inspect</strong>, or click a quick sample chip.</li>
+        <li><strong>Read the Code Point Table:</strong> View each code point's visual glyph, <code>U+XXXX</code> hex code point, decimal value, UTF-8 byte sequence, and numeric HTML entity.</li>
+        <li><strong>Copy or Export:</strong> Click <strong>Copy Code Points</strong> to copy the inspection report to your clipboard, or click <strong>Download .txt</strong> to save it locally.</li>
+      </ol>
+
+      <h3>UTF-8 Byte Length Tiers by Code Point Range</h3>
+      <p>
+        UTF-8 encodes Unicode scalar values across four byte-length ranges so ASCII remains backward-compatible:
+      </p>
+      <div class="formula-box">
+        U+0000–U+007F: 1 UTF-8 byte (0xxxxxxx)  |  U+0080–U+07FF: 2 UTF-8 bytes<br />
+        U+0800–U+FFFF: 3 UTF-8 bytes  |  U+10000–U+10FFFF: 4 UTF-8 bytes (UTF-16 surrogate pair)
+      </div>
+
+      <h3>Helpful Tips When Debugging Text & Encodings</h3>
+      <ul>
+        <li><strong>Spot Invisible or Combining Marks:</strong> Zero-width characters, spaces, and Devanagari vowel/halant marks show up as distinct rows in the table so you never miss hidden characters.</li>
+        <li><strong>Check UTF-8 Byte Counts for Database & Payload Limits:</strong> Non-Latin scripts and emojis often occupy <code>2–4 bytes</code> per character in UTF-8 rather than <code>1 byte</code>.</li>
+        <li><strong>Use HTML Entities for Safe Markup Embedding:</strong> Numeric character references like <code>&#2084;</code> or <code>&#128640;</code> represent code points in HTML/XML.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Inspecting <code>नमस्ते</code> breaks the word into its constituent Devanagari code points—including base consonants and combining signs—alongside their <code>U+09xx</code> code points and 3-byte UTF-8 hex sequences.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="uc-table-heading">
+      <h2 id="uc-table-heading">Unicode Ranges, Encodings & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to check Unicode planes, UTF-8 byte lengths, and inspection features.</p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Concept / Range</th>
+              <th>Code Point / Byte Rule</th>
+              <th>Role</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Basic Latin (ASCII)</strong></td>
+              <td><code>U+0000 – U+007F</code></td>
+              <td><code>1</code> UTF-8 byte</td>
+              <td><code>1</code> UTF-16 code unit</td>
+            </tr>
+            <tr>
+              <td><strong>Latin Extended / Greek / Cyrillic</strong></td>
+              <td><code>U+0080 – U+07FF</code></td>
+              <td><code>2</code> UTF-8 bytes</td>
+              <td><code>1</code> UTF-16 code unit</td>
+            </tr>
+            <tr>
+              <td><strong>Devanagari Block</strong></td>
+              <td><code>U+0900 – U+097F</code></td>
+              <td><code>3</code> UTF-8 bytes</td>
+              <td>Hindi, Marathi, Sanskrit, Nepali</td>
+            </tr>
+            <tr>
+              <td><strong>Basic Multilingual Plane (BMP)</strong></td>
+              <td><code>U+0000 – U+FFFF</code></td>
+              <td><code>1–3</code> UTF-8 bytes</td>
+              <td>Single 16-bit code unit in UTF-16</td>
+            </tr>
+            <tr>
+              <td><strong>Supplementary Plane (Astral)</strong></td>
+              <td><code>U+10000 – U+10FFFF</code></td>
+              <td><code>4</code> UTF-8 bytes</td>
+              <td>Uses surrogate pair in UTF-16</td>
+            </tr>
+            <tr>
+              <td><strong>Code Point Notation</strong></td>
+              <td><code>U+XXXX</code> (uppercase hex)</td>
+              <td>Standard Unicode identifier</td>
+              <td>Padded to at least 4 hex digits</td>
+            </tr>
+            <tr>
+              <td><strong>Decimal Value</strong></td>
+              <td>Base-10 integer of code point</td>
+              <td>Numeric code point value</td>
+              <td>Used in <code>&#Decimal;</code> HTML entities</td>
+            </tr>
+            <tr>
+              <td><strong>UTF-8 Byte Sequence</strong></td>
+              <td><code>TextEncoder</code> UTF-8 bytes</td>
+              <td>Wire / storage byte representation</td>
+              <td>Formatted as uppercase hex bytes</td>
+            </tr>
+            <tr>
+              <td><strong>HTML Numeric Entity</strong></td>
+              <td><code>&#[Decimal];</code></td>
+              <td>Escaped HTML/XML reference</td>
+              <td>Works across HTML5 documents</td>
+            </tr>
+            <tr>
+              <td><strong>Quick Sample Chips</strong></td>
+              <td>One-click test strings</td>
+              <td>Tests scripts, currency & emoji</td>
+              <td>Instant local inspection</td>
+            </tr>
+            <tr>
+              <td><strong>Copy Code Points</strong></td>
+              <td>Clipboard export</td>
+              <td>Copies full breakdown report</td>
+              <td>One-click clipboard copy</td>
+            </tr>
+            <tr>
+              <td><strong>Download .txt</strong></td>
+              <td>File export</td>
+              <td>Saves as <code>unicode-code-points.txt</code></td>
+              <td>Local plain-text report</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Code Point & UTF-8 Inspector — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — All text inspection runs locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Your text never leaves your device</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Text, Encoding, Developer & Everyday Utilities</h2>
+      <p>Viewing the ASCII table, converting Kruti Dev to Unicode, typing in InScript, or counting words? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="ascii-table-viewer.html"><span>ASCII Table Viewer</span><span class="arrow">→</span></a>
+        <a class="related-link" href="krutidev-to-unicode-converter.html"><span>Kruti Dev to Unicode</span><span class="arrow">→</span></a>
+        <a class="related-link" href="unicode-to-krutidev-converter.html"><span>Unicode to Kruti Dev</span><span class="arrow">→</span></a>
+        <a class="related-link" href="inscript-hindi-typing-pad.html"><span>InScript Hindi Typing Pad</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="language-code-mapper.html"><span>Language Code Mapper</span><span class="arrow">→</span></a>
+        <a class="related-link" href="roman-numeral-converter.html"><span>Roman Numeral Converter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Why does an emoji or non-Latin character have more than 1 UTF-8 byte?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            UTF-8 uses <code>1 byte</code> only for 7-bit ASCII (<code>U+0000–U+007F</code>); characters in higher Unicode blocks use <code>2</code>, <code>3</code>, or <code>4</code> bytes in UTF-8 to represent their full code point value.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How does this inspector iterate over code points instead of raw UTF-16 units?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            It iterates over the string using Unicode code point iteration (<code>for..of</code> and <code>codePointAt</code>) so surrogate pairs above <code>U+FFFF</code> are reported as single Unicode code points rather than split in half.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Is any text I paste or type sent to a server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All inspection runs 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Unicode Character Inspector free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Unicode Character Inspector Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const DEFAULT_SAMPLE = "नमस्ते";
+
+      const unicodeInspectInput = document.getElementById("unicodeInspectInput");
+      const ucChips = document.querySelectorAll(".uc-chip");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const clearUcBtn = document.getElementById("clearUcBtn");
+
+      const ucSummaryTitle = document.getElementById("ucSummaryTitle");
+      const ucSummarySub = document.getElementById("ucSummarySub");
+      const ucByteCountDisplay = document.getElementById("ucByteCountDisplay");
+
+      const codePointTableBody = document.getElementById("codePointTableBody");
+      const copyUcBtn = document.getElementById("copyUcBtn");
+      const downloadUcBtn = document.getElementById("downloadUcBtn");
+
+      const encoder = typeof TextEncoder !== "undefined" ? new TextEncoder() : null;
+      let latestExportText = "";
+
+      function toUtf8HexList(str) {
+        if (!encoder) return [];
+        const bytes = encoder.encode(str);
+        const out = [];
+        for (let i = 0; i < bytes.length; i++) {
+          out.push(bytes[i].toString(16).toUpperCase().padStart(2, "0"));
+        }
+        return out;
+      }
+
+      function formatCodePoint(cp) {
+        return "U+" + cp.toString(16).toUpperCase().padStart(4, "0");
+      }
+
+      function inspectText() {
+        const text = unicodeInspectInput.value || "";
+        codePointTableBody.innerHTML = "";
+
+        if (!text) {
+          ucSummaryTitle.textContent = "0 Code Points Inspected";
+          ucSummarySub.textContent = "Enter or paste characters on the left to inspect";
+          ucByteCountDisplay.textContent = "0 UTF-8 B";
+          latestExportText = "";
+          return;
+        }
+
+        const codePoints = Array.from(text);
+        const totalUtf8Bytes = encoder ? encoder.encode(text).length : text.length;
+
+        ucSummaryTitle.textContent = `${codePoints.length} ${codePoints.length === 1 ? "Code Point" : "Code Points"} Inspected`;
+        ucSummarySub.textContent = `UTF-16 units: ${text.length} \u2022 Distinct code points: ${codePoints.length}`;
+        ucByteCountDisplay.textContent = `${totalUtf8Bytes} UTF-8 B`;
+
+        const reportLines = [
+          "PureWebKits Unicode Character Inspection",
+          "---------------------------------------",
+          `Input Length: ${codePoints.length} code point(s) | ${text.length} UTF-16 unit(s) | ${totalUtf8Bytes} UTF-8 byte(s)`,
+          ""
+        ];
+
+        codePoints.forEach(function (ch, idx) {
+          const cp = ch.codePointAt(0);
+          const uPlus = formatCodePoint(cp);
+          const utf8Bytes = toUtf8HexList(ch);
+          const htmlEnt = `&#${cp};`;
+
+          const tr = document.createElement("tr");
+
+          const tdIdx = document.createElement("td");
+          tdIdx.textContent = String(idx + 1);
+
+          const tdChar = document.createElement("td");
+          const badge = document.createElement("span");
+          badge.className = "glyph-badge";
+          badge.textContent = cp < 32 || cp === 127 ? `0x${cp.toString(16).toUpperCase()}` : ch;
+          tdChar.appendChild(badge);
+
+          const tdCp = document.createElement("td");
+          tdCp.textContent = uPlus;
+
+          const tdDec = document.createElement("td");
+          tdDec.textContent = String(cp);
+
+          const tdUtf8 = document.createElement("td");
+          tdUtf8.textContent = utf8Bytes.length ? utf8Bytes.join(" ") : "—";
+
+          const tdHtml = document.createElement("td");
+          tdHtml.textContent = htmlEnt;
+
+          tr.appendChild(tdIdx);
+          tr.appendChild(tdChar);
+          tr.appendChild(tdCp);
+          tr.appendChild(tdDec);
+          tr.appendChild(tdUtf8);
+          tr.appendChild(tdHtml);
+
+          codePointTableBody.appendChild(tr);
+
+          reportLines.push(
+            `${idx + 1}. "${ch}" | ${uPlus} | Dec: ${cp} | UTF-8: [${utf8Bytes.join(" ")}] | HTML: ${htmlEnt}`
+          );
+        });
+
+        latestExportText = reportLines.join("\n");
+      }
+
+      unicodeInspectInput.addEventListener("input", inspectText);
+
+      ucChips.forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          const s = chip.getAttribute("data-sample") || "";
+          unicodeInspectInput.value = s;
+          inspectText();
+        });
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        unicodeInspectInput.value = DEFAULT_SAMPLE;
+        inspectText();
+      });
+
+      clearUcBtn.addEventListener("click", function () {
+        unicodeInspectInput.value = "";
+        inspectText();
+      });
+
+      copyUcBtn.addEventListener("click", function () {
+        if (!latestExportText) return;
+        navigator.clipboard.writeText(latestExportText).then(function () {
+          const orig = copyUcBtn.textContent;
+          copyUcBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyUcBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadUcBtn.addEventListener("click", function () {
+        if (!latestExportText) return;
+        const blob = new Blob([latestExportText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "unicode-code-points.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      unicodeInspectInput.value = DEFAULT_SAMPLE;
+      inspectText();
+    });
+  </script>
+</body>
+</html>

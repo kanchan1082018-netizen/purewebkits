@@ -1,0 +1,900 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UUID Generator Online — Bulk UUID v4 / GUID Creator & Validator | PureWebKits</title>
+  <meta name="description" content="Generate cryptographically secure UUID v4 (GUID) identifiers in bulk using Web Crypto API. Format as uppercase, lowercase, or hyphen-free and validate UUID strings 100% locally." />
+  <link rel="canonical" href="https://PureWebKits.com/uuid-generator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --success-soft: #ECFDF5;
+      --danger: #DC2626;
+      --danger-soft: #FEF2F2;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1060px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Single Featured UUID Banner */
+    .featured-uuid-box {
+      background: var(--primary-soft);
+      border: 1.5px solid #BFDBFE;
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .uuid-hero-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: clamp(16px, 2.5vw, 22px);
+      font-weight: 800;
+      color: #1E3A8A;
+      word-break: break-all;
+    }
+    .hero-copy-btn {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 16px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .hero-copy-btn:hover { background: var(--primary-dark); }
+
+    /* Bulk Controls */
+    .bulk-controls {
+      display: grid;
+      grid-template-columns: 0.8fr 1.4fr auto;
+      gap: 14px;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-group label { font-size: 13px; font-weight: 700; color: var(--text-main); }
+    .std-input {
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #FFFFFF;
+      outline: none;
+    }
+    .std-input:focus { border-color: var(--primary); }
+
+    .toggles-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      height: 42px;
+    }
+    .chk-lbl {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    .btn-primary {
+      height: 42px;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 9px;
+      padding: 0 18px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .bulk-textarea {
+      width: 100%;
+      height: 200px;
+      padding: 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: var(--text-main);
+      background: #F8FAFC;
+      resize: vertical;
+      outline: none;
+    }
+
+    .bulk-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .meta-txt { font-size: 13px; font-weight: 700; color: var(--text-muted); }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    /* Live UUID Validator */
+    .validator-section { margin-top: 18px; }
+    .val-title { font-size: 13.5px; font-weight: 800; margin-bottom: 8px; color: var(--text-main); }
+    .val-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .val-input {
+      flex: 1;
+      min-width: 240px;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 9px;
+      font-family: ui-monospace, monospace;
+      font-size: 13.5px;
+      outline: none;
+    }
+    .val-input:focus { border-color: var(--primary); }
+    .val-badge {
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      background: var(--success-soft);
+      color: #065F46;
+    }
+    .val-badge.invalid {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .bulk-controls { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive UUID v4 Generator -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>UUID Generator Online — Bulk UUID v4 / GUID Creator & Validator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Cryptographic Web Crypto API generation — zero IDs logged or transmitted
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <!-- Single Featured UUID -->
+        <div class="featured-uuid-box" aria-live="polite">
+          <div>
+            <div style="font-size:11.5px;font-weight:800;text-transform:uppercase;color:#1D4ED8;margin-bottom:2px;">Fresh Cryptographic UUID v4</div>
+            <div id="heroUuidCode" class="uuid-hero-code">550e8400-e29b-41d4-a716-446655440000</div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button type="button" id="refreshSingleBtn" class="btn-sec" style="background:#FFFFFF;">New UUID</button>
+            <button type="button" id="copySingleBtn" class="hero-copy-btn">Copy UUID</button>
+          </div>
+        </div>
+
+        <!-- Bulk Controls -->
+        <div class="bulk-controls">
+          <div class="field-group">
+            <label for="bulkCountInput">Bulk Quantity (1–100)</label>
+            <input type="number" id="bulkCountInput" class="std-input" min="1" max="100" value="5" />
+          </div>
+
+          <div class="field-group">
+            <label>Format Options</label>
+            <div class="toggles-row">
+              <label class="chk-lbl" for="upperChk">
+                <input type="checkbox" id="upperChk" />
+                <span>UPPERCASE</span>
+              </label>
+              <label class="chk-lbl" for="noHyphensChk">
+                <input type="checkbox" id="noHyphensChk" />
+                <span>No Hyphens</span>
+              </label>
+              <label class="chk-lbl" for="bracesChk">
+                <input type="checkbox" id="bracesChk" />
+                <span>Wrap in { }</span>
+              </label>
+            </div>
+          </div>
+
+          <button type="button" id="generateBulkBtn" class="btn-primary">Generate Bulk UUIDs</button>
+        </div>
+
+        <textarea id="bulkUuidOutput" class="bulk-textarea" readonly spellcheck="false" aria-label="Bulk Generated UUIDs"></textarea>
+
+        <div class="bulk-footer">
+          <span id="bulkMetaTxt" class="meta-txt">5 UUIDs generated (RFC 9562 / Version 4 • 122-bit CSPRNG)</span>
+          <div style="display:flex; gap:8px;">
+            <button type="button" id="downloadUuidBtn" class="btn-sec">Download .TXT</button>
+            <button type="button" id="copyBulkBtn" class="btn-sec" style="background:#2563EB;color:#FFFFFF;border-color:#2563EB;">Copy All UUIDs</button>
+          </div>
+        </div>
+
+        <!-- Live UUID Validator -->
+        <div class="validator-section">
+          <div class="val-title">Instant UUID / GUID Syntax & Version Validator</div>
+          <div class="val-row">
+            <input type="text" id="validateInput" class="val-input" placeholder="Paste any UUID string to verify its format and version..." />
+            <div id="validateStatus" class="val-badge">Valid UUID v4 (RFC 4122 Variant)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How UUID v4 / GUID Generation, 122-Bit Entropy & Database Keys Work</h2>
+
+      <h3>Why Distributed Systems Use UUIDs Instead of Auto-Incrementing Integers</h3>
+      <p>
+        A <strong>Universally Unique Identifier (UUID)</strong>—also known as a <strong>GUID (Globally Unique Identifier)</strong> in Microsoft ecosystems—is a 128-bit identifier formatted as 32 hexadecimal digits split into five hyphen-delimited groups (<code>8-4-4-4-12</code>). Unlike traditional auto-incrementing SQL integers (<code>1, 2, 3...</code>), which expose total record counts in public URLs and collide when merging records across microservices or offline mobile apps, <strong>UUID Version 4</strong> lets any client or server generate globally unique primary keys independently without coordinating with a central database sequence. Our generator uses the browser's hardware-backed <strong>Web Crypto API (<code>crypto.getRandomValues</code>)</strong> rather than predictable pseudo-random math functions.
+      </p>
+
+      <h3>How to Generate & Validate UUIDs in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Copy a Single UUID or Generate in Bulk:</strong> Click <em>Copy UUID</em> at the top for an immediate ID, or enter any count from <code>1</code> to <code>100</code> and click <em>Generate Bulk UUIDs</em>.</li>
+        <li><strong>Customize String Formatting:</strong> Toggle <em>UPPERCASE</em>, <em>No Hyphens</em> (compact 32-character hex), or <em>Wrap in { }</em> for Windows Registry / .NET GUIDs.</li>
+        <li><strong>Validate Existing IDs:</strong> Paste any UUID into the <em>Instant UUID / GUID Validator</em> at the bottom of the card to verify its RFC version and variant bits.</li>
+      </ol>
+
+      <h3>UUID v4 Entropy Bits & Collision Probability Formula + Worked Example</h3>
+      <p>
+        Out of 128 total bits in a Version 4 UUID, 4 bits specify version <code>4</code> and 2 bits specify the RFC variant (<code>8, 9, a, or b</code>), leaving <strong>122 cryptographically random bits</strong>:
+      </p>
+      <div class="formula-box">
+        Total Possible UUID v4 Keys = 2<sup>122</sup> ≈ 5.3 × 10<sup>36</sup>  |  Collision Risk ≈ n² / (2 × 2<sup>122</sup>)
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Inspecting the UUID structure <code>xxxxxxxx-xxxx-<strong>4</strong>xxx-<strong>y</strong>xxx-xxxxxxxxxxxx</code>:</p>
+        <p>The 13th hex digit is always fixed to <code>4</code> (identifying Version 4 random), and the 17th hex digit <code>y</code> is always <code>8</code>, <code>9</code>, <code>a</code>, or <code>b</code>.</p>
+        <p>Even if your application generates <strong>1 billion UUIDs every second for 85 years</strong> (<code>2.68 × 10<sup>18</sup></code> IDs), the probability of a single duplicate collision remains below <strong>50%</strong>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="uuid-table-heading">
+      <h2 id="uuid-table-heading">UUID Versions (v1–v8), Bit Layout & Database Storage Reference (16 Specs)</h2>
+      <p>Use this technical developer reference table to compare RFC 9562 UUID versions, string lengths, and SQL/NoSQL storage footprints.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>UUID Version / Format</th>
+              <th>Generation Mechanism</th>
+              <th>Sortability / Ordering</th>
+              <th>Best Engineering Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>UUID v1</strong></td>
+              <td>Gregorian Timestamp + MAC Address</td>
+              <td>Time-ordered</td>
+              <td>Legacy distributed logs (exposes hardware MAC)</td>
+            </tr>
+            <tr>
+              <td><strong>UUID v3</strong></td>
+              <td>Namespace + Name (MD5 Hash)</td>
+              <td>Deterministic</td>
+              <td>Reproducible IDs from URLs/domains (legacy)</td>
+            </tr>
+            <tr>
+              <td><strong>UUID v4 (Most Popular)</strong></td>
+              <td><span class="limit-badge">122-Bit CSPRNG Random</span></td>
+              <td>Random</td>
+              <td>REST APIs, session tokens, public resource IDs</td>
+            </tr>
+            <tr>
+              <td><strong>UUID v5</strong></td>
+              <td>Namespace + Name (SHA-1 Hash)</td>
+              <td>Deterministic</td>
+              <td>Generating identical UUIDs from identical inputs</td>
+            </tr>
+            <tr>
+              <td><strong>UUID v6</strong></td>
+              <td>Reordered Gregorian Timestamp</td>
+              <td>DB Index-Friendly</td>
+              <td>Migrating v1 systems to B-tree friendly indexes</td>
+            </tr>
+            <tr>
+              <td><strong>UUID v7 (Modern DB Standard)</strong></td>
+              <td><span class="limit-badge">Unix Epoch ms + Random</span></td>
+              <td>Monotonic Time-Sorted</td>
+              <td>High-write PostgreSQL & MySQL primary keys</td>
+            </tr>
+            <tr>
+              <td><strong>UUID v8</strong></td>
+              <td>Custom Vendor-Specific Bits</td>
+              <td>Custom</td>
+              <td>Specialized internal telemetry & sharding</td>
+            </tr>
+            <tr>
+              <td><strong>Nil UUID</strong></td>
+              <td><code>00000000-0000-0000-0000-000000000000</code></td>
+              <td>All Zeros</td>
+              <td>Sentinel / uninitialized placeholder value</td>
+            </tr>
+            <tr>
+              <td><strong>Max / Omni UUID</strong></td>
+              <td><code>ffffffff-ffff-ffff-ffff-ffffffffffff</code></td>
+              <td>All Ones</td>
+              <td>Upper-bound range query sentinel</td>
+            </tr>
+            <tr>
+              <td><strong>Standard Hyphenated String</strong></td>
+              <td><code>8-4-4-4-12</code> format</td>
+              <td><span class="limit-badge">36 Characters</span></td>
+              <td>JSON APIs, URLs, human-readable logs</td>
+            </tr>
+            <tr>
+              <td><strong>Compact Hex String (No Hyphens)</strong></td>
+              <td>32 continuous hex digits</td>
+              <td><span class="limit-badge">32 Characters</span></td>
+              <td>Compact tokens, filenames, CHAR(32) columns</td>
+            </tr>
+            <tr>
+              <td><strong>Microsoft Registry / .NET GUID</strong></td>
+              <td>Wrapped in curly braces <code>{...}</code></td>
+              <td><span class="limit-badge">38 Characters</span></td>
+              <td>Windows COM, C#, and Registry keys</td>
+            </tr>
+            <tr>
+              <td><strong>PostgreSQL Native <code>uuid</code> Type</strong></td>
+              <td>Binary 128-bit storage</td>
+              <td><span class="limit-badge">16 Bytes</span></td>
+              <td>Fastest indexing & smallest disk footprint</td>
+            </tr>
+            <tr>
+              <td><strong>MySQL 8.0 <code>UUID_TO_BIN()</code></strong></td>
+              <td><code>BINARY(16)</code> column</td>
+              <td><span class="limit-badge">16 Bytes</span></td>
+              <td>Avoids 36-byte VARCHAR(36) index bloat</td>
+            </tr>
+            <tr>
+              <td><strong>MongoDB Binary UUID (Subtype 4)</strong></td>
+              <td>BSON Binary 128-bit</td>
+              <td><span class="limit-badge">16 Bytes</span></td>
+              <td>Cross-language document identifiers</td>
+            </tr>
+            <tr>
+              <td><strong>Web Crypto API Security</strong></td>
+              <td><code>crypto.getRandomValues()</code></td>
+              <td><span class="limit-badge">OS Entropy Pool</span></td>
+              <td>Cryptographically unpredictable in all browsers</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Developer, Security & Encoding Utilities</h2>
+      <p>Generating strong passwords, formatting JSON payloads, encoding Base64 strings, or escaping URLs? Explore our companion developer tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="password-generator.html"><span>Password Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="base64-encode-decode.html"><span>Base64 Encoder/Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="url-encoder-decoder.html"><span>URL Encoder/Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="case-converter.html"><span>Text Case Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="lorem-ipsum-generator.html"><span>Placeholder Text Gen</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Char Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is the difference between a UUID and a GUID?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            They refer to the exact same 128-bit identifier specification. <strong>UUID (Universally Unique Identifier)</strong> is the open IETF/ISO term used across Linux, PostgreSQL, Python, and JavaScript, while <strong>GUID (Globally Unique Identifier)</strong> is Microsoft's term used in Windows, SQL Server, and .NET.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Are the UUIDs generated here truly cryptographically random?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Yes. Unlike insecure scripts that rely on <code>Math.random()</code>, our tool uses your browser's native <strong>Web Crypto API (<code>crypto.getRandomValues()</code>)</strong> seeded directly by your operating system's hardware entropy pool.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Can two UUID v4 strings ever collide or repeat?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            With <strong>122 random bits</strong> (<code>5.3 × 10<sup>36</sup></code> unique possibilities), the mathematical chance of generating a duplicate UUID v4 is so astronomically small that you are far more likely to be hit by a meteorite than see a collision in production.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are any generated UUIDs logged or transmitted to a server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. Every UUID is generated 100% locally inside your web browser's memory using JavaScript. No IDs are ever sent over the network or stored on any server.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Cryptographic UUID v4 Generator & Validator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const heroUuidCode = document.getElementById("heroUuidCode");
+      const refreshSingleBtn = document.getElementById("refreshSingleBtn");
+      const copySingleBtn = document.getElementById("copySingleBtn");
+
+      const bulkCountInput = document.getElementById("bulkCountInput");
+      const upperChk = document.getElementById("upperChk");
+      const noHyphensChk = document.getElementById("noHyphensChk");
+      const bracesChk = document.getElementById("bracesChk");
+      const generateBulkBtn = document.getElementById("generateBulkBtn");
+      const bulkUuidOutput = document.getElementById("bulkUuidOutput");
+      const bulkMetaTxt = document.getElementById("bulkMetaTxt");
+      const downloadUuidBtn = document.getElementById("downloadUuidBtn");
+      const copyBulkBtn = document.getElementById("copyBulkBtn");
+
+      const validateInput = document.getElementById("validateInput");
+      const validateStatus = document.getElementById("validateStatus");
+
+      function createRawUuidV4() {
+        if (window.crypto && typeof window.crypto.randomUUID === "function") {
+          return window.crypto.randomUUID();
+        }
+        const bytes = new Uint8Array(16);
+        window.crypto.getRandomValues(bytes);
+        bytes[6] = (bytes[6] & 0x0f) | 0x40;
+        bytes[8] = (bytes[8] & 0x3f) | 0x80;
+        const hex = Array.from(bytes, function (b) {
+          return b.toString(16).padStart(2, "0");
+        }).join("");
+        return (
+          hex.slice(0, 8) + "-" +
+          hex.slice(8, 12) + "-" +
+          hex.slice(12, 16) + "-" +
+          hex.slice(16, 20) + "-" +
+          hex.slice(20, 32)
+        );
+      }
+
+      function formatUuid(raw) {
+        let out = raw;
+        if (noHyphensChk.checked) out = out.replace(/-/g, "");
+        if (upperChk.checked) out = out.toUpperCase();
+        if (bracesChk.checked) out = "{" + out + "}";
+        return out;
+      }
+
+      function refreshSingleUuid() {
+        const u = formatUuid(createRawUuidV4());
+        heroUuidCode.textContent = u;
+        validateInput.value = u;
+        runValidator();
+      }
+
+      function generateBulkUuids() {
+        const count = Math.max(1, Math.min(100, parseInt(bulkCountInput.value, 10) || 5));
+        const list = [];
+        for (let i = 0; i < count; i++) {
+          list.push(formatUuid(createRawUuidV4()));
+        }
+        bulkUuidOutput.value = list.join("\n");
+        bulkMetaTxt.textContent = count + " UUID" + (count > 1 ? "s" : "") + " generated (RFC 9562 / Version 4 • 122-bit CSPRNG)";
+      }
+
+      function runValidator() {
+        const raw = validateInput.value.trim().replace(/^\{|\}$/g, "");
+        if (!raw) {
+          validateStatus.className = "val-badge invalid";
+          validateStatus.textContent = "Enter a UUID string to validate";
+          return;
+        }
+        const hyphenRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-([1-8])[0-9a-f]{3}-([89ab])[0-9a-f]{3}-[0-9a-f]{12}$/i;
+        const compactRegex = /^[0-9a-f]{12}([1-8])[0-9a-f]{3}([89ab])[0-9a-f]{15}$/i;
+        const nilRegex = /^0{8}-?0{4}-?0{4}-?0{4}-?0{12}$/;
+
+        if (nilRegex.test(raw)) {
+          validateStatus.className = "val-badge";
+          validateStatus.textContent = "Valid Nil UUID (All Zeros)";
+          return;
+        }
+
+        const m = raw.match(hyphenRegex) || raw.match(compactRegex);
+        if (m) {
+          validateStatus.className = "val-badge";
+          validateStatus.textContent = "Valid UUID Version " + m[1] + " (RFC 4122 / 9562 Variant)";
+        } else {
+          validateStatus.className = "val-badge invalid";
+          validateStatus.textContent = "Invalid UUID Syntax";
+        }
+      }
+
+      refreshSingleBtn.addEventListener("click", refreshSingleUuid);
+
+      copySingleBtn.addEventListener("click", async function () {
+        try {
+          await navigator.clipboard.writeText(heroUuidCode.textContent);
+          const orig = copySingleBtn.textContent;
+          copySingleBtn.textContent = "Copied!";
+          setTimeout(function () { copySingleBtn.textContent = orig; }, 1300);
+        } catch (e) {}
+      });
+
+      generateBulkBtn.addEventListener("click", generateBulkUuids);
+      [upperChk, noHyphensChk, bracesChk].forEach(function (chk) {
+        chk.addEventListener("change", function () {
+          refreshSingleUuid();
+          generateBulkUuids();
+        });
+      });
+
+      copyBulkBtn.addEventListener("click", async function () {
+        if (!bulkUuidOutput.value) return;
+        try {
+          await navigator.clipboard.writeText(bulkUuidOutput.value);
+          const orig = copyBulkBtn.textContent;
+          copyBulkBtn.textContent = "Copied All!";
+          setTimeout(function () { copyBulkBtn.textContent = orig; }, 1400);
+        } catch (e) {}
+      });
+
+      downloadUuidBtn.addEventListener("click", function () {
+        if (!bulkUuidOutput.value) return;
+        const blob = new Blob([bulkUuidOutput.value], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "uuids-v4.txt";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+
+      validateInput.addEventListener("input", runValidator);
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      refreshSingleUuid();
+      generateBulkUuids();
+    });
+  </script>
+</body>
+</html>

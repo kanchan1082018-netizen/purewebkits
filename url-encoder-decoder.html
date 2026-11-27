@@ -1,0 +1,886 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>URL Encoder & Decoder Online — Percent-Encoding & Query Parser | PureWebKits</title>
+  <meta name="description" content="Free online URL encoder and decoder. Convert special characters, UTF-8 text, and query parameters using encodeURIComponent or encodeURI, plus inspect parsed URL query strings 100% locally." />
+  <link rel="canonical" href="https://PureWebKits.com/url-encoder-decoder.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Top Control Bar */
+    .url-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .mode-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .mode-btn {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 15px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+    .scope-select {
+      height: 38px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #FFFFFF;
+    }
+
+    /* Dual Editor Grid */
+    .editor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .pane-box { display: flex; flex-direction: column; gap: 8px; }
+    .pane-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .char-badge { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+    .url-textarea {
+      width: 100%;
+      height: 210px;
+      padding: 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--text-main);
+      background: #FFFFFF;
+      resize: vertical;
+      outline: none;
+    }
+    .url-textarea:focus { border-color: var(--primary); }
+    .url-textarea[readonly] { background: #F8FAFC; }
+
+    .error-msg {
+      display: none;
+      margin-top: 14px;
+      padding: 11px 14px;
+      border-radius: 9px;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: #B91C1C;
+      font-size: 13.5px;
+      font-weight: 700;
+    }
+
+    /* Action Bar */
+    .action-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .action-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    /* Live Query String Inspector */
+    .query-inspector {
+      display: none;
+      margin-top: 20px;
+      padding: 16px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+    }
+    .qi-title { font-size: 13.5px; font-weight: 800; color: var(--primary); margin-bottom: 10px; }
+    .qi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; }
+    .qi-chip {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 11px;
+      font-size: 12.5px;
+      word-break: break-all;
+    }
+    .qi-key { font-weight: 800; color: var(--text-main); }
+    .qi-val { color: var(--text-muted); font-family: ui-monospace, monospace; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .editor-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive URL Encoder / Decoder -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>URL Encoder & Decoder — Percent-Encoding & Query String Parser</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Encode & decode URLs, UTF-8 query parameters & redirect links locally in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="url-topbar">
+          <div class="mode-pills" role="tablist" aria-label="URL Conversion Mode">
+            <button type="button" class="mode-btn active" data-umode="encode" role="tab" aria-selected="true">URL Encode</button>
+            <button type="button" class="mode-btn" data-umode="decode" role="tab" aria-selected="false">URL Decode</button>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:8px;">
+            <label for="encodeScopeSelect" style="font-size:13px; font-weight:700;">Encoding Scope:</label>
+            <select id="encodeScopeSelect" class="scope-select">
+              <option value="component" selected>encodeURIComponent (Query Values & Params)</option>
+              <option value="full">encodeURI (Preserve Full URL Structure)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="editor-grid">
+          <div class="pane-box">
+            <div class="pane-header">
+              <label id="inLabel" for="urlInput">Plain Text / Raw URL Input</label>
+              <span id="inCount" class="char-badge">0 chars</span>
+            </div>
+            <textarea id="urlInput" class="url-textarea" spellcheck="false" placeholder="Enter a URL, query parameter, or UTF-8 string...">https://PureWebKits.com/search?q=Indian GST & Tax 2026&city=Patna, Bihar</textarea>
+          </div>
+
+          <div class="pane-box">
+            <div class="pane-header">
+              <label id="outLabel" for="urlOutput">Percent-Encoded Output</label>
+              <span id="outCount" class="char-badge">0 chars</span>
+            </div>
+            <textarea id="urlOutput" class="url-textarea" readonly spellcheck="false" placeholder="Result appears instantaneously..."></textarea>
+          </div>
+        </div>
+
+        <div id="urlErrorBox" class="error-msg" role="alert"></div>
+
+        <div id="queryInspector" class="query-inspector">
+          <div class="qi-title">Parsed URL Components & Query Parameters</div>
+          <div id="qiGrid" class="qi-grid"></div>
+        </div>
+
+        <div class="action-bar">
+          <div class="action-group">
+            <button type="button" id="swapUrlBtn" class="btn-sec">⇄ Swap Input & Output</button>
+            <button type="button" id="sampleUrlBtn" class="btn-sec">Sample</button>
+            <button type="button" id="clearUrlBtn" class="btn-sec">Clear</button>
+          </div>
+
+          <button type="button" id="copyUrlBtn" class="btn-primary">Copy Output</button>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How RFC 3986 URL Percent-Encoding, encodeURIComponent & Query Strings Work</h2>
+
+      <h3>Why Reserved URL Characters Must Be Percent-Encoded</h3>
+      <p>
+        Under the internet's official URI specification (<strong>RFC 3986</strong>), web addresses may only contain a strict set of unreserved ASCII characters: letters (<code>A–Z</code>, <code>a–z</code>), digits (<code>0–9</code>), hyphens (<code>-</code>), underscores (<code>_</code>), periods (<code>.</code>), and tildes (<code>~</code>). Characters such as <code>?</code>, <code>&</code>, <code>=</code>, <code>/</code>, <code>#</code>, spaces, and non-ASCII Unicode characters (like Hindi text or currency symbols <code>₹</code>) carry structural control meanings inside HTTP requests. If you pass an unencoded ampersand (<code>&</code>) or space inside a query parameter, the web server splits your data prematurely—breaking OAuth redirects, UTM marketing links, and REST API endpoints.
+      </p>
+
+      <h3>How to Encode or Decode URLs in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Select URL Encode or URL Decode:</strong> Choose <em>URL Encode</em> to escape unsafe characters, or <em>URL Decode</em> to turn unreadable <code>%20</code> and <code>%26</code> links back into human-readable text.</li>
+        <li><strong>Pick Encoding Scope:</strong> Use <em>encodeURIComponent</em> when encoding a single query value or callback URL parameter, or <em>encodeURI</em> when preserving <code>https://</code>, <code>/</code>, <code>?</code>, and <code>&</code> in a complete link.</li>
+        <li><strong>Inspect Parameters & Copy:</strong> Review the live parsed query-parameter cards below the editor and click <em>Copy Output</em>.</li>
+      </ol>
+
+      <h3>UTF-8 Percent-Encoding Formula & Worked Example</h3>
+      <p>
+        Percent-encoding converts every unsafe character into its UTF-8 hexadecimal byte sequence prefixed by <code>%</code>:
+      </p>
+      <div class="formula-box">
+        Percent-Encoded Byte = "%" + UppercaseHex( UTF8_Byte_Value )
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Suppose you pass the search phrase <code>"Price: ₹500 & Free"</code> as a query parameter value using <code>encodeURIComponent()</code>.</p>
+        <p>Spaces become <code>%20</code>, colon becomes <code>%3A</code>, ampersand becomes <code>%26</code>, and the 3-byte UTF-8 Rupee symbol (<code>₹</code> = <code>0xE2 0x82 0xB9</code>) becomes <code>%E2%82%B9</code>.</p>
+        <p>Final safe query value = <code>Price%3A%20%E2%82%B9500%20%26%20Free</code>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="url-table-heading">
+      <h2 id="url-table-heading">Common URL Percent-Encoding Character Reference Chart (16 Characters)</h2>
+      <p>Use this developer reference table to verify exact percent-encoded hex codes and see which characters <code>encodeURI</code> vs. <code>encodeURIComponent</code> escape.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Character</th>
+              <th>Description</th>
+              <th>Percent-Encoded</th>
+              <th>Escaped by encodeURI?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>(space)</code></td>
+              <td>ASCII Space (0x20)</td>
+              <td><span class="limit-badge">%20</span> (or <code>+</code> in forms)</td>
+              <td>Yes (Both)</td>
+            </tr>
+            <tr>
+              <td><code>!</code></td>
+              <td>Exclamation Mark</td>
+              <td><span class="limit-badge">%21</span></td>
+              <td>No (encodeURIComponent only)</td>
+            </tr>
+            <tr>
+              <td><code>"</code></td>
+              <td>Double Quote</td>
+              <td><span class="limit-badge">%22</span></td>
+              <td>Yes (Both)</td>
+            </tr>
+            <tr>
+              <td><code>#</code></td>
+              <td>Hash / Fragment Identifier</td>
+              <td><span class="limit-badge">%23</span></td>
+              <td>No (Reserved fragment)</td>
+            </tr>
+            <tr>
+              <td><code>$</code></td>
+              <td>Dollar Sign</td>
+              <td><span class="limit-badge">%24</span></td>
+              <td>No (encodeURIComponent only)</td>
+            </tr>
+            <tr>
+              <td><code>%</code></td>
+              <td>Percent Sign (Escape Prefix)</td>
+              <td><span class="limit-badge">%25</span></td>
+              <td>Yes (Both)</td>
+            </tr>
+            <tr>
+              <td><code>&</code></td>
+              <td>Ampersand (Query Separator)</td>
+              <td><span class="limit-badge">%26</span></td>
+              <td>No (encodeURIComponent only)</td>
+            </tr>
+            <tr>
+              <td><code>+</code></td>
+              <td>Plus Sign</td>
+              <td><span class="limit-badge">%2B</span></td>
+              <td>No (encodeURIComponent only)</td>
+            </tr>
+            <tr>
+              <td><code>,</code></td>
+              <td>Comma</td>
+              <td><span class="limit-badge">%2C</span></td>
+              <td>No (encodeURIComponent only)</td>
+            </tr>
+            <tr>
+              <td><code>/</code></td>
+              <td>Forward Slash (Path Delimiter)</td>
+              <td><span class="limit-badge">%2F</span></td>
+              <td>No (encodeURIComponent only)</td>
+            </tr>
+            <tr>
+              <td><code>:</code></td>
+              <td>Colon (Scheme / Port Separator)</td>
+              <td><span class="limit-badge">%3A</span></td>
+              <td>No (encodeURIComponent only)</td>
+            </tr>
+            <tr>
+              <td><code>=</code></td>
+              <td>Equals Sign (Key-Value Divider)</td>
+              <td><span class="limit-badge">%3D</span></td>
+              <td>No (encodeURIComponent only)</td>
+            </tr>
+            <tr>
+              <td><code>?</code></td>
+              <td>Question Mark (Query Start)</td>
+              <td><span class="limit-badge">%3F</span></td>
+              <td>No (encodeURIComponent only)</td>
+            </tr>
+            <tr>
+              <td><code>@</code></td>
+              <td>At Symbol</td>
+              <td><span class="limit-badge">%40</span></td>
+              <td>No (encodeURIComponent only)</td>
+            </tr>
+            <tr>
+              <td><code>[ ]</code></td>
+              <td>Square Brackets (IPv6 Hosts)</td>
+              <td><span class="limit-badge">%5B / %5D</span></td>
+              <td>Yes (Both)</td>
+            </tr>
+            <tr>
+              <td><code>₹</code></td>
+              <td>Indian Rupee Symbol (UTF-8)</td>
+              <td><span class="limit-badge">%E2%82%B9</span></td>
+              <td>Yes (Both)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Web Developer, Text & Encoding Tools</h2>
+      <p>Encoding Base64 tokens, formatting JSON responses, generating QR codes, or converting text cases? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="base64-encode-decode.html"><span>Base64 Encoder/Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Password Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="case-converter.html"><span>Text Case Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Char Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="lorem-ipsum-generator.html"><span>Placeholder Text Gen</span><span class="arrow">→</span></a>
+        <a class="related-link" href="color-picker.html"><span>Color Picker & HEX</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. When should I use encodeURIComponent instead of encodeURI?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Use <strong>encodeURIComponent</strong> whenever you are encoding a parameter value (such as a redirect URL, search query, or user email) to append after <code>?key=</code>—because it escapes <code>&</code>, <code>=</code>, <code>?</code>, and <code>/</code> so they don't corrupt your query string. Use <strong>encodeURI</strong> only when you want to encode a complete, already-assembled URL while keeping <code>https://</code> and <code>/</code> intact.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Why do some URLs encode spaces as <code>+</code> while others use <code>%20</code>?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Standard RFC 3986 URI encoding represents a space as <code>%20</code>, whereas HTML form submissions (<code>application/x-www-form-urlencoded</code>) historically encoded spaces as <code>+</code>. Our URL Decoder automatically handles both <code>%20</code> and <code>+</code> cleanly.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. What causes a "Malformed URI sequence" error during decoding?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            This happens if the input contains a literal <code>%</code> sign that is not followed by two valid hexadecimal digits (for example, <code>"50% off"</code> instead of <code>"50%25 off"</code>), or if a multi-byte UTF-8 sequence was cut off mid-character.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my URLs, API tokens, or callback links sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All percent-encoding, decoding, and query-parameter parsing execute 100% locally inside your web browser using JavaScript. Your URLs never leave your device.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side URL Encoder, Decoder & Query Parser Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const modeBtns = document.querySelectorAll("[data-umode]");
+      const encodeScopeSelect = document.getElementById("encodeScopeSelect");
+      const inLabel = document.getElementById("inLabel");
+      const outLabel = document.getElementById("outLabel");
+      const inCount = document.getElementById("inCount");
+      const outCount = document.getElementById("outCount");
+      const urlInput = document.getElementById("urlInput");
+      const urlOutput = document.getElementById("urlOutput");
+      const urlErrorBox = document.getElementById("urlErrorBox");
+
+      const queryInspector = document.getElementById("queryInspector");
+      const qiGrid = document.getElementById("qiGrid");
+
+      const swapUrlBtn = document.getElementById("swapUrlBtn");
+      const sampleUrlBtn = document.getElementById("sampleUrlBtn");
+      const clearUrlBtn = document.getElementById("clearUrlBtn");
+      const copyUrlBtn = document.getElementById("copyUrlBtn");
+
+      let mode = "encode"; // "encode" or "decode"
+
+      function inspectUrlParams(candidateStr) {
+        qiGrid.innerHTML = "";
+        try {
+          const trimmed = candidateStr.trim();
+          if (!/^https?:\/\//i.test(trimmed)) {
+            queryInspector.style.display = "none";
+            return;
+          }
+          const parsed = new URL(trimmed);
+          const entries = Array.from(parsed.searchParams.entries());
+          if (!entries.length && !parsed.pathname) {
+            queryInspector.style.display = "none";
+            return;
+          }
+
+          queryInspector.style.display = "block";
+          const hostChip = document.createElement("div");
+          hostChip.className = "qi-chip";
+          hostChip.innerHTML = '<div class="qi-key">Host & Path</div><div class="qi-val">' + parsed.host + parsed.pathname + '</div>';
+          qiGrid.appendChild(hostChip);
+
+          entries.forEach(function (pair) {
+            const chip = document.createElement("div");
+            chip.className = "qi-chip";
+            chip.innerHTML = '<div class="qi-key">Param: ' + pair[0] + '</div><div class="qi-val">' + pair[1] + '</div>';
+            qiGrid.appendChild(chip);
+          });
+        } catch (e) {
+          queryInspector.style.display = "none";
+        }
+      }
+
+      function runUrlTransform() {
+        urlErrorBox.style.display = "none";
+        urlErrorBox.textContent = "";
+
+        const val = urlInput.value;
+        inCount.textContent = val.length.toLocaleString("en-US") + " chars";
+
+        if (!val) {
+          urlOutput.value = "";
+          outCount.textContent = "0 chars";
+          queryInspector.style.display = "none";
+          return;
+        }
+
+        try {
+          const scope = encodeScopeSelect.value;
+          let result = "";
+          if (mode === "encode") {
+            result = scope === "full" ? encodeURI(val) : encodeURIComponent(val);
+            inspectUrlParams(val);
+          } else {
+            const normalized = val.replace(/\+/g, " ");
+            result = scope === "full" ? decodeURI(normalized) : decodeURIComponent(normalized);
+            inspectUrlParams(result);
+          }
+          urlOutput.value = result;
+          outCount.textContent = result.length.toLocaleString("en-US") + " chars";
+        } catch (err) {
+          urlOutput.value = "";
+          outCount.textContent = "0 chars";
+          urlErrorBox.textContent = "Malformed URI Sequence: Check that every '%' symbol is followed by two valid hex digits (e.g., %20 or %25).";
+          urlErrorBox.style.display = "block";
+        }
+      }
+
+      function switchMode(nextMode) {
+        mode = nextMode;
+        modeBtns.forEach(function (b) {
+          const active = b.getAttribute("data-umode") === mode;
+          b.classList.toggle("active", active);
+          b.setAttribute("aria-selected", String(active));
+        });
+        if (mode === "encode") {
+          inLabel.textContent = "Plain Text / Raw URL Input";
+          outLabel.textContent = "Percent-Encoded Output";
+        } else {
+          inLabel.textContent = "Percent-Encoded URL Input";
+          outLabel.textContent = "Decoded Readable Text / URL";
+        }
+        runUrlTransform();
+      }
+
+      modeBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          switchMode(btn.getAttribute("data-umode"));
+        });
+      });
+
+      encodeScopeSelect.addEventListener("change", runUrlTransform);
+      urlInput.addEventListener("input", runUrlTransform);
+
+      swapUrlBtn.addEventListener("click", function () {
+        if (!urlOutput.value) return;
+        urlInput.value = urlOutput.value;
+        switchMode(mode === "encode" ? "decode" : "encode");
+      });
+
+      sampleUrlBtn.addEventListener("click", function () {
+        switchMode("encode");
+        encodeScopeSelect.value = "full";
+        urlInput.value = "https://PureWebKits.com/search?category=Finance & Tax¤cy=₹ INR&redirect=/emi-calculator.html";
+        runUrlTransform();
+      });
+
+      clearUrlBtn.addEventListener("click", function () {
+        urlInput.value = "";
+        urlOutput.value = "";
+        urlErrorBox.style.display = "none";
+        queryInspector.style.display = "none";
+        runUrlTransform();
+      });
+
+      copyUrlBtn.addEventListener("click", async function () {
+        if (!urlOutput.value) return;
+        try {
+          await navigator.clipboard.writeText(urlOutput.value);
+          const orig = copyUrlBtn.textContent;
+          copyUrlBtn.textContent = "Copied!";
+          setTimeout(function () { copyUrlBtn.textContent = orig; }, 1400);
+        } catch (e) {}
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      runUrlTransform();
+    });
+  </script>
+</body>
+</html>

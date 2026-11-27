@@ -1,0 +1,911 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online UK Fuel Cost & L/100km Calculator — PureWebKits</title>
+  <meta name="description" content="Calculate UK trip fuel cost in GBP (£), fuel needed in liters, L/100km, and UK/US MPG online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/uk-fuel-cost-l100km-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* UK Fuel & L/100km Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .fuel-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .fuel-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .fuel-hero-title { font-size: 16px; font-weight: 800; }
+    .fuel-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .fuel-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 25px;
+      font-weight: 800;
+      color: #38BDF8;
+      white-space: nowrap;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive UK Fuel Cost & L/100km Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online UK Fuel Cost & L/100km Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Estimate UK fuel cost (£), liters needed, L/100km, and UK/US MPG in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Enter trip distance, fuel economy, and UK fuel price per liter to estimate fuel spend & consumption:</div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample (100 mi)</button>
+            <button type="button" id="resetUkFuelBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="ukTripDistInput" class="field-label">Trip Distance</label>
+                <input type="number" id="ukTripDistInput" class="std-input" min="0" step="1" value="100" />
+              </div>
+
+              <div class="field-group">
+                <label for="ukDistUnitSelect" class="field-label">Distance Unit</label>
+                <select id="ukDistUnitSelect" class="std-select">
+                  <option value="mi" selected>Miles (mi)</option>
+                  <option value="km">Kilometers (km)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="ukFuelEconInput" class="field-label">Fuel Economy Value</label>
+                <input type="number" id="ukFuelEconInput" class="std-input" min="0.1" step="0.1" value="45" />
+              </div>
+
+              <div class="field-group">
+                <label for="ukEconUnitSelect" class="field-label">Economy Unit</label>
+                <select id="ukEconUnitSelect" class="std-select">
+                  <option value="mpg_uk" selected>UK MPG (Imperial gal)</option>
+                  <option value="l100km">Liters per 100 km (L/100km)</option>
+                  <option value="mpg_us">US MPG (US gal)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="ukPricePerLiterInput" class="field-label">Fuel Price (£ per Liter)</label>
+              <input type="number" id="ukPricePerLiterInput" class="std-input" min="0" step="0.01" value="1.48" />
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="fuel-hero-box">
+              <div>
+                <div class="fuel-hero-kicker">Estimated Trip Fuel Cost</div>
+                <div class="fuel-hero-title" id="ukFuelSummaryTitle">Total Fuel Spend</div>
+                <div class="fuel-hero-sub" id="ukFuelSubCaption">8.99 L @ £1.48/L</div>
+              </div>
+              <div class="fuel-hero-num" id="ukTripCostDisplay">£13.31</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Consumption (L/100km)</div>
+                <div class="metric-val" id="l100kmVal">6.28 L/100km</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Fuel Required (Liters)</div>
+                <div class="metric-val" id="litersNeededVal">8.99 L</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">UK MPG (Imperial)</div>
+                <div class="metric-val" id="ukMpgVal">45.00 MPG</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">US MPG (US Gallon)</div>
+                <div class="metric-val" id="usMpgVal">37.47 MPG</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyUkFuelBtn" class="btn-primary">Copy Fuel Estimate</button>
+              <button type="button" id="downloadUkFuelBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to UK Fuel Cost, L/100km, and UK vs. US MPG Conversions</h2>
+
+      <h3>Why UK Drivers Switch Between Miles, Liters, L/100km, and MPG</h3>
+      <p>
+        Fuel calculations in the United Kingdom blend imperial and metric conventions: road distances and dashboard fuel economy are typically shown in <strong>miles</strong> and <strong>imperial miles per gallon (UK MPG)</strong>, whereas fuel at the pump is sold by the <strong>liter</strong> in pounds sterling (<code>£/L</code>), and international vehicle specs often quote consumption in <strong>liters per 100 kilometers (L/100km)</strong>. Because an imperial gallon (<code>4.54609 L</code>) is larger than a US gallon (<code>3.78541 L</code>), converting between UK MPG, US MPG, and L/100km requires exact gallon constants. A browser-based <strong>UK Fuel Cost & L/100km Calculator</strong> computes trip cost, liters required, and all three economy metrics simultaneously—100% locally in your browser with zero server uploads.
+      </p>
+
+      <h3>How to Estimate UK Fuel Cost & Consumption in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter Trip Distance & Unit:</strong> Type your journey distance and choose <strong>Miles (mi)</strong> or <strong>Kilometers (km)</strong>, or click <strong>Load Sample (100 mi)</strong>.</li>
+        <li><strong>Enter Fuel Economy & UK Pump Price:</strong> Input your vehicle's efficiency in <strong>UK MPG</strong>, <strong>L/100km</strong>, or <strong>US MPG</strong>, then set the fuel price in <code>£ per liter</code>.</li>
+        <li><strong>Inspect Metrics & Export:</strong> Check total trip cost, liters needed, <code>L/100km</code>, UK MPG, and US MPG, then click <strong>Copy Fuel Estimate</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>UK Fuel Cost, L/100km & MPG Conversion Formulas</h3>
+      <p>
+        Using <code>1 mi = 1.609344 km</code> and <code>1 UK imperial gallon = 4.54609 L</code>:
+      </p>
+      <div class="formula-box">
+        L/100km = 282.480936 / UK_MPG  |  UK_MPG = 282.480936 / (L/100km)<br />
+        Liters Needed = (Distance_km / 100) × (L/100km)  |  Trip Cost = Liters Needed × Price_per_Liter
+      </div>
+
+      <h3>Helpful Tips for Accurate Fuel Budgeting</h3>
+      <ul>
+        <li><strong>Check Real-World vs. Lab Figures:</strong> Highway speeds, hills, traffic, cargo weight, and air conditioning affect real-world fuel economy compared to official WLTP/lab ratings.</li>
+        <li><strong>Never Confuse UK MPG With US MPG:</strong> <code>45 UK MPG</code> equals roughly <code>37.47 US MPG</code> (~<code>6.28 L/100km</code>).</li>
+        <li><strong>Use Exact Forecourt Prices:</strong> Petrol and diesel prices vary by station and motorway vs. supermarket forecourts.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Driving <code>100 miles</code> (<code>160.93 km</code>) at <code>45 UK MPG</code> (~<code>6.28 L/100km</code>) uses about <code>8.99 liters</code> of fuel, costing roughly <code>£13.31</code> at <code>£1.48/L</code>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="ukfuel-table-heading">
+      <h2 id="ukfuel-table-heading">UK Fuel Economy Constants, Formulas & Reference Table (16 Rules)</h2>
+      <p>Use this reference table to check distance, volume, and fuel economy conversion relationships.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Metric / Constant</th>
+              <th>Formula / Value</th>
+              <th>Role</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>UK Imperial Gallon</strong></td>
+              <td><code>4.54609 L</code></td>
+              <td>UK MPG volume base</td>
+              <td>Larger than US gallon</td>
+            </tr>
+            <tr>
+              <td><strong>US Gallon</strong></td>
+              <td><code>3.785411784 L</code></td>
+              <td>US MPG volume base</td>
+              <td><code>1 UK gal ≈ 1.20095 US gal</code></td>
+            </tr>
+            <tr>
+              <td><strong>Mile to Kilometer</strong></td>
+              <td><code>1 mi = 1.609344 km</code></td>
+              <td>Distance conversion</td>
+              <td><code>100 mi = 160.9344 km</code></td>
+            </tr>
+            <tr>
+              <td><strong>UK MPG to L/100km</strong></td>
+              <td><code>282.480936 / UK_MPG</code></td>
+              <td>Inverse consumption rate</td>
+              <td>Lower <code>L/100km</code> means higher efficiency</td>
+            </tr>
+            <tr>
+              <td><strong>L/100km to UK MPG</strong></td>
+              <td><code>282.480936 / (L/100km)</code></td>
+              <td>Converts metric to UK MPG</td>
+              <td><code>6.28 L/100km ≈ 45.0 UK MPG</code></td>
+            </tr>
+            <tr>
+              <td><strong>UK MPG to US MPG</strong></td>
+              <td><code>UK_MPG / 1.2009499255</code></td>
+              <td>Cross-gallon conversion</td>
+              <td><code>UK_MPG > US_MPG</code> for same car</td>
+            </tr>
+            <tr>
+              <td><strong>Liters Needed</strong></td>
+              <td><code>(Dist_km / 100) × L/100km</code></td>
+              <td>Total fuel volume required</td>
+              <td>In liters (<code>L</code>)</td>
+            </tr>
+            <tr>
+              <td><strong>Trip Fuel Cost</strong></td>
+              <td><code>Liters Needed × Price/L</code></td>
+              <td>Estimated spend in <code>£</code></td>
+              <td>Primary headline display</td>
+            </tr>
+            <tr>
+              <td><strong>Distance Unit Toggle</strong></td>
+              <td><code>mi</code> or <code>km</code></td>
+              <td>Supports miles & kilometers</td>
+              <td>Automatic conversion in math</td>
+            </tr>
+            <tr>
+              <td><strong>Economy Unit Toggle</strong></td>
+              <td><code>UK MPG</code>, <code>L/100km</code>, <code>US MPG</code></td>
+              <td>Input in any of the 3 formats</td>
+              <td>Displays all 3 in result cards</td>
+            </tr>
+            <tr>
+              <td><strong>Copy Fuel Estimate</strong></td>
+              <td>Clipboard export</td>
+              <td>Copies trip & economy metrics</td>
+              <td>One-click clipboard copy</td>
+            </tr>
+            <tr>
+              <td><strong>Download .txt</strong></td>
+              <td>File export</td>
+              <td>Saves as <code>uk-fuel-estimate.txt</code></td>
+              <td>Local plain-text summary</td>
+            </tr>
+            <tr>
+              <td><strong>Reset Button</strong></td>
+              <td>Clears numeric inputs</td>
+              <td>Resets fields cleanly</td>
+              <td>Start fresh anytime</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Fuel Math — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — All trip calculations run locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Your trip inputs stay strictly on your device</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Travel, Tax, Unit & Everyday Calculators</h2>
+      <p>Calculating travel speed/time, UK PAYE tax, or volume conversions? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="speed-distance-time-calculator.html"><span>Speed Distance Time Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="uk-paye-tax-calculator.html"><span>UK PAYE Tax Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="volume-converter.html"><span>Volume Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="unit-converter.html"><span>Unit Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="tip-calculator.html"><span>Tip & Bill Split Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How do I convert UK MPG to Liters per 100 km (L/100km)?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Divide <code>282.480936</code> (derived from <code>100 km / 1.609344 mi/km × 4.54609 L/UK gal</code>) by your UK MPG figure.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Why is UK MPG higher than US MPG for the same fuel consumption?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            A UK imperial gallon holds about <code>4.546 L</code> compared to a US gallon's <code>~3.785 L</code>, so a vehicle travels farther on one UK gallon than on one US gallon.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my trip distance or fuel cost inputs sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this UK Fuel Cost & L/100km Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side UK Fuel Cost & L/100km Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const KM_PER_MILE = 1.609344;
+      const LITERS_PER_UK_GAL = 4.54609;
+      const LITERS_PER_US_GAL = 3.785411784;
+      const UK_MPG_TO_L100KM_FACTOR = (100 / KM_PER_MILE) * LITERS_PER_UK_GAL; // ~282.480936
+
+      const ukTripDistInput = document.getElementById("ukTripDistInput");
+      const ukDistUnitSelect = document.getElementById("ukDistUnitSelect");
+      const ukFuelEconInput = document.getElementById("ukFuelEconInput");
+      const ukEconUnitSelect = document.getElementById("ukEconUnitSelect");
+      const ukPricePerLiterInput = document.getElementById("ukPricePerLiterInput");
+
+      const ukFuelSummaryTitle = document.getElementById("ukFuelSummaryTitle");
+      const ukFuelSubCaption = document.getElementById("ukFuelSubCaption");
+      const ukTripCostDisplay = document.getElementById("ukTripCostDisplay");
+
+      const l100kmVal = document.getElementById("l100kmVal");
+      const litersNeededVal = document.getElementById("litersNeededVal");
+      const ukMpgVal = document.getElementById("ukMpgVal");
+      const usMpgVal = document.getElementById("usMpgVal");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetUkFuelBtn = document.getElementById("resetUkFuelBtn");
+      const copyUkFuelBtn = document.getElementById("copyUkFuelBtn");
+      const downloadUkFuelBtn = document.getElementById("downloadUkFuelBtn");
+
+      let latestSummaryText = "";
+
+      function fmtGbp(amt) {
+        const safe = Number.isFinite(amt) ? amt : 0;
+        return "\u00a3" + safe.toLocaleString("en-GB", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+
+      function calculateUkFuel() {
+        const dist = parseFloat(ukTripDistInput.value);
+        const distUnit = ukDistUnitSelect.value;
+        const econ = parseFloat(ukFuelEconInput.value);
+        const econUnit = ukEconUnitSelect.value;
+        const pricePerLiter = parseFloat(ukPricePerLiterInput.value);
+
+        if (
+          !Number.isFinite(dist) || dist < 0 ||
+          !Number.isFinite(econ) || econ <= 0 ||
+          !Number.isFinite(pricePerLiter) || pricePerLiter < 0
+        ) {
+          ukTripCostDisplay.textContent = "—";
+          ukFuelSubCaption.textContent = "Enter valid distance (\u22650), economy (>0), and price";
+          l100kmVal.textContent = "—";
+          litersNeededVal.textContent = "—";
+          ukMpgVal.textContent = "—";
+          usMpgVal.textContent = "—";
+          latestSummaryText = "";
+          return;
+        }
+
+        const distKm = distUnit === "mi" ? dist * KM_PER_MILE : dist;
+
+        let lPer100Km = 0;
+        let ukMpg = 0;
+        let usMpg = 0;
+
+        if (econUnit === "mpg_uk") {
+          ukMpg = econ;
+          lPer100Km = UK_MPG_TO_L100KM_FACTOR / ukMpg;
+          usMpg = (ukMpg * LITERS_PER_US_GAL) / LITERS_PER_UK_GAL;
+        } else if (econUnit === "l100km") {
+          lPer100Km = econ;
+          ukMpg = UK_MPG_TO_L100KM_FACTOR / lPer100Km;
+          usMpg = (100 * LITERS_PER_US_GAL) / (lPer100Km * KM_PER_MILE);
+        } else {
+          // mpg_us
+          usMpg = econ;
+          ukMpg = (usMpg * LITERS_PER_UK_GAL) / LITERS_PER_US_GAL;
+          lPer100Km = UK_MPG_TO_L100KM_FACTOR / ukMpg;
+        }
+
+        const litersNeeded = (distKm / 100) * lPer100Km;
+        const tripCost = litersNeeded * pricePerLiter;
+
+        ukFuelSummaryTitle.textContent = `Trip (${Number(dist).toLocaleString("en-GB")} ${distUnit})`;
+        ukFuelSubCaption.textContent = `${litersNeeded.toFixed(2)} L @ ${fmtGbp(pricePerLiter)}/L`;
+        ukTripCostDisplay.textContent = fmtGbp(tripCost);
+
+        l100kmVal.textContent = `${lPer100Km.toFixed(2)} L/100km`;
+        litersNeededVal.textContent = `${litersNeeded.toFixed(2)} L`;
+        ukMpgVal.textContent = `${ukMpg.toFixed(2)} MPG`;
+        usMpgVal.textContent = `${usMpg.toFixed(2)} MPG`;
+
+        latestSummaryText = [
+          "PureWebKits UK Fuel Cost & L/100km Estimate",
+          "--------------------------------------------",
+          `Trip Distance: ${dist} ${distUnit} (${distKm.toFixed(2)} km) | Price: ${fmtGbp(pricePerLiter)}/L`,
+          `Estimated Trip Fuel Cost: ${fmtGbp(tripCost)} | Fuel Required: ${litersNeeded.toFixed(2)} L`,
+          `Consumption: ${lPer100Km.toFixed(2)} L/100km | UK MPG: ${ukMpg.toFixed(2)} | US MPG: ${usMpg.toFixed(2)}`
+        ].join("\n");
+      }
+
+      [ukTripDistInput, ukDistUnitSelect, ukFuelEconInput, ukEconUnitSelect, ukPricePerLiterInput].forEach(function (el) {
+        el.addEventListener("input", calculateUkFuel);
+        el.addEventListener("change", calculateUkFuel);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        ukTripDistInput.value = "100";
+        ukDistUnitSelect.value = "mi";
+        ukFuelEconInput.value = "45";
+        ukEconUnitSelect.value = "mpg_uk";
+        ukPricePerLiterInput.value = "1.48";
+        calculateUkFuel();
+      });
+
+      resetUkFuelBtn.addEventListener("click", function () {
+        ukTripDistInput.value = "";
+        ukFuelEconInput.value = "";
+        ukPricePerLiterInput.value = "";
+        calculateUkFuel();
+      });
+
+      copyUkFuelBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyUkFuelBtn.textContent;
+          copyUkFuelBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyUkFuelBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadUkFuelBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "uk-fuel-estimate.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateUkFuel();
+    });
+  </script>
+</body>
+</html>
