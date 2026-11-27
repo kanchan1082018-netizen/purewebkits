@@ -1,0 +1,310 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image to WebP Optimizer — Free | PureWebKits</title>
+  <meta name="description" content="Convert PNG and JPG images to lightweight WebP format online for free. Image to WebP converter tool 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/image-to-webp-optimizer.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Tool Wrap Container */
+    .tool-wrap {
+      max-width: 900px;
+      margin: 30px auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .drop-zone {
+      border: 2px dashed #CBD5E1;
+      border-radius: 12px;
+      padding: 40px 20px;
+      text-align: center;
+      background: #F8FAFC;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      margin-bottom: 20px;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+    .drop-zone p { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; }
+    .drop-zone span { font-size: 13px; color: var(--text-muted); }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 24px;
+      background: #F8FAFC;
+      padding: 18px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input {
+      width: 100%;
+      height: 40px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      background: #FFFFFF;
+      outline: none;
+    }
+    .std-input:focus { border-color: var(--primary); }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: center;
+      display: none;
+    }
+    .preview-card {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+    .preview-card img {
+      max-width: 100%;
+      max-height: 180px;
+      object-fit: contain;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      padding: 4px;
+    }
+    .preview-info { font-size: 13.5px; font-weight: 700; color: var(--text-muted); margin-bottom: 12px; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      width: 100%;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    @media (max-width: 768px) {
+      .controls-grid, .preview-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="tool-wrap">
+    <div class="studio-topbar">
+      <div style="font-size:14px; font-weight:700; color:var(--text-muted);">Convert PNG / JPG images into optimized WebP format:</div>
+      <button type="button" id="clearBtn" class="btn-sec">Reset Converter</button>
+    </div>
+
+    <!-- Drop Zone -->
+    <div class="drop-zone" id="dropZone">
+      <p>Drag & Drop your image here, or <span style="color:var(--primary);">browse files</span></p>
+      <span>Supports PNG, JPG, JPEG up to 20MB</span>
+      <input type="file" id="fileInput" accept="image/png, image/jpeg, image/jpg" style="display: none;" />
+    </div>
+
+    <!-- Quality Controls -->
+    <div class="controls-grid" id="controlsGrid" style="display:none;">
+      <div class="field-group">
+        <label for="qualityRange" class="field-label">WebP Compression Quality (<span id="qualityVal">85</span>%)</label>
+        <input type="range" id="qualityRange" min="10" max="100" value="85" style="width:100%; cursor:pointer;" />
+      </div>
+      <div style="font-size:13px; color:var(--text-muted);">
+        Lower quality decreases file size further while maintaining high visual clarity.
+      </div>
+    </div>
+
+    <!-- Preview & Download Section -->
+    <div class="preview-grid" id="previewGrid">
+      <div class="preview-card">
+        <h3 style="font-size:14px; margin-bottom:8px;">Original Image</h3>
+        <img id="origImg" src="" alt="Original Preview" />
+        <div class="preview-info" id="origInfo">Size: -- KB</div>
+      </div>
+      <div class="preview-card" style="border-color:var(--success); background:#F0FDF4;">
+        <h3 style="font-size:14px; margin-bottom:8px; color:var(--success);">Optimized WebP</h3>
+        <img id="webpImg" src="" alt="WebP Preview" />
+        <div class="preview-info" id="webpInfo" style="color:var(--success);">Size: -- KB (Saved --%)</div>
+        <a id="downloadBtn" class="btn-primary" style="display:inline-block; text-align:center;" download="optimized-image.webp">Download WebP</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const dropZone = document.getElementById("dropZone");
+      const fileInput = document.getElementById("fileInput");
+      const controlsGrid = document.getElementById("controlsGrid");
+      const previewGrid = document.getElementById("previewGrid");
+      const qualityRange = document.getElementById("qualityRange");
+      const qualityVal = document.getElementById("qualityVal");
+      const clearBtn = document.getElementById("clearBtn");
+
+      const origImg = document.getElementById("origImg");
+      const origInfo = document.getElementById("origInfo");
+      const webpImg = document.getElementById("webpImg");
+      const webpInfo = document.getElementById("webpInfo");
+      const downloadBtn = document.getElementById("downloadBtn");
+
+      let currentFile = null;
+
+      dropZone.addEventListener("click", () => fileInput.click());
+
+      dropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZone.classList.add("dragover");
+      });
+
+      dropZone.addEventListener("dragleave", () => {
+        dropZone.classList.remove("dragover");
+      });
+
+      dropZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("dragover");
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      fileInput.addEventListener("change", (e) => {
+        if (e.target.files && e.target.files[0]) {
+          handleFile(e.target.files[0]);
+        }
+      });
+
+      function handleFile(file) {
+        if (!file.type.match("image/png") && !file.type.match("image/jpeg") && !file.type.match("image/jpg")) {
+          alert("Please upload a valid PNG or JPG image.");
+          return;
+        }
+
+        currentFile = file;
+        const origSizeKb = (file.size / 1024).toFixed(1);
+        origInfo.textContent = `Size: ${origSizeKb} KB (${file.type.split('/')[1].toUpperCase()})`;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          origImg.src = e.target.result;
+          processWebp(e.target.result, file.name);
+        };
+        reader.readAsDataURL(file);
+
+        controlsGrid.style.display = "grid";
+        previewGrid.style.display = "grid";
+      }
+
+      function processWebp(dataUrl, originalName) {
+        const quality = parseInt(qualityRange.value) / 100;
+        qualityVal.textContent = qualityRange.value;
+
+        const img = new Image();
+        img.onload = function () {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+
+          const webpDataUrl = canvas.toDataURL("image/webp", quality);
+          webpImg.src = webpDataUrl;
+
+          // Calculate size from base64
+          const base64Str = webpDataUrl.split(',')[1];
+          const webpBytes = atob(base64Str).length;
+          const webpSizeKb = (webpBytes / 1024).toFixed(1);
+
+          const origBytes = currentFile.size;
+          const savedPct = Math.max(0, ((1 - (webpBytes / origBytes)) * 100)).toFixed(0);
+
+          webpInfo.textContent = `Size: ${webpSizeKb} KB (Saved ${savedPct}%)`;
+
+          const baseName = originalName.substring(0, originalName.lastIndexOf('.')) || 'optimized-image';
+          downloadBtn.download = `${baseName}.webp`;
+          downloadBtn.href = webpDataUrl;
+        };
+        img.src = dataUrl;
+      }
+
+      qualityRange.addEventListener("input", function () {
+        qualityVal.textContent = qualityRange.value;
+        if (currentFile && origImg.src) {
+          processWebp(origImg.src, currentFile.name);
+        }
+      });
+
+      clearBtn.addEventListener("click", function () {
+        currentFile = null;
+        fileInput.value = "";
+        origImg.src = "";
+        webpImg.src = "";
+        controlsGrid.style.display = "none";
+        previewGrid.style.display = "none";
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,996 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image to Base64 & Base64 to Image Converter Online — Data URI Generator | PureWebKits</title>
+  <meta name="description" content="Convert PNG, JPG, SVG, and WebP images to Base64 Data URIs, HTML img tags, and CSS snippets—or decode Base64 strings back into downloadable image files 100% locally." />
+  <link rel="canonical" href="https://PureWebKits.com/image-to-base64.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Mode Tabs */
+    .mode-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 22px;
+    }
+    .mode-tab {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      border-radius: 9px;
+      padding: 9px 16px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+    }
+    .mode-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    /* Dropzone */
+    .dropzone {
+      border: 2px dashed #93C5FD;
+      background: #F8FAFC;
+      border-radius: 13px;
+      padding: 34px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .dropzone:hover, .dropzone.dragover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+    }
+    .drop-title { font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
+    .drop-sub { font-size: 13.5px; color: var(--text-muted); margin-bottom: 14px; }
+    .btn-primary {
+      display: inline-block;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 9px;
+      padding: 9px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Image -> Base64 Result Workspace */
+    .enc-results { display: none; margin-top: 20px; }
+    .enc-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 12px 15px;
+      margin-bottom: 16px;
+    }
+    .enc-meta-left { display: flex; align-items: center; gap: 12px; }
+    .thumb-box {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+    }
+    .enc-fname { font-size: 14px; font-weight: 800; word-break: break-all; }
+    .enc-fstats { font-size: 12.5px; color: var(--text-muted); }
+
+    .snippet-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .snip-btn {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      border-radius: 7px;
+      padding: 6px 12px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+    }
+    .snip-btn.active {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .code-box {
+      width: 100%;
+      height: 200px;
+      padding: 13px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: var(--text-main);
+      background: #F8FAFC;
+      resize: vertical;
+      outline: none;
+    }
+    .code-box:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .bar-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    /* Base64 -> Image Decoder Pane */
+    .dec-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px;
+      align-items: start;
+    }
+    .dec-preview-card {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .checker-stage {
+      height: 220px;
+      border-radius: 9px;
+      border: 1px solid #CBD5E1;
+      background-image: linear-gradient(45deg, #E2E8F0 25%, transparent 25%),
+                        linear-gradient(-45deg, #E2E8F0 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, #E2E8F0 75%),
+                        linear-gradient(-45deg, transparent 75%, #E2E8F0 75%);
+      background-size: 18px 18px;
+      background-position: 0 0, 0 9px, 9px -9px, -9px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      overflow: hidden;
+    }
+    .checker-stage img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .dec-err {
+      display: none;
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .dec-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Image <-> Base64 Converter -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Image to Base64 & Base64 to Image Converter — Data URI Tool</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Encode images to HTML/CSS Base64 snippets or decode Base64 strings to PNG/JPG locally
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="mode-tabs" role="tablist" aria-label="Conversion Direction">
+          <button type="button" class="mode-tab active" data-ibmode="img2b64" role="tab" aria-selected="true">Image → Base64 (Data URI)</button>
+          <button type="button" class="mode-tab" data-ibmode="b642img" role="tab" aria-selected="false">Base64 → Image File</button>
+        </div>
+
+        <!-- PANE 1: Image to Base64 -->
+        <div id="img2b64Pane">
+          <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Upload an image to convert to Base64">
+            <div class="drop-title">Drag & drop an image here, or click to select</div>
+            <div class="drop-sub">Supports PNG, JPG, SVG, WebP, GIF, and ICO files</div>
+            <span class="btn-primary">Choose Image File</span>
+            <input type="file" id="imgToB64Input" accept="image/*" style="display:none;" />
+          </div>
+
+          <div id="encResults" class="enc-results" aria-live="polite">
+            <div class="enc-top-bar">
+              <div class="enc-meta-left">
+                <img id="encThumb" class="thumb-box" alt="Encoded Image Preview" />
+                <div>
+                  <div id="encFileName" class="enc-fname">icon.png</div>
+                  <div id="encFileStats" class="enc-fstats">0 KB → 0 Base64 chars</div>
+                </div>
+              </div>
+              <button type="button" id="resetEncBtn" class="btn-sec">Encode Another Image</button>
+            </div>
+
+            <div class="snippet-tabs">
+              <button type="button" class="snip-btn active" data-sniptype="datauri">Full Data URI (data:image/...)</button>
+              <button type="button" class="snip-btn" data-sniptype="raw">Raw Base64 String Only</button>
+              <button type="button" class="snip-btn" data-sniptype="html">HTML <img> Tag</button>
+              <button type="button" class="snip-btn" data-sniptype="css">CSS background-image</button>
+            </div>
+
+            <textarea id="encOutputArea" class="code-box" readonly spellcheck="false"></textarea>
+
+            <div class="bar-actions">
+              <button type="button" id="dlB64TxtBtn" class="btn-sec">Download .TXT</button>
+              <button type="button" id="copyEncBtn" class="btn-primary">Copy Base64 Code</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANE 2: Base64 to Image -->
+        <div id="b642imgPane" style="display:none;">
+          <div class="dec-grid">
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <label for="b64PasteArea" style="font-size:13px;font-weight:700;">Paste Base64 String or Data URI</label>
+                <button type="button" id="loadSampleB64Btn" class="btn-sec" style="padding:4px 10px;font-size:12px;">Load Sample</button>
+              </div>
+              <textarea id="b64PasteArea" class="code-box" style="height:245px;background:#FFFFFF;" spellcheck="false" placeholder="Paste data:image/png;base64,iVBORw0KGgo... or raw Base64 string here..."></textarea>
+              <div id="decErrBox" class="dec-err" role="alert"></div>
+            </div>
+
+            <div class="dec-preview-card">
+              <div style="font-size:13px;font-weight:800;display:flex;justify-content:space-between;">
+                <span>Decoded Image Preview</span>
+                <span id="decDimLbl" style="color:var(--primary);">—</span>
+              </div>
+              <div class="checker-stage">
+                <img id="decImgPreview" alt="Decoded Base64 Image" />
+              </div>
+              <button type="button" id="downloadDecImgBtn" class="btn-primary" style="width:100%;text-align:center;">Download Decoded Image</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Image-to-Base64 Data URIs & Inline CSS/HTML Assets Work</h2>
+
+      <h3>When Embedding Base64 Images Improves Speed vs. When External Files Are Better</h3>
+      <p>
+        A <strong>Base64 Data URI</strong> (defined under <strong>RFC 2397</strong> and <strong>RFC 4648</strong>) encodes binary image bytes (PNG, JPG, SVG, or WebP) into a pure ASCII text string prefixed with <code>data:image/[type];base64,</code>. Frontend developers embed small UI icons, loading spinners, critical above-the-fold logos, and HTML email signatures as inline Base64 Data URIs so the browser renders the graphic immediately inside the HTML or CSS file without opening a separate HTTP network connection. Furthermore, single-file HTML web applications and JSON REST APIs rely on Base64 strings to transmit images cleanly inside text payloads. However, because Base64 expands raw binary size by roughly <strong>33.3%</strong> and cannot be cached separately from the parent HTML/CSS file, best practice is to inline graphics under <strong>10 KB</strong> while serving large hero photos as external WebP or JPG files.
+      </p>
+
+      <h3>How to Convert Images & Base64 Strings in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Choose Conversion Direction:</strong> Select <em>Image → Base64 (Data URI)</em> to encode an image file, or <em>Base64 → Image File</em> to decode a Base64 string back into a downloadable graphic.</li>
+        <li><strong>Pick Output Code Snippet:</strong> Switch between <em>Full Data URI</em>, <em>Raw Base64 String</em>, <em>HTML <img> Tag</em>, or <em>CSS background-image</em> with one click.</li>
+        <li><strong>Copy or Download:</strong> Click <em>Copy Base64 Code</em> to paste directly into your editor, or download the decoded image file locally.</li>
+      </ol>
+
+      <h3>Base64 Data URI Size Expansion Formula + Worked Example</h3>
+      <p>
+        Because Base64 represents every <strong>3 binary bytes (24 bits)</strong> using <strong>4 ASCII characters (6 bits each)</strong>, the encoded payload size scales predictably:
+      </p>
+      <div class="formula-box">
+        Base64 String Length = 4 × ⌈ Image File Bytes / 3 ⌉  (≈ +33.3% Size Overhead)
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Suppose you encode a crisp <strong>3,000-byte (2.93 KB)</strong> transparent PNG brand icon.</p>
+        <p>Raw Base64 character count = <code>4 × (3,000 / 3) = 4,000 characters</code> (<code>4,000 bytes</code>), plus <code>22 bytes</code> for the <code>data:image/png;base64,</code> prefix = <strong>4,022 bytes (3.93 KB)</strong>.</p>
+        <p>Inlining this 3.93 KB Data URI eliminates a 50–150 ms HTTP round-trip—making your header logo appear on the very first paint.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="imgb64-table-heading">
+      <h2 id="imgb64-table-heading">Image Data URI MIME Prefixes, Magic Headers & Size Guide (16 Specs)</h2>
+      <p>Use this developer cheat sheet to identify Base64 image prefixes by their opening characters and choose optimal file size thresholds.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Image Format</th>
+              <th>Data URI MIME Prefix</th>
+              <th>Opening Base64 Signature</th>
+              <th>Best Inline Usage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>PNG (.png)</strong></td>
+              <td><code>data:image/png;base64,</code></td>
+              <td><span class="limit-badge">iVBORw0KGgo...</span></td>
+              <td>Transparent UI icons, badges & small logos</td>
+            </tr>
+            <tr>
+              <td><strong>JPEG / JPG (.jpg)</strong></td>
+              <td><code>data:image/jpeg;base64,</code></td>
+              <td><span class="limit-badge">/9j/4AAQSkZJRg...</span></td>
+              <td>Small avatar thumbnails & API photo payloads</td>
+            </tr>
+            <tr>
+              <td><strong>WebP (.webp)</strong></td>
+              <td><code>data:image/webp;base64,</code></td>
+              <td><span class="limit-badge">UklGR...</span></td>
+              <td>Smallest modern Data URI footprint</td>
+            </tr>
+            <tr>
+              <td><strong>SVG Vector (.svg)</strong></td>
+              <td><code>data:image/svg+xml;base64,</code></td>
+              <td><span class="limit-badge">PHN2Zy...</span></td>
+              <td>Crisp Retina icons & CSS background patterns</td>
+            </tr>
+            <tr>
+              <td><strong>GIF (.gif)</strong></td>
+              <td><code>data:image/gif;base64,</code></td>
+              <td><span class="limit-badge">R0lGODlh...</span></td>
+              <td>1×1 tracking pixels & tiny loaders</td>
+            </tr>
+            <tr>
+              <td><strong>Favicon ICO (.ico)</strong></td>
+              <td><code>data:image/x-icon;base64,</code></td>
+              <td><span class="limit-badge">AAABAAE...</span></td>
+              <td>Inline HTML <code><link rel="icon"></code> fallback</td>
+            </tr>
+            <tr>
+              <td><strong>BMP Bitmap (.bmp)</strong></td>
+              <td><code>data:image/bmp;base64,</code></td>
+              <td><span class="limit-badge">Qk0...</span></td>
+              <td>Legacy Windows bitmap streams</td>
+            </tr>
+            <tr>
+              <td><strong>AVIF (.avif)</strong></td>
+              <td><code>data:image/avif;base64,</code></td>
+              <td><span class="limit-badge">AAAAIGZ0eXBhdmlm...</span></td>
+              <td>Next-gen ultra-compact thumbnails</td>
+            </tr>
+            <tr>
+              <td><strong>HTML <img> Syntax</strong></td>
+              <td><code><img src="data:image/..." /></code></td>
+              <td>Zero Extra HTTP Request</td>
+              <td>Single-file HTML apps & offline reports</td>
+            </tr>
+            <tr>
+              <td><strong>CSS Background Syntax</strong></td>
+              <td><code>background-image: url("data:...");</code></td>
+              <td>Embedded in Stylesheet</td>
+              <td>Eliminates Flash of Unstyled Icons</td>
+            </tr>
+            <tr>
+              <td><strong>Icons Under 5 KB</strong></td>
+              <td>Recommended for Inline</td>
+              <td><span class="limit-badge">Optimal Speed Gain</span></td>
+              <td>Saves TCP/TLS handshake latency</td>
+            </tr>
+            <tr>
+              <td><strong>Images 5 KB – 15 KB</strong></td>
+              <td>Moderate Inline Use</td>
+              <td>Acceptable in Critical CSS</td>
+              <td>Verify gzip/Brotli compression savings</td>
+            </tr>
+            <tr>
+              <td><strong>Photos Over 50 KB</strong></td>
+              <td>Serve as External File</td>
+              <td>Avoid Inline Base64</td>
+              <td>Prevents HTML bloat & enables browser caching</td>
+            </tr>
+            <tr>
+              <td><strong>Gzip / Brotli Effect</strong></td>
+              <td>Compresses Base64 Text</td>
+              <td>Reduces +33% to ~+10%</td>
+              <td>HTTP text compression shrinks ASCII overhead</td>
+            </tr>
+            <tr>
+              <td><strong>JSON API Image Transport</strong></td>
+              <td>Raw Base64 or Data URI</td>
+              <td>UTF-8 JSON Safe</td>
+              <td>Uploading signatures & avatars in REST APIs</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Privacy</strong></td>
+              <td>HTML5 FileReader API</td>
+              <td><span class="limit-badge">Zero Server Upload</span></td>
+              <td>100% local browser encoding & decoding</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Image, Vector & Encoding Utilities</h2>
+      <p>Need to encode plain UTF-8 text to Base64, convert SVG to PNG, generate favicons, or compress images before encoding? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="base64-encode-decode.html"><span>Text Base64 Encoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="svg-to-png.html"><span>SVG to PNG Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="favicon-generator.html"><span>Favicon Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compress-image-to-exact-kb.html"><span>Compress Image to KB</span><span class="arrow">→</span></a>
+        <a class="related-link" href="png-to-jpg.html"><span>PNG to JPG Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="jpg-to-png.html"><span>JPG to PNG Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="webp-converter.html"><span>WebP Image Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="url-encoder-decoder.html"><span>URL Encoder/Decoder</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is the difference between a Raw Base64 string and a Data URI?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            A <strong>Raw Base64 string</strong> contains only the encoded characters (starting with <code>iVBORw0KGgo...</code> for PNG or <code>/9j/4AAQ...</code> for JPG), whereas a <strong>Data URI</strong> prepends the MIME header (such as <code>data:image/png;base64,</code>) so browsers know which image decoder to use inside <code><img src="..."></code> or CSS <code>url(...)</code>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I decode a Base64 string even if it does not have the <code>data:image/...</code> prefix?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Yes! Switch to the <strong>Base64 → Image File</strong> tab and paste any raw Base64 string—our decoder automatically inspects the opening magic bytes (<code>iVBOR</code> = PNG, <code>/9j/</code> = JPEG, <code>UklGR</code> = WebP, <code>R0lGOD</code> = GIF) and reconstructs the valid Data URI for preview and download.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Why does Base64 increase the image size by about 33%?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Raw binary files use 8 bits per byte (256 values), whereas Base64 uses only 6 bits per character (64 printable ASCII characters). Encoding 24 bits of image data requires four 6-bit Base64 characters—resulting in an exact <code>4 / 3 = 1.333×</code> (+33.3%) size ratio.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my images or Base64 strings sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All FileReader encoding and Base64 decoding run 100% locally inside your web browser. Your files never leave your device.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Image <-> Base64 Data URI Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const modeTabs = document.querySelectorAll(".mode-tab");
+      const img2b64Pane = document.getElementById("img2b64Pane");
+      const b642imgPane = document.getElementById("b642imgPane");
+
+      const dropzone = document.getElementById("dropzone");
+      const imgToB64Input = document.getElementById("imgToB64Input");
+      const encResults = document.getElementById("encResults");
+      const encThumb = document.getElementById("encThumb");
+      const encFileName = document.getElementById("encFileName");
+      const encFileStats = document.getElementById("encFileStats");
+      const resetEncBtn = document.getElementById("resetEncBtn");
+
+      const snipBtns = document.querySelectorAll(".snip-btn");
+      const encOutputArea = document.getElementById("encOutputArea");
+      const dlB64TxtBtn = document.getElementById("dlB64TxtBtn");
+      const copyEncBtn = document.getElementById("copyEncBtn");
+
+      const b64PasteArea = document.getElementById("b64PasteArea");
+      const loadSampleB64Btn = document.getElementById("loadSampleB64Btn");
+      const decErrBox = document.getElementById("decErrBox");
+      const decDimLbl = document.getElementById("decDimLbl");
+      const decImgPreview = document.getElementById("decImgPreview");
+      const downloadDecImgBtn = document.getElementById("downloadDecImgBtn");
+
+      let currentDataUri = "";
+      let activeSnippetType = "datauri";
+      let decodedDataUri = "";
+      let decodedExt = "png";
+
+      function formatBytes(b) {
+        if (b < 1024) return b + " B";
+        const kb = b / 1024;
+        return kb < 1024 ? kb.toFixed(2) + " KB" : (kb / 1024).toFixed(2) + " MB";
+      }
+
+      function renderSnippet() {
+        if (!currentDataUri) return;
+        const rawB64 = currentDataUri.split(",")[1] || "";
+        if (activeSnippetType === "datauri") {
+          encOutputArea.value = currentDataUri;
+        } else if (activeSnippetType === "raw") {
+          encOutputArea.value = rawB64;
+        } else if (activeSnippetType === "html") {
+          encOutputArea.value = '<img src="' + currentDataUri + '" alt="Embedded Image" />';
+        } else if (activeSnippetType === "css") {
+          encOutputArea.value = 'background-image: url("' + currentDataUri + '");';
+        }
+      }
+
+      function handleImageUpload(file) {
+        if (!file || !file.type.startsWith("image/")) return;
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          currentDataUri = ev.target.result || "";
+          encThumb.src = currentDataUri;
+          encFileName.textContent = file.name;
+          encFileStats.textContent = formatBytes(file.size) + " → " + currentDataUri.length.toLocaleString("en-US") + " Data URI chars";
+          dropzone.style.display = "none";
+          encResults.style.display = "block";
+          renderSnippet();
+        };
+        reader.readAsDataURL(file);
+      }
+
+      modeTabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+          modeTabs.forEach(function (t) {
+            t.classList.remove("active");
+            t.setAttribute("aria-selected", "false");
+          });
+          tab.classList.add("active");
+          tab.setAttribute("aria-selected", "true");
+          const m = tab.getAttribute("data-ibmode");
+          img2b64Pane.style.display = m === "img2b64" ? "block" : "none";
+          b642imgPane.style.display = m === "b642img" ? "block" : "none";
+        });
+      });
+
+      dropzone.addEventListener("click", function () { imgToB64Input.click(); });
+      dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+      dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+      dropzone.addEventListener("drop", function (e) {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleImageUpload(e.dataTransfer.files[0]);
+        }
+      });
+
+      imgToB64Input.addEventListener("change", function (e) {
+        if (e.target.files && e.target.files[0]) handleImageUpload(e.target.files[0]);
+        e.target.value = "";
+      });
+
+      resetEncBtn.addEventListener("click", function () {
+        currentDataUri = "";
+        encResults.style.display = "none";
+        dropzone.style.display = "block";
+      });
+
+      snipBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          snipBtns.forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          activeSnippetType = btn.getAttribute("data-sniptype");
+          renderSnippet();
+        });
+      });
+
+      copyEncBtn.addEventListener("click", async function () {
+        if (!encOutputArea.value) return;
+        try {
+          await navigator.clipboard.writeText(encOutputArea.value);
+          const orig = copyEncBtn.textContent;
+          copyEncBtn.textContent = "Copied!";
+          setTimeout(function () { copyEncBtn.textContent = orig; }, 1400);
+        } catch (e) {}
+      });
+
+      dlB64TxtBtn.addEventListener("click", function () {
+        if (!encOutputArea.value) return;
+        const blob = new Blob([encOutputArea.value], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "image-base64.txt";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+
+      // Base64 -> Image Decoder
+      function detectMimeFromRawB64(b64) {
+        if (b64.startsWith("/9j/")) return { mime: "image/jpeg", ext: "jpg" };
+        if (b64.startsWith("UklGR")) return { mime: "image/webp", ext: "webp" };
+        if (b64.startsWith("R0lGOD")) return { mime: "image/gif", ext: "gif" };
+        if (b64.startsWith("PHN2Zy")) return { mime: "image/svg+xml", ext: "svg" };
+        return { mime: "image/png", ext: "png" };
+      }
+
+      function decodeBase64ToImage() {
+        decErrBox.style.display = "none";
+        const rawInput = b64PasteArea.value.trim();
+        if (!rawInput) {
+          decodedDataUri = "";
+          decImgPreview.removeAttribute("src");
+          decDimLbl.textContent = "—";
+          return;
+        }
+
+        let candidateUri = rawInput;
+        if (!/^data:image\//i.test(candidateUri)) {
+          const cleanB64 = candidateUri.replace(/\s+/g, "");
+          const info = detectMimeFromRawB64(cleanB64);
+          decodedExt = info.ext;
+          candidateUri = "data:" + info.mime + ";base64," + cleanB64;
+        } else {
+          const m = candidateUri.match(/^data:image\/([a-zA-Z0-9+.-]+);base64,/i);
+          decodedExt = m ? m[1].replace("jpeg", "jpg").replace("svg+xml", "svg") : "png";
+        }
+
+        const testImg = new Image();
+        testImg.onload = function () {
+          decodedDataUri = candidateUri;
+          decImgPreview.src = candidateUri;
+          decDimLbl.textContent = (testImg.naturalWidth || testImg.width) + " × " + (testImg.naturalHeight || testImg.height) + " px (" + decodedExt.toUpperCase() + ")";
+        };
+        testImg.onerror = function () {
+          decodedDataUri = "";
+          decImgPreview.removeAttribute("src");
+          decDimLbl.textContent = "—";
+          decErrBox.textContent = "Invalid Base64 image data: Please verify that the complete Base64 string was pasted.";
+          decErrBox.style.display = "block";
+        };
+        testImg.src = candidateUri;
+      }
+
+      b64PasteArea.addEventListener("input", decodeBase64ToImage);
+
+      loadSampleB64Btn.addEventListener("click", function () {
+        const sampleSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 28 28"><rect width="28" height="28" rx="6" fill="#2563EB"/><path d="M14 4L23 9.2V18.8L14 24L5 18.8V9.2L14 4Z" fill="#60A5FA"/></svg>';
+        b64PasteArea.value = "data:image/svg+xml;base64," + btoa(sampleSvg);
+        decodeBase64ToImage();
+      });
+
+      downloadDecImgBtn.addEventListener("click", function () {
+        if (!decodedDataUri) return;
+        const a = document.createElement("a");
+        a.href = decodedDataUri;
+        a.download = "decoded-image." + decodedExt;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

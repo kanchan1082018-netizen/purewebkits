@@ -1,0 +1,973 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online InScript Hindi Typing Pad (Devanagari Unicode) — PureWebKits</title>
+  <meta name="description" content="Type Hindi in Unicode Devanagari using the standard InScript layout with an interactive on-screen key pad, physical keyboard mapping toggle, copy, and .txt export online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/inscript-hindi-typing-pad.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* InScript Typing Pad Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+    .btn-sec.active-toggle {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary-dark);
+    }
+
+    .chk-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      background: #F8FAFC;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 7px 12px;
+    }
+
+    .field-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .field-header-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .stats-strip {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .hindi-pad-textarea {
+      width: 100%;
+      min-height: 175px;
+      padding: 14px 16px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 10px;
+      font-family: "Noto Sans Devanagari", "Kohinoor Devanagari", "Mangal", Arial, sans-serif;
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: #F8FAFC;
+      line-height: 1.75;
+      resize: vertical;
+      outline: none;
+    }
+    .hindi-pad-textarea:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    /* Virtual InScript Keyboard */
+    .vk-panel {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .vk-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .vk-title {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .vk-layer-badge {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11.5px;
+      font-weight: 800;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      padding: 2px 9px;
+      border-radius: 6px;
+    }
+    .vk-row {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .vk-key {
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 7px;
+      padding: 6px 4px;
+      min-height: 46px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.12s ease, border-color 0.12s ease;
+    }
+    .vk-key:hover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+    }
+    .vk-key:active {
+      transform: translateY(1px);
+    }
+    .vk-glyph {
+      font-family: "Noto Sans Devanagari", "Kohinoor Devanagari", "Mangal", Arial, sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.25;
+    }
+    .vk-ascii {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .vk-action-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .vk-row { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .vk-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive InScript Hindi Typing Pad Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online InScript Hindi Typing Pad</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Type Unicode Devanagari Hindi via InScript layout & on-screen keys in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Type directly with InScript mapping enabled or click the on-screen Devanagari keys below:</div>
+          <div class="topbar-actions">
+            <label class="chk-inline"><input type="checkbox" id="inscriptTypingChk" checked /> Map Physical Keys (InScript)</label>
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample</button>
+            <button type="button" id="clearPadBtn" class="btn-sec">Clear</button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="field-header-line">
+            <label for="inscriptEditor" class="field-label">Unicode Devanagari Editor</label>
+            <span class="stats-strip" id="padStatsLabel">0 chars • 0 words</span>
+          </div>
+          <textarea id="inscriptEditor" class="hindi-pad-textarea" placeholder="यहाँ हिंदी में लिखें (InScript लेआउट या नीचे की कुंजियों का उपयोग करें)..."></textarea>
+        </div>
+
+        <div class="vk-panel" aria-label="Interactive InScript Devanagari Key Pad">
+          <div class="vk-toolbar">
+            <span class="vk-title">On-Screen InScript Key Pad</span>
+            <span class="vk-layer-badge" id="vkLayerBadge">NORMAL LAYER</span>
+          </div>
+          <div id="vkRowsContainer"></div>
+          <div class="vk-action-bar">
+            <button type="button" id="vkShiftBtn" class="btn-sec">Shift Layer (अ / ख / घ / ध)</button>
+            <button type="button" id="vkSpaceBtn" class="btn-sec">Space</button>
+            <button type="button" id="vkEnterBtn" class="btn-sec">New Line</button>
+            <button type="button" id="vkBackspaceBtn" class="btn-sec">Backspace</button>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button type="button" id="copyHindiBtn" class="btn-primary">Copy Hindi Text</button>
+          <button type="button" id="downloadHindiBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Layout Logic & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to InScript Hindi Typing, Vowel Signs (Matras), and Halant Conjuncts</h2>
+
+      <h3>Why the InScript Layout Is the Standard for Indian Script Typing</h3>
+      <p>
+        The <strong>InScript</strong> (Indian Script) keyboard layout is the standard national layout defined for typing Indian languages—including Hindi in <strong>Unicode Devanagari</strong>—across operating systems and digital platforms. Unlike phonetic typing that guesses Latin spellings, InScript arranges vowels on the left side of the keyboard, consonants on the right, and shifts keys cleanly between unshifted and shifted positions so typists can build muscle memory for speed and accuracy. A browser-based <strong>InScript Hindi Typing Pad</strong> lets you type directly from a standard QWERTY keyboard or click on-screen keys—100% locally in your browser with zero server uploads.
+      </p>
+
+      <h3>How to Type Hindi With This InScript Pad in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Keep InScript Mapping Active (or Toggle Off):</strong> Leave <strong>Map Physical Keys (InScript)</strong> checked to type Devanagari characters directly on your physical keyboard, or uncheck it to type normally or paste text.</li>
+        <li><strong>Type Consonants, Matras & Shift Characters:</strong> Use unshifted keys for common consonants and vowel signs (matras), and hold <strong>Shift</strong> (or click <strong>Shift Layer</strong> on the virtual pad) for aspirated consonants, independent vowels, and conjunct modifiers.</li>
+        <li><strong>Copy or Export Your Text:</strong> Click <strong>Copy Hindi Text</strong> to copy to your clipboard or <strong>Download .txt</strong> to save a UTF-8 file locally.</li>
+      </ol>
+
+      <h3>How Consonants, Halant (्) & Matras Work in Unicode Devanagari</h3>
+      <p>
+        In Unicode Devanagari, each consonant carries an inherent <code>अ</code> vowel sound unless modified by a vowel sign (matra) or suppressed with the <strong>Halant (<code>्</code>)</strong>:
+      </p>
+      <div class="formula-box">
+        Consonant + Matra (e.g., क + ा = का, क + ि = कि, क + ी = की, क + े = के)<br />
+        Consonant 1 + Halant (्) + Consonant 2 = Conjunct (e.g., क् + ष = क्ष, त् + र = त्र, ज् + ञ = ज्ञ)
+      </div>
+
+      <h3>Helpful Tips for Smooth Devanagari Typing</h3>
+      <ul>
+        <li><strong>Use Halant (<code>्</code>) for Half-Letters & Conjuncts:</strong> Typing a consonant followed by halant (<code>d</code> key in InScript) forms a half-consonant ready to join the next consonant.</li>
+        <li><strong>Combine Virtual Keys With Your Physical Keyboard:</strong> Use the on-screen pad whenever you want a quick visual reminder of a shifted character or special mark.</li>
+        <li><strong>Export as UTF-8 (.txt):</strong> Always use UTF-8 encoding when saving or sharing Devanagari text files.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Typing with InScript mapping on the sample phrase produces clean Unicode Hindi such as <code>नमस्ते भारत। आज मौसम अच्छा है।</code> ready for documents, emails, and web forms.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="inscript-table-heading">
+      <h2 id="inscript-table-heading">InScript Hindi Key Mappings & Reference Table (16 Rules)</h2>
+      <p>Use this reference table to look up common InScript keys, matras, and editor controls.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Key / Feature</th>
+              <th>Normal (Unshifted)</th>
+              <th>Shift Layer</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Home Row Left (a, s, d, f, g)</strong></td>
+              <td><code>ो (a), े (s), ् (d), ि (f), ा (g)</code></td>
+              <td><code>औ (A), ऐ (S), अ (D), इ (F), आ (G)</code></td>
+              <td>Core vowels & vowel signs</td>
+            </tr>
+            <tr>
+              <td><strong>Home Row Right (h, j, k, l)</strong></td>
+              <td><code>प (h), र (j), क (k), त (l)</code></td>
+              <td><code>फ (H), ऱ (J), ख (K), थ (L)</code></td>
+              <td>Key consonants</td>
+            </tr>
+            <tr>
+              <td><strong>Top Row Left (q, w, e, r, t)</strong></td>
+              <td><code>ौ (q), ै (w), ा/ी? (e=ा/ी: ी)</code></td>
+              <td><code>औ (Q), ऐ (W), ई (E), र् (R), ठ (T)</code></td>
+              <td>Vowel signs & reph</td>
+            </tr>
+            <tr>
+              <td><strong>Top Row Right (y, u, i, o, p)</strong></td>
+              <td><code>व (y), न (u), ग (i), ह (o), ज (p)</code></td>
+              <td><code>ब (Y), ण (U), घ (I), ः (O), झ (P)</code></td>
+              <td>Consonants & visarga</td>
+            </tr>
+            <tr>
+              <td><strong>Bottom Row Left (z, x, c, v, b)</strong></td>
+              <td><code>ँ (z), ं (x), म (c), न/व? (v=न: न)</code></td>
+              <td><code>ऀ (Z), ़ (X), ण/म? (C=ण: ण)</code></td>
+              <td>Chandrabindu, anusvara, nukta</td>
+            </tr>
+            <tr>
+              <td><strong>Bottom Row Right (n, m)</strong></td>
+              <td><code>ल (n), स (m)</code></td>
+              <td><code>ळ (N), श (M)</code></td>
+              <td>Laterals & sibilants</td>
+            </tr>
+            <tr>
+              <td><strong>Short 'i' Matra (ि)</strong></td>
+              <td><code>f</code> key</td>
+              <td><code>F</code> key (इ vowel)</td>
+              <td>Attaches to preceding consonant</td>
+            </tr>
+            <tr>
+              <td><strong>Long 'ee' Matra (ी)</strong></td>
+              <td><code>r</code> key</td>
+              <td><code>R</code> key (र् reph)</td>
+              <td>Standard long-i vowel sign</td>
+            </tr>
+            <tr>
+              <td><strong>Halant / Virama (्)</strong></td>
+              <td><code>d</code> key</td>
+              <td><code>D</code> key (अ vowel)</td>
+              <td>Suppresses inherent vowel</td>
+            </tr>
+            <tr>
+              <td><strong>Anusvara (ं)</strong></td>
+              <td><code>x</code> key</td>
+              <td><code>X</code> key (़ nukta)</td>
+              <td>Nasal dot above line</td>
+            </tr>
+            <tr>
+              <td><strong>Devanagari Danda (।)</strong></td>
+              <td><code>]</code> / punctuation</td>
+              <td><code>}</code> / punctuation</td>
+              <td>Traditional sentence delimiter</td>
+            </tr>
+            <tr>
+              <td><strong>Shift Layer Toggle</strong></td>
+              <td>On-screen button</td>
+              <td>Switches key pad labels</td>
+              <td>Easy touch/click access</td>
+            </tr>
+            <tr>
+              <td><strong>Copy Hindi Text</strong></td>
+              <td>Clipboard export</td>
+              <td>Copies Unicode output</td>
+              <td>One-click clipboard copy</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript InScript Key Mapper — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — All typing & text processing stays locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Your typed text never leaves your device</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Hindi, Text & Everyday Utilities</h2>
+      <p>Converting Kruti Dev text, counting words, or generating numbers? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="krutidev-to-unicode-converter.html"><span>Kruti Dev to Unicode</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="roman-numeral-converter.html"><span>Roman Numeral Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="unit-converter.html"><span>Unit Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="random-number.html"><span>Random Number Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="tip-calculator.html"><span>Tip & Bill Split Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How do I type English characters or paste text without InScript mapping?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Uncheck <strong>Map Physical Keys (InScript)</strong> in the top toolbar to type standard QWERTY characters or paste text directly without InScript key translation.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I type using only the on-screen buttons if I don't want to use physical keys?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> Click any character key on the <strong>On-Screen InScript Key Pad</strong>—and toggle <strong>Shift Layer</strong> to access shifted glyphs, vowels, and modifiers.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Is the Hindi text I type sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. Everything runs 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this InScript Hindi Typing Pad free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side InScript Hindi Typing Pad Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const SAMPLE_HINDI = "नमस्ते भारत। आज मौसम अच्छा है।";
+
+      // Standard InScript Devanagari Key Map (key -> [normalGlyph, shiftGlyph])
+      const INSCRIPT_MAP = {
+        "q": ["ौ", "औ"],
+        "w": ["ै", "ऐ"],
+        "e": ["ा", "आ"],
+        "r": ["ी", "ई"],
+        "t": ["ू", "ऊ"],
+        "y": ["ब", "भ"],
+        "u": ["ह", "ङ"],
+        "i": ["ग", "घ"],
+        "o": ["द", "ध"],
+        "p": ["ज", "झ"],
+        "[": ["ड", "ढ"],
+        "]": ["़", "ञ"],
+
+        "a": ["ो", "ओ"],
+        "s": ["े", "ए"],
+        "d": ["्", "अ"],
+        "f": ["ि", "इ"],
+        "g": ["ु", "उ"],
+        "h": ["प", "फ"],
+        "j": ["र", "ऱ"],
+        "k": ["क", "ख"],
+        "l": ["त", "थ"],
+        ";": ["च", "छ"],
+        "'": ["ट", "ठ"],
+
+        "z": ["ॆ", "ए"],
+        "x": ["ं", "ँ"],
+        "c": ["म", "ण"],
+        "v": ["न", "ऩ"],
+        "b": ["व", "ऴ"],
+        "n": ["ल", "ळ"],
+        "m": ["स", "श"],
+        ",": [",", "ष"],
+        ".": [".", "।"],
+        "/": ["य", "य़"]
+      };
+
+      const KEY_ROWS = [
+        ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[", "]"],
+        ["a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "'", "."],
+        ["z", "x", "c", "v", "b", "n", "m", ",", "/"]
+      ];
+
+      const inscriptTypingChk = document.getElementById("inscriptTypingChk");
+      const inscriptEditor = document.getElementById("inscriptEditor");
+      const padStatsLabel = document.getElementById("padStatsLabel");
+      const vkRowsContainer = document.getElementById("vkRowsContainer");
+      const vkLayerBadge = document.getElementById("vkLayerBadge");
+      const vkShiftBtn = document.getElementById("vkShiftBtn");
+      const vkSpaceBtn = document.getElementById("vkSpaceBtn");
+      const vkEnterBtn = document.getElementById("vkEnterBtn");
+      const vkBackspaceBtn = document.getElementById("vkBackspaceBtn");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const clearPadBtn = document.getElementById("clearPadBtn");
+      const copyHindiBtn = document.getElementById("copyHindiBtn");
+      const downloadHindiBtn = document.getElementById("downloadHindiBtn");
+
+      let isShiftLayer = false;
+
+      function updateStats() {
+        const text = inscriptEditor.value || "";
+        const trimmed = text.trim();
+        const words = trimmed ? trimmed.split(/\s+/).length : 0;
+        padStatsLabel.textContent = `${text.length.toLocaleString("en-US")} chars \u2022 ${words.toLocaleString("en-US")} words`;
+      }
+
+      function insertAtCursor(str) {
+        const start = typeof inscriptEditor.selectionStart === "number" ? inscriptEditor.selectionStart : inscriptEditor.value.length;
+        const end = typeof inscriptEditor.selectionEnd === "number" ? inscriptEditor.selectionEnd : inscriptEditor.value.length;
+        const before = inscriptEditor.value.slice(0, start);
+        const after = inscriptEditor.value.slice(end);
+        inscriptEditor.value = before + str + after;
+        const nextPos = start + str.length;
+        inscriptEditor.focus();
+        inscriptEditor.setSelectionRange(nextPos, nextPos);
+        updateStats();
+      }
+
+      function backspaceAtCursor() {
+        const start = typeof inscriptEditor.selectionStart === "number" ? inscriptEditor.selectionStart : inscriptEditor.value.length;
+        const end = typeof inscriptEditor.selectionEnd === "number" ? inscriptEditor.selectionEnd : inscriptEditor.value.length;
+        if (start !== end) {
+          inscriptEditor.value = inscriptEditor.value.slice(0, start) + inscriptEditor.value.slice(end);
+          inscriptEditor.focus();
+          inscriptEditor.setSelectionRange(start, start);
+        } else if (start > 0) {
+          inscriptEditor.value = inscriptEditor.value.slice(0, start - 1) + inscriptEditor.value.slice(start);
+          inscriptEditor.focus();
+          inscriptEditor.setSelectionRange(start - 1, start - 1);
+        }
+        updateStats();
+      }
+
+      function renderVirtualKeyboard() {
+        vkRowsContainer.innerHTML = "";
+        vkLayerBadge.textContent = isShiftLayer ? "SHIFT LAYER" : "NORMAL LAYER";
+        vkShiftBtn.classList.toggle("active-toggle", isShiftLayer);
+
+        KEY_ROWS.forEach(function (rowKeys) {
+          const rowDiv = document.createElement("div");
+          rowDiv.className = "vk-row";
+
+          rowKeys.forEach(function (k) {
+            const pair = INSCRIPT_MAP[k];
+            if (!pair) return;
+            const glyph = isShiftLayer ? pair[1] : pair[0];
+            const keyLabel = isShiftLayer ? k.toUpperCase() : k;
+
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "vk-key";
+            btn.setAttribute("aria-label", `Insert ${glyph} (${keyLabel})`);
+
+            const gSpan = document.createElement("span");
+            gSpan.className = "vk-glyph";
+            gSpan.textContent = glyph;
+
+            const aSpan = document.createElement("span");
+            aSpan.className = "vk-ascii";
+            aSpan.textContent = keyLabel;
+
+            btn.appendChild(gSpan);
+            btn.appendChild(aSpan);
+
+            btn.addEventListener("click", function () {
+              insertAtCursor(glyph);
+            });
+
+            rowDiv.appendChild(btn);
+          });
+
+          vkRowsContainer.appendChild(rowDiv);
+        });
+      }
+
+      inscriptEditor.addEventListener("keydown", function (e) {
+        if (!inscriptTypingChk.checked) return;
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+        const lowerKey = String(e.key || "").toLowerCase();
+        if (Object.prototype.hasOwnProperty.call(INSCRIPT_MAP, lowerKey)) {
+          e.preventDefault();
+          const pair = INSCRIPT_MAP[lowerKey];
+          insertAtCursor(e.shiftKey ? pair[1] : pair[0]);
+        }
+      });
+
+      inscriptEditor.addEventListener("input", updateStats);
+
+      vkShiftBtn.addEventListener("click", function () {
+        isShiftLayer = !isShiftLayer;
+        renderVirtualKeyboard();
+      });
+
+      vkSpaceBtn.addEventListener("click", function () {
+        insertAtCursor(" ");
+      });
+
+      vkEnterBtn.addEventListener("click", function () {
+        insertAtCursor("\n");
+      });
+
+      vkBackspaceBtn.addEventListener("click", function () {
+        backspaceAtCursor();
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        inscriptEditor.value = SAMPLE_HINDI;
+        updateStats();
+      });
+
+      clearPadBtn.addEventListener("click", function () {
+        inscriptEditor.value = "";
+        updateStats();
+      });
+
+      copyHindiBtn.addEventListener("click", function () {
+        const text = inscriptEditor.value;
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(function () {
+          const orig = copyHindiBtn.textContent;
+          copyHindiBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyHindiBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadHindiBtn.addEventListener("click", function () {
+        const text = inscriptEditor.value;
+        if (!text) return;
+        const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "inscript-hindi-text.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      renderVirtualKeyboard();
+      inscriptEditor.value = SAMPLE_HINDI;
+      updateStats();
+    });
+  </script>
+</body>
+</html>

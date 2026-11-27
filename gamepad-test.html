@@ -1,0 +1,1114 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online HTML5 Gamepad Tester (Buttons, Analog Sticks, Deadzone & Rumble) — PureWebKits</title>
+  <meta name="description" content="Test any USB or Bluetooth controller/gamepad in your browser with live button & trigger readouts, dual analog stick position canvas, drift/deadzone check, and vibration test online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/html5-gamepad-tester.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Gamepad Tester Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover:not(:disabled) { background: #E2E8F0; }
+    .btn-sec:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .gp-status-banner {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .gp-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .gp-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #34D399;
+      word-break: break-word;
+    }
+    .gp-title.disconnected { color: #FBBF24; }
+    .gp-sub {
+      font-size: 12px;
+      color: #CBD5E1;
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 22px;
+      align-items: start;
+    }
+    .sticks-col, .buttons-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .sticks-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .stick-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .stick-label {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .stick-canvas {
+      width: 148px;
+      height: 148px;
+      border-radius: 50%;
+      background: #020617;
+      border: 2px solid #1E293B;
+      display: block;
+    }
+    .stick-coords {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .triggers-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .trig-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .trig-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11.5px;
+      font-weight: 800;
+      color: var(--text-muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .trig-track {
+      width: 100%;
+      height: 10px;
+      background: #E2E8F0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .trig-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width 0.05s linear;
+    }
+
+    /* Buttons Grid */
+    .buttons-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .pad-btn-tile {
+      background: #FFFFFF;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      min-height: 52px;
+      transition: background-color 0.08s ease, border-color 0.08s ease, transform 0.05s ease;
+    }
+    .pad-btn-tile.tested {
+      background: #ECFDF5;
+      border-color: #10B981;
+    }
+    .pad-btn-tile.pressed {
+      background: #2563EB;
+      border-color: #1D4ED8;
+      color: #FFFFFF;
+      transform: translateY(1px);
+    }
+    .pad-btn-name {
+      font-size: 12px;
+      font-weight: 800;
+      color: inherit;
+    }
+    .pad-btn-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .pad-btn-tile.pressed .pad-btn-val {
+      color: #DBEAFE;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 880px) {
+      .calc-grid, .sticks-pair, .triggers-row { grid-template-columns: 1fr; }
+      .buttons-grid { grid-template-columns: repeat(2, 1fr); }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive HTML5 Gamepad Tester Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online HTML5 Gamepad & Controller Tester</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Real-time buttons, analog stick radial plot, stick drift check & rumble test in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="topbar-actions">
+            <button type="button" id="testRumbleBtn" class="btn-primary" disabled>Test Vibration (Rumble)</button>
+            <button type="button" id="resetPadStatsBtn" class="btn-sec">Reset Tested Keys</button>
+          </div>
+          <div class="topbar-actions">
+            <span id="buttonsTestedCounter" style="font-size:12.5px; font-weight:800; color:var(--primary);">0 / 16 Buttons Tested</span>
+          </div>
+        </div>
+
+        <div class="gp-status-banner">
+          <div>
+            <div class="gp-kicker">Connected Gamepad Status</div>
+            <div class="gp-title disconnected" id="gamepadNameTitle">No Gamepad Detected Yet</div>
+            <div class="gp-sub" id="gamepadMetaSub">Plug in a USB or Bluetooth controller and press any button or move an analog stick</div>
+          </div>
+          <div style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12.5px; color: #93C5FD;" id="gamepadIndexBadge">
+            Slot: —
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="sticks-col">
+            <div class="sticks-pair">
+              <div class="stick-card">
+                <div class="stick-label">Left Stick (Axes 0, 1)</div>
+                <canvas id="leftStickCanvas" class="stick-canvas" width="160" height="160" aria-label="Left Analog Stick Position"></canvas>
+                <div class="stick-coords" id="leftStickCoords">X: 0.00 | Y: 0.00</div>
+              </div>
+
+              <div class="stick-card">
+                <div class="stick-label">Right Stick (Axes 2, 3)</div>
+                <canvas id="rightStickCanvas" class="stick-canvas" width="160" height="160" aria-label="Right Analog Stick Position"></canvas>
+                <div class="stick-coords" id="rightStickCoords">X: 0.00 | Y: 0.00</div>
+              </div>
+            </div>
+
+            <div class="triggers-row">
+              <div class="trig-card">
+                <div class="trig-head">
+                  <span>L2 / LT (Btn 6)</span>
+                  <span id="ltValLabel">0.00</span>
+                </div>
+                <div class="trig-track">
+                  <div class="trig-fill" id="ltFillBar"></div>
+                </div>
+              </div>
+
+              <div class="trig-card">
+                <div class="trig-head">
+                  <span>R2 / RT (Btn 7)</span>
+                  <span id="rtValLabel">0.00</span>
+                </div>
+                <div class="trig-track">
+                  <div class="trig-fill" id="rtFillBar"></div>
+                </div>
+              </div>
+            </div>
+
+            <div style="font-size:12px; color:var(--text-muted);" id="stickDriftDiagnosis">
+              <strong>Stick Drift Check:</strong> Leave sticks untouched at center to inspect resting axis values (normal resting drift is typically < 0.05).
+            </div>
+          </div>
+
+          <div class="buttons-col">
+            <div style="font-size:11.5px; font-weight:800; text-transform:uppercase; color:var(--text-muted);">
+              Standard Gamepad Buttons (Blue = Held • Green = Tested)
+            </div>
+            <div class="buttons-grid" id="gamepadButtonsGrid"></div>
+
+            <div class="btn-row" style="margin-top:4px;">
+              <button type="button" id="copyPadReportBtn" class="btn-sec" style="height:38px;">Copy Gamepad Report</button>
+              <button type="button" id="downloadPadReportBtn" class="btn-sec" style="height:38px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Standard Mapping, Stick Drift & Rumble -->
+    <article class="content-card">
+      <h2>Complete User Guide to the HTML5 Gamepad API, Analog Stick Drift & Controller Diagnostics</h2>
+
+      <h3>How Browser Gamepad Polling, Analog Axes & Stick Drift Work</h3>
+      <p>
+        Modern web browsers expose connected game controllers—such as Xbox, PlayStation (DualSense / DualShock), Nintendo Switch Pro, and generic USB/Bluetooth gamepads—through the <strong>HTML5 Gamepad API</strong> (<code>navigator.getGamepads()</code>). Unlike keyboard events that fire asynchronously on key press and release, gamepad state is polled continuously every animation frame (<code>requestAnimationFrame</code>) to capture smooth analog values between <code>0.00</code> and <code>1.00</code> for analog triggers (<code>L2 / LT</code> and <code>R2 / RT</code>) and signed values between <code>−1.00</code> and <code>+1.00</code> across horizontal (<code>X</code>) and vertical (<code>Y</code>) stick axes. When an analog stick rests untouched at center yet reports non-zero coordinates (for example, <code>X: +0.18</code>), that offset indicates <strong>stick drift</strong>—caused by potentiometer wear, dust/debris inside the stick module, or missing software deadzone compensation. A browser-based <strong>HTML5 Gamepad Tester</strong> polls buttons, analog sticks, and dual-motor haptics 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Test Your Controller in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Connect Your Controller & Press Any Button:</strong> Plug in a USB controller or pair a Bluetooth gamepad, then press any button on the pad so the browser registers and activates the device slot.</li>
+        <li><strong>Check Resting Stick Drift & Full Stick Sweep:</strong> Keep both analog sticks centered first to check for resting drift, then slowly rotate each stick in a full circle to verify smooth <code>−1.00 to +1.00</code> reach without dead spots or jumping.</li>
+        <li><strong>Test Buttons, Triggers, Rumble & Export Report:</strong> Press all face buttons, D-pad directions, bumpers, triggers, and thumbstick clicks, test haptic motors via <strong>Test Vibration (Rumble)</strong> if supported, and export via <strong>Copy Gamepad Report</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Analog Stick Magnitude & Deadzone Formula</h3>
+      <p>
+        For stick horizontal/vertical coordinates <code>(x, y)</code> in <code>[-1, 1]</code>:
+      </p>
+      <div class="formula-box">
+        Radial Deflection Magnitude (r) = sqrt(x² + y²)  |  Drift Flag = r > 0.08 while centered<br />
+        Effective Input After Deadzone (d) = max(0, (r − d) / (1 − d))
+      </div>
+
+      <h3>Helpful Tips for Troubleshooting Controllers in Browsers</h3>
+      <ul>
+        <li><strong>Press a Button If a Connected Pad Doesn't Appear Immediately:</strong> Chromium and Firefox often require an initial button press or stick movement after page load or USB plug-in before populating <code>navigator.getGamepads()</code>.</li>
+        <li><strong>Check Steam Input or OS Remappers If Axes Behave Unexpectedly:</strong> Desktop controller mappers (like Steam Input) can intercept or translate raw controller inputs before they reach the browser.</li>
+        <li><strong>Bluetooth vs. Wired USB Polling:</strong> Wired USB connections generally offer lower latency and more consistent reporting than Bluetooth on certain adapters.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> With the Left Stick resting untouched at <code>X: 0.00 | Y: 0.00</code> (radial magnitude <code>0.00</code>), pushing the stick all the way right and up reaches <code>X: +1.00 | Y: −1.00</code>, confirming clean centering and full-range travel.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="gp-table-heading">
+      <h2 id="gp-table-heading">Standard HTML5 Gamepad Mapping, Stick Axes & Diagnostics Table (16 Rows)</h2>
+      <p>Use this reference table to match standard Gamepad API indices with Xbox, PlayStation, and D-pad controls.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Index / Control</th>
+              <th>Standard Label</th>
+              <th>Xbox / PlayStation Equivalent</th>
+              <th>Value Range</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Button 0</strong></td>
+              <td><code>A / Cross</code></td>
+              <td>Xbox <code>A</code> • PlayStation <code>Cross (✕)</code></td>
+              <td><code>0.00</code> to <code>1.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Button 1</strong></td>
+              <td><code>B / Circle</code></td>
+              <td>Xbox <code>B</code> • PlayStation <code>Circle (◯)</code></td>
+              <td><code>0.00</code> to <code>1.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Button 2</strong></td>
+              <td><code>X / Square</code></td>
+              <td>Xbox <code>X</code> • PlayStation <code>Square (□)</code></td>
+              <td><code>0.00</code> to <code>1.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Button 3</strong></td>
+              <td><code>Y / Triangle</code></td>
+              <td>Xbox <code>Y</code> • PlayStation <code>Triangle (△)</code></td>
+              <td><code>0.00</code> to <code>1.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Buttons 4 & 5</strong></td>
+              <td><code>LB / L1</code> & <code>RB / R1</code></td>
+              <td>Left & Right shoulder bumpers</td>
+              <td><code>0.00</code> or <code>1.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Buttons 6 & 7</strong></td>
+              <td><code>LT / L2</code> & <code>RT / R2</code></td>
+              <td>Left & Right analog triggers</td>
+              <td><code>0.00</code> to <code>1.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Buttons 8 & 9</strong></td>
+              <td><code>Back / Share</code> & <code>Start / Options</code></td>
+              <td>View/Menu or Share/Options</td>
+              <td><code>0.00</code> or <code>1.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Buttons 10 & 11</strong></td>
+              <td><code>L3 (LS)</code> & <code>R3 (RS)</code></td>
+              <td>Left & Right stick click-ins</td>
+              <td><code>0.00</code> or <code>1.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Buttons 12–15</strong></td>
+              <td><code>D-Up, Down, Left, Right</code></td>
+              <td>Directional pad buttons</td>
+              <td><code>0.00</code> or <code>1.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Axes 0 & 1</strong></td>
+              <td><code>Left Stick X / Y</code></td>
+              <td>Left thumbstick horizontal & vertical</td>
+              <td><code>−1.00</code> to <code>+1.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Axes 2 & 3</strong></td>
+              <td><code>Right Stick X / Y</code></td>
+              <td>Right thumbstick horizontal & vertical</td>
+              <td><code>−1.00</code> to <code>+1.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Vibration / Haptics</strong></td>
+              <td><code>vibrationActuator.playEffect()</code></td>
+              <td>Dual-rumble motor pulse test</td>
+              <td>Supported on compatible pads</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser HTML5 Gamepad Polling & Canvas Stick Plotter — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your controller inputs and diagnostics stay strictly inside your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero telemetry or input logs transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser controller test with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Hardware, Input, Developer & Everyday Utilities</h2>
+      <p>Testing your keyboard, microphone, or screen for dead pixels, or formatting JSON? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="keyboard-test.html"><span>Keyboard Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="microphone-test.html"><span>Microphone Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="dead-pixel-test.html"><span>Dead Pixel Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="spin-wheel.html"><span>Spin Wheel</span><span class="arrow">→</span></a>
+        <a class="related-link" href="study-timer-pomodoro.html"><span>Study Timer (Pomodoro)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-strength-tester.html"><span>Password Strength Tester</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Why does my controller not show up until I press a button?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Many web browsers require a physical button press or stick movement on a newly connected controller before exposing it via the <code>Gamepad API</code> for privacy and security reasons.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How can I tell if my analog stick has drift?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Leave both analog sticks completely untouched at center and observe the <strong>X</strong> and <strong>Y</strong> coordinates beneath each stick canvas—if values consistently stay above <code>0.08</code> away from <code>0.00</code>, the stick exhibits drift.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my controller inputs or device details sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All gamepad polling, analog stick rendering, and report exports run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online HTML5 Gamepad Tester free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side HTML5 Gamepad Polling, Analog Stick & Rumble Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const STANDARD_BUTTON_LABELS = [
+        "A / Cross", "B / Circle", "X / Square", "Y / Triangle",
+        "LB / L1", "RB / R1", "LT / L2", "RT / R2",
+        "Back / Share", "Start / Options", "L3 (Stick)", "R3 (Stick)",
+        "D-Pad Up", "D-Pad Down", "D-Pad Left", "D-Pad Right",
+        "Guide / Home"
+      ];
+
+      const gamepadNameTitle = document.getElementById("gamepadNameTitle");
+      const gamepadMetaSub = document.getElementById("gamepadMetaSub");
+      const gamepadIndexBadge = document.getElementById("gamepadIndexBadge");
+      const buttonsTestedCounter = document.getElementById("buttonsTestedCounter");
+
+      const leftStickCanvas = document.getElementById("leftStickCanvas");
+      const leftCtx = leftStickCanvas.getContext("2d");
+      const leftStickCoords = document.getElementById("leftStickCoords");
+
+      const rightStickCanvas = document.getElementById("rightStickCanvas");
+      const rightCtx = rightStickCanvas.getContext("2d");
+      const rightStickCoords = document.getElementById("rightStickCoords");
+
+      const ltValLabel = document.getElementById("ltValLabel");
+      const ltFillBar = document.getElementById("ltFillBar");
+      const rtValLabel = document.getElementById("rtValLabel");
+      const rtFillBar = document.getElementById("rtFillBar");
+      const stickDriftDiagnosis = document.getElementById("stickDriftDiagnosis");
+
+      const gamepadButtonsGrid = document.getElementById("gamepadButtonsGrid");
+      const testRumbleBtn = document.getElementById("testRumbleBtn");
+      const resetPadStatsBtn = document.getElementById("resetPadStatsBtn");
+      const copyPadReportBtn = document.getElementById("copyPadReportBtn");
+      const downloadPadReportBtn = document.getElementById("downloadPadReportBtn");
+
+      const testedButtonIndices = new Set();
+      let activeGamepadIndex = null;
+      let latestPadInfo = {
+        connected: false,
+        id: "None",
+        index: -1,
+        lx: 0, ly: 0,
+        rx: 0, ry: 0,
+        lt: 0, rt: 0
+      };
+
+      const buttonTileEls = [];
+      for (let i = 0; i < 16; i++) {
+        const tile = document.createElement("div");
+        tile.className = "pad-btn-tile";
+        tile.innerHTML = `
+          <span class="pad-btn-name">B${i}: ${STANDARD_BUTTON_LABELS[i]}</span>
+          <span class="pad-btn-val" id="padBtnVal_${i}">0.00</span>
+        `;
+        gamepadButtonsGrid.appendChild(tile);
+        buttonTileEls.push(tile);
+      }
+
+      function drawStickPlot(ctx, canvas, xVal, yVal) {
+        const w = canvas.width;
+        const h = canvas.height;
+        const cx = w / 2;
+        const cy = h / 2;
+        const maxR = Math.min(cx, cy) - 12;
+
+        ctx.clearRect(0, 0, w, h);
+
+        // Outer boundary circle
+        ctx.beginPath();
+        ctx.arc(cx, cy, maxR, 0, Math.PI * 2);
+        ctx.strokeStyle = "#334155";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Crosshairs
+        ctx.strokeStyle = "#1E293B";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx - maxR, cy);
+        ctx.lineTo(cx + maxR, cy);
+        ctx.moveTo(cx, cy - maxR);
+        ctx.lineTo(cx, cy + maxR);
+        ctx.stroke();
+
+        // Stick puck position
+        const px = cx + Math.max(-1, Math.min(1, xVal)) * maxR;
+        const py = cy + Math.max(-1, Math.min(1, yVal)) * maxR;
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(px, py);
+        ctx.strokeStyle = "#38BDF8";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(px, py, 9, 0, Math.PI * 2);
+        ctx.fillStyle = "#2563EB";
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#93C5FD";
+        ctx.stroke();
+      }
+
+      function findActiveGamepad() {
+        if (!navigator.getGamepads) return null;
+        const pads = navigator.getGamepads();
+        if (!pads) return null;
+
+        if (activeGamepadIndex !== null && pads[activeGamepadIndex]) {
+          return pads[activeGamepadIndex];
+        }
+        for (let i = 0; i < pads.length; i++) {
+          if (pads[i]) {
+            activeGamepadIndex = i;
+            return pads[i];
+          }
+        }
+        return null;
+      }
+
+      function pollGamepadFrame() {
+        const gp = findActiveGamepad();
+
+        if (!gp) {
+          gamepadNameTitle.className = "gp-title disconnected";
+          gamepadNameTitle.textContent = "No Gamepad Detected Yet";
+          gamepadMetaSub.textContent = "Plug in a USB or Bluetooth controller and press any button or move an analog stick";
+          gamepadIndexBadge.textContent = "Slot: —";
+          testRumbleBtn.disabled = true;
+
+          drawStickPlot(leftCtx, leftStickCanvas, 0, 0);
+          drawStickPlot(rightCtx, rightStickCanvas, 0, 0);
+          leftStickCoords.textContent = "X: 0.00 | Y: 0.00";
+          rightStickCoords.textContent = "X: 0.00 | Y: 0.00";
+          ltValLabel.textContent = "0.00";
+          rtValLabel.textContent = "0.00";
+          ltFillBar.style.width = "0%";
+          rtFillBar.style.width = "0%";
+          latestPadInfo.connected = false;
+
+          requestAnimationFrame(pollGamepadFrame);
+          return;
+        }
+
+        gamepadNameTitle.className = "gp-title";
+        gamepadNameTitle.textContent = gp.id || `Controller #${gp.index + 1}`;
+        gamepadMetaSub.textContent = `Mapping: ${gp.mapping || "standard"} \u2022 ${gp.buttons.length} buttons \u2022 ${gp.axes.length} axes`;
+        gamepadIndexBadge.textContent = `Slot: #${gp.index + 1}`;
+        testRumbleBtn.disabled = !Boolean(gp.vibrationActuator);
+
+        // Buttons 0..15
+        for (let i = 0; i < 16; i++) {
+          const btn = gp.buttons[i];
+          const val = btn ? btn.value : 0;
+          const isDown = btn ? (btn.pressed || val > 0.15) : false;
+
+          if (isDown) {
+            testedButtonIndices.add(i);
+          }
+
+          const tile = buttonTileEls[i];
+          tile.classList.toggle("pressed", isDown);
+          tile.classList.toggle("tested", testedButtonIndices.has(i));
+          const valEl = document.getElementById(`padBtnVal_${i}`);
+          if (valEl) valEl.textContent = val.toFixed(2);
+        }
+
+        buttonsTestedCounter.textContent = `${testedButtonIndices.size} / 16 Buttons Tested`;
+
+        // Left & Right Analog Sticks
+        const lx = gp.axes.length > 0 ? gp.axes[0] : 0;
+        const ly = gp.axes.length > 1 ? gp.axes[1] : 0;
+        const rx = gp.axes.length > 2 ? gp.axes[2] : 0;
+        const ry = gp.axes.length > 3 ? gp.axes[3] : 0;
+
+        drawStickPlot(leftCtx, leftStickCanvas, lx, ly);
+        drawStickPlot(rightCtx, rightStickCanvas, rx, ry);
+
+        leftStickCoords.textContent = `X: ${lx >= 0 ? "+" : ""}${lx.toFixed(2)} | Y: ${ly >= 0 ? "+" : ""}${ly.toFixed(2)}`;
+        rightStickCoords.textContent = `X: ${rx >= 0 ? "+" : ""}${rx.toFixed(2)} | Y: ${ry >= 0 ? "+" : ""}${ry.toFixed(2)}`;
+
+        // Triggers (Btn 6 & Btn 7)
+        const ltVal = gp.buttons[6] ? gp.buttons[6].value : 0;
+        const rtVal = gp.buttons[7] ? gp.buttons[7].value : 0;
+        ltValLabel.textContent = ltVal.toFixed(2);
+        rtValLabel.textContent = rtVal.toFixed(2);
+        ltFillBar.style.width = `${Math.min(100, ltVal * 100).toFixed(1)}%`;
+        rtFillBar.style.width = `${Math.min(100, rtVal * 100).toFixed(1)}%`;
+
+        const lMag = Math.hypot(lx, ly);
+        const rMag = Math.hypot(rx, ry);
+        if (lMag > 0.12 || rMag > 0.12) {
+          stickDriftDiagnosis.innerHTML = `<strong>Stick Drift Check:</strong> Active deflection detected — Left mag: <code>${lMag.toFixed(2)}</code>, Right mag: <code>${rMag.toFixed(2)}</code> (release sticks to verify center return).`;
+        } else {
+          stickDriftDiagnosis.innerHTML = `<strong>Stick Drift Check:</strong> Sticks centered cleanly (Left mag: <code>${lMag.toFixed(2)}</code>, Right mag: <code>${rMag.toFixed(2)}</code>).`;
+        }
+
+        latestPadInfo = {
+          connected: true,
+          id: gp.id || `Controller #${gp.index + 1}`,
+          index: gp.index + 1,
+          lx: lx, ly: ly,
+          rx: rx, ry: ry,
+          lt: ltVal, rt: rtVal
+        };
+
+        requestAnimationFrame(pollGamepadFrame);
+      }
+
+      window.addEventListener("gamepadconnected", function (e) {
+        activeGamepadIndex = e.gamepad.index;
+      });
+
+      window.addEventListener("gamepaddisconnected", function (e) {
+        if (activeGamepadIndex === e.gamepad.index) {
+          activeGamepadIndex = null;
+        }
+      });
+
+      testRumbleBtn.addEventListener("click", function () {
+        const gp = findActiveGamepad();
+        if (gp && gp.vibrationActuator && typeof gp.vibrationActuator.playEffect === "function") {
+          gp.vibrationActuator.playEffect("dual-rumble", {
+            startDelay: 0,
+            duration: 350,
+            weakMagnitude: 0.6,
+            strongMagnitude: 0.9
+          }).catch(function () {});
+        }
+      });
+
+      resetPadStatsBtn.addEventListener("click", function () {
+        testedButtonIndices.clear();
+        buttonTileEls.forEach(function (tile) {
+          tile.classList.remove("tested", "pressed");
+        });
+        buttonsTestedCounter.textContent = "0 / 16 Buttons Tested";
+      });
+
+      function buildGamepadReport() {
+        const testedList = Array.from(testedButtonIndices).sort(function (a, b) { return a - b; }).map(function (idx) {
+          return `B${idx} (${STANDARD_BUTTON_LABELS[idx]})`;
+        });
+
+        return [
+          "PureWebKits HTML5 Gamepad Diagnostic Report",
+          "--------------------------------------------",
+          `Connected: ${latestPadInfo.connected ? "Yes" : "No"}`,
+          `Controller ID: ${latestPadInfo.id} (Slot #${latestPadInfo.index > 0 ? latestPadInfo.index : "—"})`,
+          `Left Stick: X=${latestPadInfo.lx.toFixed(2)}, Y=${latestPadInfo.ly.toFixed(2)}`,
+          `Right Stick: X=${latestPadInfo.rx.toFixed(2)}, Y=${latestPadInfo.ry.toFixed(2)}`,
+          `Triggers: LT=${latestPadInfo.lt.toFixed(2)}, RT=${latestPadInfo.rt.toFixed(2)}`,
+          `Buttons Tested (${testedButtonIndices.size}/16): ${testedList.length > 0 ? testedList.join(", ") : "None"}`
+        ].join("\n");
+      }
+
+      copyPadReportBtn.addEventListener("click", function () {
+        navigator.clipboard.writeText(buildGamepadReport()).then(function () {
+          const orig = copyPadReportBtn.textContent;
+          copyPadReportBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyPadReportBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadPadReportBtn.addEventListener("click", function () {
+        const blob = new Blob([buildGamepadReport()], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "gamepad-diagnostic-report.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      drawStickPlot(leftCtx, leftStickCanvas, 0, 0);
+      drawStickPlot(rightCtx, rightStickCanvas, 0, 0);
+      requestAnimationFrame(pollGamepadFrame);
+    });
+  </script>
+</body>
+</html>

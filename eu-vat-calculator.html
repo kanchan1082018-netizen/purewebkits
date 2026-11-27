@@ -1,0 +1,692 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EU VAT Calculator (All 27 Member States) — Free | PureWebKits</title>
+  <meta name="description" content="Calculate European Union Value Added Tax (VAT), standard rates, reduced rates, and net/gross purchase prices across all 27 EU member states online for free. EU VAT calculator tool 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/eu-vat-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* EU VAT Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col { display: flex; flex-direction: column; gap: 14px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .result-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .result-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .result-title { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .result-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--primary);
+      text-align: right;
+    }
+    .result-val.highlight { color: var(--success); font-size: 20px; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive EU VAT Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>EU VAT Calculator (All 27 Member States)</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate European Union Value Added Tax (VAT), net amounts, and gross totals across all 27 member states instantly in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Enter amount, select calculation mode, and choose EU member state below:</div>
+          <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample (€100 in Germany)</button>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="amountInput" class="field-label">Amount (€ EUR)</label>
+              <input type="number" id="amountInput" class="std-input" value="100" min="0" step="any" placeholder="e.g. 100" />
+            </div>
+            <div class="field-group">
+              <label for="calcMode" class="field-label">Calculation Mode</label>
+              <select id="calcMode" class="std-select">
+                <option value="add" selected>Add VAT (Net to Gross)</option>
+                <option value="extract">Extract VAT (Gross to Net)</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label for="euCountry" class="field-label">EU Member State & Standard VAT Rate</label>
+              <select id="euCountry" class="std-select">
+                <option value="0.21">Austria (21%)</option>
+                <option value="0.21">Belgium (21%)</option>
+                <option value="0.20">Bulgaria (20%)</option>
+                <option value="0.25">Croatia (25%)</option>
+                <option value="0.19">Cyprus (19%)</option>
+                <option value="0.21">Czech Republic (21%)</option>
+                <option value="0.25">Denmark (25%)</option>
+                <option value="0.22">Estonia (22%)</option>
+                <option value="0.24">Finland (24%)</option>
+                <option value="0.20">France (20%)</option>
+                <option value="0.19" selected>Germany (19%)</option>
+                <option value="0.24">Greece (24%)</option>
+                <option value="0.27">Hungary (27%)</option>
+                <option value="0.23">Ireland (23%)</option>
+                <option value="0.22">Italy (22%)</option>
+                <option value="0.21">Latvia (21%)</option>
+                <option value="0.21">Lithuania (21%)</option>
+                <option value="0.17">Luxembourg (17%)</option>
+                <option value="0.25">Malta (25%)</option>
+                <option value="0.21">Netherlands (21%)</option>
+                <option value="0.23">Poland (23%)</option>
+                <option value="0.23">Portugal (23%)</option>
+                <option value="0.19">Romania (19%)</option>
+                <option value="0.20">Slovakia (20%)</option>
+                <option value="0.22">Slovenia (22%)</option>
+                <option value="0.21">Spain (21%)</option>
+                <option value="0.25">Sweden (25%)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="result-item">
+              <div class="result-title">Net Amount (Excl. VAT)</div>
+              <div id="resNet" class="result-val">€100.00</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">VAT Amount</div>
+              <div id="resVat" class="result-val">€19.00</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Gross Amount (Incl. VAT)</div>
+              <div id="resGross" class="result-val highlight">€119.00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Comprehensive Guide to European Union Value Added Tax (EU VAT), Member State Rates, and Calculations</h2>
+
+      ### Why EU VAT Calculators Are Essential for E-Commerce Merchants and Businesses
+      <p>
+        Operating cross-border e-commerce, B2B services, or retail sales across the European Union requires strict compliance with **Value Added Tax (VAT)** regulations. Unlike a single federal sales tax, the European Union enforces harmonized VAT directives while allowing each of the **27 member states** to set its own standard and reduced VAT rates—ranging from 17% in Luxembourg to 27% in Hungary. Furthermore, businesses trading within the EU must navigate complex One-Stop Shop (OSS) distance selling thresholds, B2B reverse-charge mechanisms, and invoice gross/net breakdowns. Manually computing varying tax percentages across multiple European jurisdictions can easily lead to accounting errors, incorrect customer billings, or tax filing penalties. A professional **EU VAT Calculator** enables e-commerce merchants, accountants, and freelancers to input net or gross amounts, choose calculation modes (adding VAT or extracting VAT), and select any of the 27 EU member states to compute exact tax figures instantly. Our browser-based utility calculates European tax figures locally in client memory without external server uploads, guaranteeing absolute data privacy and lightning-fast performance.
+      </p>
+
+      ### How to Calculate EU VAT in 3 Easy Steps
+      <ol>
+        <li><strong>Enter Amount:</strong> Type your monetary value into the input field in Euros (€).</li>
+        <li><strong>Select Calculation Mode:</strong> Choose whether to **Add VAT** (calculating gross from a net price) or **Extract VAT** (deducting VAT from a gross total).</li>
+        <li><strong>Select EU Member State:</strong> Choose your target European Union country from the dropdown menu to apply its official standard VAT percentage.</li>
+      </ol>
+
+      ### VAT Calculation Formula + Worked Example
+      <p>
+        EU VAT calculations differ based on whether you are adding tax to a net amount or extracting tax from a gross invoice total:
+      </p>
+      <div class="formula-box">
+        $\text{Add VAT (Gross)} = \text{Net} \times (1 + \text{VAT Rate})  |  \text{Extract VAT (Net)} = \frac{\text{Gross}}{1 + \text{VAT Rate}}$
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Adding a standard **19% VAT rate** (Germany) to a net amount of **€100** multiplies by 1.19, generating a VAT amount of **€19.00** and a final gross total of **€119.00 EUR**.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="vat-table-heading">
+      <h2 id="vat-table-heading">EU 27 Member States Standard VAT Rates & Standards (16 Rules)</h2>
+      <p>Use this reference table to understand official standard VAT percentages, country codes, and tax standards across all 27 European Union member nations.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>EU Member State</th>
+              <th>ISO Code</th>
+              <th>Standard VAT Rate (%)</th>
+              <th>Member State Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Germany</strong></td>
+              <td>DE</td>
+              <td>19%</td>
+              <td><span class="limit-badge">EU Member State</span></td>
+            </tr>
+            <tr>
+              <td><strong>France</strong></td>
+              <td>FR</td>
+              <td>20%</td>
+              <td><span class="limit-badge">EU Member State</span></td>
+            </tr>
+            <tr>
+              <td><strong>Italy</strong></td>
+              <td>IT</td>
+              <td>22%</td>
+              <td><span class="limit-badge">EU Member State</span></td>
+            </tr>
+            <tr>
+              <td><strong>Spain</strong></td>
+              <td>ES</td>
+              <td>21%</td>
+              <td><span class="limit-badge">EU Member State</span></td>
+            </tr>
+            <tr>
+              <td><strong>Netherlands</strong></td>
+              <td>NL</td>
+              <td>21%</td>
+              <td><span class="limit-badge">EU Member State</span></td>
+            </tr>
+            <tr>
+              <td><strong>Hungary</strong></td>
+              <td>HU</td>
+              <td>27% (Highest in EU)</td>
+              <td><span class="limit-badge">EU Member State</span></td>
+            </tr>
+            <tr>
+              <td><strong>Luxembourg</strong></td>
+              <td>LU</td>
+              <td>17% (Lowest in EU)</td>
+              <td><span class="limit-badge">EU Member State</span></td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Processing</strong></td>
+              <td colspan="3">JavaScript Execution — Zero Server Latency (100% browser calculation)</td>
+            </tr>
+            <tr>
+              <td><strong>Data Privacy</strong></td>
+              <td colspan="3"><span class="limit-badge">Zero Server Upload</span> — Private financial & invoice data remain secure</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Finance, Tax & Calculator Utilities</h2>
+      <p>Need UK tax calculators, US sales tax calculators, or currency converters? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="currency-converter.html"><span>Global Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="us-sales-tax-calculator.html"><span>US Sales Tax Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="canadian-tax-calculator.html"><span>Canadian GST/HST Tax Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="uk-payee-salary-calculator.html"><span>UK PAYE Salary Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compound-interest-calculator.html"><span>Compound Interest Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Strong Password Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter & Validator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is the highest and lowest standard VAT rate in the EU?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Hungary currently levies the highest standard VAT rate in the EU at **27%**, while Luxembourg enforces the lowest standard VAT rate at **17%**.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. What is the difference between adding VAT and extracting VAT?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Net vs Gross!</strong> Adding VAT calculates the gross total starting from a net (pre-tax) price, whereas extracting VAT calculates the underlying net amount and tax portion from a gross (total) invoice figure.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my financial and invoice data uploaded to an external server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All EU VAT calculations run 100% locally inside your web browser using JavaScript. Your confidential financial data never leaves your computer.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this EU VAT calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> This utility is 100% free with no registration or download requirements.
+          </div>
+        </div>
+      </div>
+    </main>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side EU VAT Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const amountInput = document.getElementById("amountInput");
+      const calcMode = document.getElementById("calcMode");
+      const euCountry = document.getElementById("euCountry");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+
+      const resNet = document.getElementById("resNet");
+      const resVat = document.getElementById("resVat");
+      const resGross = document.getElementById("resGross");
+
+      function formatCurrency(val) {
+        if (isNaN(val) || !isFinite(val)) return "€0.00";
+        return "€" + val.toFixed(2).toLocaleString('en-US');
+      }
+
+      function calculateEuVat() {
+        const amount = parseFloat(amountInput.value) || 0;
+        const mode = calcMode.value;
+        const rate = parseFloat(euCountry.value) || 0;
+
+        let net = 0;
+        let vat = 0;
+        let gross = 0;
+
+        if (mode === 'add') {
+          net = amount;
+          vat = net * rate;
+          gross = net + vat;
+        } else {
+          gross = amount;
+          net = gross / (1 + rate);
+          vat = gross - net;
+        }
+
+        resNet.textContent = formatCurrency(net);
+        resVat.textContent = formatCurrency(vat);
+        resGross.textContent = formatCurrency(gross);
+      }
+
+      [amountInput, calcMode, euCountry].forEach(el => {
+        el.addEventListener("input", calculateEuVat);
+        el.addEventListener("change", calculateEuVat);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        amountInput.value = "100";
+        calcMode.value = "add";
+        euCountry.value = "0.19"; // Germany
+        calculateEuVat();
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateEuVat();
+    });
+  </script>
+</body>
+</html>

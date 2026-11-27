@@ -1,0 +1,975 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online IP & DNS Leak Test (Public IP, WebRTC & Resolver Check) — PureWebKits</title>
+  <meta name="description" content="Inspect your public IP address, WebRTC local/candidate IP leak status, DNS-over-HTTPS (DoH) resolver & geographic location hints, and connection diagnostics online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/ip-dns-leak-test.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1120px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* IP & DNS Leak Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .leak-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .leak-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .leak-main-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: clamp(18px, 2.8vw, 25px);
+      font-weight: 800;
+      color: #34D399;
+      margin-top: 2px;
+      word-break: break-all;
+    }
+    .leak-sub {
+      font-size: 12.5px;
+      color: #CBD5E1;
+      margin-top: 2px;
+    }
+    .leak-badge {
+      background: rgba(52, 211, 153, 0.14);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      color: #34D399;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px;
+      font-weight: 800;
+      text-align: right;
+    }
+    .leak-badge.warn {
+      background: rgba(251, 191, 36, 0.14);
+      border-color: rgba(251, 191, 36, 0.4);
+      color: #FBBF24;
+    }
+
+    .diag-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .diag-card {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .diag-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .diag-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-main);
+      word-break: break-word;
+      line-height: 1.4;
+    }
+
+    .resolver-panel {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .resolver-title {
+      font-size: 11.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .resolver-rows {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+    }
+    .res-item {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 7px 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 900px) {
+      .diag-grid, .resolver-rows { grid-template-columns: 1fr 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+      .diag-grid, .resolver-rows { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive IP & DNS Leak Test Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online IP & DNS Leak Test</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side Inspector: Audit WebRTC IP candidates, DNS-over-HTTPS (DoH) reachability & network flags
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">
+            Runs browser-side WebRTC ICE probing & DNS-over-HTTPS (RFC 8484) checks — zero server logging:
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="runLeakTestBtn" class="btn-primary">Run IP & DNS Leak Check</button>
+            <button type="button" id="copyLeakReportBtn" class="btn-sec">Copy Diagnostic Report</button>
+            <button type="button" id="downloadLeakReportBtn" class="btn-sec">Download .txt</button>
+          </div>
+        </div>
+
+        <div class="leak-hero-box">
+          <div>
+            <div class="leak-kicker">WebRTC & Network Exposure Assessment</div>
+            <div class="leak-main-val" id="leakStatusHeadline">Probing WebRTC & DoH Resolvers...</div>
+            <div class="leak-sub" id="leakStatusSub">Checking local/STUN ICE candidates and encrypted DNS resolution</div>
+          </div>
+          <div class="leak-badge" id="leakBadgeBox">CHECKING</div>
+        </div>
+
+        <div class="diag-grid">
+          <div class="diag-card">
+            <div class="diag-key">WebRTC Local / Host IPs</div>
+            <div class="diag-val" id="webrtcLocalIpsVal">Probing...</div>
+          </div>
+          <div class="diag-card">
+            <div class="diag-key">WebRTC Reflexive / Public IPs</div>
+            <div class="diag-val" id="webrtcReflexiveIpsVal">Probing...</div>
+          </div>
+          <div class="diag-card">
+            <div class="diag-key">DNS-over-HTTPS (DoH) Status</div>
+            <div class="diag-val" id="dohSummaryVal">Probing...</div>
+          </div>
+          <div class="diag-card">
+            <div class="diag-key">Connection Type & Downlink</div>
+            <div class="diag-val" id="netConnectionVal">—</div>
+          </div>
+          <div class="diag-card">
+            <div class="diag-key">Timezone & Locale</div>
+            <div class="diag-val" id="tzLocaleVal">—</div>
+          </div>
+          <div class="diag-card">
+            <div class="diag-key">Privacy Flags (DNT / GPC)</div>
+            <div class="diag-val" id="privacyFlagsVal">—</div>
+          </div>
+        </div>
+
+        <div class="resolver-panel">
+          <div class="resolver-title">DNS-over-HTTPS (DoH) Query Probes (example.com A Record)</div>
+          <div class="resolver-rows" id="dohResolversGrid"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, IP/DNS Leaks & VPN Hygiene -->
+    <article class="content-card">
+      <h2>Complete User Guide to IP Leaks, WebRTC ICE Candidates & DNS Leak Testing</h2>
+
+      <h3>How IP Address Leaks and DNS Leaks Happen on Connections and VPNs</h3>
+      <p>
+        When you browse the web—especially over a <strong>VPN</strong>, proxy, or corporate network—two subtle leakage vectors can reveal more about your network path than you expect: <strong>WebRTC IP leaks</strong> and <strong>DNS leaks</strong>. WebRTC (Real-Time Communication) uses Interactive Connectivity Establishment (<strong>ICE</strong>) candidates—<code>host</code> (local LAN address), <code>srflx</code> (server-reflexive public/NAT address discovered via STUN), and <code>relay</code> (TURN)—which in unhardened browsers can expose local RFC1918 addresses (such as <code>192.168.x.x</code> or <code>10.x.x.x</code>) or an unencrypted IP if tunnel routing misbehaves. Meanwhile, a <strong>DNS leak</strong> occurs when domain-name queries are resolved by your ISP's default DNS server outside your VPN tunnel rather than through an encrypted or tunnel-routed resolver (such as DNS-over-HTTPS / DoH). A browser-based <strong>IP & DNS Leak Test</strong> inspects WebRTC ICE candidates and runs DoH queries directly from your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Run an IP & DNS Leak Check in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Connect to Your Network or VPN & Click Run Check:</strong> Click <strong>Run IP & DNS Leak Check</strong> to gather WebRTC ICE candidates, network connection telemetry, and DNS-over-HTTPS query responses.</li>
+        <li><strong>Inspect WebRTC Candidates & DoH Resolvers:</strong> Check whether any unexpected local or reflexive IP addresses appear in WebRTC candidates and verify which DoH resolvers respond cleanly.</li>
+        <li><strong>Export Your Diagnostic Report:</strong> Save a copy of your network diagnostic snapshot via <strong>Copy Diagnostic Report</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>WebRTC ICE Candidate Types & DNS Resolution</h3>
+      <p>
+        Understanding ICE candidate tags helps distinguish local LAN addresses from external NAT/public addresses:
+      </p>
+      <div class="formula-box">
+        ICE Candidate Types: host (Local Interface) • srflx (STUN Reflexive / Public NAT) • relay (TURN)<br />
+        DNS-over-HTTPS (DoH): Encrypted HTTPS JSON/DNS query to resolver endpoints
+      </div>
+
+      <h3>Helpful Tips for Preventing IP & DNS Leaks</h3>
+      <ul>
+        <li><strong>Enable VPN Kill Switch & DNS Leak Protection:</strong> If using a VPN, enable its built-in kill switch and ensure DNS queries are routed through the VPN tunnel or trusted DoH/DoT resolvers.</li>
+        <li><strong>Check Browser WebRTC & Secure DNS Settings:</strong> Modern browsers often use mDNS hostnames (<code>.local</code>) to hide raw LAN IPs and let you configure Secure DNS (DoH) directly in browser privacy settings.</li>
+        <li><strong>Compare Before and After Toggling Your VPN:</strong> Running a check before and after connecting your VPN clearly highlights changes in reflexive/public routing and resolver behavior.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> When connected to a properly configured VPN with encrypted DNS active, WebRTC reflexive candidates reflect the VPN exit endpoint rather than your home ISP IP, and DNS-over-HTTPS probes return valid <code>A</code> records without routing unencrypted queries to an unintended ISP resolver.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="leak-table-heading">
+      <h2 id="leak-table-heading">IP & DNS Leak Terminology, ICE Types & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to interpret WebRTC ICE candidates, DNS concepts, and network diagnostics.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Term / Check</th>
+              <th>Type / Standard</th>
+              <th>What It Indicates</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>ICE <code>host</code> Candidate</strong></td>
+              <td>Local interface / mDNS</td>
+              <td>Local LAN address or <code>.local</code> ID</td>
+              <td>Browsers often mask with mDNS</td>
+            </tr>
+            <tr>
+              <td><strong>ICE <code>srflx</code> Candidate</strong></td>
+              <td>Server-reflexive (STUN)</td>
+              <td>External/NAT address seen by STUN</td>
+              <td>Reveals public path if unrouted</td>
+            </tr>
+            <tr>
+              <td><strong>ICE <code>relay</code> Candidate</strong></td>
+              <td>TURN relay</td>
+              <td>Relayed media candidate</td>
+              <td>Used behind strict NAT/firewalls</td>
+            </tr>
+            <tr>
+              <td><strong>DNS Leak</strong></td>
+              <td>Resolver routing check</td>
+              <td>DNS queries bypass VPN/intended path</td>
+              <td>Can expose browsing queries to ISP</td>
+            </tr>
+            <tr>
+              <td><strong>DNS-over-HTTPS (DoH)</strong></td>
+              <td>DNS over HTTPS (port 443)</td>
+              <td>Encrypts DNS lookups in transit</td>
+              <td>Prevents on-path DNS snooping</td>
+            </tr>
+            <tr>
+              <td><strong>DNS-over-TLS (DoT)</strong></td>
+              <td>DNS over TLS (port 853)</td>
+              <td>Encrypted transport DNS protocol</td>
+              <td>Common on OS/router resolvers</td>
+            </tr>
+            <tr>
+              <td><strong>RFC1918 Private IPv4</strong></td>
+              <td><code>10/8</code>, <code>172.16/12</code>, <code>192.168/16</code></td>
+              <td>Private home/office LAN address</td>
+              <td>Not routable on public internet</td>
+            </tr>
+            <tr>
+              <td><strong>IPv6 Link-Local</strong></td>
+              <td><code>fe80::/10</code></td>
+              <td>Local subnet IPv6 address</td>
+              <td>Scoped to local link only</td>
+            </tr>
+            <tr>
+              <td><strong>Global Privacy Control</strong></td>
+              <td><code>navigator.globalPrivacyControl</code></td>
+              <td>Browser opt-out signal</td>
+              <td><code>true</code> when enabled by user/ext</td>
+            </tr>
+            <tr>
+              <td><strong>Do Not Track (DNT)</strong></td>
+              <td><code>navigator.doNotTrack</code></td>
+              <td>Legacy tracking preference flag</td>
+              <td><code>1</code> = enabled, else unset</td>
+            </tr>
+            <tr>
+              <td><strong>Network Info API</strong></td>
+              <td><code>navigator.connection</code></td>
+              <td>Effective connection type & speed</td>
+              <td>Available in supported browsers</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download Report</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports full leak & DoH snapshot</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser WebRTC ICE & Fetch DoH Diagnostics — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your diagnostic results are generated locally without server logging</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Inspection</span> — Zero personal identifiers stored</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser network check with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Privacy, Networking, Security & Developer Utilities</h2>
+      <p>Inspecting your browser fingerprint, looking up MAC addresses, testing password strength, or formatting JSON? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="browser-fingerprint-inspector.html"><span>Browser Fingerprint Inspector</span><span class="arrow">→</span></a>
+        <a class="related-link" href="mac-address-lookup.html"><span>MAC Address Lookup</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-strength-tester.html"><span>Password Strength Tester</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How does this tool check for WebRTC IP leaks?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            It creates a temporary local <code>RTCPeerConnection</code> with public STUN servers to gather ICE candidate strings—identifying whether local/private or reflexive/public IP candidates are exposed in your browser session—and immediately closes the peer connection.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Why might a DNS-over-HTTPS probe fail or time out on a restricted network?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Some corporate firewalls, captive portals, or ad/tracker blockers restrict direct browser <code>fetch()</code> calls to external DoH endpoints—when that happens, the tool reports that endpoint as blocked/unreachable rather than crashing.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Does this IP & DNS Leak Test store or upload my network diagnostics?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            No. All diagnostic aggregation and report exports happen inside your browser without storing or logging your report on any server.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online IP & DNS Leak Test free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side WebRTC ICE & DNS-over-HTTPS Diagnostic Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const DOH_ENDPOINTS = [
+        { name: "Cloudflare DoH", url: "https://cloudflare-dns.com/dns-query?name=example.com&type=A" },
+        { name: "Google DoH", url: "https://dns.google/resolve?name=example.com&type=A" }
+      ];
+
+      const runLeakTestBtn = document.getElementById("runLeakTestBtn");
+      const copyLeakReportBtn = document.getElementById("copyLeakReportBtn");
+      const downloadLeakReportBtn = document.getElementById("downloadLeakReportBtn");
+
+      const leakStatusHeadline = document.getElementById("leakStatusHeadline");
+      const leakStatusSub = document.getElementById("leakStatusSub");
+      const leakBadgeBox = document.getElementById("leakBadgeBox");
+
+      const webrtcLocalIpsVal = document.getElementById("webrtcLocalIpsVal");
+      const webrtcReflexiveIpsVal = document.getElementById("webrtcReflexiveIpsVal");
+      const dohSummaryVal = document.getElementById("dohSummaryVal");
+      const netConnectionVal = document.getElementById("netConnectionVal");
+      const tzLocaleVal = document.getElementById("tzLocaleVal");
+      const privacyFlagsVal = document.getElementById("privacyFlagsVal");
+      const dohResolversGrid = document.getElementById("dohResolversGrid");
+
+      let latestReportText = "";
+
+      function probeWebRtcCandidates() {
+        return new Promise(function (resolve) {
+          const localSet = new Set();
+          const reflexiveSet = new Set();
+
+          const RTCPeer = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+          if (!RTCPeer) {
+            resolve({ local: ["WebRTC Unavailable"], reflexive: ["WebRTC Unavailable"] });
+            return;
+          }
+
+          let pc = null;
+          let done = false;
+
+          function finish() {
+            if (done) return;
+            done = true;
+            try {
+              if (pc) pc.close();
+            } catch (e) {}
+            resolve({
+              local: localSet.size > 0 ? Array.from(localSet) : ["None / Masked (mDNS)"],
+              reflexive: reflexiveSet.size > 0 ? Array.from(reflexiveSet) : ["None detected"]
+            });
+          }
+
+          try {
+            pc = new RTCPeer({
+              iceServers: [
+                { urls: "stun:stun.l.google.com:19302" },
+                { urls: "stun:stun1.l.google.com:19302" }
+              ]
+            });
+
+            pc.createDataChannel("leak-check");
+
+            pc.onicecandidate = function (ev) {
+              if (!ev || !ev.candidate) {
+                finish();
+                return;
+              }
+              const cand = ev.candidate.candidate || "";
+              const ipMatch = cand.match(/(\b(?:\d{1,3}\.){3}\d{1,3}\b|[0-9a-fA-F:]{2,39}\.local|[0-9a-fA-F:]{4,39})/);
+              const ipToken = ipMatch ? ipMatch[1] : null;
+              if (!ipToken) return;
+
+              if (cand.includes(" typ host")) {
+                localSet.add(ipToken);
+              } else if (cand.includes(" typ srflx") || cand.includes(" typ prflx")) {
+                reflexiveSet.add(ipToken);
+              }
+            };
+
+            pc.createOffer()
+              .then(function (offer) { return pc.setLocalDescription(offer); })
+              .catch(function () { finish(); });
+
+            setTimeout(finish, 2200);
+          } catch (e) {
+            finish();
+          }
+        });
+      }
+
+      async function probeDohEndpoints() {
+        const results = [];
+        for (let i = 0; i < DOH_ENDPOINTS.length; i++) {
+          const ep = DOH_ENDPOINTS[i];
+          const t0 = performance.now();
+          try {
+            const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+            const timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 2500) : null;
+            const resp = await fetch(ep.url, {
+              headers: { Accept: "application/dns-json" },
+              signal: ctrl ? ctrl.signal : undefined
+            });
+            if (timer) clearTimeout(timer);
+            const ms = Math.round(performance.now() - t0);
+            if (resp.ok) {
+              const json = await resp.json();
+              const ansCount = Array.isArray(json.Answer) ? json.Answer.length : 0;
+              results.push({ name: ep.name, status: `OK (${ms}ms \u2022 ${ansCount} A)`, ok: true });
+            } else {
+              results.push({ name: ep.name, status: `HTTP ${resp.status}`, ok: false });
+            }
+          } catch (err) {
+            results.push({ name: ep.name, status: "Blocked / Timed Out", ok: false });
+          }
+        }
+        return results;
+      }
+
+      function readBrowserEnvironment() {
+        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        const connStr = conn
+          ? `${conn.effectiveType || "active"} \u2022 ~${conn.downlink || "?"} Mbps`
+          : (navigator.onLine ? "Online (Standard API)" : "Offline");
+
+        let tz = "UTC";
+        try {
+          tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+        } catch (e) {}
+        const loc = navigator.language || "en-US";
+
+        const dnt = navigator.doNotTrack || window.doNotTrack || "Off";
+        const gpc = navigator.globalPrivacyControl ? "On" : "Off";
+
+        return {
+          connStr: connStr,
+          tzLocaleStr: `${tz} \u2022 ${loc}`,
+          privStr: `DNT: ${dnt} \u2022 GPC: ${gpc}`
+        };
+      }
+
+      async function runFullLeakCheck() {
+        leakStatusHeadline.textContent = "Probing WebRTC & DoH Resolvers...";
+        leakStatusSub.textContent = "Gathering ICE candidates and testing DNS-over-HTTPS responses...";
+        leakBadgeBox.className = "leak-badge";
+        leakBadgeBox.textContent = "SCANNING";
+
+        const env = readBrowserEnvironment();
+        netConnectionVal.textContent = env.connStr;
+        tzLocaleVal.textContent = env.tzLocaleStr;
+        privacyFlagsVal.textContent = env.privStr;
+
+        const [rtc, dohList] = await Promise.all([
+          probeWebRtcCandidates(),
+          probeDohEndpoints()
+        ]);
+
+        webrtcLocalIpsVal.textContent = rtc.local.join(", ");
+        webrtcReflexiveIpsVal.textContent = rtc.reflexive.join(", ");
+
+        const okCount = dohList.filter(function (d) { return d.ok; }).length;
+        dohSummaryVal.textContent = `${okCount} / ${dohList.length} DoH resolvers reachable`;
+
+        dohResolversGrid.innerHTML = "";
+        dohList.forEach(function (d) {
+          const row = document.createElement("div");
+          row.className = "res-item";
+          row.innerHTML = `<span style="font-weight:800;">${d.name}</span><span style="color:${d.ok ? "#059669" : "#DC2626"}; font-weight:800;">${d.status}</span>`;
+          dohResolversGrid.appendChild(row);
+        });
+
+        const hasRawLanIpv4 = rtc.local.some(function (ip) {
+          return /^(10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.)/.test(ip);
+        });
+
+        if (hasRawLanIpv4) {
+          leakBadgeBox.className = "leak-badge warn";
+          leakBadgeBox.textContent = "LOCAL IP SEEN";
+          leakStatusHeadline.textContent = "RFC1918 Local IP Detected in WebRTC Host Candidate";
+          leakStatusSub.textContent = "Your browser exposed a local LAN IPv4 address via WebRTC ICE";
+        } else {
+          leakBadgeBox.className = "leak-badge";
+          leakBadgeBox.textContent = "NO LAN IP LEAK";
+          leakStatusHeadline.textContent = "No Raw Local LAN IPv4 Exposed via WebRTC";
+          leakStatusSub.textContent = `Reflexive candidates: ${rtc.reflexive.join(", ")} \u2022 DoH: ${okCount}/${dohList.length} OK`;
+        }
+
+        latestReportText = [
+          "PureWebKits IP & DNS Leak Diagnostic Report",
+          "------------------------------------------",
+          `Assessment: ${leakStatusHeadline.textContent}`,
+          `WebRTC Host / Local Candidates: ${rtc.local.join(", ")}`,
+          `WebRTC Reflexive / Public Candidates: ${rtc.reflexive.join(", ")}`,
+          `DNS-over-HTTPS Probes: ${dohList.map(function (d) { return d.name + " -> " + d.status; }).join(" | ")}`,
+          `Connection: ${env.connStr} | Timezone/Locale: ${env.tzLocaleStr} | Privacy Flags: ${env.privStr}`
+        ].join("\n");
+      }
+
+      runLeakTestBtn.addEventListener("click", runFullLeakCheck);
+
+      copyLeakReportBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        navigator.clipboard.writeText(latestReportText).then(function () {
+          const orig = copyLeakReportBtn.textContent;
+          copyLeakReportBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyLeakReportBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadLeakReportBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        const blob = new Blob([latestReportText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "ip-dns-leak-report.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      runFullLeakCheck();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,979 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grayscale / Black & White Image Filter Online — B&W Photo & Scan Converter | PureWebKits</title>
+  <meta name="description" content="Convert color photos and scanned documents into crisp Black & White (Grayscale), High-Contrast Document Scan, or Sepia online for free. 100% client-side in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/grayscale-image.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Dropzone */
+    .dropzone {
+      border: 2px dashed #93C5FD;
+      background: #F8FAFC;
+      border-radius: 13px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .dropzone:hover, .dropzone.dragover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+    }
+    .drop-title { font-size: 16.5px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
+    .drop-sub { font-size: 13.5px; color: var(--text-muted); margin-bottom: 14px; }
+    .btn-primary {
+      display: inline-block;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 9px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Workspace */
+    .bw-workspace { display: none; }
+    .preset-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .preset-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .preset-btn {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 13px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+    }
+    .preset-btn.active, .preset-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 13px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    /* Sliders Row */
+    .sliders-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .slider-card {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+    .slider-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .slider-val { color: var(--primary); font-weight: 800; }
+    .slider-card input[type="range"] { width: 100%; accent-color: var(--primary); cursor: pointer; }
+
+    /* Before & After Preview Grid */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .preview-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .preview-lbl { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .canvas-holder {
+      height: 290px;
+      background: #0F172A;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      overflow: hidden;
+    }
+    .canvas-holder canvas {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 4px;
+    }
+
+    /* Export Bar */
+    .export-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .dim-pill {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--primary);
+      background: var(--primary-soft);
+      padding: 7px 14px;
+      border-radius: 8px;
+    }
+    .export-right { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .fmt-select {
+      height: 40px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-weight: 700;
+      background: #FFFFFF;
+      color: var(--text-main);
+    }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .sliders-grid, .compare-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Grayscale / B&W Image Filter -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Grayscale / Black & White Image Filter — Photo & Document Scan Converter</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Convert color photos & scans into crisp B&W or Sepia locally in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Upload an image to convert to black and white">
+          <div class="drop-title">Drag & drop a color image here, or click to select</div>
+          <div class="drop-sub">Supports JPG, PNG, WebP, and BMP photos, signatures, and document scans</div>
+          <span class="btn-primary">Choose Image File</span>
+          <input type="file" id="bwFileInput" accept="image/*" style="display:none;" />
+        </div>
+
+        <div id="bwWorkspace" class="bw-workspace">
+          <div class="preset-bar">
+            <div class="preset-pills">
+              <button type="button" class="preset-btn active" data-preset="natural">Natural B&W (BT.709)</button>
+              <button type="button" class="preset-btn" data-preset="docscan">Clean Document Scan</button>
+              <button type="button" class="preset-btn" data-preset="noir">Dramatic Noir</button>
+              <button type="button" class="preset-btn" data-preset="sepia">Vintage Sepia</button>
+              <button type="button" class="preset-btn" data-preset="threshold">Pure 1-Bit B&W</button>
+            </div>
+            <button type="button" id="newImgBtn" class="btn-sec">New Image</button>
+          </div>
+
+          <div class="sliders-grid">
+            <div class="slider-card">
+              <div class="slider-top">
+                <label for="intensitySlider">Grayscale Intensity</label>
+                <span id="intensityVal" class="slider-val">100%</span>
+              </div>
+              <input type="range" id="intensitySlider" min="0" max="100" step="5" value="100" />
+            </div>
+
+            <div class="slider-card">
+              <div class="slider-top">
+                <label for="contrastSlider">Contrast</label>
+                <span id="contrastVal" class="slider-val">100%</span>
+              </div>
+              <input type="range" id="contrastSlider" min="50" max="200" step="5" value="100" />
+            </div>
+
+            <div class="slider-card">
+              <div class="slider-top">
+                <label for="brightnessSlider">Brightness</label>
+                <span id="brightnessVal" class="slider-val">100%</span>
+              </div>
+              <input type="range" id="brightnessSlider" min="50" max="180" step="5" value="100" />
+            </div>
+          </div>
+
+          <div class="compare-grid">
+            <div class="preview-box">
+              <div class="preview-lbl">Original Color Image</div>
+              <div class="canvas-holder">
+                <canvas id="origPreviewCanvas"></canvas>
+              </div>
+            </div>
+
+            <div class="preview-box">
+              <div class="preview-lbl">Black & White Filtered Output</div>
+              <div class="canvas-holder">
+                <canvas id="filteredPreviewCanvas"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="export-bar">
+            <div id="dimInfoPill" class="dim-pill">Resolution: 1200 × 800 px</div>
+            <div class="export-right">
+              <select id="exportFmtSelect" class="fmt-select" aria-label="Export Image Format">
+                <option value="image/jpeg" selected>Download as JPG (.jpg)</option>
+                <option value="image/png">Download as PNG (.png)</option>
+                <option value="image/webp">Download as WebP (.webp)</option>
+              </select>
+              <button type="button" id="downloadBwBtn" class="btn-primary">Download B&W Image</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How ITU-R BT.709 Luminance Grayscale & Document Scan Binarization Work</h2>
+
+      <h3>Why Weighted Perceptual Luminance Beats Simple RGB Averaging</h3>
+      <p>
+        Converting a full-color 24-bit RGB photograph into an authentic <strong>8-bit grayscale</strong> image requires more than averaging <code>(R + G + B) / 3</code>. Because human eyes contain far more green-sensitive cone receptors than blue-sensitive ones, a pure green pixel appears roughly three times brighter to human vision than an equally intense blue pixel. Broadcast and digital imaging standards (<strong>ITU-R BT.709</strong>) solve this by weighting the green channel at <code>71.52%</code>, red at <code>21.26%</code>, and blue at <code>7.22%</code>. Beyond artistic portrait photography, converting smartphone document scans or handwritten signatures to high-contrast grayscale removes yellow paper shadows, cuts file sizes, and improves OCR text accuracy for government exam portals.
+      </p>
+
+      <h3>How to Convert Any Image to Black & White in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Upload Your Color Photo or Scan:</strong> Drag any JPG, PNG, or WebP file into the upload zone above—your file stays 100% locally in your browser.</li>
+        <li><strong>Pick a Monochrome Preset or Tune Sliders:</strong> Choose <em>Natural B&W (BT.709)</em> for portraits, <em>Clean Document Scan</em> for forms/signatures, <em>Vintage Sepia</em>, or <em>Pure 1-Bit B&W</em>, and fine-tune Contrast and Brightness.</li>
+        <li><strong>Compare & Download:</strong> Inspect the side-by-side preview and click <em>Download B&W Image</em> in JPG, PNG, or WebP format.</li>
+      </ol>
+
+      <h3>ITU-R BT.709 Luminance Grayscale Formula + Worked Example</h3>
+      <p>
+        Each pixel's linear grayscale brightness <code>Y</code> (from <code>0</code> black to <code>255</code> white) is computed using standard HDTV perceptual weights:
+      </p>
+      <div class="formula-box">
+        Grayscale Luminance (Y) = 0.2126 × R + 0.7152 × G + 0.0722 × B
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Consider a vibrant emerald green pixel with RGB values <strong>R = 16, G = 185, B = 129</strong>.</p>
+        <p>Weighted Luminance <code>Y = (0.2126 × 16) + (0.7152 × 185) + (0.0722 × 129) = 3.40 + 132.31 + 9.31 = 145.02</code>.</p>
+        <p>Setting <code>R = G = B = 145</code> preserves the exact natural brightness contrast against surrounding darker or lighter colors.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="bw-table-heading">
+      <h2 id="bw-table-heading">Grayscale Algorithms, Monochrome Presets & Printing Reference (16 Specs)</h2>
+      <p>Use this imaging reference guide to select the best black-and-white conversion preset for photography, signatures, and printing.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Filter Mode / Standard</th>
+              <th>Channel Formula / Rule</th>
+              <th>Tonal Range</th>
+              <th>Best Practical Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>ITU-R BT.709 (HDTV / Web)</strong></td>
+              <td><span class="limit-badge">0.2126R + 0.7152G + 0.0722B</span></td>
+              <td>256 Gray Shades</td>
+              <td>Natural skin tones & landscape portraits</td>
+            </tr>
+            <tr>
+              <td><strong>ITU-R BT.601 (Legacy NTSC)</strong></td>
+              <td><span class="limit-badge">0.299R + 0.587G + 0.114B</span></td>
+              <td>256 Gray Shades</td>
+              <td>Classic broadcast & legacy JPEG luminance</td>
+            </tr>
+            <tr>
+              <td><strong>Clean Document Scan Preset</strong></td>
+              <td>BT.709 + 145% Contrast + 112% Bright</td>
+              <td>Crisp White Paper</td>
+              <td>Removing yellow shadows from ID & form scans</td>
+            </tr>
+            <tr>
+              <td><strong>Signature Scan Whitening</strong></td>
+              <td>High Contrast + Brightness Boost</td>
+              <td>Pure #FFFFFF BG</td>
+              <td>Exam portal signature uploads (SSC/UPSC/IBPS)</td>
+            </tr>
+            <tr>
+              <td><strong>Dramatic Noir Preset</strong></td>
+              <td>BT.709 + 150% Contrast + 92% Bright</td>
+              <td>Deep Shadows</td>
+              <td>Artistic street & studio monochrome portraits</td>
+            </tr>
+            <tr>
+              <td><strong>Vintage Sepia Tone</strong></td>
+              <td>Warm Red-Brown Matrix Transform</td>
+              <td>Warm Archival Tint</td>
+              <td>Retro wedding photos & nostalgic posters</td>
+            </tr>
+            <tr>
+              <td><strong>Pure 1-Bit Binary Threshold</strong></td>
+              <td><code>Y ≥ 128 → 255, else 0</code></td>
+              <td>2 Colors Only (B/W)</td>
+              <td>Thermal receipt printers, line art & QR scans</td>
+            </tr>
+            <tr>
+              <td><strong>Partial Desaturation (50%–80%)</strong></td>
+              <td>Blends Original RGB + Grayscale</td>
+              <td>Muted Editorial</td>
+              <td>Moody cinematic blog headers & banners</td>
+            </tr>
+            <tr>
+              <td><strong>8-Bit Grayscale Bit Depth</strong></td>
+              <td>1 Byte (8 bits) per pixel</td>
+              <td>0 (Black) to 255 (White)</td>
+              <td>Standard web & print monochrome range</td>
+            </tr>
+            <tr>
+              <td><strong>Monochrome Laser Printing</strong></td>
+              <td>300 DPI High-Contrast Gray</td>
+              <td>Halftone Dots</td>
+              <td>Invoices, contracts, resumes & study notes</td>
+            </tr>
+            <tr>
+              <td><strong>OCR Text Extraction Prep</strong></td>
+              <td>High-Contrast Grayscale</td>
+              <td>Sharp Glyph Edges</td>
+              <td>Improves accuracy before PDF/text recognition</td>
+            </tr>
+            <tr>
+              <td><strong>File Size Impact (JPG)</strong></td>
+              <td>Zero Chroma Information</td>
+              <td><span class="limit-badge">15% – 30% Smaller</span></td>
+              <td>Easier to compress under 20 KB or 50 KB</td>
+            </tr>
+            <tr>
+              <td><strong>Transparent PNG Preservation</strong></td>
+              <td>Preserves Alpha Channel</td>
+              <td>RGBA → Gray+Alpha</td>
+              <td>Turning colored logos into monochrome badges</td>
+            </tr>
+            <tr>
+              <td><strong>WebP Monochrome Export</strong></td>
+              <td>Modern Lossy/Lossless</td>
+              <td>Smallest Web Size</td>
+              <td>Fast-loading portfolio galleries</td>
+            </tr>
+            <tr>
+              <td><strong>Full Native Resolution</strong></td>
+              <td>1:1 Pixel Mapping</td>
+              <td>Zero Downscaling</td>
+              <td>Exports at exact original image width & height</td>
+            </tr>
+            <tr>
+              <td><strong>Browser Privacy</strong></td>
+              <td>HTML5 Canvas Pixel Loop</td>
+              <td><span class="limit-badge">100% Client-Side</span></td>
+              <td>Zero uploads for sensitive documents</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Image Editing, Signature & Compression Tools</h2>
+      <p>Preparing a signature scan for an exam portal, rotating a document, cropping to exact ratios, or compressing under 50 KB? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="signature-resizer.html"><span>Signature Resizer</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compress-image-to-exact-kb.html"><span>Compress Image to KB</span><span class="arrow">→</span></a>
+        <a class="related-link" href="rotate-flip-image.html"><span>Rotate & Flip Image</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-cropper.html"><span>Image Cropper</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-resizer.html"><span>Image Resizer (px)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="png-to-jpg.html"><span>PNG to JPG Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="jpg-to-png.html"><span>JPG to PNG Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="color-picker.html"><span>Color Picker & HEX</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Which preset is best for cleaning up a mobile photo of a handwritten signature or document?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Click <strong>Clean Document Scan</strong> in the preset bar above—it automatically converts the image to grayscale while boosting contrast and brightness so gray/yellow paper backgrounds turn crisp white and ink strokes stay dark and sharp.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Does converting an image to grayscale reduce its file size?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Yes. Removing color (chrominance) data reduces entropy, typically making exported JPG and WebP files <strong>15% to 30% smaller</strong> than their full-color equivalents at the same quality setting.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Will transparent backgrounds in PNG logos remain transparent?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Yes—as long as you select <strong>Download as PNG (.png)</strong> or <strong>WebP (.webp)</strong> at the bottom, our pixel filter preserves your image's alpha transparency channel intact.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my personal photos or scanned documents sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All pixel-by-pixel luminance calculations execute 100% locally inside your web browser using HTML5 Canvas. Your files never leave your device.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Grayscale, Sepia & Document Binarization Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const dropzone = document.getElementById("dropzone");
+      const bwFileInput = document.getElementById("bwFileInput");
+      const bwWorkspace = document.getElementById("bwWorkspace");
+
+      const presetBtns = document.querySelectorAll(".preset-btn");
+      const newImgBtn = document.getElementById("newImgBtn");
+
+      const intensitySlider = document.getElementById("intensitySlider");
+      const contrastSlider = document.getElementById("contrastSlider");
+      const brightnessSlider = document.getElementById("brightnessSlider");
+      const intensityVal = document.getElementById("intensityVal");
+      const contrastVal = document.getElementById("contrastVal");
+      const brightnessVal = document.getElementById("brightnessVal");
+
+      const origPreviewCanvas = document.getElementById("origPreviewCanvas");
+      const filteredPreviewCanvas = document.getElementById("filteredPreviewCanvas");
+      const dimInfoPill = document.getElementById("dimInfoPill");
+      const exportFmtSelect = document.getElementById("exportFmtSelect");
+      const downloadBwBtn = document.getElementById("downloadBwBtn");
+
+      let sourceImg = null;
+      let baseFileName = "grayscale-image";
+      let activePreset = "natural";
+
+      function applyFilterToCanvas(targetCanvas, w, h, fillWhiteBg) {
+        if (!sourceImg) return;
+        targetCanvas.width = w;
+        targetCanvas.height = h;
+        const ctx = targetCanvas.getContext("2d");
+
+        if (fillWhiteBg) {
+          ctx.fillStyle = "#FFFFFF";
+          ctx.fillRect(0, 0, w, h);
+        } else {
+          ctx.clearRect(0, 0, w, h);
+        }
+
+        ctx.drawImage(sourceImg, 0, 0, w, h);
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const d = imgData.data;
+
+        const intensity = (parseInt(intensitySlider.value, 10) || 0) / 100;
+        const contrastPct = (parseInt(contrastSlider.value, 10) || 100) / 100;
+        const brightnessPct = (parseInt(brightnessSlider.value, 10) || 100) / 100;
+
+        for (let i = 0; i < d.length; i += 4) {
+          let r = d[i];
+          let g = d[i + 1];
+          let b = d[i + 2];
+
+          // Apply Brightness & Contrast first
+          r = ((r * brightnessPct - 128) * contrastPct) + 128;
+          g = ((g * brightnessPct - 128) * contrastPct) + 128;
+          b = ((b * brightnessPct - 128) * contrastPct) + 128;
+
+          r = Math.max(0, Math.min(255, r));
+          g = Math.max(0, Math.min(255, g));
+          b = Math.max(0, Math.min(255, b));
+
+          if (activePreset === "sepia") {
+            const sr = Math.min(255, 0.393 * r + 0.769 * g + 0.189 * b);
+            const sg = Math.min(255, 0.349 * r + 0.686 * g + 0.168 * b);
+            const sb = Math.min(255, 0.272 * r + 0.534 * g + 0.131 * b);
+            d[i] = r + (sr - r) * intensity;
+            d[i + 1] = g + (sg - g) * intensity;
+            d[i + 2] = b + (sb - b) * intensity;
+          } else {
+            // ITU-R BT.709 perceptual luminance
+            let lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+            if (activePreset === "threshold") {
+              lum = lum >= 128 ? 255 : 0;
+            }
+            d[i] = r + (lum - r) * intensity;
+            d[i + 1] = g + (lum - g) * intensity;
+            d[i + 2] = b + (lum - b) * intensity;
+          }
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+      }
+
+      function renderPreviews() {
+        if (!sourceImg) return;
+        intensityVal.textContent = intensitySlider.value + "%";
+        contrastVal.textContent = contrastSlider.value + "%";
+        brightnessVal.textContent = brightnessSlider.value + "%";
+
+        const nw = sourceImg.naturalWidth || sourceImg.width;
+        const nh = sourceImg.naturalHeight || sourceImg.height;
+        dimInfoPill.textContent = "Resolution: " + nw + " × " + nh + " px";
+
+        const maxPreview = 520;
+        const scale = Math.min(1, maxPreview / Math.max(nw, nh));
+        const pw = Math.max(1, Math.round(nw * scale));
+        const ph = Math.max(1, Math.round(nh * scale));
+
+        origPreviewCanvas.width = pw;
+        origPreviewCanvas.height = ph;
+        origPreviewCanvas.getContext("2d").drawImage(sourceImg, 0, 0, pw, ph);
+
+        applyFilterToCanvas(filteredPreviewCanvas, pw, ph, false);
+      }
+
+      presetBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          presetBtns.forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          activePreset = btn.getAttribute("data-preset");
+
+          if (activePreset === "natural") {
+            intensitySlider.value = "100";
+            contrastSlider.value = "100";
+            brightnessSlider.value = "100";
+          } else if (activePreset === "docscan") {
+            intensitySlider.value = "100";
+            contrastSlider.value = "145";
+            brightnessSlider.value = "112";
+          } else if (activePreset === "noir") {
+            intensitySlider.value = "100";
+            contrastSlider.value = "155";
+            brightnessSlider.value = "90";
+          } else if (activePreset === "sepia") {
+            intensitySlider.value = "100";
+            contrastSlider.value = "105";
+            brightnessSlider.value = "102";
+          } else if (activePreset === "threshold") {
+            intensitySlider.value = "100";
+            contrastSlider.value = "120";
+            brightnessSlider.value = "105";
+          }
+          renderPreviews();
+        });
+      });
+
+      [intensitySlider, contrastSlider, brightnessSlider].forEach(function (sl) {
+        sl.addEventListener("input", renderPreviews);
+      });
+
+      function handleFile(file) {
+        if (!file || !file.type.startsWith("image/")) return;
+        baseFileName = file.name.replace(/\.[^/.]+$/, "") || "grayscale-image";
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          const img = new Image();
+          img.onload = function () {
+            sourceImg = img;
+            dropzone.style.display = "none";
+            bwWorkspace.style.display = "block";
+            renderPreviews();
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      dropzone.addEventListener("click", function () { bwFileInput.click(); });
+      dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+      dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+      dropzone.addEventListener("drop", function (e) {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      bwFileInput.addEventListener("change", function (e) {
+        if (e.target.files && e.target.files[0]) handleFile(e.target.files[0]);
+        e.target.value = "";
+      });
+
+      newImgBtn.addEventListener("click", function () {
+        sourceImg = null;
+        bwWorkspace.style.display = "none";
+        dropzone.style.display = "block";
+      });
+
+      downloadBwBtn.addEventListener("click", function () {
+        if (!sourceImg) return;
+        const nw = sourceImg.naturalWidth || sourceImg.width;
+        const nh = sourceImg.naturalHeight || sourceImg.height;
+        const mime = exportFmtSelect.value;
+
+        const fullCanvas = document.createElement("canvas");
+        applyFilterToCanvas(fullCanvas, nw, nh, mime === "image/jpeg");
+
+        const ext = mime === "image/png" ? "png" : (mime === "image/webp" ? "webp" : "jpg");
+        fullCanvas.toBlob(function (blob) {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = baseFileName + "-bw." + ext;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, mime, 0.92);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,995 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Fuel Cost & Trip Mileage Calculator — PureWebKits</title>
+  <meta name="description" content="Calculate trip fuel cost, fuel needed, and cost per kilometer or mile with round-trip and group split options online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/fuel-cost-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Fuel Cost Calculator Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .unit-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      align-self: flex-start;
+    }
+    .unit-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .unit-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-select { font-family: inherit; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .chk-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .chk-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .fuel-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .fuel-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .fuel-hero-title { font-size: 16px; font-weight: 800; }
+    .fuel-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .fuel-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 26px;
+      font-weight: 800;
+      color: #38BDF8;
+      white-space: nowrap;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Fuel Cost Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Fuel Cost Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Estimate trip fuel needed, total fuel cost, and per-person split in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Enter trip distance, vehicle efficiency, and fuel price to estimate trip fuel cost:</div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample Trip</button>
+            <button type="button" id="resetFuelBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="unit-pills" role="tablist" aria-label="Distance and fuel units">
+              <button type="button" class="unit-btn active" id="metricBtn" data-unit="metric">Metric (km / L)</button>
+              <button type="button" class="unit-btn" id="imperialBtn" data-unit="imperial">Imperial (mi / gal)</button>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="currencySelect" class="field-label">Currency Symbol</label>
+                <select id="currencySelect" class="std-select">
+                  <option value="₹" selected>INR (₹)</option>
+                  <option value="$">USD ($)</option>
+                  <option value="€">EUR (€)</option>
+                  <option value="£">GBP (£)</option>
+                  <option value="AED ">AED</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="distanceInput" class="field-label" id="distanceLabel">One-Way Distance (km)</label>
+                <input type="number" id="distanceInput" class="std-input" min="0" step="0.1" value="150" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="efficiencyInput" class="field-label" id="efficiencyLabel">Mileage (km per Liter)</label>
+                <input type="number" id="efficiencyInput" class="std-input" min="0.1" step="0.1" value="16" />
+              </div>
+
+              <div class="field-group">
+                <label for="fuelPriceInput" class="field-label" id="priceLabel">Fuel Price (per Liter)</label>
+                <input type="number" id="fuelPriceInput" class="std-input" min="0" step="0.01" value="100" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="ridersInput" class="field-label">Split Cost (Passengers)</label>
+                <input type="number" id="ridersInput" class="std-input" min="1" max="50" step="1" value="1" />
+              </div>
+
+              <div class="field-group" style="justify-content: flex-end;">
+                <label class="chk-inline"><input type="checkbox" id="roundTripChk" /> Round trip (× 2 distance)</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="fuel-hero-box">
+              <div>
+                <div class="fuel-hero-kicker">Estimated Fuel Cost</div>
+                <div class="fuel-hero-title" id="tripModeTitle">Total Trip Fuel Spend</div>
+                <div class="fuel-hero-sub" id="totalDistSubLabel">Effective distance: 150 km</div>
+              </div>
+              <div class="fuel-hero-num" id="totalFuelCostDisplay">₹937.50</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Fuel Needed</div>
+                <div class="metric-val" id="fuelNeededDisplay">9.38 L</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Cost Per Distance</div>
+                <div class="metric-val" id="costPerDistDisplay">₹6.25 / km</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Cost Per Passenger</div>
+                <div class="metric-val" id="costPerRiderDisplay">₹937.50</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Unit Basis</div>
+                <div class="metric-val" id="unitBasisDisplay">Metric (km / L)</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyFuelBtn" class="btn-primary">Copy Trip Summary</button>
+              <button type="button" id="downloadFuelBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Calculating Trip Fuel Cost, Mileage, and Carpool Splits</h2>
+
+      <h3>Why Planning Fuel Costs Ahead Helps Budget Road Trips and Commutes</h3>
+      <p>
+        Whether you are planning a weekend road trip, estimating monthly commuting expenses, or splitting fuel costs with friends on a shared ride, knowing your expected fuel spend ahead of time prevents surprises at the pump. Fuel consumption depends on total distance driven, real-world vehicle fuel economy (such as kilometers per liter or miles per gallon), driving conditions, traffic, speed, and load. A browser-based <strong>Fuel Cost Calculator</strong> computes the volume of fuel required, total fuel cost, cost per kilometer or mile, and per-passenger share—100% locally in your browser without sending your trip details to any remote server.
+      </p>
+
+      <h3>How to Calculate Trip Fuel Cost in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Select Units & Currency:</strong> Choose <strong>Metric (km / L)</strong> or <strong>Imperial (mi / gal)</strong> and select your currency symbol.</li>
+        <li><strong>Enter Distance, Mileage & Fuel Price:</strong> Type the trip distance, your vehicle's fuel efficiency (<code>km/L</code> or <code>MPG</code>), and the current price per liter or gallon, and toggle <em>Round trip</em> if you are driving both ways.</li>
+        <li><strong>Check Per-Rider Split & Export:</strong> Set how many passengers are sharing the fuel cost, review the breakdown, and click <strong>Copy Trip Summary</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Fuel Needed & Total Fuel Cost Formulas</h3>
+      <p>
+        For effective distance <code>D</code> (one-way distance, or <code>2 × distance</code> for round trip), mileage <code>E</code> (distance per fuel unit), and price per fuel unit <code>P</code>:
+      </p>
+      <div class="formula-box">
+        Fuel Needed = D / E  |  Total Fuel Cost = Fuel Needed × P<br />
+        Cost Per Distance = Total Fuel Cost / D  |  Per Rider = Total Fuel Cost / Riders
+      </div>
+
+      <h3>Tips for Accurate Fuel Budgeting</h3>
+      <ul>
+        <li><strong>Use Real-World Mileage Rather Than Peak Brochure Figures:</strong> Highway cruising, city stop-and-go traffic, air conditioning, and cargo weight can shift real-world fuel economy.</li>
+        <li><strong>Remember to Check Round Trip When Returning:</strong> Enabling <em>Round trip (× 2 distance)</em> doubles the distance so you budget fuel for both outbound and return legs.</li>
+        <li><strong>Keep Fuel Separate From Tolls or Parking:</strong> Fuel cost covers fuel only—add highway tolls, parking fees, or food separately when budgeting an entire trip.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> For a <code>150 km</code> one-way trip in a vehicle getting <code>16 km/L</code> at <code>₹100</code> per liter, fuel needed is <code>150 / 16 = 9.375 L</code> (~<code>9.38 L</code>), costing <code>₹937.50</code> total or <code>₹6.25</code> per km.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="fuel-table-heading">
+      <h2 id="fuel-table-heading">Fuel Cost Formulas, Units & Trip Rules Reference (16 Rules)</h2>
+      <p>Use this reference table to review fuel cost formulas, metric/imperial conversions, and calculation rules.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Metric / Option</th>
+              <th>Formula / Conversion</th>
+              <th>Meaning</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Fuel Needed</strong></td>
+              <td><code>Distance / Mileage</code></td>
+              <td>Liters or gallons consumed on trip</td>
+              <td>Uses effective one-way or round-trip distance</td>
+            </tr>
+            <tr>
+              <td><strong>Total Fuel Cost</strong></td>
+              <td><code>Fuel Needed × Price</code></td>
+              <td>Total fuel expense for the trip</td>
+              <td>Formatted in selected currency</td>
+            </tr>
+            <tr>
+              <td><strong>Cost Per km / mi</strong></td>
+              <td><code>Total Fuel Cost / Distance</code></td>
+              <td>Average fuel cost per unit distance</td>
+              <td>Helpful for comparing routes or vehicles</td>
+            </tr>
+            <tr>
+              <td><strong>Round Trip Toggle</strong></td>
+              <td><code>Distance × 2</code></td>
+              <td>Doubles distance for out-and-back travel</td>
+              <td>Unchecked = one-way trip</td>
+            </tr>
+            <tr>
+              <td><strong>Passenger Split</strong></td>
+              <td><code>Total Cost / Passengers</code></td>
+              <td>Equal fuel share per person</td>
+              <td>Minimum 1 passenger</td>
+            </tr>
+            <tr>
+              <td><strong>Kilometers to Miles</strong></td>
+              <td><code>1 km = 0.621371 mi</code></td>
+              <td>Metric to imperial distance factor</td>
+              <td>Applied when switching unit systems</td>
+            </tr>
+            <tr>
+              <td><strong>Liters to US Gallons</strong></td>
+              <td><code>1 L = 0.264172 gal</code></td>
+              <td>Metric to US gallon volume factor</td>
+              <td>Applied when switching unit systems</td>
+            </tr>
+            <tr>
+              <td><strong>km/L to MPG (US)</strong></td>
+              <td><code>MPG = km/L × 2.35215</code></td>
+              <td>Fuel economy conversion factor</td>
+              <td>Higher number = better efficiency</td>
+            </tr>
+            <tr>
+              <td><strong>Price / L to Price / gal</strong></td>
+              <td><code>Price/gal = Price/L × 3.78541</code></td>
+              <td>Fuel price unit conversion</td>
+              <td>Converts per-liter rate to per-gallon</td>
+            </tr>
+            <tr>
+              <td><strong>Currency Selector</strong></td>
+              <td><code>₹</code>, <code>$</code>, <code>€</code>, <code>£</code>, <code>AED</code></td>
+              <td>Displays chosen currency symbol</td>
+              <td>Supports local and travel currencies</td>
+            </tr>
+            <tr>
+              <td><strong>Copy Trip Summary</strong></td>
+              <td>Clipboard export</td>
+              <td>Copies formatted breakdown text</td>
+              <td>Easy to share with travel companions</td>
+            </tr>
+            <tr>
+              <td><strong>Download .txt</strong></td>
+              <td>File export</td>
+              <td>Saves summary as <code>fuel-cost-summary.txt</code></td>
+              <td>Keep trip budget notes locally</td>
+            </tr>
+            <tr>
+              <td><strong>Reset Button</strong></td>
+              <td>Clears inputs</td>
+              <td>Resets numeric fields cleanly</td>
+              <td>Start a fresh calculation anytime</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Math — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — All fuel calculations run locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Your trip inputs stay strictly on your device</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Travel, Finance & Everyday Calculators</h2>
+      <p>Splitting bills, converting units, or planning finances? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="tip-calculator.html"><span>Tip & Bill Split Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="unit-converter.html"><span>Unit Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="emi-calculator.html"><span>EMI Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="fraction-calculator.html"><span>Fraction Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How do I calculate fuel cost for a round trip?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Enter your one-way distance and check <strong>Round trip (× 2 distance)</strong>—the calculator automatically doubles the distance before computing fuel needed and total cost.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I switch between kilometers/liters and miles/gallons?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> Click <strong>Metric (km / L)</strong> or <strong>Imperial (mi / gal)</strong> at the top of the form to convert distance, mileage, and fuel price automatically.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my trip details sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Fuel Cost Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Fuel Cost Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const metricBtn = document.getElementById("metricBtn");
+      const imperialBtn = document.getElementById("imperialBtn");
+      const currencySelect = document.getElementById("currencySelect");
+
+      const distanceInput = document.getElementById("distanceInput");
+      const efficiencyInput = document.getElementById("efficiencyInput");
+      const fuelPriceInput = document.getElementById("fuelPriceInput");
+      const ridersInput = document.getElementById("ridersInput");
+      const roundTripChk = document.getElementById("roundTripChk");
+
+      const distanceLabel = document.getElementById("distanceLabel");
+      const efficiencyLabel = document.getElementById("efficiencyLabel");
+      const priceLabel = document.getElementById("priceLabel");
+
+      const totalDistSubLabel = document.getElementById("totalDistSubLabel");
+      const totalFuelCostDisplay = document.getElementById("totalFuelCostDisplay");
+      const fuelNeededDisplay = document.getElementById("fuelNeededDisplay");
+      const costPerDistDisplay = document.getElementById("costPerDistDisplay");
+      const costPerRiderDisplay = document.getElementById("costPerRiderDisplay");
+      const unitBasisDisplay = document.getElementById("unitBasisDisplay");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetFuelBtn = document.getElementById("resetFuelBtn");
+      const copyFuelBtn = document.getElementById("copyFuelBtn");
+      const downloadFuelBtn = document.getElementById("downloadFuelBtn");
+
+      let unitSystem = "metric";
+      let latestSummaryText = "";
+
+      function fmtMoney(sym, amt) {
+        const safe = Number.isFinite(amt) ? amt : 0;
+        const formatted = safe.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        return `${sym}${formatted}`;
+      }
+
+      function updateLabels() {
+        if (unitSystem === "metric") {
+          distanceLabel.textContent = "One-Way Distance (km)";
+          efficiencyLabel.textContent = "Mileage (km per Liter)";
+          priceLabel.textContent = "Fuel Price (per Liter)";
+          unitBasisDisplay.textContent = "Metric (km / L)";
+        } else {
+          distanceLabel.textContent = "One-Way Distance (mi)";
+          efficiencyLabel.textContent = "Mileage (MPG — mi / gal)";
+          priceLabel.textContent = "Fuel Price (per Gallon)";
+          unitBasisDisplay.textContent = "Imperial (mi / gal)";
+        }
+      }
+
+      function switchUnitSystem(newUnit) {
+        if (unitSystem === newUnit) return;
+        const d = parseFloat(distanceInput.value);
+        const eff = parseFloat(efficiencyInput.value);
+        const pr = parseFloat(fuelPriceInput.value);
+
+        if (newUnit === "imperial") {
+          if (Number.isFinite(d) && d > 0) distanceInput.value = (d * 0.621371).toFixed(1);
+          if (Number.isFinite(eff) && eff > 0) efficiencyInput.value = (eff * 2.35215).toFixed(1);
+          if (Number.isFinite(pr) && pr > 0) fuelPriceInput.value = (pr * 3.78541).toFixed(2);
+        } else {
+          if (Number.isFinite(d) && d > 0) distanceInput.value = (d / 0.621371).toFixed(1);
+          if (Number.isFinite(eff) && eff > 0) efficiencyInput.value = (eff / 2.35215).toFixed(1);
+          if (Number.isFinite(pr) && pr > 0) fuelPriceInput.value = (pr / 3.78541).toFixed(2);
+        }
+
+        unitSystem = newUnit;
+        metricBtn.classList.toggle("active", unitSystem === "metric");
+        imperialBtn.classList.toggle("active", unitSystem === "imperial");
+        updateLabels();
+        calculateFuelCost();
+      }
+
+      function calculateFuelCost() {
+        updateLabels();
+
+        const sym = currencySelect.value;
+        const baseDist = parseFloat(distanceInput.value);
+        const eff = parseFloat(efficiencyInput.value);
+        const price = parseFloat(fuelPriceInput.value);
+        let riders = parseInt(ridersInput.value, 10);
+
+        if (!Number.isFinite(riders) || riders < 1) {
+          riders = 1;
+        }
+
+        const distUnit = unitSystem === "metric" ? "km" : "mi";
+        const volUnit = unitSystem === "metric" ? "L" : "gal";
+
+        if (!Number.isFinite(baseDist) || baseDist < 0 || !Number.isFinite(eff) || eff <= 0 || !Number.isFinite(price) || price < 0) {
+          totalDistSubLabel.textContent = "Enter valid positive distance, mileage, and price";
+          totalFuelCostDisplay.textContent = "—";
+          fuelNeededDisplay.textContent = "—";
+          costPerDistDisplay.textContent = "—";
+          costPerRiderDisplay.textContent = "—";
+          latestSummaryText = "";
+          return;
+        }
+
+        const effectiveDist = roundTripChk.checked ? baseDist * 2 : baseDist;
+        const fuelNeeded = effectiveDist / eff;
+        const totalCost = fuelNeeded * price;
+        const costPerDist = effectiveDist > 0 ? totalCost / effectiveDist : 0;
+        const costPerRider = totalCost / riders;
+
+        totalDistSubLabel.textContent = `Effective distance: ${effectiveDist.toLocaleString("en-US", { maximumFractionDigits: 1 })} ${distUnit}${roundTripChk.checked ? " (round trip)" : ""}`;
+        totalFuelCostDisplay.textContent = fmtMoney(sym, totalCost);
+        fuelNeededDisplay.textContent = `${fuelNeeded.toFixed(2)} ${volUnit}`;
+        costPerDistDisplay.textContent = `${fmtMoney(sym, costPerDist)} / ${distUnit}`;
+        costPerRiderDisplay.textContent = fmtMoney(sym, costPerRider);
+
+        latestSummaryText = [
+          "PureWebKits Fuel Cost Summary",
+          "------------------------------",
+          `Trip Type: ${roundTripChk.checked ? "Round Trip" : "One-Way"} | Effective Distance: ${effectiveDist} ${distUnit}`,
+          `Mileage: ${eff} ${distUnit}/${volUnit} | Fuel Price: ${fmtMoney(sym, price)}/${volUnit}`,
+          `Estimated Fuel Needed: ${fuelNeeded.toFixed(2)} ${volUnit}`,
+          `Total Fuel Cost: ${fmtMoney(sym, totalCost)} (${fmtMoney(sym, costPerDist)} / ${distUnit})`,
+          `Passengers: ${riders} | Cost Per Passenger: ${fmtMoney(sym, costPerRider)}`
+        ].join("\n");
+      }
+
+      metricBtn.addEventListener("click", function () { switchUnitSystem("metric"); });
+      imperialBtn.addEventListener("click", function () { switchUnitSystem("imperial"); });
+
+      [currencySelect, distanceInput, efficiencyInput, fuelPriceInput, ridersInput, roundTripChk].forEach(function (el) {
+        el.addEventListener("input", calculateFuelCost);
+        el.addEventListener("change", calculateFuelCost);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        unitSystem = "metric";
+        metricBtn.classList.add("active");
+        imperialBtn.classList.remove("active");
+        currencySelect.value = "₹";
+        distanceInput.value = "150";
+        efficiencyInput.value = "16";
+        fuelPriceInput.value = "100";
+        ridersInput.value = "1";
+        roundTripChk.checked = false;
+        calculateFuelCost();
+      });
+
+      resetFuelBtn.addEventListener("click", function () {
+        distanceInput.value = "";
+        efficiencyInput.value = "";
+        fuelPriceInput.value = "";
+        ridersInput.value = "1";
+        roundTripChk.checked = false;
+        calculateFuelCost();
+      });
+
+      copyFuelBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyFuelBtn.textContent;
+          copyFuelBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyFuelBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadFuelBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "fuel-cost-summary.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateFuelCost();
+    });
+  </script>
+</body>
+</html>

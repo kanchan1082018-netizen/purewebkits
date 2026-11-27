@@ -1,0 +1,916 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online EV Charging Calculator (Charge Time, Cost & Range) — PureWebKits</title>
+  <meta name="description" content="Calculate electric vehicle charging time, energy added (kWh), electricity cost per session or 100 km/mi, and estimated driving range online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/ev-charging-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* EV Charging Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input {
+      width: 100%;
+      height: 41px;
+      padding: 0 11px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .preset-chip {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      border-radius: 999px;
+      padding: 4px 11px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .preset-chip:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .ev-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .ev-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .ev-title { font-size: 15px; font-weight: 800; color: #CBD5E1; margin-top: 2px; }
+    .ev-sub { font-size: 12px; color: #94A3B8; margin-top: 2px; }
+    .ev-big-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 24px;
+      font-weight: 800;
+      color: #34D399;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid, .two-col-fields { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive EV Charging Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online EV Charging Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Estimate charging time, wall energy (kWh), session cost & range added
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">
+            Enter your battery size, state of charge (SoC %), charger power & tariff — zero server uploads:
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="resetEvBtn" class="btn-sec">Reset Defaults</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="evBatteryKwhInput" class="field-label">Battery Capacity (kWh)</label>
+                <input type="number" id="evBatteryKwhInput" class="std-input" min="5" max="300" step="0.5" value="60" />
+              </div>
+              <div class="field-group">
+                <label for="evChargerKwInput" class="field-label">Charger Power (kW)</label>
+                <input type="number" id="evChargerKwInput" class="std-input" min="0.5" max="400" step="0.5" value="7.4" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="evStartSocInput" class="field-label">Current Charge (%)</label>
+                <input type="number" id="evStartSocInput" class="std-input" min="0" max="100" step="1" value="20" />
+              </div>
+              <div class="field-group">
+                <label for="evTargetSocInput" class="field-label">Target Charge (%)</label>
+                <input type="number" id="evTargetSocInput" class="std-input" min="1" max="100" step="1" value="80" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="evRateInput" class="field-label">Electricity Cost (per kWh)</label>
+                <input type="number" id="evRateInput" class="std-input" min="0" max="200" step="0.01" value="0.18" />
+              </div>
+              <div class="field-group">
+                <label for="evWhPerKmInput" class="field-label">Consumption (Wh / km)</label>
+                <input type="number" id="evWhPerKmInput" class="std-input" min="50" max="600" step="5" value="160" />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <span class="field-label">Common Charger Presets</span>
+              <div class="preset-chips">
+                <button type="button" class="preset-chip" data-kw="3.3">3.3 kW Home Outlet</button>
+                <button type="button" class="preset-chip" data-kw="7.4">7.4 kW AC Wallbox</button>
+                <button type="button" class="preset-chip" data-kw="11">11 kW 3-Phase AC</button>
+                <button type="button" class="preset-chip" data-kw="22">22 kW AC Charger</button>
+                <button type="button" class="preset-chip" data-kw="50">50 kW DC Fast</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="ev-hero-box">
+              <div>
+                <div class="ev-kicker">Estimated Charging Time</div>
+                <div class="ev-title" id="evChargeTimeTitle">20% → 80% (+36.0 kWh to battery)</div>
+                <div class="ev-sub" id="evWallEnergySub">Wall energy drawn (~90% efficiency): 40.0 kWh</div>
+              </div>
+              <div class="ev-big-num" id="evChargeTimeHero">5h 24m</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Estimated Session Cost</div>
+                <div class="metric-val" id="evSessionCostVal">$7.20</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Range Added (~km)</div>
+                <div class="metric-val" id="evRangeAddedVal">+225 km</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Battery Energy Added</div>
+                <div class="metric-val" id="evBatteryAddedVal">36.0 kWh</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Wall Energy Drawn</div>
+                <div class="metric-val" id="evWallDrawnVal">40.0 kWh</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyEvReportBtn" class="btn-primary">Copy EV Summary</button>
+              <button type="button" id="downloadEvReportBtn" class="btn-sec" style="height:40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Charging Math & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to EV Charging Time, kWh Energy, Cost & Driving Range</h2>
+
+      <h3>How Battery Capacity (kWh), Charger Power (kW) & Charging Efficiency Interact</h3>
+      <p>
+        Estimating how long an electric vehicle takes to charge and how much electricity it consumes comes down to three core quantities: <strong>battery capacity</strong> in kilowatt-hours (<code>kWh</code>), <strong>charger output power</strong> in kilowatts (<code>kW</code>), and your <strong>State of Charge (SoC %)</strong> window. Adding <code>60%</code> of charge to a <code>60 kWh</code> pack delivers <code>36.0 kWh</code> of energy into the battery—but because AC/DC conversion, onboard charger losses, and battery thermal management introduce charging losses (often around <code>85%–92%</code> transfer efficiency), the electricity meter or charger draws slightly more energy from the wall than enters the battery. Moreover, DC fast chargers typically taper power above ~<code>80%</code> SoC to protect cell longevity and voltage limits, whereas AC home wallboxes hold a steadier curve across most of the session. A browser-based <strong>EV Charging Calculator</strong> models these figures 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Calculate EV Charging Time & Cost in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter Battery Size & Charger Power:</strong> Set your <strong>Battery Capacity (kWh)</strong> and <strong>Charger Power (kW)</strong>—or select a common charger preset such as <code>7.4 kW</code> or <code>50 kW</code>.</li>
+        <li><strong>Set Starting & Target Charge (%):</strong> Enter your current charge percentage and desired target percentage (such as <code>20%</code> to <code>80%</code>).</li>
+        <li><strong>Enter Tariff & Consumption Rate:</strong> Input your electricity rate per <code>kWh</code> and average consumption in <code>Wh/km</code> to see estimated charging time, session cost, and range added, then export via <strong>Copy EV Summary</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Charging Time, Energy & Range Formulas</h3>
+      <p>
+        Assuming ~<code>90%</code> charger transfer efficiency (<code>η = 0.90</code>) and consumption <code>C<sub>Wh/km</sub></code>:
+      </p>
+      <div class="formula-box">
+        Battery kWh Added = Capacity_kWh × ((Target% − Start%) / 100)<br />
+        Wall kWh Drawn = Battery_kWh_Added / 0.90  |  Hours ≈ Wall_kWh / Charger_kW<br />
+        Range Added (km) = (Battery_kWh_Added × 1000) / Wh_per_km
+      </div>
+
+      <h3>Helpful Tips for Everyday EV Charging & Cost Savings</h3>
+      <ul>
+        <li><strong>Charge to 80% for Daily Routines Unless Road-Tripping:</strong> Charging to <code>80%</code> for everyday commuting balances daily range and battery longevity while avoiding the slower top-off taper near <code>100%</code>.</li>
+        <li><strong>Compare Off-Peak Time-of-Use Tariffs:</strong> Home charging during off-peak utility hours can substantially lower per-kWh cost compared to public DC fast charging.</li>
+        <li><strong>Winter Cold & Highway Speed Increase Wh/km:</strong> Cold weather and sustained high-speed driving raise energy consumption per kilometer—factor in a weather/speed buffer on longer trips.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Charging a <code>60 kWh</code> battery from <code>20%</code> to <code>80%</code> adds <code>36.0 kWh</code> to the pack (~<code>40.0 kWh</code> drawn at ~90% efficiency). On a <code>7.4 kW</code> charger, that takes roughly <code>5h 24m</code>, costs <code>$7.20</code> at <code>$0.18/kWh</code>, and adds ~<code>225 km</code> at <code>160 Wh/km</code>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="ev-table-heading">
+      <h2 id="ev-table-heading">EV Charging Power Levels, Efficiency & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to compare charging tiers, units, and calculation assumptions.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Charging Concept / Tier</th>
+              <th>Typical Value / Unit</th>
+              <th>Role in Calculation</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Battery Capacity</strong></td>
+              <td><code>kWh</code> (e.g., <code>40–100 kWh</code>)</td>
+              <td>Total usable/rated pack energy</td>
+              <td>Scales kWh added with SoC delta</td>
+            </tr>
+            <tr>
+              <td><strong>Charger Power</strong></td>
+              <td><code>kW</code> (e.g., <code>3.3–22 kW AC</code>, <code>50+ kW DC</code>)</td>
+              <td>Rate of energy delivery</td>
+              <td>Limited by lower of charger or onboard limit</td>
+            </tr>
+            <tr>
+              <td><strong>3.3 kW Home Outlet</strong></td>
+              <td><code>~3.3 kW</code> AC</td>
+              <td>Overnight slow/standard home top-up</td>
+              <td>Good for moderate daily mileage</td>
+            </tr>
+            <tr>
+              <td><strong>7.4 kW AC Wallbox</strong></td>
+              <td><code>~7.4 kW</code> single-phase AC</td>
+              <td>Common home wall charger</td>
+              <td>Charges ~40 kWh in ~5.4 hrs</td>
+            </tr>
+            <tr>
+              <td><strong>11 kW / 22 kW AC</strong></td>
+              <td><code>11–22 kW</code> AC</td>
+              <td>3-phase / commercial AC charging</td>
+              <td>Depends on vehicle AC charger rating</td>
+            </tr>
+            <tr>
+              <td><strong>50 kW+ DC Fast</strong></td>
+              <td><code>50+ kW</code> direct current</td>
+              <td>Rapid corridor / highway top-up</td>
+              <td>Tapers above ~80% SoC on most EVs</td>
+            </tr>
+            <tr>
+              <td><strong>SoC Window (%)</strong></td>
+              <td><code>Start % → Target %</code></td>
+              <td>Determines fraction of pack charged</td>
+              <td><code>20% → 80%</code> is a <code>60%</code> delta</td>
+            </tr>
+            <tr>
+              <td><strong>Charging Efficiency</strong></td>
+              <td><code>~90%</code> baseline model</td>
+              <td>Accounts for AC/DC & thermal losses</td>
+              <td>Wall kWh = Battery kWh / efficiency</td>
+            </tr>
+            <tr>
+              <td><strong>Session Cost</strong></td>
+              <td><code>Wall_kWh × Rate_per_kWh</code></td>
+              <td>Estimates electricity spend for session</td>
+              <td>Supports any currency unit</td>
+            </tr>
+            <tr>
+              <td><strong>Consumption (Wh/km)</strong></td>
+              <td>e.g., <code>140–200 Wh/km</code></td>
+              <td>Converts battery kWh into km range</td>
+              <td><code>1 kWh = 1,000 Wh</code></td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download Summary</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports full EV charging breakdown</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Zero Server Storage</strong></td>
+              <td>Client-side JavaScript math</td>
+              <td>Instant calculation in browser</td>
+              <td>No external API calls required</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript EV Charging & Range Estimator — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your inputs and estimates stay strictly inside your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero trip or usage data transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser EV calculation with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Calculators, Finance, Hardware & Everyday Utilities</h2>
+      <p>Calculating percentages, loan EMI, currency conversions, or battery status? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="emi-calculator.html"><span>EMI Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="battery-status-checker.html"><span>Battery Status Checker</span><span class="arrow">→</span></a>
+        <a class="related-link" href="stripe-fee-calculator.html"><span>Stripe Fee Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="paypal-fee-calculator.html"><span>PayPal Fee Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Why is "Wall Energy Drawn" slightly higher than "Battery Energy Added"?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Converting electrical power and managing battery cooling/heating involves minor energy losses—so drawing slightly more energy from the wall/charger delivers the target <code>kWh</code> into the battery pack.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Does this calculator assume a constant charging rate across the whole session?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            It uses a steady average power estimate for fast planning—on DC fast chargers, actual charging above ~<code>80%</code> State of Charge often slows down as the battery management system tapers current.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my EV parameters or cost estimates sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations, clipboard copies, and text downloads run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online EV Charging Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side EV Charging Time, Cost & Range Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const evBatteryKwhInput = document.getElementById("evBatteryKwhInput");
+      const evChargerKwInput = document.getElementById("evChargerKwInput");
+      const evStartSocInput = document.getElementById("evStartSocInput");
+      const evTargetSocInput = document.getElementById("evTargetSocInput");
+      const evRateInput = document.getElementById("evRateInput");
+      const evWhPerKmInput = document.getElementById("evWhPerKmInput");
+      const presetChips = document.querySelectorAll(".preset-chip");
+      const resetEvBtn = document.getElementById("resetEvBtn");
+
+      const evChargeTimeTitle = document.getElementById("evChargeTimeTitle");
+      const evWallEnergySub = document.getElementById("evWallEnergySub");
+      const evChargeTimeHero = document.getElementById("evChargeTimeHero");
+
+      const evSessionCostVal = document.getElementById("evSessionCostVal");
+      const evRangeAddedVal = document.getElementById("evRangeAddedVal");
+      const evBatteryAddedVal = document.getElementById("evBatteryAddedVal");
+      const evWallDrawnVal = document.getElementById("evWallDrawnVal");
+
+      const copyEvReportBtn = document.getElementById("copyEvReportBtn");
+      const downloadEvReportBtn = document.getElementById("downloadEvReportBtn");
+
+      const EFFICIENCY = 0.90;
+      let latestReportText = "";
+
+      function formatHoursMins(hrsFloat) {
+        if (!Number.isFinite(hrsFloat) || hrsFloat <= 0) return "0m";
+        const totalMins = Math.round(hrsFloat * 60);
+        const h = Math.floor(totalMins / 60);
+        const m = totalMins % 60;
+        if (h === 0) return `${m}m`;
+        return `${h}h ${String(m).padStart(2, "0")}m`;
+      }
+
+      function recalculateEv() {
+        const capKwh = Math.max(1, parseFloat(evBatteryKwhInput.value) || 60);
+        const kw = Math.max(0.2, parseFloat(evChargerKwInput.value) || 7.4);
+        const startSoc = Math.max(0, Math.min(100, parseFloat(evStartSocInput.value) || 0));
+        const targetSoc = Math.max(startSoc, Math.min(100, parseFloat(evTargetSocInput.value) || 80));
+        const ratePerKwh = Math.max(0, parseFloat(evRateInput.value) || 0);
+        const whPerKm = Math.max(20, parseFloat(evWhPerKmInput.value) || 160);
+
+        const socDeltaFrac = (targetSoc - startSoc) / 100;
+        const batteryAddedKwh = capKwh * socDeltaFrac;
+        const wallKwhDrawn = batteryAddedKwh / EFFICIENCY;
+        const chargeHours = wallKwhDrawn / kw;
+        const sessionCost = wallKwhDrawn * ratePerKwh;
+        const rangeAddedKm = (batteryAddedKwh * 1000) / whPerKm;
+
+        const timeLabel = formatHoursMins(chargeHours);
+
+        evChargeTimeTitle.textContent = `${startSoc}% \u2192 ${targetSoc}% (+${batteryAddedKwh.toFixed(1)} kWh to battery)`;
+        evWallEnergySub.textContent = `Wall energy drawn (~90% eff.): ${wallKwhDrawn.toFixed(1)} kWh @ ${kw} kW`;
+        evChargeTimeHero.textContent = timeLabel;
+
+        evSessionCostVal.textContent = `$${sessionCost.toFixed(2)}`;
+        evRangeAddedVal.textContent = `+${Math.round(rangeAddedKm)} km`;
+        evBatteryAddedVal.textContent = `${batteryAddedKwh.toFixed(1)} kWh`;
+        evWallDrawnVal.textContent = `${wallKwhDrawn.toFixed(1)} kWh`;
+
+        latestReportText = [
+          "PureWebKits EV Charging Calculation Report",
+          "-----------------------------------------",
+          `Battery: ${capKwh} kWh | Charger: ${kw} kW | Charge Window: ${startSoc}% -> ${targetSoc}%`,
+          `Estimated Charge Time (~90% eff.): ${timeLabel} (${chargeHours.toFixed(2)} hrs)`,
+          `Battery Energy Added: ${batteryAddedKwh.toFixed(2)} kWh | Wall Energy Drawn: ${wallKwhDrawn.toFixed(2)} kWh`,
+          `Estimated Session Cost (@ ${ratePerKwh.toFixed(2)}/kWh): ${sessionCost.toFixed(2)}`,
+          `Estimated Range Added (@ ${whPerKm} Wh/km): +${Math.round(rangeAddedKm)} km`
+        ].join("\n");
+      }
+
+      presetChips.forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          evChargerKwInput.value = chip.getAttribute("data-kw") || "7.4";
+          recalculateEv();
+        });
+      });
+
+      resetEvBtn.addEventListener("click", function () {
+        evBatteryKwhInput.value = "60";
+        evChargerKwInput.value = "7.4";
+        evStartSocInput.value = "20";
+        evTargetSocInput.value = "80";
+        evRateInput.value = "0.18";
+        evWhPerKmInput.value = "160";
+        recalculateEv();
+      });
+
+      [
+        evBatteryKwhInput,
+        evChargerKwInput,
+        evStartSocInput,
+        evTargetSocInput,
+        evRateInput,
+        evWhPerKmInput
+      ].forEach(function (inp) {
+        inp.addEventListener("input", recalculateEv);
+        inp.addEventListener("change", recalculateEv);
+      });
+
+      copyEvReportBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        navigator.clipboard.writeText(latestReportText).then(function () {
+          const orig = copyEvReportBtn.textContent;
+          copyEvReportBtn.textContent = "Copied!";
+          setTimeout(function () { copyEvReportBtn.textContent = orig; }, 1800);
+        });
+      });
+
+      downloadEvReportBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        const blob = new Blob([latestReportText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "ev-charging-calculation.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      recalculateEv();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1590 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Inviting Card Maker (25 Templates, Custom Size, A4 Multi-Card Print & Editor) — PureWebKits</title>
+  <meta name="description" content="Create custom invitation cards from 25 templates or upload your own card background to edit. Customize card dimensions, border colors, bold/italic typography, font sizes, and print 1, 2, 3, or 4 cards per A4 page online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/inviting-card-maker.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1180px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 840px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Studio Topbar */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* 25 Sample Inviting Card Gallery */
+    .gallery-section {
+      margin-bottom: 22px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .gallery-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .gallery-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-main);
+    }
+    .template-gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 9px;
+      max-height: 270px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .tpl-swatch {
+      border: 2px solid #CBD5E1;
+      border-radius: 10px;
+      padding: 7px;
+      background: #FFFFFF;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      text-align: left;
+      transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+    }
+    .tpl-swatch:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary);
+    }
+    .tpl-swatch.active {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+      background: var(--primary-soft);
+    }
+    .tpl-mini-art {
+      width: 100%;
+      height: 44px;
+      border-radius: 6px;
+      padding: 5px 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+    }
+    .tpl-mini-line1 {
+      height: 4px;
+      width: 65%;
+      border-radius: 2px;
+    }
+    .tpl-mini-line2 {
+      height: 3.5px;
+      width: 45%;
+      border-radius: 2px;
+      opacity: 0.85;
+    }
+    .tpl-mini-tag {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tpl-mini-role {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Main Editor + Live Canvas Grid */
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.12fr 0.98fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col { display: flex; flex-direction: column; gap: 12px; }
+    .preview-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      position: sticky;
+      top: 86px;
+    }
+
+    .section-divider-lbl {
+      font-size: 11.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--primary-dark);
+      padding-top: 4px;
+      border-top: 1px dashed #CBD5E1;
+    }
+
+    .two-col-fields, .three-col-fields, .four-col-fields {
+      display: grid;
+      gap: 10px;
+    }
+    .two-col-fields { grid-template-columns: 1fr 1fr; }
+    .three-col-fields { grid-template-columns: 1fr 1fr 1fr; }
+    .four-col-fields { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+    .field-group { display: flex; flex-direction: column; gap: 4px; }
+    .field-label { font-size: 10.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select, .std-textarea {
+      width: 100%;
+      height: 38px;
+      padding: 0 10px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-textarea {
+      height: 68px;
+      padding: 8px 10px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+    .std-input:focus, .std-select:focus, .std-textarea:focus { border-color: var(--primary); background: #FFFFFF; }
+    .color-input {
+      width: 100%;
+      height: 38px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      background: #FFFFFF;
+      padding: 2px 5px;
+      cursor: pointer;
+    }
+
+    /* Text Formatting Toolbar (Bold, Italic, Font Size, Align) */
+    .text-style-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 12px;
+    }
+    .style-btn-group {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .fmt-toggle-btn {
+      min-width: 34px;
+      height: 32px;
+      padding: 0 10px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 7px;
+      background: #FFFFFF;
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .fmt-toggle-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+    .size-stepper {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Stage Preview */
+    .stage-box {
+      background: #0F172A;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .stage-hud {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #93C5FD;
+    }
+    #invitingCardCanvas {
+      max-width: 100%;
+      max-height: 440px;
+      width: auto;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45);
+      background: #FFFFFF;
+    }
+
+    .a4-print-box {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 11px 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .btn-row { display: flex; gap: 9px; flex-wrap: wrap; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    /* Print Stylesheet for A4 Multi-Card Sheet */
+    #printA4Container { display: none; }
+    @media print {
+      body * { visibility: hidden !important; }
+      #printA4Container, #printA4Container * { visibility: visible !important; }
+      #printA4Container {
+        display: block !important;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: #FFFFFF;
+        text-align: center;
+      }
+      #printA4Container img {
+        max-width: 100%;
+        max-height: 100vh;
+        height: auto;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .template-gallery-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 880px) {
+      .calc-grid, .two-col-fields, .three-col-fields, .four-col-fields { grid-template-columns: 1fr; }
+      .preview-col { position: static; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .template-gallery-grid { grid-template-columns: repeat(2, 1fr); }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hidden Print Target for A4 Multi-Card Printing -->
+  <div id="printA4Container" aria-hidden="true"></div>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Inviting Card Maker Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Inviting Card Maker</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: 25 invitation templates, upload your own card image, custom dimensions, border colors & 1/2/3/4 cards per A4 print
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">
+            Clean invitation-only layout (no company logos) — choose a template or upload your own card to customize:
+          </div>
+          <div class="topbar-actions">
+            <input type="file" id="invUploadBgInput" accept="image/*" style="display:none;" />
+            <button type="button" id="uploadCustomCardBtn" class="btn-sec">Upload Own Card Image</button>
+            <button type="button" id="removeCustomCardBtn" class="btn-sec" style="display:none;">Remove Uploaded Card</button>
+            <button type="button" id="resetInvBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <!-- 25 Sample Inviting Card Designs Gallery -->
+        <div class="gallery-section">
+          <div class="gallery-header">
+            <span class="gallery-title">25 Sample Inviting Card Designs (Click Any Sample to Apply)</span>
+            <span id="invActiveTplLabel" style="font-size:12px; font-weight:700; color:var(--primary);">Selected: #1 Royal Wedding Gold</span>
+          </div>
+          <div class="template-gallery-grid" id="invTemplateGallery"></div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="section-divider-lbl">1. Custom Card Size (Inches / mm)</div>
+            <div class="three-col-fields">
+              <div class="field-group">
+                <label for="invSizePresetSelect" class="field-label">Card Size Preset</label>
+                <select id="invSizePresetSelect" class="std-select">
+                  <option value="5x7" selected>5 × 7 in (Standard Invite)</option>
+                  <option value="4x6">4 × 6 in (Compact / A6)</option>
+                  <option value="6x4">6 × 4 in (Landscape Card)</option>
+                  <option value="5x5">5 × 5 in (Square Invite)</option>
+                  <option value="custom">Custom Width × Height</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label for="invWidthInInput" class="field-label">Width (Inches)</label>
+                <input type="number" id="invWidthInInput" class="std-input" min="2" max="12" step="0.1" value="5.0" />
+              </div>
+              <div class="field-group">
+                <label for="invHeightInInput" class="field-label">Height (Inches)</label>
+                <input type="number" id="invHeightInInput" class="std-input" min="2" max="14" step="0.1" value="7.0" />
+              </div>
+            </div>
+
+            <div class="section-divider-lbl">2. Invitation Text & Event Details (Fully Editable)</div>
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="invTopKickerInput" class="field-label">Opening / Blessing Line</label>
+                <input type="text" id="invTopKickerInput" class="std-input" value="TOGETHER WITH THEIR FAMILIES" />
+              </div>
+              <div class="field-group">
+                <label for="invEventTypeInput" class="field-label">Occasion / Event Title</label>
+                <input type="text" id="invEventTypeInput" class="std-input" value="Wedding Celebration" />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="invHostNamesInput" class="field-label">Main Host / Honoree Names</label>
+              <input type="text" id="invHostNamesInput" class="std-input" value="Aarav & Diya" />
+            </div>
+
+            <div class="field-group">
+              <label for="invMessageInput" class="field-label">Invitation Message / Description</label>
+              <textarea id="invMessageInput" class="std-textarea">Cordially invite you to grace the auspicious occasion with your presence and warm blessings.</textarea>
+            </div>
+
+            <div class="three-col-fields">
+              <div class="field-group">
+                <label for="invDateInput" class="field-label">Event Date</label>
+                <input type="text" id="invDateInput" class="std-input" value="Sunday, 14 December 2026" />
+              </div>
+              <div class="field-group">
+                <label for="invTimeInput" class="field-label">Event Time</label>
+                <input type="text" id="invTimeInput" class="std-input" value="7:00 PM Onwards" />
+              </div>
+              <div class="field-group">
+                <label for="invRsvpInput" class="field-label">RSVP / Contact</label>
+                <input type="text" id="invRsvpInput" class="std-input" value="RSVP: +91 98765 43210" />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="invVenueInput" class="field-label">Venue & Address</label>
+              <input type="text" id="invVenueInput" class="std-input" value="The Grand Palace Banquet, Station Road, Patna" />
+            </div>
+
+            <div class="section-divider-lbl">3. Font Bold, Italic, Font Size & Custom Border Styling</div>
+            <div class="text-style-bar">
+              <div class="style-btn-group">
+                <button type="button" id="invBoldBtn" class="fmt-toggle-btn active" title="Toggle Bold Text">B</button>
+                <button type="button" id="invItalicBtn" class="fmt-toggle-btn" style="font-style:italic;" title="Toggle Italic Text">I</button>
+                <select id="invFontFamilySelect" class="std-select" style="height:32px; width:auto; font-size:12px;">
+                  <option value="serif" selected>Elegant Serif (Georgia)</option>
+                  <option value="sans">Modern Sans (Inter)</option>
+                  <option value="script">Classic Italic Script</option>
+                  <option value="mono">Clean Monospace</option>
+                </select>
+              </div>
+
+              <div class="size-stepper">
+                <span>Font Scale:</span>
+                <button type="button" id="fontSmallerBtn" class="fmt-toggle-btn" title="Decrease Font Size">A-</button>
+                <span id="fontScaleLabel" style="min-width:40px; text-align:center;">100%</span>
+                <button type="button" id="fontLargerBtn" class="fmt-toggle-btn" title="Increase Font Size">A+</button>
+              </div>
+            </div>
+
+            <div class="four-col-fields">
+              <div class="field-group">
+                <label for="invBorderColorInput" class="field-label">Border Color</label>
+                <input type="color" id="invBorderColorInput" class="color-input" value="#B45309" />
+              </div>
+              <div class="field-group">
+                <label for="invBorderStyleSelect" class="field-label">Border Style</label>
+                <select id="invBorderStyleSelect" class="std-select">
+                  <option value="double" selected>Double Ornate</option>
+                  <option value="solid">Classic Solid</option>
+                  <option value="dashed">Decorative Dash</option>
+                  <option value="corner">Corner Accents</option>
+                  <option value="none">No Border</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label for="invTextColorInput" class="field-label">Text Color</label>
+                <input type="color" id="invTextColorInput" class="color-input" value="#451A03" />
+              </div>
+              <div class="field-group">
+                <label for="invBgColorInput" class="field-label">Card Fill Color</label>
+                <input type="color" id="invBgColorInput" class="color-input" value="#FFFBEB" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="invAccentColorInput" class="field-label">Heading / Accent Color</label>
+                <input type="color" id="invAccentColorInput" class="color-input" value="#92400E" />
+              </div>
+              <div class="field-group">
+                <label for="invBorderWidthSlider" class="field-label">Border Thickness: <span id="borderWidthVal">8 px</span></label>
+                <input type="range" id="invBorderWidthSlider" style="margin-top:8px; accent-color:var(--primary);" min="2" max="24" step="1" value="8" />
+              </div>
+            </div>
+          </div>
+
+          <div class="preview-col">
+            <div class="stage-box">
+              <div class="stage-hud">
+                <span id="invDimHudLabel">Size: 5.0″ × 7.0″ (1500 × 2100 px)</span>
+                <span style="color:#34D399;">LIVE INVITATION PREVIEW</span>
+              </div>
+              <canvas id="invitingCardCanvas" width="1500" height="2100" aria-label="Live Inviting Card Preview"></canvas>
+            </div>
+
+            <div class="a4-print-box">
+              <div class="two-col-fields" style="align-items:end;">
+                <div class="field-group">
+                  <label for="a4CardsPerPageSelect" class="field-label">Cards Per A4 Page (Print / Sheet)</label>
+                  <select id="a4CardsPerPageSelect" class="std-select">
+                    <option value="1">1 Card per A4 Page (Centered)</option>
+                    <option value="2" selected>2 Cards per A4 Page (2-Up)</option>
+                    <option value="3">3 Cards per A4 Page (3-Up)</option>
+                    <option value="4">4 Cards per A4 Page (2 × 2 Grid)</option>
+                  </select>
+                </div>
+                <div class="field-group">
+                  <label for="a4CutGuidesCheck" class="field-label">A4 Cut Lines</label>
+                  <label style="display:flex; align-items:center; gap:7px; height:38px; font-size:12.5px; font-weight:700; cursor:pointer;">
+                    <input type="checkbox" id="a4CutGuidesCheck" checked /> Show Dashed Cut Guides
+                  </label>
+                </div>
+              </div>
+
+              <div class="btn-row">
+                <button type="button" id="downloadSingleCardBtn" class="btn-primary">Download Card PNG</button>
+                <button type="button" id="downloadA4SheetBtn" class="btn-sec" style="height:40px;">Download A4 Multi-Card PNG</button>
+                <button type="button" id="printA4SheetBtn" class="btn-sec" style="height:40px;">Print A4 Sheet / Save PDF</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Custom Sizes & A4 Multi-Up Printing -->
+    <article class="content-card">
+      <h2>Complete User Guide to Inviting Card Design, Custom Sizing & A4 Multi-Card Printing</h2>
+
+      <h3>How Custom Invitation Dimensions, Border Styling & A4 Multi-Up Layouts Work</h3>
+      <p>
+        Whether you are preparing wedding invitations, birthday party cards, engagement announcements, baby shower invites, housewarming (Griha Pravesh) cards, festive greetings, or school/community event invitations, having complete control over card dimensions, typography, and print layout saves time and paper. Standard greeting and invitation cards commonly use <code>5 × 7 inches</code> (<code>1500 × 2100 px</code> at 300 DPI) or <code>4 × 6 inches</code> (<code>1200 × 1800 px</code> at 300 DPI), while custom width and height inputs let you match any envelope size you already own. You can choose from <strong>25 ready-to-edit templates</strong> or upload your own custom card artwork/background image and overlay editable text with <strong>Bold</strong>, <strong>Italic</strong>, adjustable font scaling (<code>A-</code> / <code>A+</code>), and customizable border colors and styles—without any unwanted branding or logos on your card. When printing at home or at a local print shop, packing <strong>2, 3, or 4 identical cards onto a single A4 sheet</strong> (<code>8.27 × 11.69 inches</code>) with dashed cut guides maximizes paper efficiency. A browser-based <strong>Inviting Card Maker</strong> processes everything 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Design & Print Multiple Inviting Cards on an A4 Page in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Choose a Template (25 Designs) or Upload Your Own Card Image:</strong> Click any of the 25 sample designs in the gallery to load its color scheme and border style, or click <strong>Upload Own Card Image</strong> to customize your own invitation background.</li>
+        <li><strong>Set Custom Size, Edit Text & Format Bold / Italic / Font Size:</strong> Pick a preset or enter custom width and height in inches, edit all invitation text lines, toggle <strong>B</strong> (Bold) or <strong>I</strong> (Italic), adjust font scale (<code>A-</code> / <code>A+</code>), and customize the border color, thickness, and style.</li>
+        <li><strong>Select 1, 2, 3, or 4 Cards Per A4 Page & Print or Download:</strong> Choose how many cards you want arranged on an A4 sheet, then click <strong>Print A4 Sheet / Save PDF</strong> or download high-resolution PNG files.</li>
+      </ol>
+
+      <h3>A4 Multi-Up Sheet Packing & 300 DPI Resolution Formula</h3>
+      <p>
+        At <code>300 DPI</code>, an international <code>A4</code> sheet (<code>210 × 297 mm</code> = <code>8.27 × 11.69 in</code>) measures <code>2480 × 3508 pixels</code>, allowing clean multi-card packing:
+      </p>
+      <div class="formula-box">
+        Card Pixels = Width_in × 300 × Height_in × 300  |  A4 Sheet @ 300 DPI = 2480 × 3508 px<br />
+        A4 Multi-Up Options: 1-Up (Centered), 2-Up (Side-by-Side / Stacked), 3-Up (3 Rows), 4-Up (2 × 2 Grid)
+      </div>
+
+      <h3>Helpful Tips for Crisp Invitation Printing</h3>
+      <ul>
+        <li><strong>Use 250–300 GSM Cardstock for Invitations:</strong> Standard office paper is 70–80 GSM; printing your A4 multi-card sheet on heavier matte, ivory, or glossy cardstock gives invitations a sturdy, premium feel.</li>
+        <li><strong>Set Print Scale to "100% / Actual Size" in Your Print Dialog:</strong> Disable "Fit to Printable Area" if you want exact ruler-accurate card dimensions when trimming along the dashed cut guides.</li>
+        <li><strong>Check Text Contrast When Uploading Custom Card Images:</strong> If you upload a colorful custom card photo, adjust <strong>Text Color</strong> and <strong>Heading / Accent Color</strong> so names, dates, and venue lines remain easy to read.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Designing a <code>4 × 6 inch</code> birthday or wedding card and choosing <strong>4 Cards per A4 Page (2 × 2 Grid)</strong> packs four crisp cards with dashed trim lines onto one <code>A4</code> sheet so you can print and cut four invitations per page.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="inv-table-heading">
+      <h2 id="inv-table-heading">Inviting Card Templates, Custom Sizes & A4 Print Reference Table (16 Rows)</h2>
+      <p>Use this reference table to review the 25 sample themes, card sizes, formatting controls, and A4 multi-up options.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature / Template Group</th>
+              <th>Specification / Style</th>
+              <th>Best Occasion</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>#1–#5 Wedding & Royal</strong></td>
+              <td>Gold Ivory, Crimson Silk, Emerald Gold, Rose Blush, Peacock Teal</td>
+              <td>Weddings, Engagements, Receptions</td>
+              <td>Ornate borders & classic serif type</td>
+            </tr>
+            <tr>
+              <td><strong>#6–#10 Birthday & Kids</strong></td>
+              <td>Sunny Confetti, Sky Balloon, Berry Party, Mint Sparkle, Sunset Fun</td>
+              <td>Birthdays, Milestone Parties</td>
+              <td>Bright, cheerful borders & accents</td>
+            </tr>
+            <tr>
+              <td><strong>#11–#15 Festive & Traditional</strong></td>
+              <td>Marigold Festive, Sandalwood, Ruby Lotus, Indigo Star, Saffron Glow</td>
+              <td>Diwali, Eid, Housewarming, Puja</td>
+              <td>Warm festive palettes & double frames</td>
+            </tr>
+            <tr>
+              <td><strong>#16–#20 Baby Shower & Floral</strong></td>
+              <td>Pastel Peach, Lavender Mist, Sage Garden, Powder Blue, Cream Rose</td>
+              <td>Baby Showers, Naming Ceremonies</td>
+              <td>Soft pastel backgrounds & clean borders</td>
+            </tr>
+            <tr>
+              <td><strong>#21–#25 Formal & Event</strong></td>
+              <td>Midnight Gala, Classic Slate, Pearl Minimal, Burgundy Crest, Bronze</td>
+              <td>Anniversaries, Graduations, Dinners</td>
+              <td>Refined minimal & framed layouts</td>
+            </tr>
+            <tr>
+              <td><strong>Upload Own Card Image</strong></td>
+              <td>JPG, PNG, WebP background upload</td>
+              <td>Custom pre-made card artwork</td>
+              <td>Overlay & edit text + borders on top</td>
+            </tr>
+            <tr>
+              <td><strong>Custom Card Dimensions</strong></td>
+              <td><code>2.0–12.0 in</code> W × <code>2.0–14.0 in</code> H</td>
+              <td>Matches any envelope or print size</td>
+              <td>Includes 5×7, 4×6, 6×4, 5×5 presets</td>
+            </tr>
+            <tr>
+              <td><strong>Bold & Italic Controls</strong></td>
+              <td><code>B</code> & <code>I</code> toggles + 4 font styles</td>
+              <td>Customizes heading & message emphasis</td>
+              <td>Updates live on canvas</td>
+            </tr>
+            <tr>
+              <td><strong>Font Size Scaling</strong></td>
+              <td><code>A-</code> / <code>A+</code> (<code>65%</code> to <code>145%</code>)</td>
+              <td>Fits long messages or larger text</td>
+              <td>Scales all card text proportionally</td>
+            </tr>
+            <tr>
+              <td><strong>Custom Border Controls</strong></td>
+              <td>Color picker, thickness & 5 styles</td>
+              <td>Double, Solid, Dashed, Corner, None</td>
+              <td>No unwanted brand logos added</td>
+            </tr>
+            <tr>
+              <td><strong>A4 Multi-Card Printing</strong></td>
+              <td><code>1</code>, <code>2</code>, <code>3</code>, or <code>4</code> cards per A4 page</td>
+              <td>Saves paper on home/shop printing</td>
+              <td>Auto-scales & centers on A4 sheet</td>
+            </tr>
+            <tr>
+              <td><strong>Dashed Cut Guides</strong></td>
+              <td>Optional trim lines around cards</td>
+              <td>Accurate scissor / paper-trimmer cuts</td>
+              <td>Toggleable before export/print</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser HTML5 Canvas 300 DPI Invitation & A4 Sheet Renderer — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your uploaded card images and event details stay strictly inside your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero personal event details transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser inviting card maker with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Card Makers, Image, PDF & Everyday Utilities</h2>
+      <p>Designing visiting cards, student ID cards, removing photo backgrounds, or resizing images? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="visiting-card-maker.html"><span>Visiting Card Maker</span><span class="arrow">→</span></a>
+        <a class="related-link" href="student-id-card-maker.html"><span>Student ID Card Maker</span><span class="arrow">→</span></a>
+        <a class="related-link" href="photo-background-remover.html"><span>Photo Background Remover</span><span class="arrow">→</span></a>
+        <a class="related-link" href="resume-maker.html"><span>Resume Maker</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-resizer.html"><span>Image Resizer</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compress-image-to-exact-kb.html"><span>Image Compressor to KB</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="jpg-to-pdf.html"><span>JPG to PDF Converter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How do I print 2, 3, or 4 inviting cards on a single A4 page?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Select <strong>2 Cards per A4 Page</strong>, <strong>3 Cards per A4 Page</strong>, or <strong>4 Cards per A4 Page</strong> in the <strong>Cards Per A4 Page</strong> dropdown under the preview, then click <strong>Print A4 Sheet / Save PDF</strong> or <strong>Download A4 Multi-Card PNG</strong>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I upload my own pre-made invitation card image and edit text on top of it?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes.</strong> Click <strong>Upload Own Card Image</strong> at the top of the studio to load your JPG, PNG, or WebP card background, then edit all text fields, bold/italic styles, font size, and border color directly over your uploaded image.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Does the inviting card include any watermark or logo?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>No.</strong> Your invitation card stays 100% clean with zero logos or watermarks—and all processing happens locally in your browser with zero server uploads.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online Inviting Card Maker free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side 25-Template Inviting Card Studio & A4 Multi-Up Print Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const INV_TEMPLATES = [
+        { id: 1,  name: "Royal Wedding Gold",   cat: "Wedding",     bg: "#FFFBEB", border: "#B45309", accent: "#92400E", text: "#451A03", bStyle: "double", font: "serif" },
+        { id: 2,  name: "Crimson Silk",         cat: "Wedding",     bg: "#FFF1F2", border: "#BE123C", accent: "#9F1239", text: "#4C0519", bStyle: "double", font: "serif" },
+        { id: 3,  name: "Emerald Palace",       cat: "Wedding",     bg: "#ECFDF5", border: "#047857", accent: "#065F46", text: "#022C22", bStyle: "corner", font: "serif" },
+        { id: 4,  name: "Rose Blush",           cat: "Engagement",  bg: "#FDF2F8", border: "#DB2777", accent: "#9D174D", text: "#500724", bStyle: "double", font: "script" },
+        { id: 5,  name: "Peacock Royal",        cat: "Reception",   bg: "#F0FDFA", border: "#0F766E", accent: "#115E59", text: "#134E4A", bStyle: "corner", font: "serif" },
+        { id: 6,  name: "Sunny Confetti",       cat: "Birthday",    bg: "#FEFCE8", border: "#EAB308", accent: "#CA8A04", text: "#422006", bStyle: "dashed", font: "sans" },
+        { id: 7,  name: "Sky Balloon",          cat: "Birthday",    bg: "#F0F9FF", border: "#0284C7", accent: "#0369A1", text: "#0C4A6E", bStyle: "solid",  font: "sans" },
+        { id: 8,  name: "Berry Celebration",    cat: "Birthday",    bg: "#FAF5FF", border: "#9333EA", accent: "#7E22CE", text: "#3B0764", bStyle: "dashed", font: "sans" },
+        { id: 9,  name: "Mint Sparkle",         cat: "Party",       bg: "#F0FDF4", border: "#16A34A", accent: "#15803D", text: "#14532D", bStyle: "corner", font: "sans" },
+        { id: 10, name: "Coral Sunset",         cat: "Party",       bg: "#FFF7ED", border: "#EA580C", accent: "#C2410C", text: "#431407", bStyle: "solid",  font: "sans" },
+        { id: 11, name: "Marigold Festive",     cat: "Festive",     bg: "#FFFBEB", border: "#D97706", accent: "#B45309", text: "#78350F", bStyle: "double", font: "serif" },
+        { id: 12, name: "Sandalwood Classic",   cat: "Griha Pravesh",bg: "#FEF3C7", border: "#92400E", accent: "#78350F", text: "#451A03", bStyle: "double", font: "serif" },
+        { id: 13, name: "Ruby Lotus",           cat: "Traditional", bg: "#FEF2F2", border: "#DC2626", accent: "#991B1B", text: "#450A0A", bStyle: "corner", font: "serif" },
+        { id: 14, name: "Indigo Lantern",       cat: "Festive",     bg: "#EEF2FF", border: "#4338CA", accent: "#3730A3", text: "#1E1B4B", bStyle: "double", font: "serif" },
+        { id: 15, name: "Saffron Glow",         cat: "Ceremony",    bg: "#FFF7ED", border: "#F97316", accent: "#9A3412", text: "#431407", bStyle: "solid",  font: "serif" },
+        { id: 16, name: "Pastel Peach",         cat: "Baby Shower", bg: "#FFF1F2", border: "#F43F5E", accent: "#BE123C", text: "#4C0519", bStyle: "dashed", font: "script" },
+        { id: 17, name: "Lavender Mist",        cat: "Baby Shower", bg: "#F5F3FF", border: "#7C3AED", accent: "#5B21B6", text: "#2E1065", bStyle: "double", font: "script" },
+        { id: 18, name: "Sage Garden",          cat: "Brunch",      bg: "#F7FEE7", border: "#4D7C0F", accent: "#3F6212", text: "#1A2E05", bStyle: "corner", font: "serif" },
+        { id: 19, name: "Powder Blue",          cat: "Naming Day",  bg: "#EFF6FF", border: "#2563EB", accent: "#1D4ED8", text: "#1E3A8A", bStyle: "double", font: "script" },
+        { id: 20, name: "Cream Rose",           cat: "Anniversary", bg: "#FAFAF9", border: "#A8A29E", accent: "#78716C", text: "#1C1917", bStyle: "double", font: "serif" },
+        { id: 21, name: "Midnight Gala",        cat: "Evening Gala",bg: "#0F172A", border: "#F59E0B", accent: "#FBBF24", text: "#F8FAFC", bStyle: "double", font: "serif" },
+        { id: 22, name: "Obsidian Emerald",     cat: "Dinner Party",bg: "#022C22", border: "#10B981", accent: "#34D399", text: "#ECFDF5", bStyle: "corner", font: "serif" },
+        { id: 23, name: "Pearl Minimal",        cat: "Formal",      bg: "#FFFFFF", border: "#334155", accent: "#0F172A", text: "#1E293B", bStyle: "solid",  font: "sans" },
+        { id: 24, name: "Burgundy Crest",       cat: "Graduation",  bg: "#FFF1F2", border: "#881337", accent: "#9F1239", text: "#4C0519", bStyle: "double", font: "serif" },
+        { id: 25, name: "Bronze Heritage",      cat: "Jubilee",     bg: "#F5F5F4", border: "#78350F", accent: "#92400E", text: "#292524", bStyle: "corner", font: "serif" }
+      ];
+
+      const invTemplateGallery = document.getElementById("invTemplateGallery");
+      const invActiveTplLabel = document.getElementById("invActiveTplLabel");
+
+      const invUploadBgInput = document.getElementById("invUploadBgInput");
+      const uploadCustomCardBtn = document.getElementById("uploadCustomCardBtn");
+      const removeCustomCardBtn = document.getElementById("removeCustomCardBtn");
+      const resetInvBtn = document.getElementById("resetInvBtn");
+
+      const invSizePresetSelect = document.getElementById("invSizePresetSelect");
+      const invWidthInInput = document.getElementById("invWidthInInput");
+      const invHeightInInput = document.getElementById("invHeightInInput");
+
+      const invTopKickerInput = document.getElementById("invTopKickerInput");
+      const invEventTypeInput = document.getElementById("invEventTypeInput");
+      const invHostNamesInput = document.getElementById("invHostNamesInput");
+      const invMessageInput = document.getElementById("invMessageInput");
+      const invDateInput = document.getElementById("invDateInput");
+      const invTimeInput = document.getElementById("invTimeInput");
+      const invRsvpInput = document.getElementById("invRsvpInput");
+      const invVenueInput = document.getElementById("invVenueInput");
+
+      const invBoldBtn = document.getElementById("invBoldBtn");
+      const invItalicBtn = document.getElementById("invItalicBtn");
+      const invFontFamilySelect = document.getElementById("invFontFamilySelect");
+      const fontSmallerBtn = document.getElementById("fontSmallerBtn");
+      const fontLargerBtn = document.getElementById("fontLargerBtn");
+      const fontScaleLabel = document.getElementById("fontScaleLabel");
+
+      const invBorderColorInput = document.getElementById("invBorderColorInput");
+      const invBorderStyleSelect = document.getElementById("invBorderStyleSelect");
+      const invTextColorInput = document.getElementById("invTextColorInput");
+      const invBgColorInput = document.getElementById("invBgColorInput");
+      const invAccentColorInput = document.getElementById("invAccentColorInput");
+      const invBorderWidthSlider = document.getElementById("invBorderWidthSlider");
+      const borderWidthVal = document.getElementById("borderWidthVal");
+
+      const invDimHudLabel = document.getElementById("invDimHudLabel");
+      const invitingCardCanvas = document.getElementById("invitingCardCanvas");
+      const ictx = invitingCardCanvas.getContext("2d");
+
+      const a4CardsPerPageSelect = document.getElementById("a4CardsPerPageSelect");
+      const a4CutGuidesCheck = document.getElementById("a4CutGuidesCheck");
+      const downloadSingleCardBtn = document.getElementById("downloadSingleCardBtn");
+      const downloadA4SheetBtn = document.getElementById("downloadA4SheetBtn");
+      const printA4SheetBtn = document.getElementById("printA4SheetBtn");
+      const printA4Container = document.getElementById("printA4Container");
+
+      let selectedTemplate = INV_TEMPLATES[0];
+      let uploadedCardBgImg = null;
+      let isBold = true;
+      let isItalic = false;
+      let fontScalePct = 100;
+
+      function getFontFamilyCss(key) {
+        if (key === "sans") return '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif';
+        if (key === "script") return '"Brush Script MT", "Lucida Handwriting", Georgia, cursive, serif';
+        if (key === "mono") return 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
+        return 'Georgia, "Times New Roman", serif';
+      }
+
+      function buildTemplateGallery() {
+        invTemplateGallery.innerHTML = "";
+        INV_TEMPLATES.forEach(function (tpl) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "tpl-swatch" + (tpl.id === selectedTemplate.id ? " active" : "");
+          btn.setAttribute("data-tpl-id", String(tpl.id));
+          btn.innerHTML = `
+            <div class="tpl-mini-art" style="background:${tpl.bg}; border: 2px solid ${tpl.border};">
+              <div class="tpl-mini-line1" style="background:${tpl.accent};"></div>
+              <div class="tpl-mini-line2" style="background:${tpl.text};"></div>
+            </div>
+            <div class="tpl-mini-tag">#${tpl.id} ${tpl.name}</div>
+            <div class="tpl-mini-role">${tpl.cat}</div>
+          `;
+          btn.addEventListener("click", function () {
+            applyTemplate(tpl);
+          });
+          invTemplateGallery.appendChild(btn);
+        });
+      }
+
+      function applyTemplate(tpl) {
+        selectedTemplate = tpl;
+        invBgColorInput.value = tpl.bg;
+        invBorderColorInput.value = tpl.border;
+        invAccentColorInput.value = tpl.accent;
+        invTextColorInput.value = tpl.text;
+        invBorderStyleSelect.value = tpl.bStyle;
+        invFontFamilySelect.value = tpl.font;
+
+        invActiveTplLabel.textContent = `Selected: #${tpl.id} ${tpl.name} (${tpl.cat})`;
+        document.querySelectorAll(".tpl-swatch").forEach(function (el) {
+          el.classList.toggle("active", Number(el.getAttribute("data-tpl-id")) === tpl.id);
+        });
+
+        renderInvitationCanvas();
+      }
+
+      function drawCardBorder(ctx, w, h, color, style, thickness) {
+        if (style === "none") return;
+        ctx.save();
+        ctx.strokeStyle = color;
+        const pad = Math.max(24, thickness * 3);
+
+        if (style === "solid") {
+          ctx.lineWidth = thickness;
+          ctx.strokeRect(pad, pad, w - pad * 2, h - pad * 2);
+        } else if (style === "double") {
+          ctx.lineWidth = thickness;
+          ctx.strokeRect(pad, pad, w - pad * 2, h - pad * 2);
+          ctx.lineWidth = Math.max(2, Math.round(thickness * 0.45));
+          const innerPad = pad + thickness + 12;
+          ctx.strokeRect(innerPad, innerPad, w - innerPad * 2, h - innerPad * 2);
+        } else if (style === "dashed") {
+          ctx.lineWidth = thickness;
+          ctx.setLineDash([thickness * 2.5, thickness * 1.6]);
+          ctx.strokeRect(pad, pad, w - pad * 2, h - pad * 2);
+          ctx.setLineDash([]);
+        } else if (style === "corner") {
+          ctx.lineWidth = Math.max(2, Math.round(thickness * 0.5));
+          ctx.strokeRect(pad, pad, w - pad * 2, h - pad * 2);
+          const arm = Math.min(w, h) * 0.14;
+          ctx.lineWidth = thickness + 3;
+          // Top-Left
+          ctx.beginPath();
+          ctx.moveTo(pad, pad + arm);
+          ctx.lineTo(pad, pad);
+          ctx.lineTo(pad + arm, pad);
+          // Top-Right
+          ctx.moveTo(w - pad - arm, pad);
+          ctx.lineTo(w - pad, pad);
+          ctx.lineTo(w - pad, pad + arm);
+          // Bottom-Left
+          ctx.moveTo(pad, h - pad - arm);
+          ctx.lineTo(pad, h - pad);
+          ctx.lineTo(pad + arm, h - pad);
+          // Bottom-Right
+          ctx.moveTo(w - pad - arm, h - pad);
+          ctx.lineTo(w - pad, h - pad);
+          ctx.lineTo(w - pad, h - pad - arm);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function wrapCenteredText(ctx, text, cx, startY, maxWidth, lineHeight) {
+        const words = text.split(/\s+/).filter(Boolean);
+        let line = "";
+        let y = startY;
+        for (let i = 0; i < words.length; i++) {
+          const testLine = line ? line + " " + words[i] : words[i];
+          if (ctx.measureText(testLine).width > maxWidth && line) {
+            ctx.fillText(line, cx, y);
+            line = words[i];
+            y += lineHeight;
+          } else {
+            line = testLine;
+          }
+        }
+        if (line) {
+          ctx.fillText(line, cx, y);
+          y += lineHeight;
+        }
+        return y;
+      }
+
+      function renderInvitationCanvas() {
+        const wIn = Math.max(2, Math.min(12, parseFloat(invWidthInInput.value) || 5.0));
+        const hIn = Math.max(2, Math.min(14, parseFloat(invHeightInInput.value) || 7.0));
+        const w = Math.round(wIn * 300);
+        const h = Math.round(hIn * 300);
+
+        invitingCardCanvas.width = w;
+        invitingCardCanvas.height = h;
+        invDimHudLabel.textContent = `Size: ${wIn.toFixed(1)}" \u00D7 ${hIn.toFixed(1)}" (${w} \u00D7 ${h} px @ 300 DPI)`;
+
+        const bgCol = invBgColorInput.value || "#FFFBEB";
+        const borderCol = invBorderColorInput.value || "#B45309";
+        const borderStyle = invBorderStyleSelect.value || "double";
+        const borderThick = parseInt(invBorderWidthSlider.value, 10) || 8;
+        const textCol = invTextColorInput.value || "#451A03";
+        const accentCol = invAccentColorInput.value || "#92400E";
+        const fontFam = getFontFamilyCss(invFontFamilySelect.value);
+
+        borderWidthVal.textContent = `${borderThick} px`;
+        fontScaleLabel.textContent = `${fontScalePct}%`;
+
+        // Base Fill or Uploaded Custom Card Image
+        ictx.clearRect(0, 0, w, h);
+        ictx.fillStyle = bgCol;
+        ictx.fillRect(0, 0, w, h);
+
+        if (uploadedCardBgImg) {
+          // Cover-fit uploaded image
+          const scale = Math.max(w / uploadedCardBgImg.width, h / uploadedCardBgImg.height);
+          const dw = uploadedCardBgImg.width * scale;
+          const dh = uploadedCardBgImg.height * scale;
+          ictx.drawImage(uploadedCardBgImg, (w - dw) / 2, (h - dh) / 2, dw, dh);
+        }
+
+        drawCardBorder(ictx, w, h, borderCol, borderStyle, borderThick);
+
+        const baseScale = (Math.min(w, h) / 1500) * (fontScalePct / 100);
+        const weightStr = isBold ? "700" : "400";
+        const styleStr = isItalic ? "italic" : "normal";
+        const cx = w / 2;
+        const safeTextWidth = w * 0.78;
+
+        ictx.textAlign = "center";
+
+        const kicker = invTopKickerInput.value.trim();
+        const eventType = invEventTypeInput.value.trim();
+        const hostNames = invHostNamesInput.value.trim();
+        const message = invMessageInput.value.trim();
+        const eventDate = invDateInput.value.trim();
+        const eventTime = invTimeInput.value.trim();
+        const venue = invVenueInput.value.trim();
+        const rsvp = invRsvpInput.value.trim();
+
+        let cursorY = h * 0.16;
+
+        if (kicker) {
+          ictx.fillStyle = textCol;
+          ictx.font = `${styleStr} ${weightStr} ${Math.round(34 * baseScale)}px ${fontFam}`;
+          ictx.fillText(kicker, cx, cursorY, safeTextWidth);
+          cursorY += Math.round(78 * baseScale);
+        }
+
+        if (eventType) {
+          ictx.fillStyle = accentCol;
+          ictx.font = `${styleStr} 800 ${Math.round(58 * baseScale)}px ${fontFam}`;
+          ictx.fillText(eventType, cx, cursorY, safeTextWidth);
+          cursorY += Math.round(54 * baseScale);
+        }
+
+        // Decorative divider
+        ictx.fillStyle = borderCol;
+        ictx.fillRect(cx - w * 0.14, cursorY, w * 0.28, Math.max(3, Math.round(4 * baseScale)));
+        cursorY += Math.round(105 * baseScale);
+
+        if (hostNames) {
+          ictx.fillStyle = accentCol;
+          ictx.font = `${styleStr} 800 ${Math.round(92 * baseScale)}px ${fontFam}`;
+          ictx.fillText(hostNames, cx, cursorY, safeTextWidth);
+          cursorY += Math.round(88 * baseScale);
+        }
+
+        if (message) {
+          ictx.fillStyle = textCol;
+          ictx.font = `${styleStr} ${weightStr} ${Math.round(38 * baseScale)}px ${fontFam}`;
+          cursorY = wrapCenteredText(ictx, message, cx, cursorY, safeTextWidth, Math.round(54 * baseScale));
+          cursorY += Math.round(34 * baseScale);
+        }
+
+        // Divider above Date/Time/Venue
+        ictx.fillStyle = borderCol;
+        ictx.fillRect(cx - w * 0.1, cursorY, w * 0.2, Math.max(2, Math.round(3 * baseScale)));
+        cursorY += Math.round(68 * baseScale);
+
+        if (eventDate) {
+          ictx.fillStyle = accentCol;
+          ictx.font = `${styleStr} 800 ${Math.round(44 * baseScale)}px ${fontFam}`;
+          ictx.fillText(eventDate, cx, cursorY, safeTextWidth);
+          cursorY += Math.round(54 * baseScale);
+        }
+
+        if (eventTime) {
+          ictx.fillStyle = textCol;
+          ictx.font = `${styleStr} ${weightStr} ${Math.round(38 * baseScale)}px ${fontFam}`;
+          ictx.fillText(eventTime, cx, cursorY, safeTextWidth);
+          cursorY += Math.round(64 * baseScale);
+        }
+
+        if (venue) {
+          ictx.fillStyle = textCol;
+          ictx.font = `${styleStr} ${weightStr} ${Math.round(36 * baseScale)}px ${fontFam}`;
+          cursorY = wrapCenteredText(ictx, venue, cx, cursorY, safeTextWidth, Math.round(48 * baseScale));
+          cursorY += Math.round(24 * baseScale);
+        }
+
+        if (rsvp) {
+          ictx.fillStyle = accentCol;
+          ictx.font = `${styleStr} 700 ${Math.round(32 * baseScale)}px ${fontFam}`;
+          ictx.fillText(rsvp, cx, Math.min(h - Math.max(55, borderThick * 5), Math.max(cursorY + 20, h * 0.89)), safeTextWidth);
+        }
+      }
+
+      // Build A4 Sheet (2480 x 3508 px @ 300 DPI) packing 1, 2, 3, or 4 cards cleanly
+      function buildA4MultiCardCanvas() {
+        renderInvitationCanvas();
+        const count = parseInt(a4CardsPerPageSelect.value, 10) || 2;
+        const showGuides = a4CutGuidesCheck.checked;
+
+        const a4W = 2480;
+        const a4H = 3508;
+        const sheet = document.createElement("canvas");
+        sheet.width = a4W;
+        sheet.height = a4H;
+        const sctx = sheet.getContext("2d");
+
+        sctx.fillStyle = "#FFFFFF";
+        sctx.fillRect(0, 0, a4W, a4H);
+
+        const margin = 90;
+        const gap = 70;
+        const cardW = invitingCardCanvas.width;
+        const cardH = invitingCardCanvas.height;
+
+        let cols = 1;
+        let rows = 1;
+        if (count === 2) {
+          if (cardW >= cardH) { cols = 1; rows = 2; }
+          else { cols = 2; rows = 1; }
+        } else if (count === 3) {
+          if (cardW >= cardH) { cols = 1; rows = 3; }
+          else { cols = 3; rows = 1; }
+        } else if (count === 4) {
+          cols = 2;
+          rows = 2;
+        }
+
+        const slotW = (a4W - margin * 2 - gap * (cols - 1)) / cols;
+        const slotH = (a4H - margin * 2 - gap * (rows - 1)) / rows;
+        const scale = Math.min(slotW / cardW, slotH / cardH, 1.0);
+        const drawW = Math.round(cardW * scale);
+        const drawH = Math.round(cardH * scale);
+
+        const totalGridW = cols * drawW + (cols - 1) * gap;
+        const totalGridH = rows * drawH + (rows - 1) * gap;
+        const startX = Math.round((a4W - totalGridW) / 2);
+        const startY = Math.round((a4H - totalGridH) / 2);
+
+        let placed = 0;
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            if (placed >= count) break;
+            const dx = startX + c * (drawW + gap);
+            const dy = startY + r * (drawH + gap);
+
+            sctx.drawImage(invitingCardCanvas, dx, dy, drawW, drawH);
+
+            if (showGuides) {
+              sctx.save();
+              sctx.strokeStyle = "#94A3B8";
+              sctx.lineWidth = 2;
+              sctx.setLineDash([14, 10]);
+              sctx.strokeRect(dx, dy, drawW, drawH);
+              sctx.restore();
+            }
+            placed++;
+          }
+        }
+
+        return sheet;
+      }
+
+      invSizePresetSelect.addEventListener("change", function () {
+        const v = invSizePresetSelect.value;
+        if (v === "5x7") { invWidthInInput.value = "5.0"; invHeightInInput.value = "7.0"; }
+        else if (v === "4x6") { invWidthInInput.value = "4.0"; invHeightInInput.value = "6.0"; }
+        else if (v === "6x4") { invWidthInInput.value = "6.0"; invHeightInInput.value = "4.0"; }
+        else if (v === "5x5") { invWidthInInput.value = "5.0"; invHeightInInput.value = "5.0"; }
+        renderInvitationCanvas();
+      });
+
+      [invWidthInInput, invHeightInInput].forEach(function (inp) {
+        inp.addEventListener("input", function () {
+          invSizePresetSelect.value = "custom";
+          renderInvitationCanvas();
+        });
+      });
+
+      invBoldBtn.addEventListener("click", function () {
+        isBold = !isBold;
+        invBoldBtn.classList.toggle("active", isBold);
+        renderInvitationCanvas();
+      });
+
+      invItalicBtn.addEventListener("click", function () {
+        isItalic = !isItalic;
+        invItalicBtn.classList.toggle("active", isItalic);
+        renderInvitationCanvas();
+      });
+
+      fontSmallerBtn.addEventListener("click", function () {
+        fontScalePct = Math.max(65, fontScalePct - 5);
+        renderInvitationCanvas();
+      });
+
+      fontLargerBtn.addEventListener("click", function () {
+        fontScalePct = Math.min(145, fontScalePct + 5);
+        renderInvitationCanvas();
+      });
+
+      uploadCustomCardBtn.addEventListener("click", function () {
+        invUploadBgInput.click();
+      });
+
+      invUploadBgInput.addEventListener("change", function () {
+        if (!invUploadBgInput.files || !invUploadBgInput.files[0]) return;
+        const file = invUploadBgInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          const img = new Image();
+          img.onload = function () {
+            uploadedCardBgImg = img;
+            removeCustomCardBtn.style.display = "inline-block";
+            renderInvitationCanvas();
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      removeCustomCardBtn.addEventListener("click", function () {
+        uploadedCardBgImg = null;
+        invUploadBgInput.value = "";
+        removeCustomCardBtn.style.display = "none";
+        renderInvitationCanvas();
+      });
+
+      resetInvBtn.addEventListener("click", function () {
+        uploadedCardBgImg = null;
+        invUploadBgInput.value = "";
+        removeCustomCardBtn.style.display = "none";
+        invSizePresetSelect.value = "5x7";
+        invWidthInInput.value = "5.0";
+        invHeightInInput.value = "7.0";
+        invTopKickerInput.value = "TOGETHER WITH THEIR FAMILIES";
+        invEventTypeInput.value = "Wedding Celebration";
+        invHostNamesInput.value = "Aarav & Diya";
+        invMessageInput.value = "Cordially invite you to grace the auspicious occasion with your presence and warm blessings.";
+        invDateInput.value = "Sunday, 14 December 2026";
+        invTimeInput.value = "7:00 PM Onwards";
+        invRsvpInput.value = "RSVP: +91 98765 43210";
+        invVenueInput.value = "The Grand Palace Banquet, Station Road, Patna";
+        isBold = true;
+        isItalic = false;
+        fontScalePct = 100;
+        invBoldBtn.classList.add("active");
+        invItalicBtn.classList.remove("active");
+        invBorderWidthSlider.value = "8";
+        applyTemplate(INV_TEMPLATES[0]);
+      });
+
+      [
+        invTopKickerInput,
+        invEventTypeInput,
+        invHostNamesInput,
+        invMessageInput,
+        invDateInput,
+        invTimeInput,
+        invRsvpInput,
+        invVenueInput,
+        invFontFamilySelect,
+        invBorderColorInput,
+        invBorderStyleSelect,
+        invTextColorInput,
+        invBgColorInput,
+        invAccentColorInput,
+        invBorderWidthSlider
+      ].forEach(function (el) {
+        el.addEventListener("input", renderInvitationCanvas);
+        el.addEventListener("change", renderInvitationCanvas);
+      });
+
+      downloadSingleCardBtn.addEventListener("click", function () {
+        renderInvitationCanvas();
+        invitingCardCanvas.toBlob(function (blob) {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "inviting-card-300dpi.png";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }, "image/png");
+      });
+
+      downloadA4SheetBtn.addEventListener("click", function () {
+        const count = a4CardsPerPageSelect.value || "2";
+        const sheetCanvas = buildA4MultiCardCanvas();
+        sheetCanvas.toBlob(function (blob) {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `inviting-cards-a4-${count}up.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }, "image/png");
+      });
+
+      printA4SheetBtn.addEventListener("click", function () {
+        const sheetCanvas = buildA4MultiCardCanvas();
+        const dataUrl = sheetCanvas.toDataURL("image/png");
+        printA4Container.innerHTML = `<img src="${dataUrl}" alt="A4 Inviting Cards Sheet" />`;
+        const imgEl = printA4Container.querySelector("img");
+        if (imgEl && !imgEl.complete) {
+          imgEl.onload = function () { window.print(); };
+        } else {
+          window.print();
+        }
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      buildTemplateGallery();
+      applyTemplate(INV_TEMPLATES[0]);
+    });
+  </script>
+</body>
+</html>

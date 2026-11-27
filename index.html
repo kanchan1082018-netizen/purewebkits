@@ -1,0 +1,2010 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PureWebKits — All-in-One Online Utility Tools</title>
+  <meta name="description" content="Quick, free, and 100% client-side web tools for everyday tasks — processed locally in your browser with zero server uploads." />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-hero: #F4F7FB;
+      --bg-white: #FFFFFF;
+      --border-light: #E2E8F0;
+      --border-input: #CBD5E1;
+      --text-dark: #0F172A;
+      --text-muted: #475569;
+      --text-subtle: #64748B;
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --footer-bg: #182234;
+      --footer-bottom: #111827;
+      --footer-text: #CBD5E1;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
+      --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.06);
+      --shadow-search: 0 6px 20px rgba(37, 99, 235, 0.06), 0 2px 6px rgba(15, 23, 42, 0.04);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-dark);
+      background-color: var(--bg-white);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ================= HEADER ================= */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-logo-text {
+      color: var(--text-dark);
+    }
+
+    .brand-logo-text span {
+      color: var(--primary);
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .header-nav a {
+      font-size: 15px;
+      font-weight: 500;
+      color: #334155;
+      transition: color 0.18s ease;
+    }
+
+    .header-nav a:hover,
+    .header-nav a.active {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* ================= HERO & POPULAR TOOLS ================= */
+    .hero-section {
+      background-color: var(--bg-hero);
+      padding: 32px 0 36px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .hero-header {
+      text-align: center;
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    .hero-title {
+      font-size: 44px;
+      font-weight: 800;
+      color: var(--text-dark);
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+
+    .hero-subtitle {
+      font-size: 17px;
+      color: var(--text-muted);
+      max-width: 740px;
+      margin: 0 auto 28px;
+    }
+
+    /* Pill Search Box */
+    .search-wrapper {
+      max-width: 620px;
+      margin: 0 auto 24px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: var(--bg-white);
+      border: 1px solid var(--border-input);
+      border-radius: 999px;
+      padding: 6px 6px 6px 20px;
+      box-shadow: var(--shadow-search);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .search-wrapper:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12), var(--shadow-search);
+    }
+
+    .search-icon {
+      color: #94A3B8;
+      flex-shrink: 0;
+      margin-right: 12px;
+      display: flex;
+      align-items: center;
+    }
+
+    #toolSearchInput {
+      width: 100%;
+      border: none;
+      outline: none;
+      font-size: 15px;
+      color: var(--text-dark);
+      background: transparent;
+      font-family: inherit;
+    }
+
+    #toolSearchInput::placeholder {
+      color: #94A3B8;
+    }
+
+    .search-submit-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: none;
+      background-color: var(--primary);
+      color: #FFFFFF;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background-color 0.18s ease, transform 0.15s ease;
+    }
+
+    .search-submit-btn:hover {
+      background-color: var(--primary-hover);
+      transform: scale(1.03);
+    }
+
+    /* Filter Pills */
+    .category-pills {
+      max-width: 920px;
+      margin: 0 auto 36px;
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .filter-pill {
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: 1px solid var(--border-light);
+      background-color: var(--bg-white);
+      color: #334155;
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      flex-shrink: 0;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.18s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .filter-pill:hover {
+      border-color: #CBD5E1;
+      background-color: #F8FAFC;
+      color: var(--text-dark);
+    }
+
+    .filter-pill.active {
+      background-color: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    /* Featured Tool Cards Grid */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+
+    .tool-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      min-height: 172px;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: #CBD5E1;
+    }
+
+    .tool-card-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .tool-icon-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Pastel Icon Badge Variants */
+    .icon-purple { background-color: #F3E8FF; color: #7E22CE; }
+    .icon-teal   { background-color: #CCFBF1; color: #0F766E; }
+    .icon-blue   { background-color: #DBEAFE; color: #2563EB; }
+    .icon-green  { background-color: #DCFCE7; color: #15803D; }
+    .icon-amber  { background-color: #FEF3C7; color: #B45309; }
+    .icon-rose   { background-color: #FCE7F3; color: #BE185D; }
+    .icon-indigo { background-color: #E0E7FF; color: #4338CA; }
+
+    .tool-cat-pill {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 999px;
+      line-height: 1.4;
+    }
+
+    .pill-teal   { background-color: #E6F7F2; color: #0F766E; }
+    .pill-purple { background-color: #F3EEFF; color: #6D28D9; }
+    .pill-blue   { background-color: #EFF6FF; color: #1D4ED8; }
+    .pill-green  { background-color: #ECFDF5; color: #047857; }
+
+    .tool-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+
+    .tool-card-bottom {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: auto;
+    }
+
+    .tool-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .tool-arrow {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #F1F5F9;
+      color: #475569;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+    }
+
+    .tool-card:hover .tool-arrow {
+      background-color: var(--primary);
+      color: #FFFFFF;
+      transform: translateX(2px);
+    }
+
+    .no-results-box {
+      display: none;
+      text-align: center;
+      padding: 48px 24px;
+      background: var(--bg-white);
+      border: 1px dashed var(--border-input);
+      border-radius: 16px;
+      margin-top: 12px;
+    }
+
+    .no-results-box h3 {
+      font-size: 18px;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+    }
+
+    .no-results-box p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .reset-search-btn {
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: none;
+      background: var(--primary);
+      color: #FFFFFF;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ================= SECTION 2: 16 TOOL CATEGORIES ================= */
+    .categories-section {
+      padding: 36px 0 48px;
+      background-color: var(--bg-white);
+    }
+
+    .section-heading {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-dark);
+      letter-spacing: -0.02em;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .category-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      cursor: pointer;
+    }
+
+    .category-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary);
+    }
+
+    .cat-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .cat-icon-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cat-count-badge {
+      background-color: #EFF6FF;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 11px;
+      border-radius: 999px;
+    }
+
+    .cat-card-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 14px;
+      line-height: 1.3;
+    }
+
+    .cat-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: auto;
+    }
+
+    .cat-tag {
+      border: 1px solid var(--border-light);
+      background-color: #F8FAFC;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #334155;
+      padding: 4px 10px;
+      transition: all 0.15s ease;
+    }
+
+    .cat-tag:hover {
+      border-color: var(--primary);
+      background-color: #EFF6FF;
+      color: var(--primary);
+    }
+
+    /* ================= CATEGORY POPUP MODAL STYLES ================= */
+    .cat-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+      padding: 20px;
+    }
+
+    .cat-modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .cat-modal {
+      background: var(--bg-white);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 680px;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
+      transform: translateY(20px);
+      transition: transform 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cat-modal-overlay.active .cat-modal {
+      transform: translateY(0);
+    }
+
+    .cat-modal-header {
+      padding: 24px 28px 18px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: var(--bg-white);
+      z-index: 10;
+    }
+
+    .cat-modal-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+
+    .cat-modal-close {
+      background: #F1F5F9;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .cat-modal-close:hover {
+      background: #E2E8F0;
+      color: var(--text-dark);
+    }
+
+    .cat-modal-body {
+      padding: 24px 28px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .cat-modal-tool-item {
+      background: #F8FAFC;
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: all 0.18s ease;
+      text-decoration: none;
+    }
+
+    .cat-modal-tool-item:hover {
+      border-color: var(--primary);
+      background: #EFF6FF;
+      transform: translateY(-2px);
+    }
+
+    .cat-modal-tool-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .cat-modal-tool-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 600px) {
+      .cat-modal-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ================= SECTION 3: DARK NAVY FOOTER ================= */
+    .site-footer {
+      background-color: var(--footer-bg);
+      color: var(--footer-text);
+      padding-top: 56px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+      gap: 36px;
+      padding-bottom: 48px;
+    }
+
+    .footer-brand-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background-color: var(--primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .footer-brand-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin-bottom: 10px;
+    }
+
+    .footer-brand-desc {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #CBD5E1;
+      max-width: 260px;
+    }
+
+    .footer-col-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin-bottom: 16px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .footer-links a {
+      font-size: 14px;
+      color: #CBD5E1;
+      transition: color 0.16s ease;
+    }
+
+    .footer-links a:hover {
+      color: #FFFFFF;
+      text-decoration: underline;
+    }
+
+    .footer-bottom {
+      background-color: var(--footer-bottom);
+      padding: 18px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .footer-bottom p {
+      font-size: 13.5px;
+      color: #CBD5E1;
+    }
+
+    /* ================= RESPONSIVE ================= */
+    @media (max-width: 1080px) {
+      .categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .footer-grid {
+        grid-template-columns: 1.5fr 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .tools-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 780px) {
+      .category-pills {
+        justify-content: flex-start;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 4px;
+      }
+      .category-pills::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .header-nav {
+        gap: 16px;
+      }
+      .header-nav a {
+        font-size: 13.5px;
+      }
+      .hero-title {
+        font-size: 32px;
+      }
+      .tools-grid,
+      .categories-grid,
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero-section {
+        padding: 28px 0 36px;
+      }
+      .categories-section {
+        padding: 36px 0 44px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SECTION 1: STICKY WHITE HEADER -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <span class="brand-logo-text">PureWeb<span>Kits</span></span>
+      </a>
+
+      <nav class="header-nav" aria-label="Primary Navigation">
+        <a href="#featured-tools" class="active">All Tools</a>
+        <a href="#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO & POPULAR TOOL CARDS -->
+    <section class="hero-section" id="featured-tools">
+      <div class="container">
+        <div class="hero-header">
+          <h1 class="hero-title">All-in-One Online Utility Tools</h1>
+          <p class="hero-subtitle">Quick, free, and 100% client-side web tools for everyday tasks — processed locally in your browser with zero server uploads.</p>
+
+          <form class="search-wrapper" id="toolSearchForm" role="search">
+            <span class="search-icon" aria-hidden="true">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+            <input
+              type="search"
+              id="toolSearchInput"
+              placeholder="Search for a tool (e.g., PDF, image, resize)..."
+              aria-label="Search for a tool"
+              autocomplete="off"
+            />
+            <button type="submit" class="search-submit-btn" aria-label="Search tools">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </form>
+
+          <div class="category-pills" id="filterPills" role="tablist" aria-label="Filter tools by category">
+            <button type="button" class="filter-pill active" data-filter="all">All Tools</button>
+            <button type="button" class="filter-pill" data-filter="image-exam">Image & Exam Forms</button>
+            <button type="button" class="filter-pill" data-filter="pdf-social">PDF & Social</button>
+            <button type="button" class="filter-pill" data-filter="dev-text">Developer & Text</button>
+            <button type="button" class="filter-pill" data-filter="finance-calc">Finance & Calculators</button>
+          </div>
+        </div>
+
+        <!-- FEATURED TOOL CARDS GRID -->
+        <div class="tools-grid" id="toolsGrid">
+
+          <!-- 1 -->
+          <a href="compress-image-to-exact-kb.html" class="tool-card" data-category="image-exam" data-keywords="image compressor exact kb jpg png size exam form reduce">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-purple">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-teal">Image & Exam Forms</span>
+            </div>
+            <h2 class="tool-title">Image Compressor to Exact KB</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Compress images to custom sizes.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 2 -->
+          <a href="signature-resizer.html" class="tool-card" data-category="image-exam" data-keywords="signature resizer exam forms crop resize photo">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-teal">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"/><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-teal">Image & Exam Forms</span>
+            </div>
+            <h2 class="tool-title">Signature Resizer</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Resize signatures for exam forms.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 3 -->
+          <a href="json-formatter.html" class="tool-card" data-category="dev-text" data-keywords="json formatter validator beautify prettify developer">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-blue">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M10 13l-2 2 2 2"/><path d="M14 13l2 2-2 2"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-purple">Developer & Text</span>
+            </div>
+            <h2 class="tool-title">JSON Formatter</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Format and validate JSON data.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 4 -->
+          <a href="merge-pdf.html" class="tool-card" data-category="pdf-social" data-keywords="merge pdf combine join documents files">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-purple">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-purple">PDF & Social</span>
+            </div>
+            <h2 class="tool-title">Merge PDF</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Combine multiple PDF files into one.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 5 -->
+          <a href="emi-calculator.html" class="tool-card" data-category="finance-calc" data-keywords="loan emi calculator interest mortgage monthly payment">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-green">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="16" y2="18"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-teal">Finance & Calculators</span>
+            </div>
+            <h2 class="tool-title">Loan & EMI Calculator</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Calculate monthly loan EMI & interest.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 6 -->
+          <a href="qr-code-generator.html" class="tool-card" data-category="pdf-social" data-keywords="qr code generator barcode link wifi url">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-purple">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3z"/><path d="M20 14v7h-7"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-purple">PDF & Social</span>
+            </div>
+            <h2 class="tool-title">QR Code Generator</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Create custom QR codes for URLs & text.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 7 -->
+          <a href="jpg-to-png.html" class="tool-card" data-category="image-exam" data-keywords="jpg to png converter image format jpeg">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-blue">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-teal">Image & Exam Forms</span>
+            </div>
+            <h2 class="tool-title">JPG to PNG Converter</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Convert JPG images to crisp PNGs.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 8 -->
+          <a href="compress-pdf.html" class="tool-card" data-category="pdf-social" data-keywords="compress pdf shrink reduce file size document">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-amber">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15l3 3 3-3"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-purple">PDF & Social</span>
+            </div>
+            <h2 class="tool-title">Compress PDF</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Reduce PDF file size while keeping quality.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 9 -->
+          <a href="image-resizer.html" class="tool-card" data-category="image-exam" data-keywords="image resizer dimensions pixels crop width height">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-teal">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-teal">Image & Exam Forms</span>
+            </div>
+            <h2 class="tool-title">Image Resizer</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Resize photos by exact pixels or ratio.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 10 -->
+          <a href="jpg-to-pdf.html" class="tool-card" data-category="pdf-social" data-keywords="jpg to pdf converter image document">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-rose">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><rect x="8" y="12" width="8" height="6" rx="1"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-purple">PDF & Social</span>
+            </div>
+            <h2 class="tool-title">JPG to PDF Converter</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Turn JPG images into printable PDFs.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 11 (Split PDF) -->
+          <a href="split-pdf.html" class="tool-card" data-category="pdf-social" data-keywords="split pdf extract pages separate pdf divide pdf">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-indigo">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-purple">PDF & Social</span>
+            </div>
+            <h2 class="tool-title">Split PDF</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Extract specific pages or separate every PDF page.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 12 -->
+          <a href="password-generator.html" class="tool-card" data-category="dev-text" data-keywords="strong password generator security random key">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-indigo">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-purple">Developer & Text</span>
+            </div>
+            <h2 class="tool-title">Strong Password Generator</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Generate secure, uncrackable passwords.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 13 -->
+          <a href="word-counter.html" class="tool-card" data-category="dev-text" data-keywords="word character counter text essay length">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-rose">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-purple">Developer & Text</span>
+            </div>
+            <h2 class="tool-title">Word & Character Counter</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Count words, characters & reading time.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 14 -->
+          <a href="base64-encode-decode.html" class="tool-card" data-category="dev-text" data-keywords="base64 encoder decoder string text developer">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-purple">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-purple">Developer & Text</span>
+            </div>
+            <h2 class="tool-title">Base64 Encoder & Decoder</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Encode or decode Base64 text instantly.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 15 -->
+          <a href="text-to-speech.html" class="tool-card" data-category="dev-text" data-keywords="text to speech reader voice audio tts">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-teal">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-purple">Developer & Text</span>
+            </div>
+            <h2 class="tool-title">Text to Speech Reader</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Listen to any text read aloud naturally.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 16 -->
+          <a href="percentage-calculator.html" class="tool-card" data-category="finance-calc" data-keywords="3 in 1 percentage calculator math discount increase">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-green">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-teal">Finance & Calculators</span>
+            </div>
+            <h2 class="tool-title">3-in-1 Percentage Calculator</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Compute percentages, gains & discounts.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 17 -->
+          <a href="age-calculator.html" class="tool-card" data-category="finance-calc" data-keywords="exact age calculator birthday date years months days">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-amber">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-teal">Finance & Calculators</span>
+            </div>
+            <h2 class="tool-title">Exact Age Calculator</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Find exact age in years, months & days.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 18 -->
+          <a href="currency-converter.html" class="tool-card" data-category="finance-calc" data-keywords="live currency converter exchange rates forex usd eur inr">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-blue">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-teal">Finance & Calculators</span>
+            </div>
+            <h2 class="tool-title">Live Currency Converter</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Convert global currencies in real time.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 19 -->
+          <a href="us-paycheck-calculator.html" class="tool-card" data-category="finance-calc" data-keywords="us paycheck calculator salary tax federal state usa">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-green">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-teal">Finance & Calculators</span>
+            </div>
+            <h2 class="tool-title">US Paycheck Calculator</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Estimate net take-home pay after taxes.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 20 -->
+          <a href="uk-vat-calculator.html" class="tool-card" data-category="finance-calc" data-keywords="uk vat calculator tax 20% add remove">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-indigo">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 7c0-2.5-2-4-4.5-4S9 4.5 9 7v8c0 2.5-1.5 4-3 4h13"/><line x1="6" y1="12" x2="14" y2="12"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-teal">Finance & Calculators</span>
+            </div>
+            <h2 class="tool-title">UK VAT Calculator</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Add or remove UK VAT quickly.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 21 -->
+          <a href="indian-gst-calculator.html" class="tool-card" data-category="finance-calc" data-keywords="indian gst calculator tax cgst sgst igst india">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-amber">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12"/><path d="M6 8h12"/><path d="M6 13l8.5 8"/><path d="M6 13h3a4 4 0 0 0 0-8"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-teal">Finance & Calculators</span>
+            </div>
+            <h2 class="tool-title">Indian GST Calculator</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Calculate inclusive & exclusive GST.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 22 -->
+          <a href="uae-gratuity-calculator.html" class="tool-card" data-category="finance-calc" data-keywords="uae gratuity calculator dubai end of service labor law">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-teal">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-teal">Finance & Calculators</span>
+            </div>
+            <h2 class="tool-title">UAE Gratuity Calculator</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Compute UAE end-of-service benefits.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 23 -->
+          <a href="stock-average-calculator.html" class="tool-card" data-category="finance-calc" data-keywords="stock average calculator share price investing trading">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-green">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-teal">Finance & Calculators</span>
+            </div>
+            <h2 class="tool-title">Stock Average Calculator</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Find average share buy price across lots.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+          <!-- 24 -->
+          <a href="invoice-generator.html" class="tool-card" data-category="pdf-social" data-keywords="free pdf invoice generator billing receipt business">
+            <div class="tool-card-top">
+              <span class="tool-icon-badge icon-purple">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              </span>
+              <span class="tool-cat-pill pill-purple">PDF & Social</span>
+            </div>
+            <h2 class="tool-title">Free PDF Invoice Generator</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">Create & download branded PDF invoices.</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          </a>
+
+        </div>
+
+        <div class="no-results-box" id="noResultsBox">
+          <h3>No matching tools found</h3>
+          <p>Try searching another keyword like "PDF", "image", "tax", or "JSON".</p>
+          <button type="button" class="reset-search-btn" id="resetSearchBtn">Show All Tools</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 2: BROWSE ALL 16 TOOL CATEGORIES -->
+    <section class="categories-section" id="categories">
+      <div class="container">
+        <h2 class="section-heading">Browse All 16 Tool Categories</h2>
+
+        <div class="categories-grid">
+
+          <!-- 1 -->
+          <div class="category-card" data-category-key="image-graphics">
+            <div class="cat-card-top">
+              <span class="cat-icon-badge icon-purple">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </span>
+              <span class="cat-count-badge">22 Tools</span>
+            </div>
+            <h3 class="cat-card-title">Image & Graphics Suite</h3>
+            <div class="cat-tags">
+              <span class="cat-tag">KB Compressor</span>
+              <span class="cat-tag">Image Resizer</span>
+              <span class="cat-tag">WebP Converter</span>
+              <span class="cat-tag">Color Picker</span>
+            </div>
+          </div>
+
+          <!-- 2 -->
+          <div class="category-card" data-category-key="pdf-docs">
+            <div class="cat-card-top">
+              <span class="cat-icon-badge icon-amber">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </span>
+              <span class="cat-count-badge">15 Tools</span>
+            </div>
+            <h3 class="cat-card-title">PDF & Document Utilities</h3>
+            <div class="cat-tags">
+              <span class="cat-tag">Merge PDF</span>
+              <span class="cat-tag">Split PDF</span>
+              <span class="cat-tag">Resume Maker</span>
+              <span class="cat-tag">PDF to JPG</span>
+            </div>
+          </div>
+
+          <!-- 3 -->
+          <div class="category-card" data-category-key="dev-seo">
+            <div class="cat-card-top">
+              <span class="cat-icon-badge icon-blue">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              </span>
+              <span class="cat-count-badge">31 Tools</span>
+            </div>
+            <h3 class="cat-card-title">Developer & SEO Suite</h3>
+            <div class="cat-tags">
+              <span class="cat-tag">JSON Formatter</span>
+              <span class="cat-tag">Regex Tester</span>
+              <span class="cat-tag">Password Gen</span>
+              <span class="cat-tag">JWT Decoder</span>
+            </div>
+          </div>
+
+          <!-- 4 -->
+          <div class="category-card" data-category-key="text-productivity">
+            <div class="cat-card-top">
+              <span class="cat-icon-badge icon-rose">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+              </span>
+              <span class="cat-count-badge">19 Tools</span>
+            </div>
+            <h3 class="cat-card-title">Text & Productivity</h3>
+            <div class="cat-tags">
+              <span class="cat-tag">Word Counter</span>
+              <span class="cat-tag">Case Converter</span>
+              <span class="cat-tag">QR Generator</span>
+              <span class="cat-tag">Text Diff</span>
+            </div>
+          </div>
+
+          <!-- 5 -->
+          <div class="category-card" data-category-key="math-health">
+            <div class="cat-card-top">
+              <span class="cat-icon-badge icon-teal">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </span>
+              <span class="cat-count-badge">28 Tools</span>
+            </div>
+            <h3 class="cat-card-title">Math, Health & Unit Suite</h3>
+            <div class="cat-tags">
+              <span class="cat-tag">Percentage Calc</span>
+              <span class="cat-tag">BMI Calculator</span>
+              <span class="cat-tag">Age Calculator</span>
+              <span class="cat-tag">Unit Converter</span>
+            </div>
+          </div>
+
+          <!-- 6 -->
+          <div class="category-card" data-category-key="usa-canada">
+            <div class="cat-card-top">
+              <span class="cat-icon-badge icon-green">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </span>
+              <span class="cat-count-badge">12 Tools</span>
+            </div>
+            <h3 class="cat-card-title">USA & Canada Calculators</h3>
+            <div class="cat-tags">
+              <span class="cat-tag">US Paycheck</span>
+              <span class="cat-tag">401(k) Calc</span>
+              <span class="cat-tag">US Mortgage</span>
+              <span class="cat-tag">Sales Tax</span>
+            </div>
+          </div>
+
+          <!-- 7 -->
+          <div class="category-card" data-category-key="uk-europe">
+            <div class="cat-card-top">
+              <span class="cat-icon-badge icon-indigo">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 7c0-2.5-2-4-4.5-4S9 4.5 9 7v8c0 2.5-1.5 4-3 4h13"/><line x1="6" y1="12" x2="14" y2="12"/></svg>
+              </span>
+              <span class="cat-count-badge">10 Tools</span>
+            </div>
+            <h3 class="cat-card-title">UK & Europe Tools</h3>
+            <div class="cat-tags">
+              <span class="cat-tag">UK VAT Calc</span>
+              <span class="cat-tag">Stamp Duty</span>
+              <span class="cat-tag">UK PAYE Tax</span>
+              <span class="cat-tag">IBAN Validator</span>
+            </div>
+          </div>
+
+          <!-- 8 -->
+          <div class="category-card" data-category-key="india-southasia">
+            <div class="cat-card-top">
+              <span class="cat-icon-badge icon-amber">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12"/><path d="M6 8h12"/><path d="M6 13l8.5 8"/><path d="M6 13h3a4 4 0 0 0 0-8"/></svg>
+              </span>
+              <span class="cat-count-badge">15 Tools</span>
+            </div>
+            <h3 class="cat-card-title">India & South Asia Tools</h3>
+            <div class="cat-tags">
+              <span class="cat-tag">Indian GST</span>
+              <span class="cat-tag">Income Tax</span>
+              <span class="cat-tag">EMI Calculator</span>
+              <span class="cat-tag">SIP & PPF</span>
+            </div>
+          </div>
+
+          <!-- 9 -->
+          <div class="category-card" data-category-key="uae-global">
+            <div class="cat-card-top">
+              <span class="cat-icon-badge icon-teal">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              </span>
+              <span class="cat-count-badge">22 Tools</span>
+            </div>
+            <h3 class="cat-card-title">UAE, Middle East & Global</h3>
+            <div class="cat-tags">
+              <span class="cat-tag">UAE Gratuity</span>
+              <span class="cat-tag">Hijri Date</span>
+              <span class="cat-tag">Zakat Calc</span>
+              <span class="cat-tag">Ring Size</span>
+            </div>
+          </div>
+
+          <!-- 10 -->
+          <div class="category-card" data-category-key="legal-suite">
+            <div class="cat-card-top">
+              <span class="cat-icon-badge icon-blue">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M3 7h18"/><path d="M5 7l-2 7h4l-2-7z"/><path d="M19 7l-2 7h4l-2-7z"/><path d="M8 21h8"/></svg>
+              </span>
+              <span class="cat-count-badge">3 Tools</span>
+            </div>
+            <h3 class="cat-card-title">Legal & Law Firm Suite</h3>
+            <div class="cat-tags">
+              <span class="cat-tag">PDF Redaction</span>
+              <span class="cat-tag">Billable Hours</span>
+              <span class="cat-tag">Legal Settlement</span>
+            </div>
+          </div>
+
+          <!-- 11 -->
+          <div class="category-card" data-category-key="stock-crypto">
+            <div class="cat-card-top">
+              <span class="cat-icon-badge icon-green">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              </span>
+              <span class="cat-count-badge">9 Tools</span>
+            </div>
+            <h3 class="cat-card-title">Stock & Crypto Suite</h3>
+            <div class="cat-tags">
+              <span class="cat-tag">Stock Average</span>
+              <span class="cat-tag">Position Size</span>
+              <span class="cat-tag">Crypto Leverage</span>
+              <span class="cat-tag">Satoshi Calc</span>
+            </div>
+          </div>
+
+          <!-- 12 -->
+          <div class="category-card" data-category-key="marketing-insurance">
+            <div class="cat-card-top">
+              <span class="cat-icon-badge icon-purple">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+              </span>
+              <span class="cat-count-badge">13 Tools</span>
+            </div>
+            <h3 class="cat-card-title">Marketing & Insurance</h3>
+            <div class="cat-tags">
+              <span class="cat-tag">ROAS & CPA</span>
+              <span class="cat-tag">AdSense RPM</span>
+              <span class="cat-tag">Life Insurance</span>
+              <span class="cat-tag">Credit Card</span>
+            </div>
+          </div>
+
+          <!-- 13 -->
+          <div class="category-card" data-category-key="academic-suite">
+            <div class="cat-card-top">
+              <span class="cat-icon-badge icon-indigo">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+              </span>
+              <span class="cat-count-badge">8 Tools</span>
+            </div>
+            <h3 class="cat-card-title">Academic & Student Suite</h3>
+            <div class="cat-tags">
+              <span class="cat-tag">Student ID Card</span>
+              <span class="cat-tag">Final Grade</span>
+              <span class="cat-tag">APA Citation</span>
+              <span class="cat-tag">SGPA to CGPA</span>
+            </div>
+          </div>
+
+          <!-- 14 -->
+          <div class="category-card" data-category-key="writing-astrology">
+            <div class="cat-card-top">
+              <span class="cat-icon-badge icon-rose">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </span>
+              <span class="cat-count-badge">11 Tools</span>
+            </div>
+            <h3 class="cat-card-title">Writing & Astrology</h3>
+            <div class="cat-tags">
+              <span class="cat-tag">Spin Wheel</span>
+              <span class="cat-tag">Sleep Cycle</span>
+              <span class="cat-tag">Kundli Milan</span>
+              <span class="cat-tag">Zodiac Finder</span>
+            </div>
+          </div>
+
+          <!-- 15 -->
+          <div class="category-card" data-category-key="hardware-privacy">
+            <div class="cat-card-top">
+              <span class="cat-icon-badge icon-blue">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <span class="cat-count-badge">18 Tools</span>
+            </div>
+            <h3 class="cat-card-title">Hardware & Privacy Suite</h3>
+            <div class="cat-tags">
+              <span class="cat-tag">Voice Recorder</span>
+              <span class="cat-tag">Webcam Test</span>
+              <span class="cat-tag">Speed Test</span>
+              <span class="cat-tag">Typing Test</span>
+            </div>
+          </div>
+
+          <!-- 16 -->
+          <div class="category-card" data-category-key="business-lifestyle">
+            <div class="cat-card-top">
+              <span class="cat-icon-badge icon-amber">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              </span>
+              <span class="cat-count-badge">13 Tools</span>
+            </div>
+            <h3 class="cat-card-title">Business & Lifestyle</h3>
+            <div class="cat-tags">
+              <span class="cat-tag">Visiting Card</span>
+              <span class="cat-tag">Inviting Card</span>
+              <span class="cat-tag">Audio Cutter</span>
+              <span class="cat-tag">EV Charging</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- CATEGORY TOOLS POPUP MODAL -->
+  <div class="cat-modal-overlay" id="catModalOverlay">
+    <div class="cat-modal" id="catModal">
+      <div class="cat-modal-header">
+        <h3 class="cat-modal-title" id="catModalTitle">Category Tools</h3>
+        <button type="button" class="cat-modal-close" id="catModalClose">×</button>
+      </div>
+      <div class="cat-modal-body" id="catModalBody">
+        <!-- Dynamically populated tools list -->
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: DARK NAVY 5-COLUMN FOOTER -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+       <a href="index.html" style="display: inline-flex; align-items: center; gap: 10px; margin-bottom: 14px; text-decoration: none;" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span style="font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em;">PureWeb<span style="color: #60A5FA;">Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">A comprehensive suite of over 240 free, fast, and privacy-focused online utility tools for everyday tasks. It is 100% free and fast, ensures client-side privacy, and no data is ever uploaded to a server..</p>
+      </div>
+
+      <div>
+        <h4 class="footer-col-title">Popular Image & PDF</h4>
+        <ul class="footer-links">
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="footer-col-title">Developer & Text</h4>
+        <ul class="footer-links">
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="footer-col-title">Finance & Country</h4>
+        <ul class="footer-links">
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="footer-col-title">Company & Legal</h4>
+        <ul class="footer-links">
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="container">
+        <p>© 2026 PureWebKits.com. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const searchInput = document.getElementById('toolSearchInput');
+      const searchForm = document.getElementById('toolSearchForm');
+      const filterButtons = document.querySelectorAll('.filter-pill');
+      const toolsGrid = document.getElementById('toolsGrid');
+      const noResultsBox = document.getElementById('noResultsBox');
+      const resetSearchBtn = document.getElementById('resetSearchBtn');
+
+      let activeCategory = 'all';
+
+      // ================= FULL CATEGORY TOOLS DATASET (ALL TOOLS MAPPED) =================
+      const categoryToolsData = {
+        "image-graphics": [
+          { name: "Image Compressor to Exact KB", url: "compress-image-to-exact-kb.html", desc: "Compress images to custom sizes." },
+          { name: "Image Resizer", url: "image-resizer.html", desc: "Resize photos by exact pixels or ratio." },
+          { name: "WebP Converter", url: "webp-converter.html", desc: "Convert images to modern WebP format." },
+          { name: "Color Picker", url: "color-picker.html", desc: "Extract color codes & palettes." },
+          { name: "Signature Resizer", url: "signature-resizer.html", desc: "Resize signatures for exam forms." },
+          { name: "JPG to PNG Converter", url: "jpg-to-png.html", desc: "Convert JPG images to crisp PNGs." },
+          { name: "PNG to JPG Converter", url: "png-to-jpg.html", desc: "Convert PNG images to JPEG format." },
+          { name: "Image Cropper", url: "image-cropper.html", desc: "Crop images online easily." },
+          { name: "Image Rotator", url: "image-rotator.html", desc: "Rotate and flip photos instantly." },
+          { name: "HEIC to JPG Converter", url: "heic-to-jpg.html", desc: "Convert Apple HEIC photos to standard JPG." },
+          { name: "SVG to PNG Converter", url: "svg-to-png.html", desc: "Export vector SVGs into raster PNGs." },
+          { name: "Image Watermarker", url: "image-watermarker.html", desc: "Add text or logo watermark to images." },
+          { name: "Passport Photo Grid", url: "passport-photo-grid.html", desc: "Pack passport photos for 300 DPI printing." },
+          { name: "Remove Background", url: "remove-background.html", desc: "Erase background from photos instantly." },
+          { name: "Image Upscaler", url: "image-upscaler.html", desc: "Enhance image resolution locally." },
+          { name: "Image to Base64", url: "image-to-base64.html", desc: "Convert image files into data URIs." },
+          { name: "GIF Maker", url: "gif-maker.html", desc: "Create animated GIFs from multiple frames." },
+          { name: "Blur Image", url: "blur-image.html", desc: "Blur sensitive parts of images." },
+          { name: "Image Filters", url: "image-filters.html", desc: "Apply photo effects and filters." },
+          { name: "Favicon Generator", url: "favicon-generator.html", desc: "Create website favicons from images." },
+          { name: "Screenshot Mockup", url: "screenshot-mockup.html", desc: "Create device mockups from screenshots." },
+          { name: "Image Metadata Viewer", url: "image-metadata.html", desc: "Inspect EXIF data of photos." }
+        ],
+        "pdf-docs": [
+          { name: "Merge PDF", url: "merge-pdf.html", desc: "Combine multiple PDF files into one." },
+          { name: "Split PDF", url: "split-pdf.html", desc: "Extract specific pages or separate every PDF page." },
+          { name: "Compress PDF", url: "compress-pdf.html", desc: "Reduce PDF file size while keeping quality." },
+          { name: "PDF to JPG", url: "pdf-to-jpg.html", desc: "Convert PDF document pages to JPG images." },
+          { name: "JPG to PDF Converter", url: "jpg-to-pdf.html", desc: "Turn JPG images into printable PDFs." },
+          { name: "Resume Maker", url: "resume-maker.html", desc: "Build and download clean resumes online." },
+          { name: "Free PDF Invoice Generator", url: "invoice-generator.html", desc: "Create & download branded PDF invoices." },
+          { name: "PDF to Word Converter", url: "pdf-to-word.html", desc: "Convert PDF files to editable DOCX." },
+          { name: "Word to PDF Converter", url: "word-to-pdf.html", desc: "Convert Word documents into secure PDFs." },
+          { name: "Protect PDF", url: "protect-pdf.html", desc: "Encrypt PDF files with secure passwords." },
+          { name: "Rotate PDF Pages", url: "rotate-pdf.html", desc: "Rotate landscape or portrait PDF pages." },
+          { name: "Sign PDF", url: "sign-pdf.html", desc: "Add electronic signatures to PDF documents." },
+          { name: "Add Page Numbers to PDF", url: "pdf-page-numbers.html", desc: "Insert running headers and footers." },
+          { name: "Extract PDF Images", url: "extract-pdf-images.html", desc: "Extract embedded graphics from PDFs." },
+          { name: "Excel to PDF", url: "excel-to-pdf.html", desc: "Convert spreadsheets into clean PDFs." }
+        ],
+        "dev-seo": [
+          { name: "Color Code Converter", url: "color-code-converter.html", desc: "Convert HEX, RGB, HSL, and CMYK color codes." },
+          { name: "JSON Formatter", url: "json-formatter.html", desc: "Format and validate JSON data." },
+          { name: "Regex Tester", url: "regex-tester.html", desc: "Test regular expressions interactively." },
+          { name: "Strong Password Generator", url: "password-generator.html", desc: "Generate secure, uncrackable passwords." },
+          { name: "JWT Decoder", url: "jwt-decoder.html", desc: "Decode JSON Web Tokens locally." },
+          { name: "Base64 Encoder & Decoder", url: "base64-encode-decode.html", desc: "Encode or decode Base64 text instantly." },
+          { name: "HTML Minifier", url: "html-minifier.html", desc: "Compress HTML code for fast loading." },
+          { name: "CSS Minifier", url: "css-minifier.html", desc: "Optimize stylesheets efficiently." },
+          { name: "JavaScript Minifier", url: "js-minifier.html", desc: "Compress JS scripts locally." },
+          { name: "URL Encoder & Decoder", url: "url-encoder-decoder.html", desc: "Encode special characters in web links." },
+          { name: "Markdown to HTML", url: "markdown-to-html.html", desc: "Convert markdown syntax to web HTML." },
+          { name: "XML Sitemap Generator", url: "xml-sitemap-generator.html", desc: "Generate sitemaps for website SEO." },
+          { name: "Meta Tag Generator", url: "meta-tag-generator.html", desc: "Create optimized SEO meta tags." },
+          { name: "Robots.txt Generator", url: "robots-txt-generator.html", desc: "Create search crawler directives." },
+          { name: "UUID v4 Generator", url: "uuid-generator.html", desc: "Generate random unique identifiers." },
+          { name: "Hash Generator (MD5/SHA)", url: "hash-generator.html", desc: "Compute cryptographic checksum hashes." },
+          { name: "Color Converter (RGB/HEX)", url: "color-converter.html", desc: "Convert color formats for developers." },
+          { name: "Cron Expression Generator", url: "cron-generator.html", desc: "Build scheduled cron job strings." },
+          { name: "JSON to CSV Converter", url: "json-to-csv.html", desc: "Transform JSON data into spreadsheet CSV." },
+          { name: "CSV to JSON Converter", url: "csv-to-json.html", desc: "Convert tabular CSV into structured JSON." },
+          { name: "SQL Formatter", url: "sql-formatter.html", desc: "Beautify and format database SQL queries." },
+          { name: "HTTP Headers Checker", url: "http-headers.html", desc: "Inspect server response headers." },
+          { name: "SSL Certificate Checker", url: "ssl-checker.html", desc: "Verify domain security certificates." },
+          { name: "Open Graph Generator", url: "open-graph-generator.html", desc: "Create social media sharing tags." },
+          { name: "HTAccess Redirect Generator", url: "htaccess-generator.html", desc: "Write server redirect rules." },
+          { name: "Diff Checker", url: "diff-checker.html", desc: "Compare code snippets line by line." },
+          { name: "User Agent Parser", url: "user-agent-parser.html", desc: "Identify browser string details." },
+          { name: "IP Address Lookup", url: "ip-lookup.html", desc: "Find local network IP information." },
+          { name: "HTML Entity Encoder", url: "html-entity-encoder.html", desc: "Escape symbols for web safety." },
+          { name: "JSON Validator", url: "json-validator.html", desc: "Check syntax validity of JSON trees." },
+          { name: "API Request Tester", url: "api-tester.html", desc: "Send client-side fetch requests." }
+        ],
+        "text-productivity": [
+          { name: "Barcode Generator", url: "barcode-generator.html", desc: "Generate printable 1D & product barcodes instantly." },
+          { name: "Word & Character Counter", url: "word-counter.html", desc: "Count words, characters & reading time." },
+          { name: "Case Converter", url: "case-converter.html", desc: "Change text case to uppercase, lowercase, etc." },
+          { name: "QR Code Generator", url: "qr-code-generator.html", desc: "Create custom QR codes for URLs & text." },
+          { name: "Text Diff", url: "text-diff.html", desc: "Compare two text snippets side by side." },
+          { name: "Text to Speech Reader", url: "text-to-speech.html", desc: "Listen to any text read aloud naturally." },
+          { name: "Remove Extra Spaces", url: "remove-spaces.html", desc: "Clean up redundant whitespace from text." },
+          { name: "Line Break Remover", url: "remove-line-breaks.html", desc: "Convert multi-line paragraphs into single blocks." },
+          { name: "Duplicate Line Remover", url: "remove-duplicate-lines.html", desc: "Filter out repeated lines from lists." },
+          { name: "Sort Text Lines", url: "sort-lines.html", desc: "Alphabetize or reverse text line orders." },
+          { name: "Reverse Text", url: "reverse-text.html", desc: "Reverse strings and characters instantly." },
+          { name: "Lorem Ipsum Generator", url: "lorem-ipsum.html", desc: "Generate placeholder filler text." },
+          { name: "List Randomizer", url: "list-randomizer.html", desc: "Shuffle items in lists randomly." },
+          { name: "Find and Replace", url: "find-replace.html", desc: "Search and substitute keywords in text." },
+          { name: "Text Repeater", url: "text-repeater.html", desc: "Repeat text strings multiple times." },
+          { name: "Slugify Text", url: "slugify.html", desc: "Format titles into URL-friendly slugs." },
+          { name: "Readability Score Checker", url: "readability.html", desc: "Evaluate text complexity and grade level." },
+          { name: "Speech to Text", url: "speech-to-text.html", desc: "Dictate voice notes into written text." },
+          { name: "Morse Code Translator", url: "morse-code.html", desc: "Translate text to Morse code and back." }
+        ],
+        "math-health": [
+          { name: "3-in-1 Percentage Calculator", url: "percentage-calculator.html", desc: "Compute percentages, gains & discounts." },
+          { name: "BMI Calculator", url: "bmi-calculator.html", desc: "Calculate Body Mass Index & health status." },
+          { name: "Exact Age Calculator", url: "age-calculator.html", desc: "Find exact age in years, months & days." },
+          { name: "Unit Converter", url: "unit-converter.html", desc: "Convert length, weight, temperature & more." },
+          { name: "BMR Calculator", url: "bmr-calculator.html", desc: "Estimate basal metabolic rate calories." },
+          { name: "Calorie Intake Calculator", url: "calorie-calculator.html", desc: "Calculate daily nutritional calorie targets." },
+          { name: "Body Fat Calculator", url: "body-fat.html", desc: "Estimate body composition percentages." },
+          { name: "Water Intake Calculator", url: "water-intake.html", desc: "Calculate daily hydration requirements." },
+          { name: "Pregnancy Due Date Calculator", url: "pregnancy-calculator.html", desc: "Estimate baby arrival timelines." },
+          { name: "Scientific Calculator", url: "scientific-calculator.html", desc: "Advanced online math calculation pad." },
+          { name: "Fraction Calculator", url: "fraction-calculator.html", desc: "Add, subtract, and simplify fractions." },
+          { name: "Matrix Calculator", url: "matrix-calculator.html", desc: "Compute matrix determinants and operations." },
+          { name: "Quadratic Equation Solver", url: "quadratic-solver.html", desc: "Solve second-order polynomial roots." },
+          { name: "Statistics Calculator", url: "statistics-calculator.html", desc: "Compute mean, median, mode and variance." },
+          { name: "Tip Calculator", url: "tip-calculator.html", desc: "Split restaurant bills and tips easily." },
+          { name: "Discount Calculator", url: "discount-calculator.html", desc: "Calculate sale prices and markdown savings." },
+          { name: "Fuel Cost Calculator", url: "fuel-cost-calculator.html", desc: "Compute road trip fuel expenses." },
+          { name: "Speed Distance Time Calculator", url: "speed-distance-time.html", desc: "Calculate kinematics formulas." },
+          { name: "Temperature Converter", url: "temperature-converter.html", desc: "Convert Celsius, Fahrenheit and Kelvin." },
+          { name: "Area Converter", url: "area-converter.html", desc: "Convert square feet, acres and hectares." },
+          { name: "Volume Converter", url: "volume-converter.html", desc: "Convert liters, gallons and cubic units." },
+          { name: "Pressure Converter", url: "pressure-converter.html", desc: "Convert PSI, bar and pascals." },
+          { name: "Energy Converter", url: "energy-converter.html", desc: "Convert joules, calories and kilowatt-hours." },
+          { name: "Data Storage Converter", url: "storage-converter.html", desc: "Convert bytes, MB, GB and TB." },
+          { name: "Roman Numeral Converter", url: "roman-numerals.html", desc: "Convert numbers to Roman numerals." },
+          { name: "Prime Number Checker", url: "prime-checker.html", desc: "Test whether numbers are prime." },
+          { name: "GCD & LCM Calculator", url: "gcd-lcm.html", desc: "Find highest common factor and multiples." },
+          { name: "Random Number Generator", url: "random-number.html", desc: "Generate secure random number sequences." }
+        ],
+        "usa-canada": [
+          { name: "US Paycheck Calculator", url: "us-paycheck-calculator.html", desc: "Estimate net take-home pay after taxes." },
+          { name: "401(k) Calculator", url: "401k-calculator.html", desc: "Project retirement savings growth." },
+          { name: "US Mortgage Calculator", url: "us-mortgage-calculator.html", desc: "Calculate monthly home loan payments." },
+          { name: "Sales Tax Calculator", url: "sales-tax-calculator.html", desc: "Compute US state sales taxes." },
+          { name: "Canadian Tax Calculator", url: "canadian-tax-calculator.html", desc: "Calculate federal and provincial income taxes." },
+          { name: "US Zip Code & Timezone Finder", url: "us-zip-code.html", desc: "Look up US postal codes and zones." },
+          { name: "Social Security Retirement Estimator", url: "social-security.html", desc: "Estimate US SSA benefits." },
+          { name: "Auto Loan Calculator", url: "auto-loan-calculator.html", desc: "Compute car financing monthly payments." },
+          { name: "Property Tax Calculator", url: "property-tax.html", desc: "Estimate local real estate taxes." },
+          { name: "Compound Interest Calculator", url: "compound-interest-calculator.html", desc: "Calculate investment growth over time." },
+          { name: "Retirement Savings Calculator", url: "retirement-calculator.html", desc: "Plan financial independence milestones." },
+          { name: "Net Worth Calculator", url: "net-worth.html", desc: "Track personal assets versus liabilities." }
+        ],
+        "uk-europe": [
+          { name: "UK VAT Calculator", url: "uk-vat-calculator.html", desc: "Add or remove UK VAT quickly." },
+          { name: "Stamp Duty Calculator", url: "stamp-duty-calculator.html", desc: "Calculate UK property stamp duty." },
+          { name: "UK PAYE Tax Calculator", url: "uk-paye-tax-calculator.html", desc: "Estimate UK income tax & national insurance." },
+          { name: "IBAN Validator", url: "iban-validator.html", desc: "Validate international bank account numbers." },
+          { name: "EU VAT Calculator", url: "eu-vat-calculator.html", desc: "Calculate value added tax across EU states." },
+          { name: "UK Council Tax Estimator", url: "uk-council-tax.html", desc: "Estimate local authority council tax bands." },
+          { name: "UK Fuel Cost & L/100km Calculator", url: "uk-fuel-cost.html", desc: "Compute UK journey fuel expenses." },
+          { name: "Shoe & Clothing Size Converter", url: "size-converter.html", desc: "Convert UK, US and EU apparel sizes." },
+          { name: "Stone & Pounds to KG Converter", url: "stone-to-kg.html", desc: "Convert British body weight units." },
+          { name: "SEPA Transfer Fee Calculator", url: "sepa-calculator.html", desc: "Estimate European bank wire transfer costs." }
+        ],
+        "india-southasia": [
+          { name: "Indian GST Calculator", url: "indian-gst-calculator.html", desc: "Calculate inclusive & exclusive GST." },
+          { name: "Income Tax Calculator", url: "income-tax-calculator.html", desc: "Estimate Indian income tax under old & new regimes." },
+          { name: "Loan & EMI Calculator", url: "emi-calculator.html", desc: "Calculate monthly loan EMI & interest." },
+          { name: "SIP & PPF Calculator", url: "sip-ppf-calculator.html", desc: "Project mutual fund SIP and PPF returns." },
+          { name: "FD & RD Calculator", url: "fd-rd-calculator.html", desc: "Calculate fixed and recurring deposit maturity." },
+          { name: "EPF & Gratuity Calculator", url: "epf-gratuity-calculator.html", desc: "Estimate employee provident fund and gratuity." },
+          { name: "Sukanya Samriddhi Yojana (SSY)", url: "ssy-calculator.html", desc: "Project girl child savings scheme returns." },
+          { name: "CGPA to Percentage Calculator", url: "cgpa-percentage.html", desc: "Convert academic grades according to CBSE/UGC." },
+          { name: "Kruti Dev to Unicode Converter", url: "kruti-to-unicode.html", desc: "Convert legacy Hindi fonts to Mangal Unicode." },
+          { name: "Unicode to Kruti Dev Converter", url: "unicode-to-kruti.html", desc: "Convert Unicode Hindi text to Kruti Dev." },
+          { name: "Inscript Hindi Typing Pad", url: "inscript-typing.html", desc: "Practice standard government Inscript typing." },
+          { name: "UPI QR Code Generator", url: "upi-qr-generator.html", desc: "Create payment QR codes with VPA and amount." },
+          { name: "HRA Exemption Calculator", url: "hra-calculator.html", desc: "Calculate house rent allowance tax savings." },
+          { name: "Simple Interest Calculator", url: "simple-interest.html", desc: "Compute basic financial interest." },
+          { name: "Inflation Calculator", url: "inflation-calculator.html", desc: "Calculate purchasing power devaluation over time." }
+        ],
+        "uae-global": [
+          { name: "Australia Stamp Duty Calculator", url: "australia-stamp-duty-calculator.html", desc: "Estimate property transfer stamp duty across Australian states." },
+          { name: "Australia GST Calculator", url: "australia-gst-calculator.html", desc: "Calculate 10% Australian Goods and Services Tax." },
+          { name: "Australia Super & PAYG Calculator", url: "australia-super-payg-calculator.html", desc: "Compute Australian PAYG income tax and superannuation." },
+          { name: "World Time Zone Converter", url: "world-time-zone-converter.html", desc: "Convert and compare time across international cities." },
+          { name: "UAE Gratuity Calculator", url: "uae-gratuity-calculator.html", desc: "Compute UAE end-of-service benefits." },
+          { name: "Hijri Date Converter", url: "hijri-date-converter.html", desc: "Convert Gregorian dates to Hijri calendar." },
+          { name: "Zakat Calculator", url: "zakat-calculator.html", desc: "Calculate wealth Zakat accurately." },
+          { name: "Ring Size Converter", url: "ring-size-converter.html", desc: "Convert international ring sizes." },
+          { name: "Live Currency Converter", url: "currency-converter.html", desc: "Convert global currencies in real time." },
+          { name: "Time Zone Converter", url: "time-zone.html", desc: "Compare international time differences." },
+          { name: "World Clock", url: "world-clock.html", desc: "Check current times across global cities." },
+          { name: "Gold Price Calculator", url: "gold-price.html", desc: "Compute gold and precious metal valuations." },
+          { name: "Global Shipping Cost Estimator", url: "shipping-calculator.html", desc: "Estimate international courier charges." },
+          { name: "International Dialing Code Finder", url: "dialing-codes.html", desc: "Look up country telephone prefixes." },
+          { name: "Passport Photo Dimension Checker", url: "passport-photo.html", desc: "Verify photo specs for global visas." },
+          { name: "Language Code Mapper", url: "language-codes.html", desc: "Lookup ISO language and locale tags." },
+          { name: "Country Code Lookup", url: "country-codes.html", desc: "Find ISO 3166 country abbreviations." },
+          { name: "Unicode Character Inspector", url: "unicode-inspector.html", desc: "Analyze international character sets." },
+          { name: "ASCII Table Viewer", url: "ascii-table.html", desc: "Reference standard character codes." },
+          { name: "Global Power Plug Reference", url: "power-plugs.html", desc: "Check international electrical socket types." },
+          { name: "Metric Imperial Converter", url: "metric-imperial.html", desc: "Convert global measurement standards." },
+          { name: "Coordinates Distance Finder", url: "coordinates-distance.html", desc: "Calculate geographical map distances." }
+        ],
+        "legal-suite": [
+          { name: "PDF Redaction", url: "pdf-redaction.html", desc: "Black out sensitive text in PDFs securely." },
+          { name: "Billable Hours Calculator", url: "billable-hours-calculator.html", desc: "Calculate law firm billable hours & retainers." },
+          { name: "Legal Settlement Calculator", url: "legal-settlement-calculator.html", desc: "Estimate contingency fees and net settlement." }
+        ],
+        "stock-crypto": [
+          { name: "Stock Average Calculator", url: "stock-average-calculator.html", desc: "Find average share buy price across lots." },
+          { name: "Position Size Calculator", url: "position-size-calculator.html", desc: "Calculate safe trading position sizes." },
+          { name: "Crypto Leverage Calculator", url: "crypto-leverage-calculator.html", desc: "Compute liquidation prices & margin levels." },
+          { name: "Satoshi Calculator", url: "satoshi-calculator.html", desc: "Convert between Bitcoin and Satoshis." },
+          { name: "Dividend Yield Calculator", url: "dividend-yield.html", desc: "Calculate stock dividend returns." },
+          { name: "CAGR Calculator", url: "cagr-calculator.html", desc: "Compute compound annual growth rate." },
+          { name: "Crypto Profit Loss Calculator", url: "crypto-profit.html", desc: "Calculate digital asset trading gains." },
+          { name: "Pip Value Calculator", url: "pip-calculator.html", desc: "Compute forex market pip values." },
+          { name: "Margin Trading Calculator", url: "margin-calculator.html", desc: "Calculate leveraged stock positions." }
+        ],
+        "marketing-insurance": [
+          { name: "AdSense Revenue Calculator", url: "adsense-revenue-calculator.html", desc: "Estimate monthly & annual Google AdSense revenue." },
+          { name: "Health Insurance Tax Calculator", url: "health-insurance-tax-calculator.html", desc: "Calculate tax savings & deductions on health insurance premiums." },
+          { name: "ROAS & CPA Calculator", url: "roas-cpa-calculator.html", desc: "Analyze ad spend efficiency and customer acquisition cost." },
+          { name: "AdSense RPM Calculator", url: "adsense-rpm-calculator.html", desc: "Estimate website ad revenue earnings." },
+          { name: "Life Insurance Calculator", url: "life-insurance-calculator.html", desc: "Determine required family life coverage." },
+          { name: "Credit Card Payoff Calculator", url: "credit-card-payoff.html", desc: "Plan credit card debt clearance timelines." },
+          { name: "Click Through Rate (CTR) Calculator", url: "ctr-calculator.html", desc: "Measure digital marketing campaign engagement." },
+          { name: "Email Marketing ROI Calculator", url: "email-roi.html", desc: "Compute campaign profitability." },
+          { name: "Affiliate Commission Calculator", url: "affiliate-calculator.html", desc: "Calculate sales commission earnings." },
+          { name: "Break-Even Point Calculator", url: "break-even.html", desc: "Determine business sales targets." },
+          { name: "Customer Lifetime Value (LTV) Calculator", url: "ltv-calculator.html", desc: "Estimate long-term customer revenue." },
+          { name: "Bounce Rate Calculator", url: "bounce-rate.html", desc: "Analyze website traffic engagement metrics." },
+          { name: "Health Insurance Premium Estimator", url: "health-insurance.html", desc: "Estimate medical policy costs." }
+        ],
+        "academic-suite": [
+          { name: "Student ID Card Design and Maker", url: "student-id-card-maker.html", desc: "Design and download printable student ID cards." },
+          { name: "Attendance Calculator", url: "attendance-calculator.html", desc: "Calculate required classes to maintain percentage." },
+          { name: "Final Grade Calculator", url: "final-grade-calculator.html", desc: "Find exam score needed for target GPA." },
+          { name: "APA Citation Generator", url: "apa-citation-generator.html", desc: "Generate correct APA research citations." },
+          { name: "SGPA to CGPA", url: "sgpa-to-cgpa.html", desc: "Convert semester GPA to cumulative CGPA." },
+          { name: "GPA Calculator", url: "gpa-calculator.html", desc: "Compute cumulative grade point averages." },
+          { name: "MLA Citation Generator", url: "mla-citation.html", desc: "Generate MLA academic references." },
+          { name: "Study Timer (Pomodoro)", url: "study-timer.html", desc: "Boost productivity with focused intervals." }
+        ],
+        "writing-astrology": [
+          { name: "Baby Name Generator by DOB", url: "baby-name-generatorby--dob.html", desc: "Find lucky baby names based on date of birth and zodiac." },
+          { name: "Spin Wheel", url: "spin-wheel.html", desc: "Random decision picker wheel." },
+          { name: "Sleep Cycle Calculator", url: "sleep-cycle-calculator.html", desc: "Calculate optimal bedtime and wake-up cycles." },
+          { name: "Kundli Milan", url: "kundli-milan.html", desc: "Check Vedic astrology horoscope matching." },
+          { name: "Zodiac Finder", url: "zodiac-finder.html", desc: "Find your zodiac sign from date of birth." },
+          { name: "Bmi Sleep Calculator", url: "sleep-calculator.html", desc: "Plan rest schedules." },
+          { name: "Random Name Picker", url: "name-picker.html", desc: "Select lucky names or draw lots." },
+          { name: "Password Strength Tester", url: "password-strength.html", desc: "Evaluate credential security levels." },
+          { name: "Love Compatibility Calculator", url: "love-calculator.html", desc: "Fun name matching utility." },
+          { name: "Numerology Number Calculator", url: "numerology.html", desc: "Calculate life path numbers." },
+          { name: "Tarot Card Reader", url: "tarot-reader.html", desc: "Draw daily virtual tarot cards." }
+        ],
+        "hardware-privacy": [
+          { name: "Voice Recorder", url: "voice-recorder.html", desc: "Record and download audio directly in browser." },
+          { name: "Webcam Test", url: "webcam-test.html", desc: "Check camera functionality and resolution." },
+          { name: "Internet Speed Test", url: "internet-speed-test.html", desc: "Test connection download and upload speeds." },
+          { name: "Typing Test", url: "typing-test.html", desc: "Test WPM typing speed and accuracy." },
+          { name: "Microphone Test", url: "mic-test.html", desc: "Check audio input levels and recording." },
+          { name: "Screen Resolution Tester", url: "screen-resolution.html", desc: "Detect monitor dimensions and viewport." },
+          { name: "Keyboard Test", url: "keyboard-test.html", desc: "Check key responsiveness and rollover." },
+          { name: "Mouse Polling Rate Test", url: "mouse-test.html", desc: "Test hardware mouse sensor reporting." },
+          { name: "Dead Pixel Test", url: "dead-pixel.html", desc: "Inspect display panels for color flaws." },
+          { name: "IP & DNS Leak Test", url: "ip-leak-test.html", desc: "Verify VPN connection privacy." },
+          { name: "Browser Fingerprint Inspector", url: "browser-fingerprint.html", desc: "Analyze browser metadata exposure." },
+          { name: "Exif Data Remover", url: "exif-remover.html", desc: "Strip private GPS metadata from photos." },
+          { name: "MAC Address Lookup", url: "mac-lookup.html", desc: "Identify networking hardware vendors." },
+          { name: "Port Scanner Simulator", url: "port-scanner.html", desc: "Check local network port accessibility." },
+          { name: "HTML5 Gamepad Tester", url: "gamepad-test.html", desc: "Test controller button inputs." },
+          { name: "Speaker Audio Test", url: "speaker-test.html", desc: "Check stereo left and right channels." },
+          { name: "Battery Status Checker", url: "battery-status.html", desc: "Inspect device power levels and health." },
+          { name: "Device Sensor Inspector", url: "device-sensors.html", desc: "Check mobile gyroscope and accelerometer." }
+        ],
+        "business-lifestyle": [
+          { name: "EV Charging Cost Calculator", url: "ev-charging-cost-calculator.html", desc: "Calculate electric vehicle charging cost per kWh and trip." },
+          { name: "Free PDF Invoice Generator", url: "invoice-generator.html", desc: "Create & download branded PDF invoices." },
+          { name: "Stripe Fee Calculator", url: "stripe-fee-calculator.html", desc: "Compute payment gateway processing fees." },
+          { name: "Audio Cutter", url: "audio-cutter.html", desc: "Trim audio tracks and ringtones locally." },
+          { name: "EV Charging Calculator", url: "ev-charging-calculator.html", desc: "Estimate electric vehicle charging costs & time." },
+          { name: "PayPal Fee Calculator", url: "paypal-fee.html", desc: "Compute merchant transaction deductions." },
+          { name: "Business Margin Calculator", url: "business-margin.html", desc: "Calculate markup and profit percentages." },
+          { name: "QR Business Card Generator", url: "qr-vcard.html", desc: "Create contact vCard QR codes." },
+          { name: "Receipt Maker", url: "receipt-maker.html", desc: "Generate professional payment slips." },
+          { name: "Podcast Episode Planner", url: "podcast-planner.html", desc: "Organize audio show notes and segments." },
+          { name: "Visiting Card Maker", url: "visiting-card-maker.html", desc: "Design and download printable business visiting cards." },
+          { name: "Inviting Card Maker", url: "inviting-card-maker.html", desc: "Create custom digital and printable invitation cards." },
+          { name: "Hashtag Generator", url: "hashtag-generator.html", desc: "Create trending social media tags." }
+        ]
+      };
+
+      const categoryGroupMap = {
+        "image-graphics": { filter: "image-exam", pillClass: "pill-teal", pillLabel: "Image & Exam Forms", iconClass: "icon-purple" },
+        "pdf-docs": { filter: "pdf-social", pillClass: "pill-purple", pillLabel: "PDF & Social", iconClass: "icon-amber" },
+        "dev-seo": { filter: "dev-text", pillClass: "pill-purple", pillLabel: "Developer & Text", iconClass: "icon-blue" },
+        "text-productivity": { filter: "dev-text", pillClass: "pill-purple", pillLabel: "Developer & Text", iconClass: "icon-rose" },
+        "math-health": { filter: "finance-calc", pillClass: "pill-teal", pillLabel: "Finance & Calculators", iconClass: "icon-teal" },
+        "usa-canada": { filter: "finance-calc", pillClass: "pill-teal", pillLabel: "Finance & Calculators", iconClass: "icon-green" },
+        "uk-europe": { filter: "finance-calc", pillClass: "pill-teal", pillLabel: "Finance & Calculators", iconClass: "icon-indigo" },
+        "india-southasia": { filter: "finance-calc", pillClass: "pill-teal", pillLabel: "Finance & Calculators", iconClass: "icon-amber" },
+        "uae-global": { filter: "finance-calc", pillClass: "pill-teal", pillLabel: "Finance & Calculators", iconClass: "icon-teal" },
+        "legal-suite": { filter: "finance-calc", pillClass: "pill-teal", pillLabel: "Finance & Calculators", iconClass: "icon-blue" },
+        "stock-crypto": { filter: "finance-calc", pillClass: "pill-teal", pillLabel: "Finance & Calculators", iconClass: "icon-green" },
+        "marketing-insurance": { filter: "finance-calc", pillClass: "pill-teal", pillLabel: "Finance & Calculators", iconClass: "icon-purple" },
+        "academic-suite": { filter: "dev-text", pillClass: "pill-purple", pillLabel: "Developer & Text", iconClass: "icon-indigo" },
+        "writing-astrology": { filter: "dev-text", pillClass: "pill-purple", pillLabel: "Developer & Text", iconClass: "icon-rose" },
+        "hardware-privacy": { filter: "dev-text", pillClass: "pill-purple", pillLabel: "Developer & Text", iconClass: "icon-blue" },
+        "business-lifestyle": { filter: "pdf-social", pillClass: "pill-purple", pillLabel: "PDF & Social", iconClass: "icon-amber" }
+      };
+
+      const featuredUrls = new Set();
+      document.querySelectorAll('#toolsGrid .tool-card').forEach(function (card) {
+        const href = card.getAttribute('href');
+        if (href) featuredUrls.add(href);
+      });
+
+      const seenExtraUrls = new Set();
+      const extraSearchCards = [];
+
+      Object.keys(categoryToolsData).forEach(function (catKey) {
+        const meta = categoryGroupMap[catKey] || {
+          filter: "dev-text",
+          pillClass: "pill-purple",
+          pillLabel: "Developer & Text",
+          iconClass: "icon-blue"
+        };
+        (categoryToolsData[catKey] || []).forEach(function (tool) {
+          if (featuredUrls.has(tool.url) || seenExtraUrls.has(tool.url)) return;
+          seenExtraUrls.add(tool.url);
+
+          const card = document.createElement('a');
+          card.href = tool.url;
+          card.className = 'tool-card extra-search-card';
+          card.setAttribute('data-category', meta.filter);
+          card.setAttribute('data-keywords', `${tool.name} ${tool.desc} ${catKey}`.toLowerCase());
+          card.style.display = 'none';
+          card.innerHTML = `
+            <div class="tool-card-top">
+              <span class="tool-icon-badge ${meta.iconClass}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+              </span>
+              <span class="tool-cat-pill ${meta.pillClass}">${meta.pillLabel}</span>
+            </div>
+            <h2 class="tool-title">${tool.name}</h2>
+            <div class="tool-card-bottom">
+              <p class="tool-desc">${tool.desc}</p>
+              <span class="tool-arrow" aria-hidden="true">→</span>
+            </div>
+          `;
+          toolsGrid.appendChild(card);
+          extraSearchCards.push(card);
+        });
+      });
+
+      const allToolCards = document.querySelectorAll('#toolsGrid .tool-card');
+
+      function filterTools() {
+        const query = searchInput.value.trim().toLowerCase();
+        const isSearching = query !== '';
+        let visibleCount = 0;
+
+        allToolCards.forEach(function (card) {
+          const isExtra = card.classList.contains('extra-search-card');
+          const category = card.getAttribute('data-category') || '';
+          const keywords = (card.getAttribute('data-keywords') || '').toLowerCase();
+          const title = (card.querySelector('.tool-title')?.textContent || '').toLowerCase();
+          const desc = (card.querySelector('.tool-desc')?.textContent || '').toLowerCase();
+
+          const matchesCategory = activeCategory === 'all' || category === activeCategory;
+          const matchesSearch =
+            query === '' ||
+            title.includes(query) ||
+            desc.includes(query) ||
+            keywords.includes(query);
+
+          if (isExtra && !isSearching) {
+            card.style.display = 'none';
+            return;
+          }
+
+          if (matchesCategory && matchesSearch) {
+            card.style.display = 'flex';
+            visibleCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        noResultsBox.style.display = visibleCount === 0 ? 'block' : 'none';
+      }
+
+      searchInput.addEventListener('input', filterTools);
+
+      searchForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        filterTools();
+        document.getElementById('toolsGrid').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+
+      filterButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          filterButtons.forEach(function (b) {
+            b.classList.remove('active');
+          });
+          btn.classList.add('active');
+          activeCategory = btn.getAttribute('data-filter') || 'all';
+          filterTools();
+        });
+      });
+
+      resetSearchBtn.addEventListener('click', function () {
+        searchInput.value = '';
+        activeCategory = 'all';
+        filterButtons.forEach(function (b) {
+          b.classList.toggle('active', b.getAttribute('data-filter') === 'all');
+        });
+        filterTools();
+        searchInput.focus();
+      });
+
+      const categoryCards = document.querySelectorAll('.category-card');
+      const catModalOverlay = document.getElementById('catModalOverlay');
+      const catModalTitle = document.getElementById('catModalTitle');
+      const catModalBody = document.getElementById('catModalBody');
+      const catModalClose = document.getElementById('catModalClose');
+
+      categoryCards.forEach(card => {
+        card.addEventListener('click', function() {
+          const key = this.getAttribute('data-category-key');
+          const title = this.querySelector('.cat-card-title').textContent;
+          const tools = categoryToolsData[key] || [];
+
+          catModalTitle.textContent = title;
+          catModalBody.innerHTML = '';
+
+          if (tools.length === 0) {
+            catModalBody.innerHTML = '<p style="grid-column: span 2; text-align: center; color: var(--text-muted); padding: 20px;">No tools listed in this category yet.</p>';
+          } else {
+            tools.forEach(tool => {
+              const item = document.createElement('a');
+              item.href = tool.url;
+              item.className = 'cat-modal-tool-item';
+              item.innerHTML = `
+                <span class="cat-modal-tool-name">${tool.name}</span>
+                <span class="cat-modal-tool-desc">${tool.desc}</span>
+              `;
+              catModalBody.appendChild(item);
+            });
+          }
+
+          catModalOverlay.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        });
+      });
+
+      function closeModal() {
+        catModalOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+
+      catModalClose.addEventListener('click', closeModal);
+      catModalOverlay.addEventListener('click', function(e) {
+        if (e.target === catModalOverlay) {
+          closeModal();
+        }
+      });
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && catModalOverlay.classList.contains('active')) {
+          closeModal();
+        }
+      });
+
+    })();
+  </script>
+</body>
+</html>

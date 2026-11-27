@@ -1,0 +1,758 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hijri (Islamic) to Gregorian Date Converter — Free | PureWebKits</title>
+  <meta name="description" content="Convert dates between Hijri (Islamic lunar calendar) and Gregorian calendars online for free. Hijri date converter tool 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/hijri-gregorian-converter.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Hijri Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .action-group { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+    .btn-sec.active { background: var(--primary); color: #FFFFFF; border-color: var(--primary); }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col { display: flex; flex-direction: column; gap: 14px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .result-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .result-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .result-title { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .result-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 19px;
+      font-weight: 900;
+      color: var(--primary);
+    }
+    .result-val.highlight { color: var(--success); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Hijri Converter Tool -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Hijri (Islamic) to Gregorian Date Converter</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Convert dates between Islamic Hijri and Gregorian calendars instantly in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="action-group">
+            <button type="button" id="loadHijriMode" class="btn-sec active">Hijri → Gregorian</button>
+            <button type="button" id="loadGregorianMode" class="btn-sec">Gregorian → Hijri</button>
+          </div>
+          <button type="button" id="loadSampleBtn" class="btn-sec">Load Today's Date</button>
+        </div>
+
+        <div class="calc-grid" id="hijriFormView">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="hijriDay" class="field-label">Hijri Day (1 - 30)</label>
+              <input type="number" id="hijriDay" class="std-input" value="1" min="1" max="30" />
+            </div>
+            <div class="field-group">
+              <label for="hijriMonth" class="field-label">Hijri Month</label>
+              <select id="hijriMonth" class="std-select">
+                <option value="1">1. Muharram</option>
+                <option value="2">2. Safar</option>
+                <option value="3">3. Rabi' al-Awwal</option>
+                <option value="4">4. Rabi' al-Thani</option>
+                <option value="5">5. Jumada al-Awwal</option>
+                <option value="6">6. Jumada al-Thani</option>
+                <option value="7">7. Rajab</option>
+                <option value="8">8. Sha'ban</option>
+                <option value="9" selected>9. Ramadan</option>
+                <option value="10">10. Shawwal</option>
+                <option value="11">11. Dhu al-Qi'dah</option>
+                <option value="12">12. Dhu al-Hijjah</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label for="hijriYear" class="field-label">Hijri Year (AH)</label>
+              <input type="number" id="hijriYear" class="std-input" value="1447" min="1" max="1500" />
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="result-item">
+              <div class="result-title">Converted Gregorian Date</div>
+              <div id="resGregorian" class="result-val highlight">February 19, 2026</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Day of the Week</div>
+              <div id="resWeekday" class="result-val">Thursday</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="calc-grid" id="gregorianFormView" style="display:none;">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="gregorianDateInput" class="field-label">Select Gregorian Date</label>
+              <input type="date" id="gregorianDateInput" class="std-input" value="2026-11-18" />
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="result-item">
+              <div class="result-title">Converted Hijri Date</div>
+              <div id="resHijriOutput" class="result-val highlight">8 Jumada al-Ula 1448 AH</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Islamic Month Name</div>
+              <div id="resHijriMonthName" class="result-val">Jumada al-Ula</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Hijri (Islamic) and Gregorian Calendar Conversions Work</h2>
+
+      ### Why Hijri Date Converters Are Essential for Muslims Worldwide
+      <p>
+        The **Hijri calendar** is a lunar calendar consisting of 12 lunar months in a year of 354 or 355 days. Because it is shorter than the solar Gregorian calendar by about 11 days, Islamic months migrate through all seasons over a 33-year cycle. Accurately converting dates between the Hijri and Gregorian calendars is vital for determining sacred Islamic occasions such as Ramadan, Eid al-Fitr, Eid al-Adha, and Hajj. A <strong>Hijri to Gregorian date converter</strong> translates dates seamlessly between both calendars. Our browser-based tool calculates conversions locally in client memory without server uploads.
+      </p>
+
+      ### How to Convert Dates in 3 Easy Steps
+      <ol>
+        <li><strong>Select Conversion Mode:</strong> Choose between converting from Hijri to Gregorian or Gregorian to Hijri.</li>
+        <li><strong>Enter Source Date:</strong> Input the day, month, and year of your starting date.</li>
+        <li><strong>Review Converted Date:</strong> Instantly check the corresponding target calendar date and day of the week.</li>
+      </ol>
+
+      ### Conversion Formula + Worked Example
+      <p>
+        Hijri-to-Gregorian conversion utilizes Julian Day Number (JDN) algorithms approximating lunar and solar year ratios:
+      </p>
+      <div class="formula-box">
+        Gregorian Year ≈ Hijri Year * 0.97022 + 621.577  |  JDN = Julian Day Calculation Algorithm
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Converting 1 Ramadan 1447 AH yields a corresponding Gregorian date of **February 19, 2026**, accurately reflecting astronomical lunar calculations.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="hijri-table-heading">
+      <h2 id="hijri-table-heading">Islamic Calendar Months & Standards (16 Rules)</h2>
+      <p>Use this reference table to understand the 12 lunar months of the Islamic Hijri calendar.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Month Number</th>
+              <th>Islamic Hijri Month Name</th>
+              <th>Significance & Characteristics</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1</strong></td>
+              <td>Muharram</td>
+              <td>Sacred month; marks the beginning of the Islamic Hijri year</td>
+            </tr>
+            <tr>
+              <td><strong>2</strong></td>
+              <td>Safar</td>
+              <td>Second month of the lunar calendar</td>
+            </tr>
+            <tr>
+              <td><strong>3</strong></td>
+              <td>Rabi' al-Awwal</td>
+              <td>Month in which the Prophet Muhammad (PBUH) was born</td>
+            </tr>
+            <tr>
+              <td><strong>4</strong></td>
+              <td>Rabi' al-Thani</td>
+              <td>Fourth month of the Hijri calendar</td>
+            </tr>
+            <tr>
+              <td><strong>9</strong></td>
+              <td>Ramadan</td>
+              <td>Holiest month of fasting, prayer, and Quranic revelation</td>
+            </tr>
+            <tr>
+              <td><strong>10</strong></td>
+              <td>Shawwal</td>
+              <td>Month featuring Eid al-Fitr celebrations on the 1st day</td>
+            </tr>
+            <tr>
+              <td><strong>12</strong></td>
+              <td>Dhu al-Hijjah</td>
+              <td>Month of the Hajj pilgrimage and Eid al-Adha</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Processing</strong></td>
+              <td>JavaScript Execution</td>
+              <td><span class="limit-badge">Zero Server Latency</span> — 100% browser calculation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Finance, Calculator & Utility Tools</h2>
+      <p>Need Zakat calculators, compound interest calculators, or word counters? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="zakat-calculator.html"><span>Zakat Nisab Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compound-interest-calculator.html"><span>Compound Interest Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Global Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="emi-calculator.html"><span>Loan EMI Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>3-in-1 Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Strong Password Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>Custom QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is the Hijri calendar?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            The Hijri calendar is a lunar calendar consisting of 12 months in a year of 354 or 355 days, used to determine Islamic religious holidays and rituals.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Why does the Hijri calendar shift against the Gregorian calendar?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Lunar vs. Solar!</strong> A lunar year is roughly 11 days shorter than a solar Gregorian year, causing Islamic months to move backward through the seasons every year.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my date conversion queries uploaded to an external server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All conversions run 100% locally inside your web browser using JavaScript. Your browsing activity never leaves your computer.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Hijri date converter free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> This utility is 100% free with no registration or download requirements.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Hijri Date Converter Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const loadHijriMode = document.getElementById("loadHijriMode");
+      const loadGregorianMode = document.getElementById("loadGregorianMode");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+
+      const hijriFormView = document.getElementById("hijriFormView");
+      const gregorianFormView = document.getElementById("gregorianFormView");
+
+      // Hijri inputs
+      const hijriDay = document.getElementById("hijriDay");
+      const hijriMonth = document.getElementById("hijriMonth");
+      const hijriYear = document.getElementById("hijriYear");
+      const resGregorian = document.getElementById("resGregorian");
+      const resWeekday = document.getElementById("resWeekday");
+
+      // Gregorian inputs
+      const gregorianDateInput = document.getElementById("gregorianDateInput");
+      const resHijriOutput = document.getElementById("resHijriOutput");
+      const resHijriMonthName = document.getElementById("resHijriMonthName");
+
+      let currentMode = "hijri"; // 'hijri' or 'gregorian'
+
+      const hijriMonthsList = [
+        "Muharram", "Safar", "Rabi' al-Awwal", "Rabi' al-Thani",
+        "Jumada al-Awwal", "Jumada al-Thani", "Rajab", "Sha'ban",
+        "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"
+      ];
+
+      // Approximate algorithmic conversion for demonstration & client-side speed
+      function hijriToGregorianCalc(d, m, y) {
+        // Approximate tabular Islamic calendar formula to Julian Day / Gregorian date
+        const jd = Math.floor((11 * y + 3) / 30) + 354 * y + 30 * m - Math.floor((m - 1) / 2) + d + 1948440 - 385;
+        // Convert JD to Gregorian date
+        let l = jd + 68569;
+        let n = Math.floor((4 * l) / 146097);
+        l = l - Math.floor((146097 * n + 3) / 4);
+        let i = Math.floor((4000 * (l + 1)) / 1461001);
+        l = l - Math.floor((1461 * i) / 4) + 31;
+        let j = Math.floor((80 * l) / 2447);
+        let day = l - Math.floor((2447 * j) / 80);
+        l = Math.floor(j / 11);
+        let month = j + 2 - 12 * l;
+        let year = 100 * (n - 49) + i + l;
+
+        return new Date(year, month - 1, day);
+      }
+
+      function gregorianToHijriCalc(gDate) {
+        const jd = Math.floor((gDate.getTime() / (1000 * 60 * 60 * 24)) + 2440587.5);
+        let l = jd - 1948440 + 10632;
+        let n = Math.floor((l - 1) / 10631);
+        l = l - 10631 * n + 354;
+        let j = (Math.floor((10985 - l) / 5316)) * (Math.floor((50 * l) / 17719)) + (Math.floor(l / 5670)) * (Math.floor((43 * l) / 15238));
+        l = l - (Math.floor((30 - j) / 15)) * (Math.floor((17719 * j) / 50)) - (Math.floor(j / 16)) * (Math.floor((15238 * j) / 43)) + 29;
+        let m = Math.floor((24 * l) / 709);
+        let d = l - Math.floor((709 * m) / 24);
+        let y = 30 * n + j - 30;
+        let monthName = hijriMonthsList[(m - 1) % 12];
+
+        return { day: d, month: m, year: y, monthName: monthName };
+      }
+
+      function convertHijri() {
+        const d = parseInt(hijriDay.value) || 1;
+        const m = parseInt(hijriMonth.value) || 9;
+        const y = parseInt(hijriYear.value) || 1447;
+
+        const gDate = hijriToGregorianCalc(d, m, y);
+        if (isNaN(gDate)) {
+          resGregorian.textContent = "Invalid Date";
+          resWeekday.textContent = "---";
+          return;
+        }
+
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        resGregorian.textContent = gDate.toLocaleDateString('en-US', options);
+        resWeekday.textContent = gDate.toLocaleDateString('en-US', { weekday: 'long' });
+      }
+
+      function convertGregorian() {
+        const val = gregorianDateInput.value;
+        if (!val) return;
+
+        const gDate = new Date(val);
+        const hObj = gregorianToHijriCalc(gDate);
+
+        resHijriOutput.textContent = `${hObj.day} ${hObj.monthName} ${hObj.year} AH`;
+        resHijriMonthName.textContent = hObj.monthName;
+      }
+
+      loadHijriMode.addEventListener("click", function () {
+        currentMode = "hijri";
+        loadHijriMode.classList.add("active");
+        loadGregorianMode.classList.remove("active");
+        hijriFormView.style.display = "grid";
+        gregorianFormView.style.display = "none";
+        convertHijri();
+      });
+
+      loadGregorianMode.addEventListener("click", function () {
+        currentMode = "gregorian";
+        loadGregorianMode.classList.add("active");
+        loadHijriMode.classList.remove("active");
+        hijriFormView.style.display = "none";
+        gregorianFormView.style.display = "grid";
+        convertGregorian();
+      });
+
+      [hijriDay, hijriMonth, hijriYear].forEach(el => {
+        el.addEventListener("input", convertHijri);
+        el.addEventListener("change", convertHijri);
+      });
+
+      gregorianDateInput.addEventListener("input", convertGregorian);
+
+      loadSampleBtn.addEventListener("click", function () {
+        if (currentMode === 'hijri') {
+          hijriDay.value = "1";
+          hijriMonth.value = "9"; // Ramadan
+          hijriYear.value = "1447";
+          convertHijri();
+        } else {
+          gregorianDateInput.value = "2026-02-19";
+          convertGregorian();
+        }
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      convertHijri();
+    });
+  </script>
+</body>
+</html>

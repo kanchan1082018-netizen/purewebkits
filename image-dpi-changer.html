@@ -1,0 +1,1051 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image DPI Checker & Changer Online (300 DPI Converter) | PureWebKits</title>
+  <meta name="description" content="Check and change image DPI metadata (72 DPI to 300 DPI or 600 DPI) in JPG and PNG binary headers online for free. Calculate print dimensions in inches and cm 100% locally." />
+  <link rel="canonical" href="https://PureWebKits.com/image-dpi-changer.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1060px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Dropzone */
+    .dropzone {
+      border: 2px dashed #93C5FD;
+      background: #F8FAFC;
+      border-radius: 13px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .dropzone:hover, .dropzone.dragover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+    }
+    .drop-title { font-size: 16.5px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
+    .drop-sub { font-size: 13.5px; color: var(--text-muted); margin-bottom: 14px; }
+    .btn-primary {
+      display: inline-block;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 9px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* DPI Workspace */
+    .dpi-workspace { display: none; }
+    .dpi-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .file-left { display: flex; align-items: center; gap: 12px; }
+    .thumb-preview {
+      width: 54px;
+      height: 54px;
+      object-fit: cover;
+      border-radius: 9px;
+      border: 1px solid #CBD5E1;
+    }
+    .fname-lbl { font-size: 15px; font-weight: 800; word-break: break-all; }
+    .fdim-lbl { font-size: 13px; color: var(--text-muted); }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    /* Current vs Target DPI Cards */
+    .dpi-cards-grid {
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .detected-card {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+    }
+    .det-k { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .det-v { font-size: 26px; font-weight: 900; color: var(--text-main); }
+    .det-sub { font-size: 13px; color: var(--text-muted); }
+
+    .target-card {
+      background: var(--primary-soft);
+      border: 1.5px solid #BFDBFE;
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .dpi-presets { display: flex; flex-wrap: wrap; gap: 8px; }
+    .dpi-pill-btn {
+      background: #FFFFFF;
+      border: 1px solid #93C5FD;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1E3A8A;
+      cursor: pointer;
+    }
+    .dpi-pill-btn.active, .dpi-pill-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+    .custom-dpi-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: end;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-group label { font-size: 12.5px; font-weight: 700; color: #1E3A8A; }
+    .std-input, .std-select {
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #93C5FD;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14.5px;
+      font-weight: 800;
+      color: var(--text-main);
+      background: #FFFFFF;
+    }
+
+    /* Print Dimension Readout */
+    .print-specs-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .spec-tile {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .spec-lbl { font-size: 11.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .spec-val { font-size: 15.5px; font-weight: 800; color: var(--text-main); margin-top: 2px; }
+
+    .export-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .dpi-cards-grid, .print-specs-row { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .custom-dpi-row { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Image DPI Checker & Changer -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Image DPI Checker & Changer — Convert 72 DPI to 300 DPI Online</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Read & rewrite binary JPEG JFIF & PNG pHYs DPI headers locally in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Upload an image to inspect and change DPI">
+          <div class="drop-title">Drag & drop a JPG, PNG, or WebP image here, or click to select</div>
+          <div class="drop-sub">Inspect current binary DPI metadata & embed 200 DPI, 300 DPI, or 600 DPI for print & visa forms</div>
+          <span class="btn-primary">Choose Image File</span>
+          <input type="file" id="dpiFileInput" accept="image/*" style="display:none;" />
+        </div>
+
+        <div id="dpiWorkspace" class="dpi-workspace" aria-live="polite">
+          <div class="dpi-topbar">
+            <div class="file-left">
+              <img id="thumbPreview" class="thumb-preview" alt="Uploaded Image Preview" />
+              <div>
+                <div id="fnameLbl" class="fname-lbl">photo.jpg</div>
+                <div id="fdimLbl" class="fdim-lbl">0 × 0 px • 0 KB</div>
+              </div>
+            </div>
+            <button type="button" id="newDpiImgBtn" class="btn-sec">Check Another Image</button>
+          </div>
+
+          <div class="dpi-cards-grid">
+            <div class="detected-card">
+              <div class="det-k">Current Embedded DPI</div>
+              <div id="detectedDpiVal" class="det-v">72 DPI</div>
+              <div id="detectedPrintSub" class="det-sub">Current Print Size: 16.67 × 11.11 in</div>
+            </div>
+
+            <div class="target-card">
+              <div style="font-size:12.5px;font-weight:800;text-transform:uppercase;color:#1E3A8A;">Select Target Print DPI</div>
+              <div class="dpi-presets">
+                <button type="button" class="dpi-pill-btn" data-dpi="96">96 DPI (Web)</button>
+                <button type="button" class="dpi-pill-btn" data-dpi="150">150 DPI (Draft)</button>
+                <button type="button" class="dpi-pill-btn" data-dpi="200">200 DPI (Exam/Sign)</button>
+                <button type="button" class="dpi-pill-btn active" data-dpi="300">300 DPI (Standard Print)</button>
+                <button type="button" class="dpi-pill-btn" data-dpi="600">600 DPI (High-Res)</button>
+              </div>
+
+              <div class="custom-dpi-row">
+                <div class="field-group">
+                  <label for="targetDpiInput">Custom DPI Value (50–1200)</label>
+                  <input type="number" id="targetDpiInput" class="std-input" min="50" max="1200" value="300" />
+                </div>
+                <div class="field-group">
+                  <label for="outFmtSelect">Output Format</label>
+                  <select id="outFmtSelect" class="std-select">
+                    <option value="image/jpeg" selected>JPG (.jpg — JFIF 300 DPI)</option>
+                    <option value="image/png">PNG (.png — pHYs 300 DPI)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="print-specs-row">
+            <div class="spec-tile">
+              <div class="spec-lbl">Pixel Resolution (Unchanged)</div>
+              <div id="specPxVal" class="spec-val">1200 × 800 px</div>
+            </div>
+            <div class="spec-tile">
+              <div class="spec-lbl">Physical Print Size (Inches)</div>
+              <div id="specInchVal" class="spec-val">4.00 × 2.67 inches</div>
+            </div>
+            <div class="spec-tile">
+              <div class="spec-lbl">Physical Print Size (CM)</div>
+              <div id="specCmVal" class="spec-val">10.16 × 6.77 cm</div>
+            </div>
+          </div>
+
+          <div class="export-footer">
+            <div style="font-size:13px;font-weight:700;color:var(--text-muted);">
+              Writes genuine binary DPI metadata into the downloaded file header without blurring pixels
+            </div>
+            <button type="button" id="downloadDpiBtn" class="btn-primary">Download 300 DPI Image</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Binary JPEG JFIF & PNG pHYs DPI Headers and Print Sizing Work</h2>
+
+      <h3>Why Online Portals & Commercial Printers Reject 72 DPI Images</h3>
+      <p>
+        <strong>DPI (Dots Per Inch)</strong>—technically referred to as <strong>PPI (Pixels Per Inch)</strong> in digital imaging—is a physical print-density instruction stored inside the binary header of a JPEG (<code>JFIF APP0</code> segment) or PNG (<code>pHYs</code> physical pixel dimensions chunk). Standard web browsers and smartphones typically save screenshots and photos with a default <code>72 DPI</code> or <code>96 DPI</code> tag. However, commercial offset printers, book publishers, passport agencies, and Indian government exam portals (such as UPSC, SSC, and state PSC portals requiring <code>200 DPI</code> or <code>300 DPI</code>) inspect that binary header before accepting uploads. Changing DPI metadata does not alter your pixel count or degrade sharpness—instead, it updates the binary density bytes so Adobe Photoshop, Microsoft Word, and automated portal validators recognize the exact physical print dimensions.
+      </p>
+
+      <h3>How to Check & Change Image DPI in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Upload Your JPG, PNG, or WebP Image:</strong> Drag your file into the inspector above—our binary parser reads its existing embedded DPI tag immediately.</li>
+        <li><strong>Select Target Print DPI:</strong> Click <em>200 DPI</em>, <em>300 DPI (Standard Print)</em>, or <em>600 DPI</em> (or type any custom DPI) and review the resulting print dimensions in inches and centimeters.</li>
+        <li><strong>Download Updated Image:</strong> Choose <em>JPG (.jpg)</em> or <em>PNG (.png)</em> and click <em>Download 300 DPI Image</em>—our binary injector writes genuine JFIF or CRC32-verified PNG <code>pHYs</code> metadata directly into the file.</li>
+      </ol>
+
+      <h3>Print Inches & PNG Pixels-Per-Meter Formulas + Worked Example</h3>
+      <p>
+        Physical print size equals pixel resolution divided by DPI, while PNG <code>pHYs</code> chunks store resolution in integer pixels per meter (<code>1 inch = 0.0254 meters</code>):
+      </p>
+      <div class="formula-box">
+        Print Width (Inches) = Pixel Width / DPI  |  PNG pHYs (Pixels/Meter) = round( DPI / 0.0254 )
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Suppose you have a crisp digital photograph measuring <strong>1800 × 1200 px</strong> tagged at <code>72 DPI</code> (which prints at <code>25.0 × 16.67 inches</code>).</p>
+        <p>Changing the binary header to <strong>300 DPI</strong> yields a sharp <code>(1800 / 300) × (1200 / 300) = 6.00 × 4.00 inch</code> postcard print.</p>
+        <p>For PNG export at 300 DPI, our engine writes <code>round(300 / 0.0254) = 11,811 pixels/meter</code> with a valid IEEE CRC32 checksum.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="dpi-table-heading">
+      <h2 id="dpi-table-heading">Print DPI Standards, Portal Requirements & Pixel Chart (16 Benchmarks)</h2>
+      <p>Use this print production and online application reference chart to select the required DPI setting and pixel resolution.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Application / Print Medium</th>
+              <th>Required DPI</th>
+              <th>Standard Pixel Dimensions</th>
+              <th>Physical Print Dimensions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Commercial Offset Printing & Magazines</strong></td>
+              <td><span class="limit-badge">300 DPI</span></td>
+              <td>2480 × 3508 px (A4)</td>
+              <td>8.27 × 11.69 inches (210 × 297 mm)</td>
+            </tr>
+            <tr>
+              <td><strong>US Letter Full-Page Print (300 DPI)</strong></td>
+              <td><span class="limit-badge">300 DPI</span></td>
+              <td>2550 × 3300 px</td>
+              <td>8.50 × 11.00 inches</td>
+            </tr>
+            <tr>
+              <td><strong>Standard 4×6 Photo Print</strong></td>
+              <td><span class="limit-badge">300 DPI</span></td>
+              <td>1200 × 1800 px</td>
+              <td>4.00 × 6.00 inches</td>
+            </tr>
+            <tr>
+              <td><strong>Business Card (Standard US/EU)</strong></td>
+              <td><span class="limit-badge">300 DPI</span></td>
+              <td>1050 × 600 px</td>
+              <td>3.50 × 2.00 inches</td>
+            </tr>
+            <tr>
+              <td><strong>US Passport / Visa Photo (2×2 in)</strong></td>
+              <td><span class="limit-badge">300 DPI</span></td>
+              <td>600 × 600 px</td>
+              <td>2.00 × 2.00 inches (51 × 51 mm)</td>
+            </tr>
+            <tr>
+              <td><strong>Indian Passport Photo (3.5×4.5 cm)</strong></td>
+              <td><span class="limit-badge">300 DPI</span></td>
+              <td>413 × 531 px</td>
+              <td>1.38 × 1.77 inches (35 × 45 mm)</td>
+            </tr>
+            <tr>
+              <td><strong>SSC / UPSC / IBPS Exam Signature</strong></td>
+              <td><span class="limit-badge">200 DPI</span></td>
+              <td>140 × 60 px to 280 × 120 px</td>
+              <td>~3.5 × 1.5 cm</td>
+            </tr>
+            <tr>
+              <td><strong>PAN Card Photo & Signature Scan</strong></td>
+              <td><span class="limit-badge">200 – 300 DPI</span></td>
+              <td>213 × 213 px (Photo)</td>
+              <td>2.5 × 2.5 cm (NSDL / UTIITSL)</td>
+            </tr>
+            <tr>
+              <td><strong>Fine Art & Archival Giclée Prints</strong></td>
+              <td><span class="limit-badge">600 DPI</span></td>
+              <td>4800 × 6000 px (8×10 in)</td>
+              <td>8.00 × 10.00 inches</td>
+            </tr>
+            <tr>
+              <td><strong>Home / Office Laser & Inkjet Drafts</strong></td>
+              <td><span class="limit-badge">150 DPI</span></td>
+              <td>1275 × 1650 px (Letter)</td>
+              <td>8.50 × 11.00 inches</td>
+            </tr>
+            <tr>
+              <td><strong>Large Outdoor Vinyl Banners (6 ft+)</strong></td>
+              <td><span class="limit-badge">72 – 100 DPI</span></td>
+              <td>7200 × 3600 px</td>
+              <td>72 × 36 inches (Viewed from distance)</td>
+            </tr>
+            <tr>
+              <td><strong>Windows Desktop Screen Standard</strong></td>
+              <td><span class="limit-badge">96 DPI</span></td>
+              <td>1920 × 1080 px</td>
+              <td>Digital display baseline</td>
+            </tr>
+            <tr>
+              <td><strong>Legacy Web & macOS Screen Standard</strong></td>
+              <td><span class="limit-badge">72 DPI</span></td>
+              <td>1280 × 720 px</td>
+              <td>Default HTML5 Canvas export tag</td>
+            </tr>
+            <tr>
+              <td><strong>JPEG JFIF APP0 Density Header</strong></td>
+              <td>Bytes 13–17 (<code>0xFFE0</code>)</td>
+              <td>Units = <code>1</code> (Dots/Inch)</td>
+              <td>Written directly into JFIF binary header</td>
+            </tr>
+            <tr>
+              <td><strong>PNG pHYs Physical Chunk</strong></td>
+              <td>Pixels per Meter + CRC32</td>
+              <td>300 DPI = <code>11,811 px/m</code></td>
+              <td>Verified in Photoshop, GIMP & Windows</td>
+            </tr>
+            <tr>
+              <td><strong>Header Injection Privacy</strong></td>
+              <td>100% Browser ArrayBuffer</td>
+              <td><span class="limit-badge">Zero Server Upload</span></td>
+              <td>Your photos and ID scans never leave your PC</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Image Resizing, Exam Portal & Compression Tools</h2>
+      <p>Resizing exam signatures to exact KB limits, cropping passport photos, adjusting pixel/CM dimensions, or checking aspect ratios? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="signature-resizer.html"><span>Signature Resizer (200 DPI)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compress-image-to-exact-kb.html"><span>Compress Image to KB</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-resizer.html"><span>Image Resizer (px/cm/in)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-cropper.html"><span>Passport & Photo Cropper</span><span class="arrow">→</span></a>
+        <a class="related-link" href="aspect-ratio-calculator.html"><span>Aspect Ratio Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="png-to-jpg.html"><span>PNG to JPG Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="jpg-to-png.html"><span>JPG to PNG Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="exif-metadata-remover.html"><span>EXIF Metadata Remover</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Does changing an image from 72 DPI to 300 DPI change its pixel dimensions or file size?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            No. Changing DPI updates the physical print-density metadata inside the file's binary header while keeping your exact pixel width and height untouched—so your image stays 100% sharp without artificial upscaling blur.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How can I verify on Windows or Mac that my downloaded image is really 300 DPI?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            On Windows, right-click the downloaded file → click <strong>Properties</strong> → open the <strong>Details</strong> tab, where <em>Horizontal resolution</em> and <em>Vertical resolution</em> will display <strong>300 dpi</strong>. On macOS, open the image in Preview and press <code>Cmd + I</code> (Inspector).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Why did my uploaded image show "72 DPI (Default)" when I first opened it?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Images downloaded from WhatsApp, social media, or browser screenshots omit physical print density tags, so operating systems and web browsers default to <code>72 DPI</code> or <code>96 DPI</code> until you embed a <code>200 DPI</code> or <code>300 DPI</code> header.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my passport photos or print files uploaded to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All binary JFIF <code>APP0</code> and PNG <code>pHYs</code> byte manipulation executes 100% locally inside your web browser using JavaScript TypedArrays. Your files never leave your device.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Binary JPEG JFIF & PNG pHYs DPI Reader/Writer Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const dropzone = document.getElementById("dropzone");
+      const dpiFileInput = document.getElementById("dpiFileInput");
+      const dpiWorkspace = document.getElementById("dpiWorkspace");
+      const thumbPreview = document.getElementById("thumbPreview");
+      const fnameLbl = document.getElementById("fnameLbl");
+      const fdimLbl = document.getElementById("fdimLbl");
+      const newDpiImgBtn = document.getElementById("newDpiImgBtn");
+
+      const detectedDpiVal = document.getElementById("detectedDpiVal");
+      const detectedPrintSub = document.getElementById("detectedPrintSub");
+      const dpiPillBtns = document.querySelectorAll(".dpi-pill-btn");
+      const targetDpiInput = document.getElementById("targetDpiInput");
+      const outFmtSelect = document.getElementById("outFmtSelect");
+
+      const specPxVal = document.getElementById("specPxVal");
+      const specInchVal = document.getElementById("specInchVal");
+      const specCmVal = document.getElementById("specCmVal");
+      const downloadDpiBtn = document.getElementById("downloadDpiBtn");
+
+      let loadedImg = null;
+      let baseName = "image";
+      let imgW = 0;
+      let imgH = 0;
+
+      function formatBytes(b) {
+        if (b < 1024) return b + " B";
+        const kb = b / 1024;
+        return kb < 1024 ? kb.toFixed(1) + " KB" : (kb / 1024).toFixed(2) + " MB";
+      }
+
+      // Read DPI from JPEG JFIF APP0 or PNG pHYs binary headers
+      function detectBinaryDpi(buffer) {
+        const view = new DataView(buffer);
+        // Check JPEG SOI 0xFFD8
+        if (view.byteLength > 20 && view.getUint16(0, false) === 0xFFD8) {
+          let offset = 2;
+          while (offset + 4 < view.byteLength) {
+            const marker = view.getUint16(offset, false);
+            offset += 2;
+            if (marker === 0xFFE0 && offset + 14 < view.byteLength) {
+              // Check "JFIF\0"
+              if (view.getUint32(offset + 2, false) === 0x4A464946) {
+                const units = view.getUint8(offset + 9);
+                const xDen = view.getUint16(offset + 10, false);
+                if (units === 1 && xDen > 0) return { dpi: xDen, explicit: true };
+                if (units === 2 && xDen > 0) return { dpi: Math.round(xDen * 2.54), explicit: true };
+              }
+              break;
+            } else if ((marker & 0xFF00) !== 0xFF00) {
+              break;
+            } else {
+              offset += view.getUint16(offset, false);
+            }
+          }
+        }
+
+        // Check PNG signature 0x89504E47
+        if (view.byteLength > 32 && view.getUint32(0, false) === 0x89504E47) {
+          let offset = 8;
+          while (offset + 12 < view.byteLength) {
+            const len = view.getUint32(offset, false);
+            const type = view.getUint32(offset + 4, false);
+            if (type === 0x70485973 && len === 9) { // "pHYs"
+              const ppuX = view.getUint32(offset + 8, false);
+              const unit = view.getUint8(offset + 16);
+              if (unit === 1 && ppuX > 0) {
+                return { dpi: Math.round(ppuX * 0.0254), explicit: true };
+              }
+            }
+            offset += 12 + len;
+          }
+        }
+
+        return { dpi: 72, explicit: false };
+      }
+
+      // Inject exact DPI into JPEG JFIF APP0 header
+      function patchJpegDpi(arrayBuffer, dpi) {
+        const src = new Uint8Array(arrayBuffer);
+        if (src.length < 4 || src[0] !== 0xFF || src[1] !== 0xD8) return src;
+
+        // Build 18-byte JFIF APP0 segment
+        const jfif = new Uint8Array([
+          0xFF, 0xE0, 0x00, 0x10,
+          0x4A, 0x46, 0x49, 0x46, 0x00,
+          0x01, 0x01,
+          0x01, // units = 1 (dots per inch)
+          (dpi >> 8) & 0xFF, dpi & 0xFF,
+          (dpi >> 8) & 0xFF, dpi & 0xFF,
+          0x00, 0x00
+        ]);
+
+        let bodyStart = 2;
+        if (src[2] === 0xFF && src[3] === 0xE0) {
+          const existingLen = (src[4] << 8) | src[5];
+          bodyStart = 4 + existingLen;
+        }
+
+        const out = new Uint8Array(2 + jfif.length + (src.length - bodyStart));
+        out[0] = 0xFF;
+        out[1] = 0xD8;
+        out.set(jfif, 2);
+        out.set(src.subarray(bodyStart), 2 + jfif.length);
+        return out;
+      }
+
+      // IEEE CRC32 for valid PNG pHYs chunk
+      const CRC_TABLE = (function () {
+        const t = new Uint32Array(256);
+        for (let n = 0; n < 256; n++) {
+          let c = n;
+          for (let k = 0; k < 8; k++) {
+            c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+          }
+          t[n] = c;
+        }
+        return t;
+      })();
+
+      function crc32(bytes) {
+        let crc = 0xFFFFFFFF;
+        for (let i = 0; i < bytes.length; i++) {
+          crc = CRC_TABLE[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+        }
+        return (crc ^ 0xFFFFFFFF) >>> 0;
+      }
+
+      // Inject valid pHYs chunk into PNG right after IHDR (byte offset 33)
+      function patchPngDpi(arrayBuffer, dpi) {
+        const src = new Uint8Array(arrayBuffer);
+        if (src.length < 33) return src;
+        const ppm = Math.round(dpi / 0.0254);
+
+        const chunk = new Uint8Array(21);
+        const view = new DataView(chunk.buffer);
+        view.setUint32(0, 9, false); // Data length = 9
+        chunk.set([0x70, 0x48, 0x59, 0x73], 4); // "pHYs"
+        view.setUint32(8, ppm, false);  // X pixels per unit
+        view.setUint32(12, ppm, false); // Y pixels per unit
+        chunk[16] = 1; // Unit = meter
+
+        const crcVal = crc32(chunk.subarray(4, 17));
+        view.setUint32(17, crcVal, false);
+
+        const out = new Uint8Array(src.length + chunk.length);
+        out.set(src.subarray(0, 33), 0);
+        out.set(chunk, 33);
+        out.set(src.subarray(33), 33 + chunk.length);
+        return out;
+      }
+
+      function updatePrintReadout() {
+        if (!imgW || !imgH) return;
+        const targetDpi = Math.max(50, Math.min(1200, parseInt(targetDpiInput.value, 10) || 300));
+        const inW = (imgW / targetDpi).toFixed(2);
+        const inH = (imgH / targetDpi).toFixed(2);
+        const cmW = ((imgW / targetDpi) * 2.54).toFixed(2);
+        const cmH = ((imgH / targetDpi) * 2.54).toFixed(2);
+
+        specPxVal.textContent = imgW + " × " + imgH + " px";
+        specInchVal.textContent = inW + " × " + inH + " inches";
+        specCmVal.textContent = cmW + " × " + cmH + " cm";
+        downloadDpiBtn.textContent = "Download " + targetDpi + " DPI Image";
+      }
+
+      function handleFile(file) {
+        if (!file || !file.type.startsWith("image/")) return;
+        baseName = file.name.replace(/\.[^/.]+$/, "") || "image";
+
+        const bufReader = new FileReader();
+        bufReader.onload = function (ev) {
+          const detected = detectBinaryDpi(ev.target.result);
+          const urlReader = new FileReader();
+          urlReader.onload = function (uEv) {
+            const img = new Image();
+            img.onload = function () {
+              loadedImg = img;
+              imgW = img.naturalWidth || img.width;
+              imgH = img.naturalHeight || img.height;
+
+              thumbPreview.src = uEv.target.result;
+              fnameLbl.textContent = file.name;
+              fdimLbl.textContent = imgW + " × " + imgH + " px • " + formatBytes(file.size);
+
+              detectedDpiVal.textContent = detected.dpi + " DPI" + (detected.explicit ? "" : " (Default)");
+              detectedPrintSub.textContent = "Current Print Size: " + (imgW / detected.dpi).toFixed(2) + " × " + (imgH / detected.dpi).toFixed(2) + " in";
+
+              dropzone.style.display = "none";
+              dpiWorkspace.style.display = "block";
+              updatePrintReadout();
+            };
+            img.src = uEv.target.result;
+          };
+          urlReader.readAsDataURL(file);
+        };
+        bufReader.readAsArrayBuffer(file);
+      }
+
+      dpiPillBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          dpiPillBtns.forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          targetDpiInput.value = btn.getAttribute("data-dpi");
+          updatePrintReadout();
+        });
+      });
+
+      targetDpiInput.addEventListener("input", function () {
+        dpiPillBtns.forEach(function (b) { b.classList.remove("active"); });
+        updatePrintReadout();
+      });
+
+      dropzone.addEventListener("click", function () { dpiFileInput.click(); });
+      dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+      dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+      dropzone.addEventListener("drop", function (e) {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      dpiFileInput.addEventListener("change", function (e) {
+        if (e.target.files && e.target.files[0]) handleFile(e.target.files[0]);
+        e.target.value = "";
+      });
+
+      newDpiImgBtn.addEventListener("click", function () {
+        loadedImg = null;
+        dpiWorkspace.style.display = "none";
+        dropzone.style.display = "block";
+      });
+
+      downloadDpiBtn.addEventListener("click", function () {
+        if (!loadedImg) return;
+        const targetDpi = Math.max(50, Math.min(1200, parseInt(targetDpiInput.value, 10) || 300));
+        const mime = outFmtSelect.value;
+
+        const canvas = document.createElement("canvas");
+        canvas.width = imgW;
+        canvas.height = imgH;
+        const ctx = canvas.getContext("2d");
+
+        if (mime === "image/jpeg") {
+          ctx.fillStyle = "#FFFFFF";
+          ctx.fillRect(0, 0, imgW, imgH);
+        }
+        ctx.drawImage(loadedImg, 0, 0, imgW, imgH);
+
+        canvas.toBlob(async function (rawBlob) {
+          if (!rawBlob) return;
+          const rawBuf = await rawBlob.arrayBuffer();
+          const patchedBytes = mime === "image/png"
+            ? patchPngDpi(rawBuf, targetDpi)
+            : patchJpegDpi(rawBuf, targetDpi);
+
+          const finalBlob = new Blob([patchedBytes], { type: mime });
+          const ext = mime === "image/png" ? "png" : "jpg";
+          const url = URL.createObjectURL(finalBlob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = baseName + "-" + targetDpi + "dpi." + ext;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, mime, 0.94);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

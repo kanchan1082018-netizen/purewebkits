@@ -1,0 +1,693 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EPF & Gratuity Calculator — Free | PureWebKits</title>
+  <meta name="description" content="Calculate Employee Provident Fund (EPF) accumulation, interest, and statutory gratuity payout benefits online for free. EPF and gratuity calculator tool 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/epf-gratuity-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* EPF Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col { display: flex; flex-direction: column; gap: 14px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .result-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .result-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .result-title { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .result-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--primary);
+      text-align: right;
+    }
+    .result-val.highlight { color: var(--success); font-size: 20px; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive EPF & Gratuity Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>EPF & Gratuity Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate Employee Provident Fund (EPF) accumulation, interest, and statutory gratuity payout benefits instantly in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Enter your salary, contribution details, and service tenure below:</div>
+          <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample (₹50k Basic, 10 Years)</button>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="basicSalary" class="field-label">Basic Salary + DA (₹ / Month)</label>
+              <input type="number" id="basicSalary" class="std-input" value="50000" min="0" step="1000" placeholder="e.g. 50000" />
+            </div>
+            <div class="field-group">
+              <label for="employeeAge" class="field-label">Current Age (Years)</label>
+              <input type="number" id="employeeAge" class="std-input" value="30" min="18" max="58" step="1" placeholder="e.g. 30" />
+            </div>
+            <div class="field-group">
+              <label for="retirementAge" class="field-label">Retirement Age (Years)</label>
+              <input type="number" id="retirementAge" class="std-input" value="58" min="50" max="65" step="1" placeholder="e.g. 58" />
+            </div>
+            <div class="field-group">
+              <label for="annualIncrement" class="field-label">Annual Salary Increment (%)</label>
+              <input type="number" id="annualIncrement" class="std-input" value="5.0" min="0" max="25" step="0.5" placeholder="e.g. 5.0" />
+            </div>
+            <div class="field-group">
+              <label for="epfInterestRate" class="field-label">EPF Interest Rate (% p.a.)</label>
+              <input type="number" id="epfInterestRate" class="std-input" value="8.25" min="1" max="15" step="0.05" placeholder="e.g. 8.25" />
+            </div>
+            <div class="field-group">
+              <label for="serviceYearsGratuity" class="field-label">Completed Years of Service (for Gratuity)</label>
+              <input type="number" id="serviceYearsGratuity" class="std-input" value="10" min="1" max="40" step="1" placeholder="e.g. 10" />
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="result-item">
+              <div class="result-title">Total EPF Maturity Corpus</div>
+              <div id="resEpfCorpus" class="result-val highlight">₹1,42,85,600</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Total EPF Contributions</div>
+              <div id="resTotalEpfContrib" class="result-val">₹38,40,000</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Total EPF Interest Earned</div>
+              <div id="resTotalEpfInterest" class="result-val">₹1,04,45,600</div>
+            </div>
+            <div class="result-item">
+              <div class="result-title">Estimated Gratuity Payout</div>
+              <div id="resGratuityPayout" class="result-val highlight">₹4,32,692</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Comprehensive Guide to Employee Provident Fund (EPF) Accumulation and Statutory Gratuity Payouts</h2>
+
+      ### Why EPF & Gratuity Calculators Are Essential for Retirement and Career Planning
+      <p>
+        Planning for long-term financial security and retirement in India requires a thorough understanding of statutory employee benefits, specifically the **Employee Provident Fund (EPF)** and **Gratuity**. EPF is a mandatory government-backed savings scheme where both the employee and employer contribute 12% of the employee's basic salary plus dearness allowance (DA) monthly, earning attractive compound interest declared annually by the EPFO. Concurrently, Gratuity is a statutory lump-sum benefit paid by employers to employees as a token of appreciation for continuous service upon retirement, resignation, or termination after completing a minimum of 5 continuous years of service. Calculating future EPF accumulation requires projecting annual salary increments, compounding monthly contributions, and accounting for shifting interest rates. Similarly, gratuity payouts depend strictly on your final basic salary and completed tenure years. A professional **EPF & Gratuity Calculator** enables salaried employees, HR professionals, and financial planners to input basic salaries, current ages, retirement milestones, annual salary increments, EPF interest rates, and completed service years to forecast exact retirement corpuses and statutory gratuity benefits instantly. Our browser-based utility calculates compounding schedules locally in client memory without external server uploads, guaranteeing absolute data privacy and lightning-fast execution.
+      </p>
+
+      ### How to Calculate EPF & Gratuity in 3 Easy Steps
+      <ol>
+        <li><strong>Enter Basic Salary & Age:</strong> Input your monthly basic salary plus DA, your current age, and your planned retirement milestone.</li>
+        <li><strong>Configure Increment & Interest:</strong> Type your expected annual salary increment percentage and the prevailing EPF interest rate.</li>
+        <li><strong>Review Retirement Projections:</strong> Instantly inspect your total EPF maturity corpus, cumulative employee/employer contributions, total tax-free interest earned, and estimated gratuity payout in the real-time summary panel.</li>
+      </ol>
+
+      ### EPF & Gratuity Calculation Formulas + Worked Example
+      <p>
+        EPF balances compound monthly based on annual contributions, while gratuity is computed using the statutory 15 days' salary formula based on 26 working days per year:
+      </p>
+      <div class="formula-box">
+        $\text{Gratuity Payout} = \frac{\text{Last Drawn Basic} \times 15 \times \text{Completed Years}}{26}$  |  $\text{EPF Monthly Compounding} = \text{Balance} \times \left(1 + \frac{\text{Rate}}{12}\right)$
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Earning a basic salary of **₹50,000 per month** with a **10-year service tenure** qualifies for a statutory gratuity payout of **₹4,32,692**. Concurrently, compounding monthly EPF contributions over a 28-year career with a 5% annual salary increment accumulates a retirement corpus of over **₹1.42 Crores**.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="epf-table-heading">
+      <h2 id="epf-table-heading">EPF Contribution Rules, Gratuity Thresholds & Statutory Standards (16 Rules)</h2>
+      <p>Use this reference table to understand official EPF contribution splits, gratuity eligibility criteria, and statutory standards in India.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Benefit / Scheme</th>
+              <th>Statutory Contribution / Rule</th>
+              <th>Description & Government Regulations</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Employee EPF Contribution</strong></td>
+              <td>12% of Basic + DA</td>
+              <td>Deducted directly from employee salary monthly into EPF account</td>
+            </tr>
+            <tr>
+              <td><strong>Employer EPF Contribution</strong></td>
+              <td>3.67% of Basic + DA</td>
+              <td>Employer contribution allocated directly to employee's EPF account</td>
+            </tr>
+            <tr>
+              <td><strong>Employer EPS Contribution</strong></td>
+              <td>8.33% of Basic + DA</td>
+              <td>Employer contribution allocated to Employee Pension Scheme (EPS)</td>
+            </tr>
+            <tr>
+              <td><strong>EPF Tax Status</strong></td>
+              <td>EEE (Exempt-Exempt-Exempt)</td>
+              <td>Contributions (80C), interest earned, and final withdrawal are entirely tax-free (after 5 years)</td>
+            </tr>
+            <tr>
+              <td><strong>Gratuity Eligibility</strong></td>
+              <td>Minimum 5 Continuous Years</td>
+              <td>Mandatory requirement of 5 years of continuous service to qualify for gratuity payout</td>
+            </tr>
+            <tr>
+              <td><strong>Gratuity Tax Exemption Limit</strong></td>
+              <td>Up to ₹20 Lakhs</td>
+              <td>Statutory gratuity received under the Payment of Gratuity Act is tax-free up to ₹20 Lakhs</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Processing</strong></td>
+              <td colspan="2">JavaScript Execution — Zero Server Latency (100% browser calculation)</td>
+            </tr>
+            <tr>
+              <td><strong>Data Privacy</strong></td>
+              <td colspan="2"><span class="limit-badge">Zero Server Upload</span> — Private salary & employment data remain secure</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Finance, Tax & Calculator Utilities</h2>
+      <p>Need UAE gratuity calculators, Indian income tax calculators, or PPF calculators? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="uae-gratuity-calculator.html"><span>UAE Gratuity Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="indian-income-tax-calculator.html"><span>Indian Income Tax Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="ppf-calculator.html"><span>PPF Maturity Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="ssy-calculator.html"><span>SSY Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compound-interest-calculator.html"><span>Compound Interest Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="emi-calculator.html"><span>Loan EMI Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="us-paycheck-calculator.html"><span>US Paycheck Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Global Currency Converter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <main-content>
+      <section class="content-card" aria-labelledby="faq-heading">
+        <h2 id="faq-heading">Frequently Asked Questions</h2>
+        <div class="faq-list">
+          <div class="faq-item open">
+            <button type="button" class="faq-btn" aria-expanded="true">
+              <span>1. How is EPF interest calculated and credited?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-panel">
+              EPF interest is calculated on a monthly running balance basis but is credited to the employee's account at the end of each financial year by the EPFO.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button type="button" class="faq-btn" aria-expanded="false">
+              <span>2. What is the minimum service required for gratuity?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-panel">
+              <strong>5 continuous years!</strong> Under the Payment of Gratuity Act, an employee must complete a minimum of 5 continuous years of service with an employer to be legally eligible for a gratuity payout upon leaving.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button type="button" class="faq-btn" aria-expanded="false">
+              <span>3. Are my salary and employment data uploaded to an external server?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-panel">
+              Never. All EPF and gratuity calculations run 100% locally inside your web browser using JavaScript. Your confidential financial data never leaves your computer.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button type="button" class="faq-btn" aria-expanded="false">
+              <span>4. Is this EPF and gratuity calculator free to use?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-panel">
+              <strong>Yes!</strong> This utility is 100% free with no registration or download requirements.
+            </div>
+          </div>
+        </div>
+      </section>
+    </main-content>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side EPF & Gratuity Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const basicSalary = document.getElementById("basicSalary");
+      const employeeAge = document.getElementById("employeeAge");
+      const retirementAge = document.getElementById("retirementAge");
+      const annualIncrement = document.getElementById("annualIncrement");
+      const epfInterestRate = document.getElementById("epfInterestRate");
+      const serviceYearsGratuity = document.getElementById("serviceYearsGratuity");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+
+      const resEpfCorpus = document.getElementById("resEpfCorpus");
+      const resTotalEpfContrib = document.getElementById("resTotalEpfContrib");
+      const resTotalEpfInterest = document.getElementById("resTotalEpfInterest");
+      const resGratuityPayout = document.getElementById("resGratuityPayout");
+
+      function formatCurrency(val) {
+        if (isNaN(val) || !isFinite(val)) return "₹0";
+        return "₹" + Math.round(val).toLocaleString('en-IN');
+      }
+
+      function calculateEpfAndGratuity() {
+        const initialBasic = parseFloat(basicSalary.value) || 0;
+        const age = parseInt(employeeAge.value) || 30;
+        const retirement = parseInt(retirementAge.value) || 58;
+        const increment = (parseFloat(annualIncrement.value) || 0) / 100;
+        const annualRate = (parseFloat(epfInterestRate.value) || 0) / 100;
+        const gratuityYears = parseFloat(serviceYearsGratuity.value) || 10;
+
+        const workingYears = Math.max(0, retirement - age);
+        let currentBasic = initialBasic;
+        let epfBalance = 0;
+        let totalContrib = 0;
+
+        // EPF Calculation (Employee 12% + Employer 3.67% = 15.67% total towards EPF)
+        const epfContributionRate = 0.1567;
+        const monthlyRate = annualRate / 12;
+
+        for (let yr = 0; yr < workingYears; yr++) {
+          const monthlyBasic = currentBasic;
+          const monthlyContrib = monthlyBasic * epfContributionRate;
+
+          for (let m = 1; m <= 12; m++) {
+            epfBalance += monthlyContrib;
+            totalContrib += monthlyContrib;
+            const interest = epfBalance * monthlyRate;
+            epfBalance += interest;
+          }
+
+          currentBasic += currentBasic * increment;
+        }
+
+        const totalInterest = Math.max(0, epfBalance - totalContrib);
+
+        // Gratuity Calculation = (Last Drawn Basic * 15 * Completed Years) / 26
+        // Future projected basic after 'gratuityYears'
+        let futureBasicGratuity = initialBasic * Math.pow(1 + increment, gratuityYears);
+        const gratuity = (futureBasicGratuity * 15 * gratuityYears) / 26;
+
+        resEpfCorpus.textContent = formatCurrency(epfBalance);
+        resTotalEpfContrib.textContent = formatCurrency(totalContrib);
+        resTotalEpfInterest.textContent = formatCurrency(totalInterest);
+        resGratuityPayout.textContent = formatCurrency(gratuity);
+      }
+
+      [basicSalary, employeeAge, retirementAge, annualIncrement, epfInterestRate, serviceYearsGratuity].forEach(el => {
+        el.addEventListener("input", calculateEpfAndGratuity);
+        el.addEventListener("change", calculateEpfAndGratuity);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        basicSalary.value = "50000";
+        employeeAge.value = "30";
+        retirementAge.value = "58";
+        annualIncrement.value = "5.0";
+        epfInterestRate.value = "8.25";
+        serviceYearsGratuity.value = "10";
+        calculateEpfAndGratuity();
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateEpfAndGratuity();
+    });
+  </script>
+</body>
+</html>

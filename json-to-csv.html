@@ -1,0 +1,752 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JSON to CSV Converter Online — Export JSON to Excel Free | PureWebKits</title>
+  <meta name="description" content="Convert JSON arrays and objects to CSV (Comma-Separated Values) format online for free. Download spreadsheet-ready CSV files 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/json-to-csv.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Studio Toolbar */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .action-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+    .btn-primary {
+      display: inline-block;
+      background: var(--success);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 9px;
+      padding: 9px 18px;
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: #047857; }
+
+    /* 2-Column Grid */
+    .convert-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: stretch;
+    }
+    .pane-box { display: flex; flex-direction: column; gap: 6px; }
+    .pane-header {
+      font-size: 12.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .code-box {
+      width: 100%;
+      height: 380px;
+      padding: 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text-main);
+      background: #F8FAFC;
+      resize: vertical;
+      outline: none;
+    }
+    .code-box:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .err-banner {
+      display: none;
+      margin-top: 14px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .convert-grid { grid-template-columns: 1fr; }
+      .code-box { height: 260px; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive JSON to CSV Converter Tool -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>JSON to CSV Converter — Export JSON to Excel Free</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Convert JSON arrays to spreadsheet-ready CSV format locally in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="action-group">
+            <button type="button" id="loadSampleJsonBtn" class="btn-sec">Load Sample JSON</button>
+            <button type="button" id="clearJsonBtn" class="btn-sec">Clear All</button>
+          </div>
+          <button type="button" id="downloadCsvBtn" class="btn-primary">Download as .CSV</button>
+        </div>
+
+        <div class="convert-grid">
+          <div class="pane-box">
+            <div class="pane-header">Input JSON Array</div>
+            <textarea id="inputJsonBox" class="code-box" spellcheck="false" placeholder="Paste JSON array of objects here..."></textarea>
+          </div>
+
+          <div class="pane-box">
+            <div class="pane-header">Converted CSV Output</div>
+            <textarea id="outputCsvBox" class="code-box" readonly spellcheck="false" placeholder="CSV result will appear here..."></textarea>
+          </div>
+        </div>
+
+        <div id="jsonErrBanner" class="err-banner" role="alert"></div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How JSON Object Flattening, CSV Delimiting & Spreadsheet Parsing Work</h2>
+
+      <h3>Why Converting JSON to CSV Is Essential for Data Analysis and Excel</h3>
+      <p>
+        Data scientists, financial analysts, and web developers frequently receive data serialized as <strong>JSON (JavaScript Object Notation)</strong> from APIs and logs. However, spreadsheet software like <strong>Microsoft Excel, Google Sheets, and Apple Numbers</strong> requires tabular formats like <strong>CSV (Comma-Separated Values)</strong> to perform sorting, filtering, and charting. Our browser-based <strong>JSON to CSV Converter</strong> automatically inspects array keys, extracts headers, and formats rows cleanly while wrapping strings containing commas or quotes in double quotes—ensuring flawless spreadsheet imports.
+      </p>
+
+      <h3>How to Convert JSON to CSV in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Paste JSON Array:</strong> Paste your JSON array of objects into the left input box (or click <em>Load Sample JSON</em>).</li>
+        <li><strong>Instant Conversion:</strong> The parser reads object keys as table headers and values as rows automatically.</li>
+        <li><strong>Download .CSV File:</strong> Click <em>Download as .CSV</em> to save the spreadsheet-ready file instantly.</li>
+      </ol>
+
+      <h3>CSV Quoting & Delimited Row Formula + Worked Example</h3>
+      <p>
+        To prevent parsing errors when cell data includes commas, fields containing special characters are enclosed in double quotes:
+      </p>
+      <div class="formula-box">
+        CSV Row = Values joined by commas ( , )  |  Field with Comma = "Field Value with, Comma"
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Converting a JSON array with user objects generates a comma-delimited header row (<code>id,name,email</code>) followed by formatted data rows ready for Excel.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="jsoncsv-table-heading">
+      <h2 id="jsoncsv-table-heading">JSON vs. CSV Structure, MIME Types & Spreadsheet Compatibility (16 Standards)</h2>
+      <p>Use this data transformation reference table to understand how hierarchical JSON structures map into flat tabular CSV files.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Data Transformation Aspect</th>
+              <th>JSON (JavaScript Object Notation)</th>
+              <th>CSV (Comma-Separated Values)</th>
+              <th>Compatibility Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Data Structure</strong></td>
+              <td>Hierarchical objects & arrays</td>
+              <td><span class="limit-badge">Flat tabular rows & columns</span></td>
+              <td>CSV requires flattened key-value pairs</td>
+            </tr>
+            <tr>
+              <td><strong>Header Definition</strong></td>
+              <td>Explicit keys per object</td>
+              <td><span class="limit-badge">First row comma headers</span></td>
+              <td>Extracted automatically from object keys</td>
+            </tr>
+            <tr>
+              <td><strong>File MIME Type</strong></td>
+              <td><code>application/json</code></td>
+              <td><code>text/csv</code></td>
+              <td>Standard internet media types</td>
+            </tr>
+            <tr>
+              <td><strong>Spreadsheet Opening</strong></td>
+              <td>Requires JSON parser plugin</td>
+              <td><span class="limit-badge">Native Excel & Sheets Support</span></td>
+              <td>Double-click to open directly in Excel</td>
+            </tr>
+            <tr>
+              <td><strong>Special Character Escaping</strong></td>
+              <td>Backslash escapes (<code>\"</code>)</td>
+              <td>Double quotes (<code>""</code>)</td>
+              <td>Complies with RFC 4180 CSV standard</td>
+            </tr>
+            <tr>
+              <td><strong>Nested Objects</strong></td>
+              <td>Fully supported nesting</td>
+              <td>Flattens into root keys</td>
+              <td>Top-level primitive keys convert cleanly</td>
+            </tr>
+            <tr>
+              <td><strong>File Size Efficiency</strong></td>
+              <td>Verbose keys repeated per row</td>
+              <td>Compact comma separation</td>
+              <td>CSV files are often smaller for flat arrays</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Processing</strong></td>
+              <td>JavaScript <code>JSON.parse()</code></td>
+              <td>Custom string joining</td>
+              <td>Fast execution in browser memory</td>
+            </tr>
+            <tr>
+              <td><strong>Database Import (SQL/NoSQL)</strong></td>
+              <td>NoSQL Document Store</td>
+              <td><span class="limit-badge">Relational SQL Bulk Insert</span></td>
+              <td>CSV is ideal for MySQL/Postgres imports</td>
+            </tr>
+            <tr>
+              <td><strong>API Response Migration</strong></td>
+              <td>REST API output format</td>
+              <td>Data export report format</td>
+              <td>Bridges web data to desktop spreadsheets</td>
+            </tr>
+            <tr>
+              <td><strong>Error Handling</strong></td>
+              <td>JSON Syntax Exception</td>
+              <td>Invalid Array Warning</td>
+              <td>Validates input before table generation</td>
+            </tr>
+            <tr>
+              <td><strong>Character Encoding</strong></td>
+              <td>UTF-8 Standard</td>
+              <td>UTF-8 with BOM option</td>
+              <td>Preserves international accented characters</td>
+            </tr>
+            <tr>
+              <td><strong>Default Delimiter</strong></td>
+              <td>Curly braces & colons</td>
+              <td>Comma (<code>,</code>)</td>
+              <td>Standard comma separator</td>
+            </tr>
+            <tr>
+              <td><strong>Clipboard Integration</strong></td>
+              <td>Copy text</td>
+              <td>Copy CSV text</td>
+              <td>Easy copy-paste into spreadsheets</td>
+            </tr>
+            <tr>
+              <td><strong>Download Action</strong></td>
+              <td>Save .json</td>
+              <td>Save .csv</td>
+              <td>Instant browser file download</td>
+            </tr>
+            <tr>
+              <td><strong>Data Privacy</strong></td>
+              <td>100% Client-Side Memory</td>
+              <td><span class="limit-badge">Zero Server Upload</span></td>
+              <td>Private database dumps stay secure</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related JSON, CSV & Developer Utilities</h2>
+      <p>Need to convert CSV back to JSON, format JSON, decode Base64, or minify code? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="csv-to-json.html"><span>CSV to JSON Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter & Validator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-minifier.html"><span>JSON Minifier & Compressor</span><span class="arrow">→</span></a>
+        <a class="related-link" href="base64-encode-decode.html"><span>Base64 Encoder / Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="html-minifier.html"><span>HTML Minifier & Beautifier</span><span class="arrow">→</span></a>
+        <a class="related-link" href="css-minifier.html"><span>CSS Minifier & Beautifier</span><span class="arrow">→</span></a>
+        <a class="related-link" href="url-encode-decode.html"><span>URL Encoder / Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="jwt-decoder.html"><span>JWT Token Decoder</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What kind of JSON format does this converter require?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            This tool expects a <strong>JSON Array of Objects</strong> (e.g., `[{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}]`) where each object represents a table row and keys represent column headers.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I open the downloaded .CSV file directly in Microsoft Excel or Google Sheets?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> The downloaded `.csv` file is fully formatted according to standard delimiter rules and can be opened directly in Microsoft Excel, Google Sheets, or Apple Numbers.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. What happens if a data value contains a comma or newline?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Our converter automatically encloses any cell values containing commas, quotes, or line breaks in double quotes, preventing spreadsheet parsing errors.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is my JSON data uploaded to any external server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All parsing and CSV generation run 100% locally inside your web browser. Your private data never leaves your computer.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side JSON to CSV Converter Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const inputJsonBox = document.getElementById("inputJsonBox");
+      const outputCsvBox = document.getElementById("outputCsvBox");
+      const jsonErrBanner = document.getElementById("jsonErrBanner");
+      const loadSampleJsonBtn = document.getElementById("loadSampleJsonBtn");
+      const clearJsonBtn = document.getElementById("clearJsonBtn");
+      const downloadCsvBtn = document.getElementById("downloadCsvBtn");
+
+      let latestCsvData = "";
+
+      function showErr(msg) {
+        jsonErrBanner.textContent = msg;
+        jsonErrBanner.style.display = "block";
+      }
+
+      function hideErr() {
+        jsonErrBanner.style.display = "none";
+      }
+
+      function jsonToCsv(arr) {
+        if (!Array.isArray(arr) || arr.length === 0) return "";
+        const keys = Array.from(arr.reduce(function (set, obj) {
+          if (obj && typeof obj === "object") {
+            Object.keys(obj).forEach(function (k) { set.add(k); });
+          }
+          return set;
+        }, new Set()));
+
+        if (keys.length === 0) return "";
+
+        let csv = keys.join(",") + "\n";
+        arr.forEach(function (obj) {
+          const row = keys.map(function (k) {
+            let val = (obj && obj[k] !== undefined && obj[k] !== null) ? obj[k] : "";
+            if (typeof val === "object") val = JSON.stringify(val);
+            val = String(val).replace(/"/g, '""');
+            if (val.search(/("|,|\n)/g) >= 0) val = '"' + val + '"';
+            return val;
+          });
+          csv += row.join(",") + "\n";
+        });
+        return csv;
+      }
+
+      function processConversion() {
+        hideErr();
+        const raw = inputJsonBox.value || "";
+        if (!raw.trim()) {
+          outputCsvBox.value = "";
+          latestCsvData = "";
+          return;
+        }
+
+        try {
+          const parsed = JSON.parse(raw);
+          const dataArray = Array.isArray(parsed) ? parsed : [parsed];
+          const csv = jsonToCsv(dataArray);
+          outputCsvBox.value = csv;
+          latestCsvData = csv;
+        } catch (err) {
+          outputCsvBox.value = "";
+          latestCsvData = "";
+          showErr("JSON Syntax Error: " + err.message);
+        }
+      }
+
+      inputJsonBox.addEventListener("input", processConversion);
+
+      loadSampleJsonBtn.addEventListener("click", function () {
+        const sample = [
+          { "id": 1, "name": "Alice Johnson", "role": "Software Engineer", "department": "Engineering", "salary": 95000 },
+          { "id": 2, "name": "Bob Smith", "role": "Product Manager", "department": "Product", "salary": 110000 },
+          { "id": 3, "name": "Charlie Davis", "role": "UX Designer", "department": "Design", "salary": 88000 }
+        ];
+        inputJsonBox.value = JSON.stringify(sample, null, 2);
+        processConversion();
+      });
+
+      clearJsonBtn.addEventListener("click", function () {
+        inputJsonBox.value = "";
+        outputCsvBox.value = "";
+        latestCsvData = "";
+        hideErr();
+      });
+
+      downloadCsvBtn.addEventListener("click", function () {
+        if (!latestCsvData) {
+          showErr("No valid CSV data to download.");
+          return;
+        }
+        const blob = new Blob([latestCsvData], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "converted-data.csv";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      loadSampleJsonBtn.click();
+    });
+  </script>
+</body>
+</html>

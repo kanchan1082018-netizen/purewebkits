@@ -1,0 +1,1069 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online EXIF Data Remover & Image Metadata Stripper — PureWebKits</title>
+  <meta name="description" content="Strip GPS location coordinates, camera/phone model, timestamps, and EXIF/XMP/IPTC metadata from JPEG, PNG, and WebP images online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/exif-data-remover.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* EXIF Remover Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover:not(:disabled) { background: #E2E8F0; }
+    .btn-sec:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .dropzone-box {
+      border: 2px dashed #93C5FD;
+      background: #F8FAFC;
+      border-radius: 12px;
+      padding: 22px 18px;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+      margin-bottom: 20px;
+    }
+    .dropzone-box:hover, .dropzone-box.dragover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+    }
+    .dropzone-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .dropzone-sub {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .preview-col, .meta-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+    }
+
+    .img-thumb-box {
+      width: 100%;
+      height: 215px;
+      background: #0F172A;
+      border-radius: 10px;
+      border: 1px solid #1E293B;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #exifPreviewImg {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: none;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 11.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-select {
+      width: 100%;
+      height: 40px;
+      padding: 0 10px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #FFFFFF;
+      outline: none;
+    }
+
+    .meta-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .meta-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .meta-title { font-size: 16px; font-weight: 800; color: #34D399; }
+    .meta-sub { font-size: 12px; color: #CBD5E1; }
+    .meta-badge {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      font-weight: 800;
+      color: #38BDF8;
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      padding: 6px 10px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .tags-list {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 11px 13px;
+      max-height: 185px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12.5px;
+    }
+    .tag-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding-bottom: 5px;
+      border-bottom: 1px dashed #E2E8F0;
+    }
+    .tag-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .tag-k {
+      font-weight: 800;
+      color: var(--text-main);
+      white-space: nowrap;
+    }
+    .tag-v {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: var(--text-muted);
+      text-align: right;
+      word-break: break-word;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 860px) {
+      .calc-grid, .two-col-fields { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive EXIF Data Remover Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online EXIF Data Remover & Metadata Stripper</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Inspect & strip EXIF, GPS coordinates, camera tags & metadata in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">
+            Your photo never leaves your device — EXIF inspection and clean image export happen 100% locally:
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="resetExifBtn" class="btn-sec">Clear Image</button>
+          </div>
+        </div>
+
+        <input type="file" id="exifFileInput" accept="image/jpeg,image/png,image/webp" style="display:none;" />
+        <div class="dropzone-box" id="exifDropzone" role="button" tabindex="0" aria-label="Choose or drop an image file to inspect and strip EXIF metadata">
+          <div class="dropzone-title">Click to Choose an Image or Drag & Drop Here (JPG, PNG, WebP)</div>
+          <div class="dropzone-sub">Inspects EXIF/APP1 segments, GPS tags & image dimensions locally, then re-encodes a clean metadata-free copy</div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="preview-col">
+            <div class="img-thumb-box">
+              <img id="exifPreviewImg" alt="Uploaded image preview" />
+              <span id="exifPlaceholderTxt" style="color:#94A3B8; font-size:13px; font-weight:600;">No image selected yet</span>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="outputFormatSelect" class="field-label">Clean Output Format</label>
+                <select id="outputFormatSelect" class="std-select">
+                  <option value="image/jpeg" selected>JPEG (.jpg — Clean)</option>
+                  <option value="image/png">PNG (.png — Lossless Clean)</option>
+                  <option value="image/webp">WebP (.webp — Clean)</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="jpegQualitySelect" class="field-label">Lossy Quality (JPG / WebP)</label>
+                <select id="jpegQualitySelect" class="std-select">
+                  <option value="0.95">95% (High Quality)</option>
+                  <option value="0.90" selected>90% (Balanced)</option>
+                  <option value="0.82">82% (Compact)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="downloadCleanImgBtn" class="btn-primary" disabled>Strip Metadata & Download</button>
+              <button type="button" id="copyMetaSummaryBtn" class="btn-sec" style="height:40px;" disabled>Copy Metadata Report</button>
+            </div>
+          </div>
+
+          <div class="meta-col">
+            <div class="meta-hero-box">
+              <div>
+                <div class="meta-kicker">Metadata Scan Status</div>
+                <div class="meta-title" id="exifStatusTitle">Ready for Image</div>
+                <div class="meta-sub" id="exifStatusSub">Select a JPG, PNG, or WebP file above</div>
+              </div>
+              <div class="meta-badge" id="exifTagsCountBadge">0 Tags</div>
+            </div>
+
+            <div class="tags-list" id="exifTagsList">
+              <div class="tag-row">
+                <span class="tag-k">File Info</span>
+                <span class="tag-v">Upload an image to inspect EXIF / APP1 metadata</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, EXIF/GPS Risks & Clean Re-Encoding -->
+    <article class="content-card">
+      <h2>Complete User Guide to EXIF Metadata, GPS Privacy Risks & Stripping Image Metadata</h2>
+
+      <h3>Why Photos Carry Hidden EXIF, GPS & Device Metadata</h3>
+      <p>
+        Digital cameras and smartphones embed <strong>Exchangeable Image File Format (EXIF)</strong> metadata inside image files—recording details such as camera/phone make and model, capture timestamp, exposure settings, orientation, software version, and sometimes exact <strong>GPS latitude, longitude, and altitude</strong> where the photo was taken. While helpful for photography organization, sharing raw photos publicly on forums, marketplaces, or cloud links can unintentionally reveal your home or workplace location or device details. Re-rendering the decoded pixel buffer onto a fresh HTML5 <code><canvas></code> and exporting a clean JPEG, PNG, or WebP file constructs a brand-new image stream without copying camera EXIF/APP1 or XMP metadata blocks. A browser-based <strong>EXIF Data Remover</strong> inspects and strips metadata 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Inspect & Strip Image Metadata in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Select or Drop Your Image:</strong> Click the upload box or drag a <code>JPG</code>, <code>PNG</code>, or <code>WebP</code> file onto the dropzone to inspect its file size, pixel dimensions, and any parsed JPEG EXIF/TIFF tags.</li>
+        <li><strong>Choose Clean Output Format & Quality:</strong> Pick <strong>JPEG</strong>, <strong>PNG</strong>, or <strong>WebP</strong> and select your desired quality setting for lossy exports.</li>
+        <li><strong>Strip Metadata & Download Clean Image:</strong> Click <strong>Strip Metadata & Download</strong> to save a freshly encoded image file free of camera EXIF tags.</li>
+      </ol>
+
+      <h3>GPS Decimal Degree Conversion From EXIF DMS</h3>
+      <p>
+        When EXIF GPS tags store Degrees, Minutes, and Seconds (<code>DMS</code>), coordinates convert to decimal degrees as:
+      </p>
+      <div class="formula-box">
+        Decimal Degrees = Degrees + (Minutes / 60) + (Seconds / 3600)<br />
+        Negative sign applied for South (lat) or West (lon) hemisphere
+      </div>
+
+      <h3>Helpful Tips for Photo Privacy & Archiving</h3>
+      <ul>
+        <li><strong>Keep a Backup of Originals If You Need Camera EXIF Data:</strong> Stripping metadata is permanent on the downloaded file—keep your original camera files in a private archive if you later want timestamps or camera settings.</li>
+        <li><strong>Choose PNG for Sharp Graphics or Screenshots:</strong> Lossless PNG avoids recompression artifacts on text, UI screenshots, and diagrams, while JPEG/WebP offer smaller file sizes for photos.</li>
+        <li><strong>Note on Browser Canvas Export:</strong> Canvas re-encoding strips EXIF/APP1 metadata blocks; for archival workflows requiring ICC color-profile preservation, verify color appearance on your target display.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> A <code>4.2 MB</code> smartphone photo containing camera model, timestamp, and GPS coordinates is loaded locally, inspected for EXIF tags, and re-exported as a clean <code>JPEG</code> or <code>PNG</code> without camera EXIF metadata blocks.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="exif-table-heading">
+      <h2 id="exif-table-heading">EXIF Metadata Fields, Privacy Impact & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to understand common metadata tags, privacy considerations, and clean export formats.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Metadata Field / Format</th>
+              <th>Example / Type</th>
+              <th>Privacy / Technical Role</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>GPS Latitude / Longitude</strong></td>
+              <td>Coordinates / DMS tags</td>
+              <td>Can pinpoint where photo was shot</td>
+              <td>High privacy sensitivity on public posts</td>
+            </tr>
+            <tr>
+              <td><strong>DateTimeOriginal</strong></td>
+              <td><code>YYYY:MM:DD HH:MM:SS</code></td>
+              <td>Exact capture date & local time</td>
+              <td>Reveals when photo was taken</td>
+            </tr>
+            <tr>
+              <td><strong>Make & Model</strong></td>
+              <td>Camera / smartphone model</td>
+              <td>Identifies hardware device</td>
+              <td>Stored in EXIF IFD0 tags</td>
+            </tr>
+            <tr>
+              <td><strong>Software / Lens</strong></td>
+              <td>OS / firmware / lens info</td>
+              <td>Shows editing app or lens optics</td>
+              <td>Stored in EXIF / ExifIFD</td>
+            </tr>
+            <tr>
+              <td><strong>Orientation Tag</strong></td>
+              <td><code>1..8</code> rotation flag</td>
+              <td>Indicates camera rotation state</td>
+              <td>Normalized when rasterized to canvas</td>
+            </tr>
+            <tr>
+              <td><strong>Exposure / ISO / F-Stop</strong></td>
+              <td>Shutter, aperture, ISO</td>
+              <td>Photography technical parameters</td>
+              <td>Useful for photographers, not needed publicly</td>
+            </tr>
+            <tr>
+              <td><strong>JPEG APP1 (EXIF)</strong></td>
+              <td><code>0xFFE1</code> segment</td>
+              <td>Primary EXIF / XMP container in JPEGs</td>
+              <td>Omitted in clean canvas export</td>
+            </tr>
+            <tr>
+              <td><strong>Clean JPEG Export</strong></td>
+              <td><code>image/jpeg</code></td>
+              <td>Compact photo format without EXIF</td>
+              <td>Adjustable quality (82%–95%)</td>
+            </tr>
+            <tr>
+              <td><strong>Clean PNG Export</strong></td>
+              <td><code>image/png</code></td>
+              <td>Lossless pixels without EXIF</td>
+              <td>Ideal for crisp graphics/text</td>
+            </tr>
+            <tr>
+              <td><strong>Clean WebP Export</strong></td>
+              <td><code>image/webp</code></td>
+              <td>Modern web format without EXIF</td>
+              <td>Efficient compression for web</td>
+            </tr>
+            <tr>
+              <td><strong>Metadata Report</strong></td>
+              <td>Plain-text summary copy</td>
+              <td>Lists inspected file & EXIF fields</td>
+              <td>Generated locally in browser</td>
+            </tr>
+            <tr>
+              <td><strong>Zero Server Storage</strong></td>
+              <td>Client-side <code>FileReader</code> + Canvas</td>
+              <td>No cloud upload of personal photos</td>
+              <td>100% browser memory</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser Binary EXIF Parser & Canvas Re-Encoder — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your photos are never uploaded to any server</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero image bytes transmitted over the network</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser metadata removal with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Image, Privacy, Security & Everyday Utilities</h2>
+      <p>Inspecting browser fingerprint signals, testing password strength, creating QR codes, or formatting JSON? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="browser-fingerprint-inspector.html"><span>Browser Fingerprint Inspector</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-strength-tester.html"><span>Password Strength Tester</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="spin-wheel.html"><span>Spin Wheel</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Are my photos uploaded to any server when removing EXIF data?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Never.</strong> Your image is read via <code>FileReader</code>, inspected in memory, and re-encoded on a local HTML5 <code><canvas></code> entirely inside your browser with zero server uploads.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Does stripping metadata remove GPS location tags from photos?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes.</strong> Re-encoding the rasterized image onto a clean canvas and exporting a fresh JPEG, PNG, or WebP file strips camera EXIF/APP1 metadata blocks—including embedded GPS coordinates, timestamps, and device tags.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Why might a PNG or WebP file show "0 EXIF/APP1 tags" even though it's a valid photo?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            EXIF inside <code>0xFFE1</code> APP1 segments is most common in JPEG files (or screenshots/edited images that already lack camera EXIF tags)—the tool still displays file size, pixel dimensions, MIME type, and lets you export a clean image.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online EXIF Data Remover free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side JPEG EXIF Parser & Canvas Metadata Stripper Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const exifFileInput = document.getElementById("exifFileInput");
+      const exifDropzone = document.getElementById("exifDropzone");
+      const resetExifBtn = document.getElementById("resetExifBtn");
+
+      const outputFormatSelect = document.getElementById("outputFormatSelect");
+      const jpegQualitySelect = document.getElementById("jpegQualitySelect");
+
+      const exifPreviewImg = document.getElementById("exifPreviewImg");
+      const exifPlaceholderTxt = document.getElementById("exifPlaceholderTxt");
+
+      const exifStatusTitle = document.getElementById("exifStatusTitle");
+      const exifStatusSub = document.getElementById("exifStatusSub");
+      const exifTagsCountBadge = document.getElementById("exifTagsCountBadge");
+      const exifTagsList = document.getElementById("exifTagsList");
+
+      const downloadCleanImgBtn = document.getElementById("downloadCleanImgBtn");
+      const copyMetaSummaryBtn = document.getElementById("copyMetaSummaryBtn");
+
+      let loadedFile = null;
+      let loadedImgEl = null;
+      let latestMetaReport = "";
+
+      function formatBytes(bytes) {
+        if (!bytes || bytes <= 0) return "0 B";
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
+        return `${(bytes / 1048576).toFixed(2)} MB`;
+      }
+
+      // Lightweight JPEG APP1 (EXIF) TIFF tag reader for common descriptive tags
+      function parseJpegExifTags(arrayBuffer) {
+        const view = new DataView(arrayBuffer);
+        const found = [];
+        if (view.byteLength < 4 || view.getUint16(0, false) !== 0xffd8) {
+          return found;
+        }
+
+        let offset = 2;
+        while (offset + 4 < view.byteLength) {
+          const marker = view.getUint16(offset, false);
+          offset += 2;
+          if (marker === 0xffe1) {
+            const segLen = view.getUint16(offset, false);
+            const segStart = offset + 2;
+            const segEnd = Math.min(view.byteLength, offset + segLen);
+
+            // Check "Exif\0\0"
+            if (segStart + 14 < segEnd) {
+              const headerStr = String.fromCharCode(
+                view.getUint8(segStart),
+                view.getUint8(segStart + 1),
+                view.getUint8(segStart + 2),
+                view.getUint8(segStart + 3)
+              );
+              if (headerStr === "Exif") {
+                const tiffStart = segStart + 6;
+                const byteOrder = view.getUint16(tiffStart, false);
+                const littleEndian = byteOrder === 0x4949;
+                const ifd0Offset = view.getUint32(tiffStart + 4, littleEndian);
+                const ifd0Pos = tiffStart + ifd0Offset;
+
+                if (ifd0Pos + 2 <= segEnd) {
+                  const entries = view.getUint16(ifd0Pos, littleEndian);
+                  for (let i = 0; i < Math.min(entries, 64); i++) {
+                    const entryPos = ifd0Pos + 2 + i * 12;
+                    if (entryPos + 12 > segEnd) break;
+                    const tagId = view.getUint16(entryPos, littleEndian);
+                    const typeId = view.getUint16(entryPos + 2, littleEndian);
+                    const count = view.getUint32(entryPos + 4, littleEndian);
+                    const valOffset = view.getUint32(entryPos + 8, littleEndian);
+
+                    let tagLabel = null;
+                    if (tagId === 0x010f) tagLabel = "Camera Make";
+                    else if (tagId === 0x0110) tagLabel = "Camera Model";
+                    else if (tagId === 0x0112) tagLabel = "Orientation";
+                    else if (tagId === 0x0131) tagLabel = "Software";
+                    else if (tagId === 0x0132) tagLabel = "DateTime";
+                    else if (tagId === 0x8825) tagLabel = "GPS IFD Present";
+
+                    if (tagLabel) {
+                      if (tagId === 0x8825) {
+                        found.push({ key: tagLabel, val: "Yes (Location Metadata Present)" });
+                      } else if (typeId === 2 && count > 0 && count < 120) {
+                        const strPos = count <= 4 ? (entryPos + 8) : (tiffStart + valOffset);
+                        if (strPos + count <= segEnd) {
+                          let chars = "";
+                          for (let c = 0; c < count; c++) {
+                            const chCode = view.getUint8(strPos + c);
+                            if (chCode === 0) break;
+                            if (chCode >= 32 && chCode <= 126) chars += String.fromCharCode(chCode);
+                          }
+                          if (chars.trim()) {
+                            found.push({ key: tagLabel, val: chars.trim() });
+                          }
+                        }
+                      } else if (typeId === 3) {
+                        const shortVal = littleEndian
+                          ? view.getUint16(entryPos + 8, true)
+                          : view.getUint16(entryPos + 8, false);
+                        found.push({ key: tagLabel, val: String(shortVal) });
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            offset += segLen;
+          } else if ((marker & 0xff00) === 0xff00) {
+            if (marker === 0xffda || marker === 0xffd9) break;
+            if (offset + 2 > view.byteLength) break;
+            const len = view.getUint16(offset, false);
+            offset += len;
+          } else {
+            break;
+          }
+        }
+        return found;
+      }
+
+      function handleFileSelected(file) {
+        if (!file) return;
+        loadedFile = file;
+
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          const buf = ev.target.result;
+          const exifTags = file.type === "image/jpeg" ? parseJpegExifTags(buf) : [];
+
+          const urlReader = new FileReader();
+          urlReader.onload = function (uEv) {
+            const img = new Image();
+            img.onload = function () {
+              loadedImgEl = img;
+              exifPreviewImg.src = img.src;
+              exifPreviewImg.style.display = "block";
+              exifPlaceholderTxt.style.display = "none";
+
+              downloadCleanImgBtn.disabled = false;
+              copyMetaSummaryBtn.disabled = false;
+
+              exifStatusTitle.textContent = exifTags.length > 0
+                ? `${exifTags.length} EXIF / Metadata Tags Found`
+                : "Image Loaded (Ready to Clean Re-Encode)";
+              exifStatusSub.textContent = `${img.naturalWidth} \u00D7 ${img.naturalHeight} px \u2022 ${formatBytes(file.size)}`;
+              exifTagsCountBadge.textContent = `${exifTags.length} ${exifTags.length === 1 ? "Tag" : "Tags"}`;
+
+              const rows = [
+                { key: "File Name", val: file.name },
+                { key: "File Type & Size", val: `${file.type || "image"} (${formatBytes(file.size)})` },
+                { key: "Dimensions", val: `${img.naturalWidth} \u00D7 ${img.naturalHeight} px` },
+                ...exifTags
+              ];
+
+              if (exifTags.length === 0) {
+                rows.push({
+                  key: "EXIF APP1 Tags",
+                  val: file.type === "image/jpeg"
+                    ? "None detected in APP1 header (re-export still guarantees clean output)"
+                    : "Non-JPEG or no EXIF APP1 tags detected; canvas export strips metadata"
+                });
+              }
+
+              exifTagsList.innerHTML = rows.map(function (r) {
+                return `<div class="tag-row"><span class="tag-k">${r.key}</span><span class="tag-v">${r.val}</span></div>`;
+              }).join("");
+
+              latestMetaReport = [
+                "PureWebKits EXIF Metadata Inspection Report",
+                "------------------------------------------",
+                ...rows.map(function (r) { return `${r.key}: ${r.val}`; })
+              ].join("\n");
+            };
+            img.src = uEv.target.result;
+          };
+          urlReader.readAsDataURL(file);
+        };
+        reader.readAsArrayBuffer(file);
+      }
+
+      exifDropzone.addEventListener("click", function () { exifFileInput.click(); });
+      exifDropzone.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          exifFileInput.click();
+        }
+      });
+
+      exifDropzone.addEventListener("dragover", function (e) {
+        e.preventDefault();
+        exifDropzone.classList.add("dragover");
+      });
+      exifDropzone.addEventListener("dragleave", function () {
+        exifDropzone.classList.remove("dragover");
+      });
+      exifDropzone.addEventListener("drop", function (e) {
+        e.preventDefault();
+        exifDropzone.classList.remove("dragover");
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleFileSelected(e.dataTransfer.files[0]);
+        }
+      });
+
+      exifFileInput.addEventListener("change", function () {
+        if (exifFileInput.files && exifFileInput.files[0]) {
+          handleFileSelected(exifFileInput.files[0]);
+        }
+      });
+
+      downloadCleanImgBtn.addEventListener("click", function () {
+        if (!loadedImgEl || !loadedFile) return;
+        const w = loadedImgEl.naturalWidth;
+        const h = loadedImgEl.naturalHeight;
+        const outCanvas = document.createElement("canvas");
+        outCanvas.width = w;
+        outCanvas.height = h;
+        const octx = outCanvas.getContext("2d");
+        octx.drawImage(loadedImgEl, 0, 0, w, h);
+
+        const mime = outputFormatSelect.value || "image/jpeg";
+        const quality = parseFloat(jpegQualitySelect.value) || 0.9;
+        const ext = mime === "image/png" ? "png" : (mime === "image/webp" ? "webp" : "jpg");
+        const baseName = loadedFile.name.replace(/\.[^.]+$/, "") || "image";
+
+        outCanvas.toBlob(function (blob) {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `${baseName}-clean.${ext}`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }, mime, quality);
+      });
+
+      copyMetaSummaryBtn.addEventListener("click", function () {
+        if (!latestMetaReport) return;
+        navigator.clipboard.writeText(latestMetaReport).then(function () {
+          const orig = copyMetaSummaryBtn.textContent;
+          copyMetaSummaryBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyMetaSummaryBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      resetExifBtn.addEventListener("click", function () {
+        loadedFile = null;
+        loadedImgEl = null;
+        latestMetaReport = "";
+        exifFileInput.value = "";
+        exifPreviewImg.src = "";
+        exifPreviewImg.style.display = "none";
+        exifPlaceholderTxt.style.display = "inline";
+        downloadCleanImgBtn.disabled = true;
+        copyMetaSummaryBtn.disabled = true;
+        exifStatusTitle.textContent = "Ready for Image";
+        exifStatusSub.textContent = "Select a JPG, PNG, or WebP file above";
+        exifTagsCountBadge.textContent = "0 Tags";
+        exifTagsList.innerHTML = '<div class="tag-row"><span class="tag-k">File Info</span><span class="tag-v">Upload an image to inspect EXIF / APP1 metadata</span></div>';
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

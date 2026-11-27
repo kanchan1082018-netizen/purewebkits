@@ -1,0 +1,1127 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JSON Formatter & Validator Online — Beautify, Minify & Fix JSON Free | PureWebKits</title>
+  <meta name="description" content="Format, beautify, validate, and minify JSON data online for free. 100% client-side JSON formatter with syntax error detection, 2/4-space indentation, and instant .json download." />
+  <link rel="canonical" href="https://PureWebKits.com/json-formatter" />
+
+  <!-- JSON-LD Structured Data for SEO & Rich Snippets -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "JSON Formatter & Validator Online",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web Browser",
+        "url": "https://PureWebKits.com/json-formatter",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Free 100% client-side JSON formatter, validator, and minifier that beautifies raw API payloads and detects syntax errors locally in your browser."
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is the difference between Beautify (Pretty Print) and Minify JSON?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Beautify (Pretty Print) adds clean indentation (2 or 4 spaces) and line breaks so developers can easily read nested objects and arrays. Minify strips all unnecessary whitespace and newlines to produce the smallest possible payload for production REST APIs and local storage."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Why does my JSON fail validation with a syntax error?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Strict RFC 8259 JSON requires double quotes around all keys and string values, forbids trailing commas after the last item in an object or array, and does not allow JavaScript comments or single quotes."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is my sensitive API response or configuration JSON uploaded to any server?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Never. All JSON parsing, formatting, validation, and file downloads execute 100% locally inside your browser's JavaScript engine. Your API tokens, database dumps, and configuration files never leave your computer."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I format large JSON files with thousands of lines?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Because parsing happens natively in your browser RAM without network round-trips, you can validate, beautify, or minify multi-megabyte JSON payloads in milliseconds."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How can I save or share the formatted JSON output?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Click the 'Copy Output' button to copy the clean JSON directly to your clipboard, or click 'Download .JSON' to save a ready-to-use .json file to your device."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --success-soft: #ECFDF5;
+      --danger: #DC2626;
+      --danger-soft: #FEF2F2;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero Section */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .hero-header {
+      text-align: center;
+      max-width: 780px;
+      margin: 0 auto 24px;
+    }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      flex-shrink: 0;
+    }
+
+    /* Tool Card */
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 9px;
+      padding: 9px 16px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 9px;
+      padding: 8px 14px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-secondary:hover { background: #E2E8F0; }
+    .btn-success {
+      background: var(--success);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 9px;
+      padding: 9px 15px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-success:hover { background: #047857; }
+    .indent-select {
+      height: 36px;
+      padding: 0 10px;
+      border: 1px solid #CBD5E1;
+      border-radius: 9px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: #FFFFFF;
+      outline: none;
+    }
+
+    /* Status Banner */
+    .status-bar {
+      padding: 10px 14px;
+      border-radius: 9px;
+      font-size: 13.5px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    .status-bar.valid {
+      background: var(--success-soft);
+      border-color: #A7F3D0;
+      color: #065F46;
+    }
+    .status-bar.invalid {
+      background: var(--danger-soft);
+      border-color: #FECACA;
+      color: var(--danger);
+    }
+
+    /* Dual Editor Grid */
+    .editor-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .pane {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .pane-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .code-area {
+      width: 100%;
+      height: 390px;
+      padding: 14px;
+      border: 1px solid #CBD5E1;
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: #0F172A;
+      background: #F8FAFC;
+      resize: vertical;
+      outline: none;
+      tab-size: 2;
+    }
+    .code-area:focus {
+      border-color: var(--primary);
+      background: #FFFFFF;
+    }
+    .code-area.output-box {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #1E293B;
+    }
+
+    /* Content Sections (Blocks 2, 3, 4) */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 14px;
+      color: var(--text-main);
+    }
+    .content-card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin: 20px 0 8px;
+      color: var(--text-main);
+    }
+    .content-card p {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 12px;
+    }
+    .content-card ol {
+      padding-left: 20px;
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 14px;
+    }
+    .content-card li { margin-bottom: 8px; }
+    code {
+      background: #F1F5F9;
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-size: 13.5px;
+      color: #0F172A;
+    }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      text-align: left;
+    }
+    th {
+      background: #F1F5F9;
+      color: var(--text-main);
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge {
+      display: inline-block;
+      background: #EFF6FF;
+      color: #1D4ED8;
+      font-weight: 700;
+      font-size: 12.5px;
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+
+    /* Related Tools Grid */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .related-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 15px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      transition: all 0.15s ease;
+    }
+    .related-link:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    /* Accordion FAQs */
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .faq-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .faq-btn {
+      width: 100%;
+      background: #F8FAFC;
+      border: none;
+      padding: 16px 18px;
+      text-align: left;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .faq-icon {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      transition: transform 0.2s ease;
+    }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none;
+      padding: 16px 18px;
+      background: #FFFFFF;
+      border-top: 1px solid var(--border);
+      font-size: 14.5px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer {
+      background: var(--navy);
+      color: #CBD5E1;
+      padding-top: 48px;
+    }
+    .footer-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px 40px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+      gap: 30px;
+    }
+    .footer-brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      background: var(--primary);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .footer-brand-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 10px;
+    }
+    .footer-brand-desc {
+      font-size: 13.5px;
+      color: #94A3B8;
+      line-height: 1.6;
+    }
+    .footer-col h4 {
+      color: #FFFFFF;
+      font-size: 14.5px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom {
+      background: var(--navy-dark);
+      padding: 18px 20px;
+      font-size: 13.5px;
+      color: #94A3B8;
+    }
+    .footer-bottom-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 860px) {
+      .editor-split { grid-template-columns: 1fr; }
+      .code-area { height: 280px; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" fill="#2563EB"/>
+          <path d="M12 22V12M12 12L3 7M12 12l9-5" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive JSON Formatter -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>JSON Formatter & Validator — Beautify, Minify & Fix JSON Free</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Your API payloads, configs, and JSON data never leave your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <input type="file" id="jsonFileInput" accept=".json,application/json,text/plain" hidden />
+
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <button type="button" id="formatBtn" class="btn-primary">Beautify / Format</button>
+            <button type="button" id="minifyBtn" class="btn-secondary">Minify / Compact</button>
+            <button type="button" id="validateBtn" class="btn-secondary">Validate JSON</button>
+            <select id="indentSelect" class="indent-select" aria-label="Indentation Spacing">
+              <option value="2" selected>2 Spaces Indent</option>
+              <option value="4">4 Spaces Indent</option>
+              <option value="tab">Tab Indent</option>
+            </select>
+          </div>
+
+          <div class="toolbar-right">
+            <button type="button" id="sampleBtn" class="btn-secondary">Sample JSON</button>
+            <button type="button" id="uploadBtn" class="btn-secondary">Upload .JSON</button>
+            <button type="button" id="clearBtn" class="btn-secondary">Clear</button>
+            <button type="button" id="copyBtn" class="btn-success">Copy Output</button>
+            <button type="button" id="downloadBtn" class="btn-secondary">Download .JSON</button>
+          </div>
+        </div>
+
+        <div id="statusBar" class="status-bar" aria-live="polite">
+          <span id="statusText">Paste your raw JSON on the left and click Beautify, Minify, or Validate.</span>
+          <span id="sizeStats">Input: 0 B • Output: 0 B</span>
+        </div>
+
+        <div class="editor-split">
+          <div class="pane">
+            <div class="pane-header">
+              <label for="rawJsonInput">Raw / Unformatted JSON Input</label>
+              <span id="inputLineCount">0 lines</span>
+            </div>
+            <textarea id="rawJsonInput" class="code-area" spellcheck="false" placeholder='Paste raw JSON here, e.g. {"name":"PureWebKits","free":true,"tools":240}'></textarea>
+          </div>
+
+          <div class="pane">
+            <div class="pane-header">
+              <label for="formattedJsonOutput">Formatted / Validated Output</label>
+              <span id="outputLineCount">0 lines</span>
+            </div>
+            <textarea id="formattedJsonOutput" class="code-area output-box" readonly spellcheck="false" placeholder="Clean formatted or minified JSON output will appear here..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Understanding JSON Formatting, Validation & Minification</h2>
+
+      <h3>Why Client-Side JSON Formatting Protects API Secrets</h3>
+      <p>
+        Modern REST APIs, webhooks, cloud configurations, and NoSQL databases rely on <strong>JSON (JavaScript Object Notation)</strong> to exchange structured data. During software debugging, developers frequently inspect compressed single-line API responses that contain bearer tokens, user identifiers, or internal schema structures. Pasting sensitive JSON into server-backed online formatters risks logging confidential payloads on third-party servers. PureWebKits parses and formats JSON directly inside your local browser memory using native <code>JSON.parse()</code> and <code>JSON.stringify()</code>—delivering instant syntax validation with zero network transmission.
+      </p>
+
+      <h3>How to Format, Validate & Minify JSON in 3 Steps</h3>
+      <ol>
+        <li><strong>Paste or Upload Raw JSON:</strong> Paste your minified or broken JSON string into the left editor pane, or click <em>Upload .JSON</em> to load a local file.</li>
+        <li><strong>Choose Format or Minify:</strong> Click <em>Beautify / Format</em> (with 2-space, 4-space, or tab indentation) to make nested objects human-readable, or click <em>Minify / Compact</em> to strip whitespace for production APIs.</li>
+        <li><strong>Fix Errors & Export:</strong> If a syntax error exists, the status banner highlights the exact parsing error. Once valid, click <em>Copy Output</em> or <em>Download .JSON</em>.</li>
+      </ol>
+
+      <h3>JSON Minification Bandwidth Savings Formula & Worked Example</h3>
+      <p>
+        Removing indentation spaces and newline characters shrinks JSON payload transmission size over HTTP. Calculate exact bandwidth reduction with the payload compression formula:
+      </p>
+      <div class="formula-box">
+        Payload Reduction (%) = ((Pretty JSON Bytes − Minified JSON Bytes) / Pretty JSON Bytes) × 100
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Suppose a formatted 4-space indented product catalog JSON file weighs <strong>48.0 KB (49,152 bytes)</strong> due to deep nesting and whitespace.</p>
+        <p>Running it through <strong>Minify / Compact</strong> strips all formatting spaces and line breaks without altering a single key or value, shrinking the payload to <strong>31.2 KB (31,949 bytes)</strong>.</p>
+        <p>Applying the formula: <code>((49,152 − 31,949) / 49,152) × 100 = 35.0%</code> smaller payload size—speeding up API response times and reducing mobile data usage.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="json-rules-heading">
+      <h2 id="json-rules-heading">RFC 8259 JSON Syntax Rules & Common Error Troubleshooting Table</h2>
+      <p>Use this quick developer reference chart to diagnose and fix common JSON parsing errors immediately.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>JSON Rule / Data Type</th>
+              <th>Invalid Example (Causes Error)</th>
+              <th>Valid RFC 8259 JSON</th>
+              <th>Quick Fix</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Object Property Keys</strong></td>
+              <td><code>{ name: "Alice" }</code></td>
+              <td><span class="limit-badge">{"name": "Alice"}</span></td>
+              <td>Wrap every key in double quotes</td>
+            </tr>
+            <tr>
+              <td><strong>String Values</strong></td>
+              <td><code>{"city": 'London'}</code></td>
+              <td><span class="limit-badge">{"city": "London"}</span></td>
+              <td>Replace single quotes with double quotes</td>
+            </tr>
+            <tr>
+              <td><strong>Trailing Commas (Objects)</strong></td>
+              <td><code>{"a": 1, "b": 2,}</code></td>
+              <td><span class="limit-badge">{"a": 1, "b": 2}</span></td>
+              <td>Remove comma after final property</td>
+            </tr>
+            <tr>
+              <td><strong>Trailing Commas (Arrays)</strong></td>
+              <td><code>[10, 20, 30,]</code></td>
+              <td><span class="limit-badge">[10, 20, 30]</span></td>
+              <td>Remove comma after final array element</td>
+            </tr>
+            <tr>
+              <td><strong>Comments in JSON</strong></td>
+              <td><code>// user config</code></td>
+              <td><span class="limit-badge">Not allowed in JSON</span></td>
+              <td>Strip all <code>//</code> and <code>/* */</code> comments</td>
+            </tr>
+            <tr>
+              <td><strong>Boolean Values</strong></td>
+              <td><code>{"active": True}</code></td>
+              <td><span class="limit-badge">{"active": true}</span></td>
+              <td>Use lowercase <code>true</code> or <code>false</code></td>
+            </tr>
+            <tr>
+              <td><strong>Null Value</strong></td>
+              <td><code>{"data": None}</code></td>
+              <td><span class="limit-badge">{"data": null}</span></td>
+              <td>Use lowercase <code>null</code> (not None/undefined)</td>
+            </tr>
+            <tr>
+              <td><strong>Numbers (Leading Zeros)</strong></td>
+              <td><code>{"code": 042}</code></td>
+              <td><span class="limit-badge">{"code": "042"}</span></td>
+              <td>Store leading-zero IDs as strings</td>
+            </tr>
+            <tr>
+              <td><strong>NaN & Infinity</strong></td>
+              <td><code>{"val": NaN}</code></td>
+              <td><span class="limit-badge">{"val": null}</span></td>
+              <td>Replace NaN/Infinity with <code>null</code></td>
+            </tr>
+            <tr>
+              <td><strong>Escaped Quotes Inside Strings</strong></td>
+              <td><code>{"msg": "Hi "Bob""}</code></td>
+              <td><span class="limit-badge">{"msg": "Hi \"Bob\""}</span></td>
+              <td>Escape inner double quotes with <code>\"</code></td>
+            </tr>
+            <tr>
+              <td><strong>Newlines Inside Strings</strong></td>
+              <td>Multiline raw string literal</td>
+              <td><span class="limit-badge">"Line 1\nLine 2"</span></td>
+              <td>Escape line breaks using <code>\n</code></td>
+            </tr>
+            <tr>
+              <td><strong>Windows File Paths</strong></td>
+              <td><code>{"path": "C:\Users"}</code></td>
+              <td><span class="limit-badge">{"path": "C:\\Users"}</span></td>
+              <td>Escape backslashes as <code>\\</code></td>
+            </tr>
+            <tr>
+              <td><strong>Root Value Structure</strong></td>
+              <td>Multiple ungrouped objects</td>
+              <td><span class="limit-badge">{ ... } or [ ... ]</span></td>
+              <td>Wrap multiple records inside a root array <code>[]</code></td>
+            </tr>
+            <tr>
+              <td><strong>Date & Timestamp Format</strong></td>
+              <td><code>new Date()</code></td>
+              <td><span class="limit-badge">"2026-11-15T12:00:00Z"</span></td>
+              <td>Format dates as ISO-8601 strings</td>
+            </tr>
+            <tr>
+              <td><strong>MIME Content-Type Header</strong></td>
+              <td><code>text/plain</code></td>
+              <td><span class="limit-badge">application/json</span></td>
+              <td>Set proper HTTP Content-Type header</td>
+            </tr>
+            <tr>
+              <td><strong>Character Encoding</strong></td>
+              <td>UTF-16 / Windows-1252</td>
+              <td><span class="limit-badge">UTF-8 (No BOM)</span></td>
+              <td>Save all JSON files in standard UTF-8</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Developer & Text Utilities</h2>
+      <p>Need to encode Base64 strings, generate secure passwords, or create SEO meta tags locally in your browser? Explore our companion developer tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="base64-encode-decode.html"><span>Base64 Encode / Decode</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Password Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="meta-tag-generator.html"><span>Meta Tag Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="url-encoder-decoder.html"><span>URL Encoder / Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="jwt-decoder.html"><span>JWT Token Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="regex-tester.html"><span>Regex Tester</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 5 Unique Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>What is the difference between Beautify (Pretty Print) and Minify JSON?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Beautify (Pretty Print)</strong> inserts clean indentation (2 spaces, 4 spaces, or tabs) and line breaks so developers can easily inspect nested objects and arrays. <strong>Minify / Compact</strong> removes all unnecessary whitespace and line breaks to produce the smallest possible payload size for production REST APIs, webhooks, and configuration storage.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>Why does my JSON fail validation with a syntax error?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Strict RFC 8259 JSON syntax requires double quotes (<code>"</code>) around every key and string value, forbids trailing commas after the last item in an object or array, and does not allow JavaScript comments (<code>//</code>) or single quotes (<code>'</code>). Our validator immediately reports the exact parser error so you can fix it in seconds.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>Is my sensitive API response or configuration JSON uploaded to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All JSON parsing, formatting, validation, and file downloads execute 100% locally inside your browser's JavaScript engine. Your API tokens, database records, and configuration files never leave your device.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>Can I format large JSON files with thousands of lines?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Yes. Because parsing happens natively inside your browser's memory without network latency, you can upload or paste multi-megabyte <code>.json</code> files and beautify or minify them in milliseconds.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>How can I save or share the formatted JSON output?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Click <strong>Copy Output</strong> in the top toolbar to copy the formatted or minified JSON straight to your clipboard, or click <strong>Download .JSON</strong> to save a clean UTF-8 encoded <code>.json</code> file to your computer.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <div class="footer-brand-title">PureWebKits</div>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="meta-tag-generator.html">Meta Tag Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side JSON Formatter & Validator Engine -->
+  <script>
+    (function () {
+      const rawJsonInput = document.getElementById("rawJsonInput");
+      const formattedJsonOutput = document.getElementById("formattedJsonOutput");
+      const formatBtn = document.getElementById("formatBtn");
+      const minifyBtn = document.getElementById("minifyBtn");
+      const validateBtn = document.getElementById("validateBtn");
+      const indentSelect = document.getElementById("indentSelect");
+      const sampleBtn = document.getElementById("sampleBtn");
+      const uploadBtn = document.getElementById("uploadBtn");
+      const jsonFileInput = document.getElementById("jsonFileInput");
+      const clearBtn = document.getElementById("clearBtn");
+      const copyBtn = document.getElementById("copyBtn");
+      const downloadBtn = document.getElementById("downloadBtn");
+      const statusBar = document.getElementById("statusBar");
+      const statusText = document.getElementById("statusText");
+      const sizeStats = document.getElementById("sizeStats");
+      const inputLineCount = document.getElementById("inputLineCount");
+      const outputLineCount = document.getElementById("outputLineCount");
+
+      function formatBytes(bytes) {
+        if (bytes < 1024) return bytes + " B";
+        const kb = bytes / 1024;
+        if (kb < 1024) return kb.toFixed(1) + " KB";
+        return (kb / 1024).toFixed(2) + " MB";
+      }
+
+      function updateCounts() {
+        const inVal = rawJsonInput.value;
+        const outVal = formattedJsonOutput.value;
+        const inLines = inVal ? inVal.split(/\r?\n/).length : 0;
+        const outLines = outVal ? outVal.split(/\r?\n/).length : 0;
+        inputLineCount.textContent = `${inLines} ${inLines === 1 ? "line" : "lines"}`;
+        outputLineCount.textContent = `${outLines} ${outLines === 1 ? "line" : "lines"}`;
+
+        const inBytes = new Blob([inVal]).size;
+        const outBytes = new Blob([outVal]).size;
+        sizeStats.textContent = `Input: ${formatBytes(inBytes)} • Output: ${formatBytes(outBytes)}`;
+      }
+
+      function setStatus(type, message) {
+        statusBar.classList.remove("valid", "invalid");
+        if (type === "valid") statusBar.classList.add("valid");
+        if (type === "invalid") statusBar.classList.add("invalid");
+        statusText.textContent = message;
+      }
+
+      function getIndentValue() {
+        const val = indentSelect.value;
+        if (val === "tab") return "\t";
+        return parseInt(val, 10) || 2;
+      }
+
+      function processJson(mode) {
+        const raw = rawJsonInput.value.trim();
+        if (!raw) {
+          formattedJsonOutput.value = "";
+          setStatus("neutral", "Please paste or upload JSON data first.");
+          updateCounts();
+          return;
+        }
+
+        try {
+          const parsed = JSON.parse(raw);
+          if (mode === "minify") {
+            formattedJsonOutput.value = JSON.stringify(parsed);
+            setStatus("valid", "Valid JSON — Minified into compact single-line output.");
+          } else {
+            formattedJsonOutput.value = JSON.stringify(parsed, null, getIndentValue());
+            setStatus(
+              "valid",
+              mode === "validate"
+                ? "Valid RFC 8259 JSON — Zero syntax errors found!"
+                : "Valid JSON — Formatted cleanly."
+            );
+          }
+        } catch (err) {
+          formattedJsonOutput.value = "";
+          setStatus("invalid", "Invalid JSON Syntax: " + err.message);
+        }
+        updateCounts();
+      }
+
+      formatBtn.addEventListener("click", () => processJson("format"));
+      minifyBtn.addEventListener("click", () => processJson("minify"));
+      validateBtn.addEventListener("click", () => processJson("validate"));
+
+      indentSelect.addEventListener("change", () => {
+        if (rawJsonInput.value.trim()) {
+          processJson("format");
+        }
+      });
+
+      rawJsonInput.addEventListener("input", updateCounts);
+
+      sampleBtn.addEventListener("click", () => {
+        const sampleObj = {
+          platform: "PureWebKits",
+          domain: "PureWebKits.com",
+          clientSideOnly: true,
+          totalTools: 240,
+          categories: ["Image & Graphics", "PDF Utilities", "Developer Suite", "Finance & Tax"],
+          performance: {
+            serverUpload: false,
+            averageLatencyMs: 12,
+            supportedFormats: ["JSON", "PDF", "JPEG", "PNG", "WebP"]
+          }
+        };
+        rawJsonInput.value = JSON.stringify(sampleObj);
+        processJson("format");
+      });
+
+      uploadBtn.addEventListener("click", () => jsonFileInput.click());
+      jsonFileInput.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          rawJsonInput.value = ev.target.result;
+          processJson("format");
+        };
+        reader.readAsText(file);
+        jsonFileInput.value = "";
+      });
+
+      clearBtn.addEventListener("click", () => {
+        rawJsonInput.value = "";
+        formattedJsonOutput.value = "";
+        setStatus("neutral", "Cleared. Paste your raw JSON on the left to begin.");
+        updateCounts();
+      });
+
+      copyBtn.addEventListener("click", async () => {
+        const text = formattedJsonOutput.value || rawJsonInput.value;
+        if (!text.trim()) return;
+        try {
+          await navigator.clipboard.writeText(text);
+          const orig = copyBtn.textContent;
+          copyBtn.textContent = "Copied!";
+          setTimeout(() => {
+            copyBtn.textContent = orig;
+          }, 1500);
+        } catch (err) {
+          formattedJsonOutput.select();
+          document.execCommand("copy");
+        }
+      });
+
+      downloadBtn.addEventListener("click", () => {
+        const content = formattedJsonOutput.value || rawJsonInput.value;
+        if (!content.trim()) {
+          setStatus("invalid", "Nothing to download. Please enter or format JSON first.");
+          return;
+        }
+        const blob = new Blob([content], { type: "application/json;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "formatted-data.json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      updateCounts();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,918 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Find and Replace Text Tool — PureWebKits</title>
+  <meta name="description" content="Find and replace words, phrases, or regex patterns in text online for free. 100% client-side browser find and replace utility with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/find-replace.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Find and Replace Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .find-replace-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input {
+      width: 100%;
+      height: 42px;
+      padding: 0 13px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .options-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      margin-bottom: 18px;
+    }
+    .chk-group {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    .chk-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    .match-badge {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      background: var(--primary-soft);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+    .match-badge.error {
+      color: var(--danger);
+      background: #FEF2F2;
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 12px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .std-textarea {
+      width: 100%;
+      height: 220px;
+      padding: 12px 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+      resize: vertical;
+    }
+    .std-textarea:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .code-output {
+      width: 100%;
+      height: 220px;
+      background: #0F172A;
+      color: #E2E8F0;
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.55;
+      padding: 13px;
+      border-radius: 8px;
+      border: none;
+      resize: vertical;
+      outline: none;
+    }
+    .stats-strip {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14.5px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .find-replace-bar, .calc-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Find and Replace Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Find and Replace Tool</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Search and replace text, whole words, or regex patterns in your browser with zero server uploads
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Enter search and replacement strings, set matching rules, and preview live updates:</div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample Text</button>
+            <button type="button" id="useResultAsInputBtn" class="btn-sec">Apply Result to Input</button>
+            <button type="button" id="clearAllBtn" class="btn-sec">Clear</button>
+          </div>
+        </div>
+
+        <div class="find-replace-bar">
+          <div class="field-group">
+            <label for="findInput" class="field-label">Find (Text or Regex Pattern)</label>
+            <input type="text" id="findInput" class="std-input" placeholder="Enter word, phrase, or regex..." />
+          </div>
+
+          <div class="field-group">
+            <label for="replaceInput" class="field-label">Replace With</label>
+            <input type="text" id="replaceInput" class="std-input" placeholder="Enter replacement text (leave blank to delete matches)" />
+          </div>
+        </div>
+
+        <div class="options-bar">
+          <div class="chk-group">
+            <label class="chk-inline"><input type="checkbox" id="caseSensitiveChk" /> Match case</label>
+            <label class="chk-inline"><input type="checkbox" id="wholeWordChk" /> Whole word only</label>
+            <label class="chk-inline"><input type="checkbox" id="useRegexChk" /> Regular expression (Regex)</label>
+          </div>
+          <span class="match-badge" id="matchCountBadge">0 matches found</span>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="sourceTextInput" class="field-label">Source Text Input</label>
+              <textarea id="sourceTextInput" class="std-textarea" placeholder="Paste your text, article, code, or list here..."></textarea>
+            </div>
+
+            <div class="stats-strip">
+              <span id="sourceCharsStat">Source: 0 chars</span>
+              <span id="sourceWordsStat">Words: 0</span>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="field-group">
+              <label for="replacedOutput" class="field-label">Updated Text Output</label>
+              <textarea id="replacedOutput" class="code-output" readonly placeholder="Replaced text will appear here..."></textarea>
+            </div>
+
+            <div class="stats-strip">
+              <span id="outputCharsStat">Output: 0 chars</span>
+              <span id="outputWordsStat">Words: 0</span>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyResultBtn" class="btn-primary">Copy Updated Text</button>
+              <button type="button" id="downloadTxtBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Find and Replace, Whole-Word Matching, and Pattern Editing</h2>
+
+      <h3>Why Browser-Based Find and Replace Tools Save Time When Editing Text</h3>
+      <p>
+        Updating a product name, fixing a recurring typo, swapping a URL prefix, or cleaning up repetitive phrases across a long draft is much faster and more accurate with a dedicated <strong>Find and Replace</strong> utility than editing line by line by hand. A plain search that ignores word boundaries can accidentally alter substrings inside larger words, while a case-sensitive search might miss capitalized variations. This browser-based <strong>Find and Replace</strong> tool lets you test exact strings, case-sensitive matches, whole words, or regular expressions with instant match counts—100% locally in your browser without sending your text to any external server.
+      </p>
+
+      <h3>How to Find and Replace Text in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Paste Your Source Text:</strong> Enter or paste your text into the <strong>Source Text Input</strong> box, or click <strong>Load Sample Text</strong> to test with an example passage.</li>
+        <li><strong>Enter Find & Replace Values:</strong> Type the target string or pattern in <strong>Find</strong> and the replacement string in <strong>Replace With</strong> (leave <strong>Replace With</strong> empty if you want to strip matched text).</li>
+        <li><strong>Fine-Tune Matching & Copy Output:</strong> Toggle <em>Match case</em>, <em>Whole word only</em>, or <em>Regular expression (Regex)</em>, check the live match counter, and click <strong>Copy Updated Text</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Match & Substitution Formula</h3>
+      <p>
+        Every replacement pass compiles your search query with the global flag (plus case-insensitivity unless <em>Match case</em> is checked) and substitutes all matches across the input string:
+      </p>
+      <div class="formula-box">
+        Output = Source.replace(compilePattern(Find, { caseSensitive, wholeWord, regex }), ReplaceWith)
+      </div>
+
+      <h3>Tips for Accurate Text & Regex Replacements</h3>
+      <ul>
+        <li><strong>Use Whole Word Only for Exact Terms:</strong> If you want to replace the standalone word <code>cat</code> without changing <code>catalog</code> or <code>category</code>, enable <em>Whole word only</em> (or use <code>\bcat\b</code> in Regex mode).</li>
+        <li><strong>Escape Special Characters in Plain Mode:</strong> In standard non-regex mode, characters like <code>.</code>, <code>$</code>, <code>*</code>, and <code>?</code> are treated literally as plain characters rather than regex metacharacters.</li>
+        <li><strong>Chain Edits Safely:</strong> Use <strong>Apply Result to Input</strong> if you want to run a second pass on your updated text before copying or exporting.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Searching for <code>http://</code> and replacing it with <code>https://</code> across a list of links updates every matching prefix in one pass while showing the exact number of replacements made.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="find-table-heading">
+      <h2 id="find-table-heading">Find and Replace Modes, Flags & Rules Reference (16 Rules)</h2>
+      <p>Use this reference table to understand search options, matching flags, and browser processing rules.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Option / Feature</th>
+              <th>Setting / Flag</th>
+              <th>Behavior</th>
+              <th>Best Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Default Plain Match</strong></td>
+              <td>Global, Case-Insensitive</td>
+              <td>Replaces all literal occurrences regardless of case</td>
+              <td>Quick text or URL prefix swaps</td>
+            </tr>
+            <tr>
+              <td><strong>Match Case</strong></td>
+              <td>Case-Sensitive</td>
+              <td>Matches exact uppercase and lowercase letters</td>
+              <td>Preserving capitalization distinctions</td>
+            </tr>
+            <tr>
+              <td><strong>Whole Word Only</strong></td>
+              <td>Word-Boundary Match</td>
+              <td>Matches complete words rather than substrings</td>
+              <td>Replacing standalone words safely</td>
+            </tr>
+            <tr>
+              <td><strong>Regular Expression</strong></td>
+              <td>Custom Regex Pattern</td>
+              <td>Evaluates pattern syntax with global flag (<code>g</code>)</td>
+              <td>Pattern-based cleanup & matching</td>
+            </tr>
+            <tr>
+              <td><strong>Blank Replacement</strong></td>
+              <td>Empty Replace Field</td>
+              <td>Deletes matched text or pattern from output</td>
+              <td>Stripping unwanted tags or markers</td>
+            </tr>
+            <tr>
+              <td><strong>Match Counter</strong></td>
+              <td>Live Badge</td>
+              <td>Shows total matches found in source text</td>
+              <td>Confirming how many edits occurred</td>
+            </tr>
+            <tr>
+              <td><strong>Invalid Regex Guard</strong></td>
+              <td>Syntax Check</td>
+              <td>Flags malformed regex without crashing page</td>
+              <td>Safe pattern experimentation</td>
+            </tr>
+            <tr>
+              <td><strong>Apply Result to Input</strong></td>
+              <td>Workflow Button</td>
+              <td>Moves output back into input for multi-step edits</td>
+              <td>Sequential find-and-replace passes</td>
+            </tr>
+            <tr>
+              <td><strong>Character & Word Stats</strong></td>
+              <td>Live Metrics</td>
+              <td>Compares character and word counts</td>
+              <td>Checking text length after edits</td>
+            </tr>
+            <tr>
+              <td><strong>Copy Updated Text</strong></td>
+              <td>Clipboard Export</td>
+              <td>Copies replaced text directly to clipboard</td>
+              <td>Pasting into editors or documents</td>
+            </tr>
+            <tr>
+              <td><strong>Download .txt</strong></td>
+              <td>File Export</td>
+              <td>Saves updated text as <code>replaced-text.txt</code></td>
+              <td>Archiving edited text locally</td>
+            </tr>
+            <tr>
+              <td><strong>Literal Escaping</strong></td>
+              <td>Non-Regex Safety</td>
+              <td>Escapes regex special chars when Regex is off</td>
+              <td>Searching for <code>$</code>, <code>.</code>, <code>+</code>, or <code>(</code></td>
+            </tr>
+            <tr>
+              <td><strong>Zero-Length Guard</strong></td>
+              <td>Empty Find Guard</td>
+              <td>Returns unchanged text when Find box is empty</td>
+              <td>Preventing accidental full-string inserts</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript RegExp & String APIs — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — All find-and-replace operations run locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Your source text remains strictly on your device</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Text, Regex & Editing Utilities</h2>
+      <p>Testing regular expressions, sorting lines, or comparing changes? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="regex-tester.html"><span>Regex Tester</span><span class="arrow">→</span></a>
+        <a class="related-link" href="sort-lines.html"><span>Sort Text Lines</span><span class="arrow">→</span></a>
+        <a class="related-link" href="remove-line-breaks.html"><span>Line Break Remover</span><span class="arrow">→</span></a>
+        <a class="related-link" href="remove-spaces.html"><span>Remove Extra Spaces</span><span class="arrow">→</span></a>
+        <a class="related-link" href="remove-duplicate-lines.html"><span>Duplicate Line Remover</span><span class="arrow">→</span></a>
+        <a class="related-link" href="case-converter.html"><span>Case Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="diff-checker.html"><span>Diff Checker</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How do I delete matched words instead of replacing them with other text?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Enter the word or pattern in the <strong>Find</strong> box and leave the <strong>Replace With</strong> box empty—all matches will be removed from the output.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. What does "Whole word only" do?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            It ensures matches occur on word boundaries so replacing a short term does not accidentally change parts of longer words.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Is my text sent to any server when using Find and Replace?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All searching and replacements execute 100% locally in your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Find and Replace tool free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Find and Replace Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const findInput = document.getElementById("findInput");
+      const replaceInput = document.getElementById("replaceInput");
+      const caseSensitiveChk = document.getElementById("caseSensitiveChk");
+      const wholeWordChk = document.getElementById("wholeWordChk");
+      const useRegexChk = document.getElementById("useRegexChk");
+      const matchCountBadge = document.getElementById("matchCountBadge");
+
+      const sourceTextInput = document.getElementById("sourceTextInput");
+      const replacedOutput = document.getElementById("replacedOutput");
+
+      const sourceCharsStat = document.getElementById("sourceCharsStat");
+      const sourceWordsStat = document.getElementById("sourceWordsStat");
+      const outputCharsStat = document.getElementById("outputCharsStat");
+      const outputWordsStat = document.getElementById("outputWordsStat");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const useResultAsInputBtn = document.getElementById("useResultAsInputBtn");
+      const clearAllBtn = document.getElementById("clearAllBtn");
+      const copyResultBtn = document.getElementById("copyResultBtn");
+      const downloadTxtBtn = document.getElementById("downloadTxtBtn");
+
+      function escapeRegex(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      }
+
+      function countWords(str) {
+        const trimmed = String(str || "").trim();
+        return trimmed ? trimmed.split(/\s+/).length : 0;
+      }
+
+      function runFindAndReplace() {
+        const src = sourceTextInput.value;
+        const query = findInput.value;
+        const replacement = replaceInput.value;
+
+        sourceCharsStat.textContent = `Source: ${src.length} chars`;
+        sourceWordsStat.textContent = `Words: ${countWords(src)}`;
+
+        if (!src) {
+          replacedOutput.value = "";
+          outputCharsStat.textContent = "Output: 0 chars";
+          outputWordsStat.textContent = "Words: 0";
+          matchCountBadge.className = "match-badge";
+          matchCountBadge.textContent = "0 matches found";
+          return;
+        }
+
+        if (!query) {
+          replacedOutput.value = src;
+          outputCharsStat.textContent = `Output: ${src.length} chars`;
+          outputWordsStat.textContent = `Words: ${countWords(src)}`;
+          matchCountBadge.className = "match-badge";
+          matchCountBadge.textContent = "Enter search text to find matches";
+          return;
+        }
+
+        const flags = caseSensitiveChk.checked ? "g" : "gi";
+        let patternSource = useRegexChk.checked ? query : escapeRegex(query);
+
+        if (wholeWordChk.checked) {
+          const startsWord = /^\w/.test(patternSource);
+          const endsWord = /\w$/.test(patternSource);
+          patternSource = (startsWord ? "\\b" : "") + patternSource + (endsWord ? "\\b" : "");
+        }
+
+        let regex;
+        try {
+          regex = new RegExp(patternSource, flags);
+        } catch (err) {
+          matchCountBadge.className = "match-badge error";
+          matchCountBadge.textContent = `Invalid pattern: ${err.message}`;
+          replacedOutput.value = src;
+          outputCharsStat.textContent = `Output: ${src.length} chars`;
+          outputWordsStat.textContent = `Words: ${countWords(src)}`;
+          return;
+        }
+
+        let matchCount = 0;
+        const counterRegex = new RegExp(regex.source, regex.flags);
+        while (counterRegex.exec(src) !== null) {
+          matchCount++;
+          if (counterRegex.lastIndex === counterRegex.lastIndex - 1) {
+            counterRegex.lastIndex++;
+          }
+          if (matchCount > 100000) break;
+        }
+
+        const updated = src.replace(regex, replacement);
+        replacedOutput.value = updated;
+        outputCharsStat.textContent = `Output: ${updated.length} chars`;
+        outputWordsStat.textContent = `Words: ${countWords(updated)}`;
+        matchCountBadge.className = "match-badge";
+        matchCountBadge.textContent = `${matchCount} ${matchCount === 1 ? "match" : "matches"} found`;
+      }
+
+      [findInput, replaceInput, caseSensitiveChk, wholeWordChk, useRegexChk, sourceTextInput].forEach(function (el) {
+        el.addEventListener("input", runFindAndReplace);
+        el.addEventListener("change", runFindAndReplace);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        findInput.value = "draft";
+        replaceInput.value = "final";
+        caseSensitiveChk.checked = false;
+        wholeWordChk.checked = true;
+        useRegexChk.checked = false;
+        sourceTextInput.value = [
+          "This draft guide helps writers review a draft section before publishing.",
+          "Keep drafting clear notes while avoiding accidental edits to draft-like words."
+        ].join("\n");
+        runFindAndReplace();
+      });
+
+      useResultAsInputBtn.addEventListener("click", function () {
+        if (!replacedOutput.value) return;
+        sourceTextInput.value = replacedOutput.value;
+        runFindAndReplace();
+      });
+
+      clearAllBtn.addEventListener("click", function () {
+        findInput.value = "";
+        replaceInput.value = "";
+        sourceTextInput.value = "";
+        runFindAndReplace();
+      });
+
+      copyResultBtn.addEventListener("click", function () {
+        if (!replacedOutput.value) return;
+        navigator.clipboard.writeText(replacedOutput.value).then(function () {
+          const orig = copyResultBtn.textContent;
+          copyResultBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyResultBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadTxtBtn.addEventListener("click", function () {
+        if (!replacedOutput.value) return;
+        const blob = new Blob([replacedOutput.value], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "replaced-text.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      loadSampleBtn.click();
+    });
+  </script>
+</body>
+</html>

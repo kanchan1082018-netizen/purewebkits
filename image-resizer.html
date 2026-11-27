@@ -1,0 +1,1503 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Resizer Online in Pixels, CM, MM & Inches — Free Photo Resizer | PureWebKits</title>
+  <meta name="description" content="Resize images online in pixels (px), centimeters (cm), millimeters (mm), and inches with custom DPI. 100% client-side photo resizer with aspect ratio lock and JPEG/PNG export." />
+  <link rel="canonical" href="https://PureWebKits.com/image-resizer" />
+
+  <!-- JSON-LD Structured Data for SEO & Rich Snippets -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "Image Resizer in Pixels, CM, MM & Inches",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web Browser",
+        "url": "https://PureWebKits.com/image-resizer",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Free 100% client-side image resizer supporting exact pixels, centimeters, millimeters, inches, DPI scaling, and JPEG/PNG/WebP downloads."
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I resize an image in centimeters (cm) or inches for printing and exam forms?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Select Centimeters (cm) or Inches from the Unit dropdown, choose your required print resolution (such as 300 DPI for passport photos or 200 DPI for online forms), and enter your target width and height. The tool automatically converts physical units into exact pixel dimensions."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What does the Aspect Ratio Lock button do?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "When Aspect Ratio Lock is enabled, changing either the width or height automatically calculates the proportional counterpart so your photo never looks stretched, squished, or distorted."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Will resizing a photo reduce its sharpness or clarity?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Downscaling a large image to smaller dimensions preserves crisp visual clarity using high-quality bicubic canvas smoothing. Enlarging a tiny image far beyond its original pixel dimensions can cause softness, so starting from a high-resolution photo is always recommended."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which output format should I pick: JPEG, PNG, or WebP?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Pick JPEG for photographs, passport photos, and online application forms; pick PNG for logos, graphics, or images requiring a transparent background; and pick WebP for ultra-fast website banners."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are my images uploaded to any server during resizing?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Never. All image scaling, DPI calculation, and file encoding execute 100% locally inside your web browser via HTML5 Canvas. Your personal photos never leave your device."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --success-soft: #ECFDF5;
+      --danger: #DC2626;
+      --danger-soft: #FEF2F2;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero Section */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .hero-header {
+      text-align: center;
+      max-width: 780px;
+      margin: 0 auto 26px;
+    }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      flex-shrink: 0;
+    }
+
+    /* Tool Card */
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+    .drop-zone {
+      border: 2px dashed #93C5FD;
+      background: #F8FAFC;
+      border-radius: 12px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+    .drop-icon {
+      width: 54px;
+      height: 54px;
+      margin: 0 auto 14px;
+      border-radius: 12px;
+      background: #DBEAFE;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .drop-zone h2 {
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .drop-zone p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s ease;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 10px;
+      padding: 9px 16px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-secondary:hover { background: #E2E8F0; }
+
+    /* Editor Workspace */
+    .editor-workspace {
+      display: none;
+    }
+    .file-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+    }
+    .file-info-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .file-info-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Preset Chips */
+    .presets-bar {
+      margin-bottom: 20px;
+    }
+    .presets-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .preset-chip {
+      background: #F8FAFC;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #1E293B;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .preset-chip:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    /* Editor 2-Column Layout */
+    .editor-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 22px;
+      align-items: start;
+    }
+    .controls-panel {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .row-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .dim-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 10px;
+      align-items: end;
+    }
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .field-group label {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .field-group input,
+    .field-group select {
+      height: 42px;
+      padding: 0 12px;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #FFFFFF;
+      outline: none;
+      width: 100%;
+    }
+    .field-group input:focus,
+    .field-group select:focus {
+      border-color: var(--primary);
+    }
+    .lock-btn {
+      height: 42px;
+      width: 42px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      background: #FFFFFF;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .lock-btn.active {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Format Toggle Buttons */
+    .format-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .fmt-btn {
+      height: 38px;
+      border: 1.5px solid #CBD5E1;
+      background: #FFFFFF;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    .fmt-btn.active {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .pixel-calc-note {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--primary-dark);
+      background: var(--primary-soft);
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+
+    /* Preview Panel */
+    .preview-panel {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+    }
+    .preview-box {
+      width: 100%;
+      height: 230px;
+      background: #E2E8F0;
+      background-image: linear-gradient(45deg, #CBD5E1 25%, transparent 25%),
+        linear-gradient(-45deg, #CBD5E1 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #CBD5E1 75%),
+        linear-gradient(-45deg, transparent 75%, #CBD5E1 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+    .preview-box img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .output-stats {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+    .output-sub {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .btn-download {
+      width: 100%;
+      background: var(--success);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s ease;
+    }
+    .btn-download:hover { background: #047857; }
+
+    .alert-box {
+      display: none;
+      margin-top: 14px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      background: var(--danger-soft);
+      border: 1px solid #FECACA;
+      color: var(--danger);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* Content Sections (Blocks 2, 3, 4) */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 14px;
+      color: var(--text-main);
+    }
+    .content-card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin: 20px 0 8px;
+      color: var(--text-main);
+    }
+    .content-card p {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 12px;
+    }
+    .content-card ol {
+      padding-left: 20px;
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 14px;
+    }
+    .content-card li { margin-bottom: 8px; }
+    code {
+      background: #F1F5F9;
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-size: 13.5px;
+      color: #0F172A;
+    }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      text-align: left;
+    }
+    th {
+      background: #F1F5F9;
+      color: var(--text-main);
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge {
+      display: inline-block;
+      background: #EFF6FF;
+      color: #1D4ED8;
+      font-weight: 700;
+      font-size: 12.5px;
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+
+    /* Related Tools Grid */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .related-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 15px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      transition: all 0.15s ease;
+    }
+    .related-link:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    /* Accordion FAQs */
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .faq-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .faq-btn {
+      width: 100%;
+      background: #F8FAFC;
+      border: none;
+      padding: 16px 18px;
+      text-align: left;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .faq-icon {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      transition: transform 0.2s ease;
+    }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none;
+      padding: 16px 18px;
+      background: #FFFFFF;
+      border-top: 1px solid var(--border);
+      font-size: 14.5px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+    .faq-panel a { color: var(--primary); font-weight: 600; text-decoration: underline; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer {
+      background: var(--navy);
+      color: #CBD5E1;
+      padding-top: 48px;
+    }
+    .footer-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px 40px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+      gap: 30px;
+    }
+    .footer-brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      background: var(--primary);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .footer-brand-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 10px;
+    }
+    .footer-brand-desc {
+      font-size: 13.5px;
+      color: #94A3B8;
+      line-height: 1.6;
+    }
+    .footer-col h4 {
+      color: #FFFFFF;
+      font-size: 14.5px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom {
+      background: var(--navy-dark);
+      padding: 18px 20px;
+      font-size: 13.5px;
+      color: #94A3B8;
+    }
+    .footer-bottom-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 860px) {
+      .editor-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .row-2col { grid-template-columns: 1fr; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" fill="#2563EB"/>
+          <path d="M12 22V12M12 12L3 7M12 12l9-5" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Image Resizer -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Image Resizer in Pixels, CM, MM & Inches — Free Photo Resizer</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Resize photos locally in your browser with zero server uploads
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <input type="file" id="imgInput" accept="image/jpeg,image/jpg,image/png,image/webp" hidden />
+
+        <div id="dropZone" class="drop-zone" role="button" tabindex="0" aria-label="Upload image to resize">
+          <div class="drop-icon" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <polyline points="9 21 3 21 3 15"></polyline>
+              <line x1="21" y1="3" x2="14" y2="10"></line>
+              <line x1="3" y1="21" x2="10" y2="14"></line>
+            </svg>
+          </div>
+          <h2>Drop your image here, or click to select</h2>
+          <p>Supports JPG, PNG, and WebP. Resize by exact pixels, centimeters, millimeters, or inches.</p>
+          <button type="button" id="selectImgBtn" class="btn-primary">Choose Image File</button>
+        </div>
+
+        <div id="editorWorkspace" class="editor-workspace">
+          <div class="file-banner">
+            <div>
+              <div id="origFileName" class="file-info-text">photo.jpg</div>
+              <div id="origFileDims" class="file-info-sub">Original: 1920 × 1080 px • 240 KB</div>
+            </div>
+            <button type="button" id="changeImgBtn" class="btn-secondary">Change Image</button>
+          </div>
+
+          <div class="presets-bar">
+            <div class="presets-label">Quick Dimension Presets:</div>
+            <div class="preset-chips">
+              <button type="button" class="preset-chip" data-unit="cm" data-w="3.5" data-h="4.5" data-dpi="300">Passport Photo (3.5 × 4.5 cm)</button>
+              <button type="button" class="preset-chip" data-unit="in" data-w="2" data-h="2" data-dpi="300">US Visa / Passport (2 × 2 in)</button>
+              <button type="button" class="preset-chip" data-unit="px" data-w="1080" data-h="1080" data-dpi="96">Instagram Square (1080 × 1080 px)</button>
+              <button type="button" class="preset-chip" data-unit="px" data-w="1280" data-h="720" data-dpi="96">YouTube Thumbnail (1280 × 720 px)</button>
+              <button type="button" class="preset-chip" data-unit="px" data-w="1200" data-h="630" data-dpi="96">Blog / OpenGraph (1200 × 630 px)</button>
+            </div>
+          </div>
+
+          <div class="editor-grid">
+            <div class="controls-panel">
+              <div class="row-2col">
+                <div class="field-group">
+                  <label for="unitSelect">Measurement Unit</label>
+                  <select id="unitSelect">
+                    <option value="px" selected>Pixels (px)</option>
+                    <option value="cm">Centimeters (cm)</option>
+                    <option value="mm">Millimeters (mm)</option>
+                    <option value="in">Inches (in)</option>
+                  </select>
+                </div>
+
+                <div class="field-group">
+                  <label for="dpiSelect">Print Resolution (DPI)</label>
+                  <select id="dpiSelect">
+                    <option value="96" selected>96 DPI (Web / Screen)</option>
+                    <option value="150">150 DPI (Standard Form)</option>
+                    <option value="200">200 DPI (Exam Portal)</option>
+                    <option value="300">300 DPI (High-Res Print)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="dim-row">
+                <div class="field-group">
+                  <label for="widthInput">Width (<span id="wUnitLabel">px</span>)</label>
+                  <input type="number" id="widthInput" step="any" min="0.1" />
+                </div>
+
+                <button type="button" id="lockRatioBtn" class="lock-btn active" title="Lock Aspect Ratio" aria-pressed="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                </button>
+
+                <div class="field-group">
+                  <label for="heightInput">Height (<span id="hUnitLabel">px</span>)</label>
+                  <input type="number" id="heightInput" step="any" min="0.1" />
+                </div>
+              </div>
+
+              <div id="pixelCalcNote" class="pixel-calc-note">
+                Exact Output Dimensions: 0 × 0 px
+              </div>
+
+              <div class="field-group">
+                <label>Output File Format</label>
+                <div class="format-group" role="radiogroup" aria-label="Output Format">
+                  <button type="button" class="fmt-btn active" data-fmt="image/jpeg" data-ext="jpg">.JPEG</button>
+                  <button type="button" class="fmt-btn" data-fmt="image/png" data-ext="png">.PNG</button>
+                  <button type="button" class="fmt-btn" data-fmt="image/webp" data-ext="webp">.WEBP</button>
+                </div>
+              </div>
+
+              <div class="field-group" id="qualityGroup">
+                <label for="qualityRange">Image Quality: <span id="qualityValText">90%</span></label>
+                <input type="range" id="qualityRange" min="10" max="100" value="90" style="padding:0;height:auto;" />
+              </div>
+            </div>
+
+            <div class="preview-panel">
+              <div class="preview-box">
+                <img id="livePreviewImg" src="" alt="Resized Image Preview" />
+              </div>
+              <div id="outputStats" class="output-stats">Output: 0 × 0 px</div>
+              <div id="outputSub" class="output-sub">Estimated File Size: 0 KB</div>
+              <button type="button" id="downloadBtn" class="btn-download">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download Resized Image
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="alertBox" class="alert-box" role="alert"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Physical Units (CM, MM, Inches) Convert to Digital Pixels</h2>
+
+      <h3>Understanding Pixels vs. Centimeters & DPI Resolution</h3>
+      <p>
+        Digital screens display images using discrete dots called <strong>pixels (px)</strong>, whereas passport agencies, exam boards, and print shops specify dimensions in physical units like <strong>centimeters (cm)</strong>, <strong>millimeters (mm)</strong>, or <strong>inches (in)</strong>. Bridging the gap between physical measurements and digital pixels requires a density factor known as <strong>DPI (Dots Per Inch)</strong> or PPI (Pixels Per Inch). For example, a 3.5 × 4.5 cm passport photograph scanned at 300 DPI requires far more pixels than the same physical size viewed on a 96 DPI computer monitor. PureWebKits performs this conversion locally in your browser using bicubic canvas interpolation so your resized photos stay crisp, proportional, and completely private.
+      </p>
+
+      <h3>How to Resize an Image in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Upload Your Photo:</strong> Drag and drop any <code>.jpg</code>, <code>.png</code>, or <code>.webp</code> image into the box above.</li>
+        <li><strong>Select Units & Dimensions:</strong> Choose <em>Pixels (px)</em>, <em>Centimeters (cm)</em>, <em>Millimeters (mm)</em>, or <em>Inches (in)</em>, set your DPI, and enter your desired width or height (or click a quick preset).</li>
+        <li><strong>Pick Format & Download:</strong> Choose <em>.JPEG</em>, <em>.PNG</em>, or <em>.WEBP</em>, verify the live preview and file size, and click <em>Download Resized Image</em>.</li>
+      </ol>
+
+      <h3>Centimeters & Inches to Pixels Conversion Formula + Worked Example</h3>
+      <p>
+        Because <code>1 inch = 2.54 centimeters = 25.4 millimeters</code>, our resizer calculates exact pixel dimensions from any physical unit using these standard formulas:
+      </p>
+      <div class="formula-box">
+        Pixels = round( Inches × DPI )  |  Pixels = round( (Centimeters × DPI) / 2.54 )
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Suppose an online visa or exam application requires a <strong>3.5 cm × 4.5 cm</strong> photograph at <strong>300 DPI</strong>, and your camera photo is currently <strong>3000 × 4000 pixels</strong>.</p>
+        <p>Target Width in pixels = <code>(3.5 × 300) / 2.54 = 1050 / 2.54 = 413 pixels</code>.</p>
+        <p>Target Height in pixels = <code>(4.5 × 300) / 2.54 = 1350 / 2.54 = 531 pixels</code>.</p>
+        <p>Entering <code>3.5 cm × 4.5 cm</code> at <code>300 DPI</code> automatically scales your photo to <strong>413 × 531 px</strong>, ready for immediate upload or printing.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="dims-table-heading">
+      <h2 id="dims-table-heading">Standard Image Dimensions Chart (Passport, Social Media & Web Presets)</h2>
+      <p>Use this quick reference chart to find the exact pixel and physical dimensions required for global passports, social networks, and web publishing.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Platform / Document Type</th>
+              <th>Physical / Aspect Spec</th>
+              <th>Exact Pixel Dimensions</th>
+              <th>Recommended Format</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>US Passport & Visa Photo</strong></td>
+              <td>2 × 2 inches (300 DPI)</td>
+              <td><span class="limit-badge">600 × 600 px</span></td>
+              <td>.JPEG</td>
+            </tr>
+            <tr>
+              <td><strong>UK, Europe & India Passport Photo</strong></td>
+              <td>3.5 × 4.5 cm (300 DPI)</td>
+              <td><span class="limit-badge">413 × 531 px</span></td>
+              <td>.JPEG</td>
+            </tr>
+            <tr>
+              <td><strong>SSC / UPSC Online Exam Photo</strong></td>
+              <td>3.5 × 4.5 cm (150–200 DPI)</td>
+              <td><span class="limit-badge">200 × 230 px</span></td>
+              <td>.JPEG</td>
+            </tr>
+            <tr>
+              <td><strong>PAN Card Photo (NSDL / UTIITSL)</strong></td>
+              <td>2.5 × 3.5 cm (200 DPI)</td>
+              <td><span class="limit-badge">213 × 213 px</span></td>
+              <td>.JPEG</td>
+            </tr>
+            <tr>
+              <td><strong>YouTube Video Thumbnail</strong></td>
+              <td>16:9 Widescreen</td>
+              <td><span class="limit-badge">1280 × 720 px</span></td>
+              <td>.JPEG / .PNG</td>
+            </tr>
+            <tr>
+              <td><strong>YouTube Channel Banner</strong></td>
+              <td>16:9 Desktop/TV</td>
+              <td><span class="limit-badge">2560 × 1440 px</span></td>
+              <td>.JPEG / .PNG</td>
+            </tr>
+            <tr>
+              <td><strong>Instagram Square Post</strong></td>
+              <td>1:1 Square</td>
+              <td><span class="limit-badge">1080 × 1080 px</span></td>
+              <td>.JPEG</td>
+            </tr>
+            <tr>
+              <td><strong>Instagram Portrait / Reel Cover</strong></td>
+              <td>4:5 / 9:16 Vertical</td>
+              <td><span class="limit-badge">1080 × 1350 px / 1080 × 1920 px</span></td>
+              <td>.JPEG</td>
+            </tr>
+            <tr>
+              <td><strong>LinkedIn Profile Photo</strong></td>
+              <td>1:1 Square</td>
+              <td><span class="limit-badge">400 × 400 px</span></td>
+              <td>.JPEG / .PNG</td>
+            </tr>
+            <tr>
+              <td><strong>LinkedIn Personal Cover Banner</strong></td>
+              <td>4:1 Wide</td>
+              <td><span class="limit-badge">1584 × 396 px</span></td>
+              <td>.PNG / .JPEG</td>
+            </tr>
+            <tr>
+              <td><strong>X (Twitter) Header Banner</strong></td>
+              <td>3:1 Wide</td>
+              <td><span class="limit-badge">1500 × 500 px</span></td>
+              <td>.JPEG / .PNG</td>
+            </tr>
+            <tr>
+              <td><strong>Facebook Shared Link / OG Image</strong></td>
+              <td>1.91:1 Landscape</td>
+              <td><span class="limit-badge">1200 × 630 px</span></td>
+              <td>.JPEG / .WEBP</td>
+            </tr>
+            <tr>
+              <td><strong>Shopify / Amazon Product Main Image</strong></td>
+              <td>1:1 Zoom-Ready</td>
+              <td><span class="limit-badge">2000 × 2000 px</span></td>
+              <td>.JPEG / .PNG</td>
+            </tr>
+            <tr>
+              <td><strong>WordPress Featured Blog Image</strong></td>
+              <td>16:9 / 1.91:1</td>
+              <td><span class="limit-badge">1200 × 675 px</span></td>
+              <td>.WEBP / .JPEG</td>
+            </tr>
+            <tr>
+              <td><strong>4 × 6 Inch Standard Photo Print</strong></td>
+              <td>4 × 6 inches (300 DPI)</td>
+              <td><span class="limit-badge">1200 × 1800 px</span></td>
+              <td>.JPEG</td>
+            </tr>
+            <tr>
+              <td><strong>Full HD Desktop Wallpaper</strong></td>
+              <td>16:9 Full HD</td>
+              <td><span class="limit-badge">1920 × 1080 px</span></td>
+              <td>.JPEG / .PNG</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Image & Exam Form Tools</h2>
+      <p>Need to compress your resized image to an exact KB target, adjust signature dimensions, or convert formats? Try our companion browser tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="compress-image-to-exact-kb.html"><span>Compress Image to KB</span><span class="arrow">→</span></a>
+        <a class="related-link" href="signature-resizer.html"><span>Signature Resizer</span><span class="arrow">→</span></a>
+        <a class="related-link" href="jpg-to-png.html"><span>JPG to PNG</span><span class="arrow">→</span></a>
+        <a class="related-link" href="png-to-jpg.html"><span>PNG to JPG</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-cropper.html"><span>Image Cropper</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-dpi-changer.html"><span>Image DPI Changer</span><span class="arrow">→</span></a>
+        <a class="related-link" href="jpg-to-pdf.html"><span>JPG to PDF</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-to-webp.html"><span>Image to WebP</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 5 Unique Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>How do I resize an image in centimeters (cm) or inches for printing and exam forms?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Select <strong>Centimeters (cm)</strong> or <strong>Inches (in)</strong> from the Measurement Unit dropdown, choose your required print resolution (such as <code>300 DPI</code> for passport photos or <code>200 DPI</code> for online exam portals), and enter your target width and height. The tool automatically computes the exact pixel dimensions needed.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>What does the Aspect Ratio Lock button do?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            When the Aspect Ratio Lock icon is active (blue), typing a new width automatically updates the height proportionally (and vice versa) so your portrait, product photo, or banner never looks stretched or squished. Click the lock icon if you deliberately want independent custom dimensions.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>What if my resized image needs to be under a specific KB limit like 20 KB or 50 KB?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            You can lower the Image Quality slider when exporting as <code>.JPEG</code> to shrink the file size right here, or pass your newly resized image into our <a href="compress-image-to-exact-kb.html">Image Compressor to Exact KB</a> tool to hit an exact KB threshold automatically.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>Which output format should I pick: JPEG, PNG, or WebP?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Choose <strong>.JPEG</strong> for photographs, passport photos, and government portals; choose <strong>.PNG</strong> for logos, screenshots, or graphics that require a transparent background; and choose <strong>.WEBP</strong> for fast-loading modern websites and blogs.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>Are my images uploaded to any server during resizing?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All unit conversions, canvas scaling, and image encoding execute 100% locally inside your browser using JavaScript. Your personal photos and ID scans never leave your device.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <div class="footer-brand-title">PureWebKits</div>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="meta-tag-generator.html">Meta Tag Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Image Resizer Engine -->
+  <script>
+    (function () {
+      const imgInput = document.getElementById("imgInput");
+      const dropZone = document.getElementById("dropZone");
+      const selectImgBtn = document.getElementById("selectImgBtn");
+      const editorWorkspace = document.getElementById("editorWorkspace");
+      const origFileName = document.getElementById("origFileName");
+      const origFileDims = document.getElementById("origFileDims");
+      const changeImgBtn = document.getElementById("changeImgBtn");
+      const presetChips = document.querySelectorAll(".preset-chip");
+      const unitSelect = document.getElementById("unitSelect");
+      const dpiSelect = document.getElementById("dpiSelect");
+      const widthInput = document.getElementById("widthInput");
+      const heightInput = document.getElementById("heightInput");
+      const wUnitLabel = document.getElementById("wUnitLabel");
+      const hUnitLabel = document.getElementById("hUnitLabel");
+      const lockRatioBtn = document.getElementById("lockRatioBtn");
+      const pixelCalcNote = document.getElementById("pixelCalcNote");
+      const fmtBtns = document.querySelectorAll(".fmt-btn");
+      const qualityGroup = document.getElementById("qualityGroup");
+      const qualityRange = document.getElementById("qualityRange");
+      const qualityValText = document.getElementById("qualityValText");
+      const livePreviewImg = document.getElementById("livePreviewImg");
+      const outputStats = document.getElementById("outputStats");
+      const outputSub = document.getElementById("outputSub");
+      const downloadBtn = document.getElementById("downloadBtn");
+      const alertBox = document.getElementById("alertBox");
+
+      let loadedImage = null;
+      let originalFile = null;
+      let naturalW = 0;
+      let naturalH = 0;
+      let aspectRatio = 1;
+      let isRatioLocked = true;
+      let selectedMime = "image/jpeg";
+      let selectedExt = "jpg";
+      let currentBlobUrl = null;
+      let renderTimeout = null;
+
+      function formatBytes(bytes) {
+        if (bytes < 1024) return bytes + " B";
+        const kb = bytes / 1024;
+        if (kb < 1024) return kb.toFixed(1) + " KB";
+        return (kb / 1024).toFixed(2) + " MB";
+      }
+
+      function showAlert(msg) {
+        alertBox.textContent = msg;
+        alertBox.style.display = "block";
+      }
+
+      function hideAlert() {
+        alertBox.style.display = "none";
+        alertBox.textContent = "";
+      }
+
+      // Unit Conversion Helpers
+      function toPixels(val, unit, dpi) {
+        if (!val || val <= 0) return 1;
+        if (unit === "px") return Math.round(val);
+        if (unit === "in") return Math.round(val * dpi);
+        if (unit === "cm") return Math.round((val * dpi) / 2.54);
+        if (unit === "mm") return Math.round((val * dpi) / 25.4);
+        return Math.round(val);
+      }
+
+      function fromPixels(px, unit, dpi) {
+        if (unit === "px") return Math.round(px);
+        if (unit === "in") return Number((px / dpi).toFixed(2));
+        if (unit === "cm") return Number(((px * 2.54) / dpi).toFixed(2));
+        if (unit === "mm") return Number(((px * 25.4) / dpi).toFixed(1));
+        return Math.round(px);
+      }
+
+      function scheduleRender() {
+        clearTimeout(renderTimeout);
+        renderTimeout = setTimeout(renderResizedOutput, 80);
+      }
+
+      function renderResizedOutput() {
+        if (!loadedImage) return;
+
+        const unit = unitSelect.value;
+        const dpi = parseInt(dpiSelect.value, 10) || 96;
+        const rawW = parseFloat(widthInput.value) || 1;
+        const rawH = parseFloat(heightInput.value) || 1;
+
+        const targetPxW = Math.max(1, Math.min(8000, toPixels(rawW, unit, dpi)));
+        const targetPxH = Math.max(1, Math.min(8000, toPixels(rawH, unit, dpi)));
+
+        pixelCalcNote.textContent = `Exact Output Dimensions: ${targetPxW} × ${targetPxH} px (${dpi} DPI)`;
+
+        const canvas = document.createElement("canvas");
+        canvas.width = targetPxW;
+        canvas.height = targetPxH;
+        const ctx = canvas.getContext("2d");
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+
+        if (selectedMime === "image/jpeg") {
+          ctx.fillStyle = "#FFFFFF";
+          ctx.fillRect(0, 0, targetPxW, targetPxH);
+        }
+
+        ctx.drawImage(loadedImage, 0, 0, targetPxW, targetPxH);
+
+        const quality = (parseInt(qualityRange.value, 10) || 90) / 100;
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) return;
+            if (currentBlobUrl) {
+              URL.revokeObjectURL(currentBlobUrl);
+            }
+            currentBlobUrl = URL.createObjectURL(blob);
+            livePreviewImg.src = currentBlobUrl;
+            outputStats.textContent = `Output: ${targetPxW} × ${targetPxH} px (.${selectedExt.toUpperCase()})`;
+            outputSub.textContent = `Final File Size: ${formatBytes(blob.size)}`;
+          },
+          selectedMime,
+          quality
+        );
+      }
+
+      // Event Listeners
+      selectImgBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        imgInput.click();
+      });
+      dropZone.addEventListener("click", () => imgInput.click());
+      dropZone.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          imgInput.click();
+        }
+      });
+      changeImgBtn.addEventListener("click", () => imgInput.click());
+
+      ["dragenter", "dragover"].forEach((evt) => {
+        dropZone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          dropZone.classList.add("dragover");
+        });
+      });
+      ["dragleave", "drop"].forEach((evt) => {
+        dropZone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          dropZone.classList.remove("dragover");
+        });
+      });
+      dropZone.addEventListener("drop", (e) => {
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          handleImageFile(e.dataTransfer.files[0]);
+        }
+      });
+      imgInput.addEventListener("change", (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+          handleImageFile(e.target.files[0]);
+        }
+      });
+
+      function handleImageFile(file) {
+        hideAlert();
+        if (!file.type.startsWith("image/")) {
+          showAlert("Please upload a valid JPG, PNG, or WebP image file.");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            loadedImage = img;
+            originalFile = file;
+            naturalW = img.naturalWidth;
+            naturalH = img.naturalHeight;
+            aspectRatio = naturalW / naturalH;
+
+            origFileName.textContent = file.name;
+            origFileDims.textContent = `Original: ${naturalW} × ${naturalH} px • ${formatBytes(file.size)}`;
+
+            unitSelect.value = "px";
+            dpiSelect.value = "96";
+            wUnitLabel.textContent = "px";
+            hUnitLabel.textContent = "px";
+            widthInput.value = naturalW;
+            heightInput.value = naturalH;
+
+            dropZone.style.display = "none";
+            editorWorkspace.style.display = "block";
+            renderResizedOutput();
+          };
+          img.onerror = () => showAlert("Could not decode image file.");
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // Dimension Inputs with Aspect Ratio Lock
+      widthInput.addEventListener("input", () => {
+        const val = parseFloat(widthInput.value);
+        if (isRatioLocked && val > 0 && aspectRatio > 0) {
+          const unit = unitSelect.value;
+          const newH = val / aspectRatio;
+          heightInput.value = unit === "px" ? Math.round(newH) : Number(newH.toFixed(2));
+        }
+        scheduleRender();
+      });
+
+      heightInput.addEventListener("input", () => {
+        const val = parseFloat(heightInput.value);
+        if (isRatioLocked && val > 0 && aspectRatio > 0) {
+          const unit = unitSelect.value;
+          const newW = val * aspectRatio;
+          widthInput.value = unit === "px" ? Math.round(newW) : Number(newW.toFixed(2));
+        }
+        scheduleRender();
+      });
+
+      lockRatioBtn.addEventListener("click", () => {
+        isRatioLocked = !isRatioLocked;
+        lockRatioBtn.classList.toggle("active", isRatioLocked);
+        lockRatioBtn.setAttribute("aria-pressed", String(isRatioLocked));
+        if (isRatioLocked) {
+          const w = parseFloat(widthInput.value) || 1;
+          const h = parseFloat(heightInput.value) || 1;
+          aspectRatio = w / h;
+        }
+      });
+
+      // Unit & DPI Changes
+      let prevUnit = "px";
+      let prevDpi = 96;
+
+      unitSelect.addEventListener("change", () => {
+        const newUnit = unitSelect.value;
+        const dpi = parseInt(dpiSelect.value, 10) || 96;
+        const currentPxW = toPixels(parseFloat(widthInput.value) || naturalW, prevUnit, prevDpi);
+        const currentPxH = toPixels(parseFloat(heightInput.value) || naturalH, prevUnit, prevDpi);
+
+        wUnitLabel.textContent = newUnit;
+        hUnitLabel.textContent = newUnit;
+        widthInput.value = fromPixels(currentPxW, newUnit, dpi);
+        heightInput.value = fromPixels(currentPxH, newUnit, dpi);
+
+        prevUnit = newUnit;
+        prevDpi = dpi;
+        scheduleRender();
+      });
+
+      dpiSelect.addEventListener("change", () => {
+        prevDpi = parseInt(dpiSelect.value, 10) || 96;
+        scheduleRender();
+      });
+
+      // Quick Presets
+      presetChips.forEach((chip) => {
+        chip.addEventListener("click", () => {
+          const unit = chip.getAttribute("data-unit");
+          const w = parseFloat(chip.getAttribute("data-w"));
+          const h = parseFloat(chip.getAttribute("data-h"));
+          const dpi = chip.getAttribute("data-dpi");
+
+          unitSelect.value = unit;
+          dpiSelect.value = dpi;
+          prevUnit = unit;
+          prevDpi = parseInt(dpi, 10);
+          wUnitLabel.textContent = unit;
+          hUnitLabel.textContent = unit;
+
+          // Unlock ratio temporarily if preset has specific fixed aspect ratio
+          isRatioLocked = false;
+          lockRatioBtn.classList.remove("active");
+          lockRatioBtn.setAttribute("aria-pressed", "false");
+
+          widthInput.value = w;
+          heightInput.value = h;
+          aspectRatio = w / h;
+          scheduleRender();
+        });
+      });
+
+      // Output Format Toggle
+      fmtBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          fmtBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          selectedMime = btn.getAttribute("data-fmt");
+          selectedExt = btn.getAttribute("data-ext");
+          qualityGroup.style.display = selectedMime === "image/png" ? "none" : "flex";
+          scheduleRender();
+        });
+      });
+
+      qualityRange.addEventListener("input", () => {
+        qualityValText.textContent = qualityRange.value + "%";
+        scheduleRender();
+      });
+
+      // Download Button
+      downloadBtn.addEventListener("click", () => {
+        if (!currentBlobUrl || !originalFile) return;
+        const baseName = originalFile.name.replace(/\.[^/.]+$/, "");
+        const a = document.createElement("a");
+        a.href = currentBlobUrl;
+        a.download = `${baseName}-resized.${selectedExt}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

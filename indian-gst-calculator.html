@@ -1,0 +1,911 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Indian GST Calculator Online — CGST, SGST & IGST Inclusive/Exclusive | PureWebKits</title>
+  <meta name="description" content="Free online Indian GST calculator. Instantly calculate CGST, SGST, and IGST for 3%, 5%, 12%, 18%, and 28% GST slabs in both GST Exclusive and GST Inclusive modes." />
+  <link rel="canonical" href="https://PureWebKits.com/indian-gst-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --success-soft: #ECFDF5;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1060px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Top Controls: GST Mode + Supply Type */
+    .top-toggles {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .seg-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      border-radius: 10px;
+      padding: 4px;
+      gap: 4px;
+    }
+    .seg-btn {
+      border: none;
+      background: transparent;
+      border-radius: 7px;
+      padding: 10px 10px;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .seg-btn.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+    }
+
+    /* Amount & Slab Row */
+    .gst-inputs-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1.25fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 7px; }
+    .field-group label { font-size: 13.5px; font-weight: 700; color: var(--text-main); }
+    .inr-input-wrap {
+      display: flex;
+      align-items: center;
+      height: 50px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 10px;
+      padding: 0 14px;
+      background: #FFFFFF;
+    }
+    .inr-input-wrap:focus-within { border-color: var(--primary); }
+    .inr-sym { font-size: 19px; font-weight: 800; color: var(--primary); margin-right: 8px; }
+    .amount-field {
+      width: 100%;
+      border: none;
+      outline: none;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-main);
+      background: transparent;
+    }
+
+    .slab-pills {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 7px;
+    }
+    .slab-pill {
+      height: 50px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 10px;
+      background: #F8FAFC;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #334155;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.15;
+    }
+    .slab-pill span { font-size: 10px; font-weight: 600; opacity: 0.8; }
+    .slab-pill.active {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .custom-slab-row {
+      display: none;
+      margin-top: 8px;
+      align-items: center;
+      gap: 10px;
+    }
+    .custom-slab-input {
+      width: 110px;
+      height: 38px;
+      padding: 0 10px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-weight: 700;
+    }
+
+    /* 4-Card Output Grid */
+    .results-4col {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    .res-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .res-box.highlight {
+      background: var(--primary-soft);
+      border-color: #BFDBFE;
+    }
+    .res-lbl { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); }
+    .res-val { font-size: clamp(20px, 2.6vw, 25px); font-weight: 800; color: var(--text-main); word-break: break-word; }
+    .res-box.highlight .res-val { color: var(--primary); }
+    .res-sub { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+    .copy-mini-btn {
+      align-self: flex-start;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 7px;
+      padding: 5px 10px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+    }
+    .copy-mini-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 860px) {
+      .top-toggles, .gst-inputs-grid { grid-template-columns: 1fr; }
+      .results-4col, .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .slab-pills { grid-template-columns: repeat(3, 1fr); }
+      .results-4col, .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Indian GST Calculator -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Indian GST Calculator — CGST, SGST & IGST Breakdown</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate GST Exclusive & Inclusive invoices for 3%, 5%, 12%, 18% & 28% slabs in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="top-toggles">
+          <div class="seg-group" role="tablist" aria-label="GST Calculation Mode">
+            <button type="button" class="seg-btn active" data-mode="exclusive" role="tab" aria-selected="true">+ Add GST (Exclusive)</button>
+            <button type="button" class="seg-btn" data-mode="inclusive" role="tab" aria-selected="false">− Remove GST (Inclusive)</button>
+          </div>
+
+          <div class="seg-group" role="tablist" aria-label="Supply Type">
+            <button type="button" class="seg-btn active" data-supply="intra" role="tab" aria-selected="true">Same State (CGST + SGST)</button>
+            <button type="button" class="seg-btn" data-supply="inter" role="tab" aria-selected="false">Inter-State (IGST)</button>
+          </div>
+        </div>
+
+        <div class="gst-inputs-grid">
+          <div class="field-group">
+            <label id="amountLabel" for="amountInput">Base Amount (Excluding GST)</label>
+            <div class="inr-input-wrap">
+              <span class="inr-sym">₹</span>
+              <input type="number" id="amountInput" class="amount-field" min="0" step="any" value="10000" />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label>Select Indian GST Tax Slab</label>
+            <div class="slab-pills">
+              <button type="button" class="slab-pill" data-rate="3">3%<span>Gold/Silver</span></button>
+              <button type="button" class="slab-pill" data-rate="5">5%<span>Essentials</span></button>
+              <button type="button" class="slab-pill" data-rate="12">12%<span>Standard I</span></button>
+              <button type="button" class="slab-pill active" data-rate="18">18%<span>Standard II</span></button>
+              <button type="button" class="slab-pill" data-rate="28">28%<span>Luxury/Auto</span></button>
+              <button type="button" class="slab-pill" data-rate="custom">Custom<span>Manual %</span></button>
+            </div>
+            <div id="customSlabRow" class="custom-slab-row">
+              <label for="customSlabInput" style="font-size:12.5px;">Custom GST (%):</label>
+              <input type="number" id="customSlabInput" class="custom-slab-input" min="0" max="100" step="0.1" value="0.25" />
+            </div>
+          </div>
+        </div>
+
+        <div class="results-4col" aria-live="polite">
+          <div class="res-box">
+            <div>
+              <div class="res-lbl">Net Base Price</div>
+              <div id="netAmountVal" class="res-val">₹10,000.00</div>
+              <div class="res-sub">Taxable value</div>
+            </div>
+            <button type="button" class="copy-mini-btn" data-target="netAmountVal">Copy Net</button>
+          </div>
+
+          <div class="res-box">
+            <div>
+              <div id="tax1Lbl" class="res-lbl">CGST (9%)</div>
+              <div id="tax1Val" class="res-val">₹900.00</div>
+              <div id="tax1Sub" class="res-sub">Central GST share</div>
+            </div>
+            <button type="button" class="copy-mini-btn" data-target="tax1Val">Copy</button>
+          </div>
+
+          <div class="res-box">
+            <div>
+              <div id="tax2Lbl" class="res-lbl">SGST (9%)</div>
+              <div id="tax2Val" class="res-val">₹900.00</div>
+              <div id="tax2Sub" class="res-sub">State / UTGST share</div>
+            </div>
+            <button type="button" class="copy-mini-btn" data-target="tax2Val">Copy</button>
+          </div>
+
+          <div class="res-box highlight">
+            <div>
+              <div id="totalHeaderLbl" class="res-lbl">Total Invoice (18% GST)</div>
+              <div id="grossAmountVal" class="res-val">₹11,800.00</div>
+              <div id="totalGstSub" class="res-sub">Total GST: ₹1,800.00</div>
+            </div>
+            <button type="button" class="copy-mini-btn" data-target="grossAmountVal">Copy Total</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Indian GST Calculation, CGST/SGST Split & Reverse GST Work</h2>
+
+      <h3>Understanding Intra-State (CGST + SGST) vs. Inter-State (IGST)</h3>
+      <p>
+        India's <strong>Goods and Services Tax (GST)</strong> is a unified destination-based indirect tax governed by the GST Council across five primary slabs: <strong>3%</strong> (gold, silver, and precious jewellery), <strong>5%</strong> (essential food items, economy air travel, and transport), <strong>12%</strong> (processed foods, computers, and business-class flights), <strong>18%</strong> (IT/software services, restaurant dining, electronics, and financial services), and <strong>28%</strong> (automobiles, cement, and luxury goods). When a supplier and buyer are located within the <strong>same state or union territory</strong>, the applicable GST rate is split equally into <strong>CGST (Central GST)</strong> and <strong>SGST/UTGST (State GST)</strong>—for example, an 18% slab becomes <code>9% CGST + 9% SGST</code>. When goods or services cross state borders, the entire <code>18%</code> is billed as a single <strong>IGST (Integrated GST)</strong>.
+      </p>
+
+      <h3>How to Calculate Indian GST in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Select Exclusive or Inclusive Mode:</strong> Choose <em>+ Add GST (Exclusive)</em> to add tax onto a base price, or <em>− Remove GST (Inclusive)</em> to extract the base price and GST from an MRP or gross bill.</li>
+        <li><strong>Choose Same-State or Inter-State Supply:</strong> Toggle between <em>Same State (CGST + SGST)</em> for a 50%-50% tax split and <em>Inter-State (IGST)</em> for interstate B2B/B2C invoices.</li>
+        <li><strong>Pick GST Slab & Copy Invoice Values:</strong> Click <em>3%</em>, <em>5%</em>, <em>12%</em>, <em>18%</em>, or <em>28%</em> and copy the exact Net, CGST/SGST, and Total figures for your GST invoice or GSTR-1 filing.</li>
+      </ol>
+
+      <h3>GST Exclusive & GST Inclusive Formulas + Worked Example</h3>
+      <p>
+        Under Indian GST invoicing rules, reverse-calculating the taxable base price from a GST-inclusive price divides the gross amount by <code>1 + (GST Rate / 100)</code>:
+      </p>
+      <div class="formula-box">
+        Add GST: Total = Base × (1 + Rate/100)  |  Remove GST: Base = Total / (1 + Rate/100)
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example (GST Inclusive Extraction at 18%):</strong> Suppose a digital marketing agency in Patna, Bihar issues a GST-inclusive invoice of <strong>₹23,600</strong> to a client in Bihar under the <strong>18% GST slab</strong>.</p>
+        <p>Taxable Net Base Price = <code>₹23,600 / 1.18 = ₹20,000.00</code>.</p>
+        <p>Total GST Amount = <code>₹23,600 − ₹20,000 = ₹3,600.00</code>, split equally into <strong>₹1,800.00 CGST (9%)</strong> and <strong>₹1,800.00 SGST (9%)</strong>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="gst-table-heading">
+      <h2 id="gst-table-heading">Indian GST Tax Slabs & HSN/SAC Rate Reference Chart (16 Categories)</h2>
+      <p>Use this quick GST rate guide to verify standard tax slabs and CGST/SGST splits across common Indian goods and services.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Goods / Service Category</th>
+              <th>GST Slab</th>
+              <th>Intra-State Split</th>
+              <th>Inter-State Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Unbranded Cereals, Fresh Milk, Fruits & Vegetables</strong></td>
+              <td><span class="limit-badge">0% (Exempt)</span></td>
+              <td>0% CGST + 0% SGST</td>
+              <td>0% IGST</td>
+            </tr>
+            <tr>
+              <td><strong>Gold, Silver, Platinum & Precious Jewellery</strong></td>
+              <td><span class="limit-badge">3%</span></td>
+              <td>1.5% CGST + 1.5% SGST</td>
+              <td>3% IGST</td>
+            </tr>
+            <tr>
+              <td><strong>Packaged Tea, Coffee, Spices & Edible Oils</strong></td>
+              <td><span class="limit-badge">5%</span></td>
+              <td>2.5% CGST + 2.5% SGST</td>
+              <td>5% IGST</td>
+            </tr>
+            <tr>
+              <td><strong>Domestic LPG, Coal & Life-Saving Medicines</strong></td>
+              <td><span class="limit-badge">5%</span></td>
+              <td>2.5% CGST + 2.5% SGST</td>
+              <td>5% IGST</td>
+            </tr>
+            <tr>
+              <td><strong>Economy Class Air Travel & Rail Transport</strong></td>
+              <td><span class="limit-badge">5%</span></td>
+              <td>2.5% CGST + 2.5% SGST</td>
+              <td>5% IGST</td>
+            </tr>
+            <tr>
+              <td><strong>Non-AC / Stand-Alone Restaurant Dining (No ITC)</strong></td>
+              <td><span class="limit-badge">5%</span></td>
+              <td>2.5% CGST + 2.5% SGST</td>
+              <td>5% IGST</td>
+            </tr>
+            <tr>
+              <td><strong>Processed Foods, Butter, Ghee & Fruit Juices</strong></td>
+              <td><span class="limit-badge">12%</span></td>
+              <td>6% CGST + 6% SGST</td>
+              <td>12% IGST</td>
+            </tr>
+            <tr>
+              <td><strong>Mobile Phones, Bicycles & Diagnostic Kits</strong></td>
+              <td><span class="limit-badge">12%</span></td>
+              <td>6% CGST + 6% SGST</td>
+              <td>12% IGST</td>
+            </tr>
+            <tr>
+              <td><strong>Hotel Rooms Priced Between ₹1,001 & ₹7,500/night</strong></td>
+              <td><span class="limit-badge">12%</span></td>
+              <td>6% CGST + 6% SGST</td>
+              <td>12% IGST</td>
+            </tr>
+            <tr>
+              <td><strong>IT, Software, Web Development & Digital Marketing</strong></td>
+              <td><span class="limit-badge">18%</span></td>
+              <td>9% CGST + 9% SGST</td>
+              <td>18% IGST</td>
+            </tr>
+            <tr>
+              <td><strong>Laptops, Monitors, Printers & Telecom Services</strong></td>
+              <td><span class="limit-badge">18%</span></td>
+              <td>9% CGST + 9% SGST</td>
+              <td>18% IGST</td>
+            </tr>
+            <tr>
+              <td><strong>Banking, Insurance & Professional Consulting</strong></td>
+              <td><span class="limit-badge">18%</span></td>
+              <td>9% CGST + 9% SGST</td>
+              <td>18% IGST</td>
+            </tr>
+            <tr>
+              <td><strong>Apparel & Footwear Priced Above ₹1,000</strong></td>
+              <td><span class="limit-badge">18%</span></td>
+              <td>9% CGST + 9% SGST</td>
+              <td>18% IGST</td>
+            </tr>
+            <tr>
+              <td><strong>Passenger Cars, SUVs & Two-Wheelers (>350cc)</strong></td>
+              <td><span class="limit-badge">28% (+Cess)</span></td>
+              <td>14% CGST + 14% SGST</td>
+              <td>28% IGST</td>
+            </tr>
+            <tr>
+              <td><strong>Air Conditioners, Refrigerators & Dishwashers</strong></td>
+              <td><span class="limit-badge">28%</span></td>
+              <td>14% CGST + 14% SGST</td>
+              <td>28% IGST</td>
+            </tr>
+            <tr>
+              <td><strong>Cement, Paints & Luxury Five-Star Hotel Stays</strong></td>
+              <td><span class="limit-badge">28%</span></td>
+              <td>14% CGST + 14% SGST</td>
+              <td>28% IGST</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Indian Finance, Invoice & Business Calculators</h2>
+      <p>Creating GST invoices, calculating loan EMIs, or converting USD/INR exchange rates? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="invoice-generator.html"><span>PDF Invoice Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="emi-calculator.html"><span>Loan & EMI Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="uk-vat-calculator.html"><span>UK VAT Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="us-paycheck-calculator.html"><span>US Paycheck Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="uae-gratuity-calculator.html"><span>UAE Gratuity Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="stock-average-calculator.html"><span>Stock Average Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. When should I charge CGST + SGST versus IGST on an Indian invoice?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Charge <strong>CGST + SGST</strong> (split 50%-50%) when the Place of Supply is in the <strong>same state</strong> as your GST registration—for example, a Delhi seller billing a Delhi buyer. Charge <strong>IGST</strong> (100% of the slab) when selling goods or services to a buyer in a <strong>different state or union territory</strong>, or on imports/exports.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. What is the GST registration turnover limit in India?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            For <strong>service providers</strong>, GST registration is mandatory once aggregate annual turnover exceeds <strong>₹20 lakh</strong> (₹10 lakh in special category states). For <strong>goods suppliers</strong>, the threshold is <strong>₹40 lakh</strong> in most states—though interstate sellers and e-commerce sellers must register regardless of turnover.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. How do I extract base price from a GST-inclusive MRP amount?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Switch the calculator to <strong>− Remove GST (Inclusive)</strong> mode, or divide the MRP by <code>1 + (GST% / 100)</code>. For instance, on an 18% GST-inclusive product priced at ₹1,180, the base price is <code>₹1,180 ÷ 1.18 = ₹1,000</code> and the GST component is ₹180.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my invoice amounts or business tax figures sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All GST slab calculations, CGST/SGST splits, and clipboard copies execute 100% locally inside your web browser using JavaScript. Your business figures never leave your device.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Indian GST Calculator Engine -->
+  <script>
+    (function () {
+      const modeBtns = document.querySelectorAll("[data-mode]");
+      const supplyBtns = document.querySelectorAll("[data-supply]");
+      const amountLabel = document.getElementById("amountLabel");
+      const amountInput = document.getElementById("amountInput");
+      const slabPills = document.querySelectorAll(".slab-pill");
+      const customSlabRow = document.getElementById("customSlabRow");
+      const customSlabInput = document.getElementById("customSlabInput");
+
+      const netAmountVal = document.getElementById("netAmountVal");
+      const tax1Lbl = document.getElementById("tax1Lbl");
+      const tax1Val = document.getElementById("tax1Val");
+      const tax1Sub = document.getElementById("tax1Sub");
+      const tax2Lbl = document.getElementById("tax2Lbl");
+      const tax2Val = document.getElementById("tax2Val");
+      const tax2Sub = document.getElementById("tax2Sub");
+      const totalHeaderLbl = document.getElementById("totalHeaderLbl");
+      const grossAmountVal = document.getElementById("grossAmountVal");
+      const totalGstSub = document.getElementById("totalGstSub");
+      const copyMiniBtns = document.querySelectorAll(".copy-mini-btn");
+
+      let gstMode = "exclusive"; // "exclusive" or "inclusive"
+      let supplyType = "intra";  // "intra" (CGST+SGST) or "inter" (IGST)
+      let selectedSlab = "18";
+
+      function formatINR(num) {
+        return "₹" + num.toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+
+      function getGstRate() {
+        if (selectedSlab === "custom") {
+          return Math.max(0, Math.min(100, parseFloat(customSlabInput.value) || 0));
+        }
+        return parseFloat(selectedSlab) || 0;
+      }
+
+      function calculateGST() {
+        const inputAmt = Math.max(0, parseFloat(amountInput.value) || 0);
+        const rate = getGstRate();
+        const factor = rate / 100;
+
+        let net = 0;
+        let gstTotal = 0;
+        let gross = 0;
+
+        if (gstMode === "exclusive") {
+          net = inputAmt;
+          gstTotal = net * factor;
+          gross = net + gstTotal;
+        } else {
+          gross = inputAmt;
+          net = gross / (1 + factor);
+          gstTotal = gross - net;
+        }
+
+        netAmountVal.textContent = formatINR(net);
+        grossAmountVal.textContent = formatINR(gross);
+        totalHeaderLbl.textContent = `Total Invoice (${rate}% GST)`;
+        totalGstSub.textContent = `Total GST: ${formatINR(gstTotal)}`;
+
+        if (supplyType === "intra") {
+          const halfRate = rate / 2;
+          const halfTax = gstTotal / 2;
+          tax1Lbl.textContent = `CGST (${halfRate}%)`;
+          tax1Val.textContent = formatINR(halfTax);
+          tax1Sub.textContent = "Central GST (50%)";
+
+          tax2Lbl.textContent = `SGST (${halfRate}%)`;
+          tax2Val.textContent = formatINR(halfTax);
+          tax2Sub.textContent = "State / UTGST (50%)";
+        } else {
+          tax1Lbl.textContent = `IGST (${rate}%)`;
+          tax1Val.textContent = formatINR(gstTotal);
+          tax1Sub.textContent = "Integrated GST (100%)";
+
+          tax2Lbl.textContent = "CGST / SGST (0%)";
+          tax2Val.textContent = "₹0.00";
+          tax2Sub.textContent = "Not applicable inter-state";
+        }
+      }
+
+      modeBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          modeBtns.forEach((b) => {
+            b.classList.remove("active");
+            b.setAttribute("aria-selected", "false");
+          });
+          btn.classList.add("active");
+          btn.setAttribute("aria-selected", "true");
+          gstMode = btn.getAttribute("data-mode");
+          amountLabel.textContent = gstMode === "exclusive"
+            ? "Base Amount (Excluding GST)"
+            : "Total Bill Amount (Including GST)";
+          calculateGST();
+        });
+      });
+
+      supplyBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          supplyBtns.forEach((b) => {
+            b.classList.remove("active");
+            b.setAttribute("aria-selected", "false");
+          });
+          btn.classList.add("active");
+          btn.setAttribute("aria-selected", "true");
+          supplyType = btn.getAttribute("data-supply");
+          calculateGST();
+        });
+      });
+
+      slabPills.forEach((pill) => {
+        pill.addEventListener("click", () => {
+          slabPills.forEach((p) => p.classList.remove("active"));
+          pill.classList.add("active");
+          selectedSlab = pill.getAttribute("data-rate");
+          customSlabRow.style.display = selectedSlab === "custom" ? "flex" : "none";
+          calculateGST();
+        });
+      });
+
+      amountInput.addEventListener("input", calculateGST);
+      customSlabInput.addEventListener("input", calculateGST);
+
+      copyMiniBtns.forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const targetId = btn.getAttribute("data-target");
+          const el = document.getElementById(targetId);
+          if (!el) return;
+          try {
+            await navigator.clipboard.writeText(el.textContent);
+            const orig = btn.textContent;
+            btn.textContent = "Copied!";
+            setTimeout(() => { btn.textContent = orig; }, 1300);
+          } catch (e) {}
+        });
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateGST();
+    })();
+  </script>
+</body>
+</html>

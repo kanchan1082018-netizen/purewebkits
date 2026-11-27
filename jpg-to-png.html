@@ -1,0 +1,1606 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JPG to PNG Converter — Free Lossless Online Image Converter | PureWebKits</title>
+  <meta name="description" content="Convert JPG and JPEG images to lossless PNG format instantly in your browser. 100% client-side, zero server uploads, batch conversion, and optional resizing." />
+  <link rel="canonical" href="https://PureWebKits.com/jpg-to-png.html" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "PureWebKits JPG to PNG Converter",
+    "url": "https://PureWebKits.com/jpg-to-png.html",
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "Any (Web Browser)",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "Free 100% client-side online JPG to PNG converter using HTML5 Canvas for lossless browser-based image conversion and optional resizing.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "PureWebKits",
+      "url": "https://PureWebKits.com"
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Does converting a JPG to PNG automatically make the background transparent?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Standard JPG files do not store an alpha transparency channel, so every pixel has a solid background color. Converting JPG to PNG preserves the exact visible pixels inside a 32-bit RGBA PNG container, which prepares the file for transparency editing in design software, though it will not erase an existing background automatically."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why is the converted PNG file larger than the original JPG?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "JPG uses lossy DCT compression that discards fine high-frequency color details to shrink file size. PNG uses lossless DEFLATE compression that retains every single pixel value intact. Because no visual data is thrown away during PNG encoding, photographic JPGs typically expand in file size when saved as lossless PNG."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How many JPG images can I convert to PNG at once?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "There is no artificial daily limit or paywall. You can drag and drop dozens of JPG or JPEG files simultaneously for batch conversion. The only practical limit is your device's available browser memory (RAM), which easily handles standard batches of web, document, and camera images."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Will converting JPG to PNG alter my image colors or sharpness?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. The HTML5 Canvas engine renders your decoded JPG pixel-for-pixel in sRGB color space and encodes it into a lossless PNG without re-applying lossy compression. While existing JPEG compression artifacts from the original file cannot be undone, no new blur, banding, or mosquito noise is added."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Are my photos uploaded to PureWebKits servers during conversion?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Never. This tool runs 100% client-side inside your web browser using JavaScript and the HTML5 Canvas API. Your JPG files never leave your computer or phone, ensuring total privacy for sensitive documents, ID scans, signatures, and unpublished creative assets."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg-page: #F8FAFC;
+      --bg-surface: #FFFFFF;
+      --text-primary: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --success: #059669;
+      --success-soft: #ECFDF5;
+      --navy-footer: #182234;
+      --navy-bottom: #111827;
+      --radius: 12px;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Sticky Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid #E2E8F0;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-logo svg {
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .nav-links a {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: color 0.15s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    @media (max-width: 640px) {
+      .nav-links {
+        gap: 14px;
+      }
+      .nav-links a {
+        font-size: 0.85rem;
+      }
+      .brand-logo {
+        font-size: 1.05rem;
+      }
+    }
+
+    /* Main Layout */
+    .container {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 36px 20px 64px;
+    }
+
+    /* Block 1: Hero & Tool */
+    .hero-block {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .hero-block h1 {
+      font-size: clamp(1.75rem, 3.2vw, 2.35rem);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    .trust-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--success-soft);
+      color: var(--success);
+      border: 1px solid #A7F3D0;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .converter-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow-md);
+      padding: 28px;
+      margin-bottom: 44px;
+    }
+
+    /* Resize Options Bar */
+    .options-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .dimension-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.94rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    .dimension-toggle input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .custom-dims {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .custom-dims.disabled {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    .dim-field {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .dim-field input[type="number"] {
+      width: 92px;
+      padding: 7px 10px;
+      border: 1px solid #CBD5E1;
+      border-radius: 7px;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      background: #FFFFFF;
+    }
+
+    .dim-field input[type="number"]:focus {
+      outline: 2px solid var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn-reconvert {
+      padding: 7px 14px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: 1px solid #BFDBFE;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-reconvert:hover {
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+
+    /* Dropzone */
+    .dropzone {
+      border: 2px dashed #93C5FD;
+      background: #F8FAFF;
+      border-radius: 12px;
+      padding: 42px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .dropzone:hover,
+    .dropzone.dragover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .dropzone-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 12px;
+      color: var(--primary);
+    }
+
+    .dropzone h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .dropzone p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 22px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: #FFFFFF;
+      color: var(--text-secondary);
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 9px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-secondary:hover {
+      background: #F1F5F9;
+      color: var(--text-primary);
+    }
+
+    /* Status Message */
+    .status-msg {
+      margin-top: 14px;
+      font-size: 0.9rem;
+      color: #DC2626;
+      font-weight: 500;
+      display: none;
+    }
+
+    /* Batch Toolbar & Cards */
+    .results-section {
+      display: none;
+      margin-top: 26px;
+      border-top: 1px solid var(--border);
+      padding-top: 22px;
+    }
+
+    .results-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .results-count {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .results-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 18px;
+    }
+
+    .file-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #FFFFFF;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-thumb-wrap {
+      height: 165px;
+      background-color: #F1F5F9;
+      background-image: linear-gradient(45deg, #E2E8F0 25%, transparent 25%),
+        linear-gradient(-45deg, #E2E8F0 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #E2E8F0 75%),
+        linear-gradient(-45deg, transparent 75%, #E2E8F0 75%);
+      background-size: 18px 18px;
+      background-position: 0 0, 0 9px, 9px -9px, -9px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      position: relative;
+    }
+
+    .card-thumb-wrap img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 4px;
+    }
+
+    .card-remove {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 1px solid #CBD5E1;
+      background: rgba(255, 255, 255, 0.94);
+      color: var(--text-secondary);
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-remove:hover {
+      background: #FEE2E2;
+      color: #DC2626;
+      border-color: #FCA5A5;
+    }
+
+    .card-body {
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .card-filename {
+      font-size: 0.94rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      background: #F8FAFC;
+      padding: 9px 10px;
+      border-radius: 8px;
+      border: 1px solid #F1F5F9;
+    }
+
+    .meta-label {
+      display: block;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .meta-val {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .card-download {
+      margin-top: auto;
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.15s ease;
+    }
+
+    .card-download:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Editorial Blocks */
+    .content-block {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .content-block h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      letter-spacing: -0.015em;
+    }
+
+    .content-block h3 {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 22px 0 10px;
+    }
+
+    .content-block p {
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+      font-size: 0.98rem;
+    }
+
+    .steps-list {
+      padding-left: 20px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .steps-list li {
+      margin-bottom: 8px;
+    }
+
+    .formula-box {
+      background: #F8FAFC;
+      border-left: 4px solid var(--primary);
+      border-radius: 0 10px 10px 0;
+      padding: 16px 20px;
+      margin: 16px 0;
+    }
+
+    .formula-code {
+      display: block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    /* Reference Table */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-top: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      text-align: left;
+    }
+
+    thead th {
+      background: #F1F5F9;
+      color: var(--text-primary);
+      font-weight: 700;
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+      vertical-align: top;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #F8FAFC;
+    }
+
+    tbody td:first-child {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* Related Tools Grid */
+    .tools-hub-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+      margin-bottom: 30px;
+    }
+
+    .hub-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 15px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      transition: all 0.15s ease;
+    }
+
+    .hub-link:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .hub-link span {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* Accordion FAQs */
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .faq-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #FFFFFF;
+    }
+
+    .faq-question {
+      width: 100%;
+      background: #FFFFFF;
+      border: none;
+      padding: 16px 18px;
+      text-align: left;
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .faq-question:hover {
+      background: #F8FAFC;
+    }
+
+    .faq-icon {
+      font-size: 1.2rem;
+      color: var(--primary);
+      font-weight: 700;
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .faq-item.open .faq-icon {
+      transform: rotate(45deg);
+    }
+
+    .faq-answer {
+      display: none;
+      padding: 0 18px 16px;
+      color: var(--text-secondary);
+      font-size: 0.94rem;
+      border-top: 1px solid #F1F5F9;
+      padding-top: 12px;
+    }
+
+    .faq-item.open .faq-answer {
+      display: block;
+    }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer {
+      background: #182234;
+      color: #CBD5E1;
+      padding-top: 52px;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px 44px;
+      display: grid;
+      grid-template-columns: 1.4fr repeat(4, 1fr);
+      gap: 32px;
+    }
+
+    @media (max-width: 960px) {
+      .footer-inner {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .footer-inner {
+        grid-template-columns: 1fr;
+      }
+      .converter-card,
+      .content-block {
+        padding: 20px;
+      }
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: #FFFFFF;
+      margin-bottom: 12px;
+    }
+
+    .footer-desc {
+      font-size: 0.88rem;
+      color: #94A3B8;
+      line-height: 1.6;
+    }
+
+    .footer-col h4 {
+      color: #FFFFFF;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .footer-col a {
+      font-size: 0.88rem;
+      color: #94A3B8;
+      transition: color 0.15s ease;
+    }
+
+    .footer-col a:hover {
+      color: #FFFFFF;
+    }
+
+    .footer-bottom {
+      background: #111827;
+      padding: 18px 20px;
+      text-align: center;
+      font-size: 0.86rem;
+      color: #94A3B8;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M16 3L28 9.8V22.2L16 29L4 22.2V9.8L16 3Z" fill="#2563EB"/>
+          <path d="M16 3L28 9.8L16 16.5L4 9.8L16 3Z" fill="#60A5FA"/>
+          <path d="M16 16.5L28 9.8V22.2L16 29V16.5Z" fill="#1D4ED8"/>
+          <path d="M16 16.5L4 9.8V22.2L16 29V16.5Z" fill="#3B82F6"/>
+        </svg>
+        <span>PureWebKits</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Block 1: Above the Fold -->
+    <section class="hero-block">
+      <h1>JPG to PNG Converter — Free Lossless Online Image Converter</h1>
+      <div class="trust-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+        <span>100% Client-Side: Your images are converted locally in your browser with zero server uploads</span>
+      </div>
+    </section>
+
+    <section class="converter-card" aria-label="JPG to PNG Converter Tool">
+      <div class="options-bar">
+        <label class="dimension-toggle">
+          <input type="checkbox" id="keepOriginalCheck" checked />
+          <span>Keep Original Dimensions</span>
+        </label>
+
+        <div class="custom-dims disabled" id="customDimsGroup">
+          <label class="dim-field">
+            <span>Width (px):</span>
+            <input type="number" id="customWidth" min="1" max="10000" placeholder="Auto" />
+          </label>
+          <label class="dim-field">
+            <span>Height (px):</span>
+            <input type="number" id="customHeight" min="1" max="10000" placeholder="Auto" />
+          </label>
+          <button type="button" class="btn-reconvert" id="applyResizeBtn">Apply &amp; Re-convert</button>
+        </div>
+      </div>
+
+      <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Upload JPG or JPEG images">
+        <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="3"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <path d="M21 15l-5-5L5 21"/>
+        </svg>
+        <h2>Drop your JPG / JPEG images here</h2>
+        <p>Select one image or multiple files at once for instant batch PNG conversion</p>
+        <button type="button" class="btn-primary" id="browseBtn">Choose JPG Files</button>
+        <input type="file" id="fileInput" accept=".jpg,.jpeg,image/jpeg" multiple hidden />
+      </div>
+
+      <div class="status-msg" id="statusMsg" role="alert"></div>
+
+      <div class="results-section" id="resultsSection">
+        <div class="results-toolbar">
+          <div class="results-count" id="resultsCount">0 files converted</div>
+          <div class="results-actions">
+            <button type="button" class="btn-primary" id="downloadAllBtn" style="display: none;">Download All PNGs (.zip)</button>
+            <button type="button" class="btn-secondary" id="clearAllBtn">Clear All</button>
+          </div>
+        </div>
+        <div class="cards-grid" id="cardsGrid"></div>
+      </div>
+    </section>
+
+    <!-- Block 2: Original Practical Guide, Formula & Worked Example -->
+    <article class="content-block">
+      <h2>Practical Guide: Converting JPG to Lossless PNG</h2>
+
+      <h3>Why Convert JPG to Lossless PNG?</h3>
+      <p>
+        JPEG (JPG) files rely on lossy Discrete Cosine Transform (DCT) compression. Every time a JPG image is opened, edited, and re-saved in standard photo software, additional color and detail data is discarded. This repeated re-compression introduces blocky artifacts, color banding, and fuzzy halos around sharp text, logos, UI screenshots, and technical diagrams.
+      </p>
+      <p>
+        Converting a JPG to Portable Network Graphics (PNG) freezes the image inside a lossless DEFLATE compression container. Because PNG preserves every pixel accurately in 24-bit RGB or 32-bit RGBA format, you can edit, annotate, crop, or composite the file repeatedly without introducing any new compression degradation. PNG is also the preferred master format when preparing graphics for transparent masking, print proofs, slide decks, and brand design kits.
+      </p>
+
+      <h3>How to Convert JPG to PNG Online in 3 Steps</h3>
+      <ol class="steps-list">
+        <li><strong>Upload Your JPG Files:</strong> Drag and drop one or multiple <code>.jpg</code> or <code>.jpeg</code> images into the converter box above, or click <em>Choose JPG Files</em> to browse from your device. Optionally uncheck <em>Keep Original Dimensions</em> to enter a custom pixel width or height.</li>
+        <li><strong>Instant Local Canvas Rendering:</strong> Your browser decodes each JPEG image onto an offscreen HTML5 <code>&lt;canvas&gt;</code> element and exports a lossless PNG stream locally in memory—no server queue or upload delay.</li>
+        <li><strong>Download Your PNGs:</strong> Inspect the original dimensions alongside the before-and-after file sizes, then click <em>Download .PNG</em> on any card or grab the full batch at once with <em>Download All PNGs</em>.</li>
+      </ol>
+
+      <h3>Uncompressed Bitmap vs. PNG File Size Formula &amp; Worked Example</h3>
+      <p>
+        Before DEFLATE compression reduces repeating pixel runs, an image decoded in browser memory occupies a predictable raw RGB footprint calculated as:
+      </p>
+      <div class="formula-box">
+        <span class="formula-code">Uncompressed RGB Size (Bytes) = Width &times; Height &times; 3</span>
+        <p style="margin-bottom: 0; font-size: 0.93rem;">
+          Each pixel requires 3 bytes (Red, Green, and Blue at 8 bits per channel), or 4 bytes when an alpha transparency channel is stored (RGBA).
+        </p>
+      </div>
+      <p>
+        <strong>Worked Example:</strong> Suppose you have a crisp <strong>1920 &times; 1080 px</strong> presentation graphic saved as a compressed <strong>280 KB</strong> JPG. When decoded in memory, its raw bitmap size is <code>1920 &times; 1080 &times; 3 = 6,220,800 Bytes</code> (approximately <strong>5.93 MB</strong>). After HTML5 Canvas applies lossless PNG DEFLATE filtering and compression, repeating flat colors and clean edges compress efficiently—turning that 280 KB JPG into a crisp, zero-artifact <strong>1.15 MB PNG</strong> ready for repeated graphic design editing without further visual decay.
+      </p>
+    </article>
+
+    <!-- Block 3: 16-Row Reference Data Table -->
+    <section class="content-block">
+      <h2>JPG vs. PNG Technical Comparison &amp; Use-Case Guide</h2>
+      <p>Use this 16-point technical reference to decide when to keep photos in JPG or convert assets to lossless PNG.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Technical Attribute</th>
+              <th>JPG / JPEG Format</th>
+              <th>PNG Format</th>
+              <th>Best Choice / Guidance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1. Compression Type</td>
+              <td>Lossy (DCT quantization)</td>
+              <td>Lossless (DEFLATE / LZ77)</td>
+              <td>PNG for lossless accuracy</td>
+            </tr>
+            <tr>
+              <td>2. Transparency (Alpha Channel)</td>
+              <td>Not supported (solid background only)</td>
+              <td>Full 8-bit alpha &amp; binary transparency</td>
+              <td>PNG for logos &amp; overlays</td>
+            </tr>
+            <tr>
+              <td>3. Color Depth</td>
+              <td>24-bit RGB (16.7 million colors)</td>
+              <td>24-bit RGB or 32-bit RGBA (48-bit optional)</td>
+              <td>PNG for alpha + high bit depth</td>
+            </tr>
+            <tr>
+              <td>4. Sharp Text &amp; Line Art</td>
+              <td>Prone to ringing &amp; edge mosquito noise</td>
+              <td>Pixel-exact crisp edges</td>
+              <td>PNG for screenshots &amp; typography</td>
+            </tr>
+            <tr>
+              <td>5. Re-editing Degradation</td>
+              <td>Degrades with every edit &amp; re-save</td>
+              <td>Zero quality loss across unlimited saves</td>
+              <td>PNG for active editing workflows</td>
+            </tr>
+            <tr>
+              <td>6. Web Page Speed (Photos)</td>
+              <td>Very fast; compact photographic payloads</td>
+              <td>Heavy file sizes for complex camera scenes</td>
+              <td>JPG (or WebP) for large hero photos</td>
+            </tr>
+            <tr>
+              <td>7. Print Readiness</td>
+              <td>Acceptable at high quality (90%+)</td>
+              <td>Lossless RGB; ideal digital master</td>
+              <td>PNG for digital-to-print graphics</td>
+            </tr>
+            <tr>
+              <td>8. Browser Support</td>
+              <td>100% universal across all browsers</td>
+              <td>100% universal across all browsers</td>
+              <td>Tie — both universally supported</td>
+            </tr>
+            <tr>
+              <td>9. Typical File Size</td>
+              <td>Small (50 KB – 500 KB for web)</td>
+              <td>Medium to Large (300 KB – 4 MB+)</td>
+              <td>JPG for storage efficiency</td>
+            </tr>
+            <tr>
+              <td>10. Metadata (EXIF / GPS)</td>
+              <td>Rich camera EXIF, IPTC, GPS support</td>
+              <td>Limited tEXt / iTXt / eXIf chunks</td>
+              <td>JPG for camera metadata retention</td>
+            </tr>
+            <tr>
+              <td>11. UI &amp; App Screenshots</td>
+              <td>Blurs thin borders and UI fonts</td>
+              <td>Preserves exact UI pixel grid</td>
+              <td>PNG strongly recommended</td>
+            </tr>
+            <tr>
+              <td>12. Logos, Icons &amp; Signatures</td>
+              <td>Creates muddy artifacts on flat colors</td>
+              <td>Clean flat fills + transparent canvas</td>
+              <td>PNG (or SVG)</td>
+            </tr>
+            <tr>
+              <td>13. Progressive Loading</td>
+              <td>Progressive JPEG scan passes</td>
+              <td>Adam7 2D interlacing</td>
+              <td>Both support progressive rendering</td>
+            </tr>
+            <tr>
+              <td>14. Animation Support</td>
+              <td>No native animation</td>
+              <td>APNG extension (standard PNG is static)</td>
+              <td>Static use for standard JPG/PNG</td>
+            </tr>
+            <tr>
+              <td>15. Color Space Support</td>
+              <td>sRGB, AdobeRGB, CMYK</td>
+              <td>RGB / RGBA / Grayscale / Indexed</td>
+              <td>JPG/TIFF for CMYK press; PNG for RGB</td>
+            </tr>
+            <tr>
+              <td>16. E-commerce Product Cutouts</td>
+              <td>Forces white or colored box background</td>
+              <td>Supports clean background cutouts</td>
+              <td>PNG for layered product cards</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Block 4: Internal Linking Hub & 5 Unique Accordion FAQs -->
+    <section class="content-block">
+      <h2>Related Image &amp; Format Tools</h2>
+      <div class="tools-hub-grid">
+        <a href="png-to-jpg.html" class="hub-link">PNG to JPG Converter <span>&rarr;</span></a>
+        <a href="compress-image-to-exact-kb.html" class="hub-link">Compress Image to KB <span>&rarr;</span></a>
+        <a href="webp-to-jpg.html" class="hub-link">WebP to JPG Converter <span>&rarr;</span></a>
+        <a href="image-to-webp.html" class="hub-link">Image to WebP Converter <span>&rarr;</span></a>
+        <a href="svg-to-png.html" class="hub-link">SVG to PNG Converter <span>&rarr;</span></a>
+        <a href="image-resizer.html" class="hub-link">Image Resizer <span>&rarr;</span></a>
+        <a href="image-cropper.html" class="hub-link">Image Cropper <span>&rarr;</span></a>
+        <a href="signature-resizer.html" class="hub-link">Signature Resizer <span>&rarr;</span></a>
+      </div>
+
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            <span>Does converting a JPG to PNG automatically add a transparent background?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            No. Standard JPG images do not have an alpha transparency channel, meaning every pixel already contains a solid background color (such as white). Converting JPG to PNG saves those pixels into a 32-bit RGBA PNG container ready for editing, but you will still need a background-eraser or design editor if you want to remove the solid background.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            <span>Why is the converted PNG file larger than the original JPG?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            JPG achieves tiny file sizes through lossy compression that discards subtle color variations. PNG uses lossless DEFLATE compression that keeps every pixel completely intact. Because photographic textures contain millions of unique pixel values, encoding them losslessly in PNG naturally produces a larger file than the compressed JPG source.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            <span>Are there any batch limits on how many JPG files I can convert?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            No. There are no artificial file count caps, watermarks, or daily limits. You can drag and drop single images or large batches at once. Since processing happens directly inside your browser, conversion speed and batch capacity depend solely on your device's available memory (RAM).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            <span>Does converting JPG to PNG preserve color accuracy and image sharpness?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Yes. Our HTML5 Canvas engine draws your decoded JPG pixel-for-pixel in sRGB color space and exports a lossless PNG stream. While converting to PNG cannot erase existing compression artifacts that were already baked into the original JPG, it guarantees zero additional color shifting or blur.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            <span>How private is this converter? Are my files ever sent to a server?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            It is 100% private. All file reading, resizing, and PNG encoding run exclusively inside your local browser via JavaScript and the HTML5 Canvas API. Nothing is ever uploaded, logged, or transmitted over the internet, making it safe for ID cards, contracts, signatures, and confidential artwork.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <div class="footer-brand">
+          <svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M16 3L28 9.8V22.2L16 29L4 22.2V9.8L16 3Z" fill="#2563EB"/>
+            <path d="M16 3L28 9.8L16 16.5L4 9.8L16 3Z" fill="#60A5FA"/>
+            <path d="M16 16.5L28 9.8V22.2L16 29V16.5Z" fill="#1D4ED8"/>
+            <path d="M16 16.5L4 9.8V22.2L16 29V16.5Z" fill="#3B82F6"/>
+          </svg>
+          <span>PureWebKits</span>
+        </div>
+        <p class="footer-desc">
+          Fast, free, 100% client-side online utilities built for privacy. Convert images, format code, and calculate finances right in your browser.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image &amp; PDF</h4>
+        <ul>
+          <li><a href="jpg-to-png.html">JPG to PNG Converter</a></li>
+          <li><a href="png-to-jpg.html">PNG to JPG Converter</a></li>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="image-resizer.html">Image Resizer</a></li>
+          <li><a href="image-to-pdf.html">Image to PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer &amp; Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="base64-encoder-decoder.html">Base64 Encoder</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="url-encoder-decoder.html">URL Encoder / Decoder</a></li>
+          <li><a href="uuid-generator.html">UUID Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance &amp; Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="gst-calculator.html">GST Calculator</a></li>
+          <li><a href="percentage-calculator.html">Percentage Calculator</a></li>
+          <li><a href="age-calculator.html">Age Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company &amp; Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      &copy; 2026 PureWebKits.com. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const dropzone = document.getElementById('dropzone');
+      const fileInput = document.getElementById('fileInput');
+      const browseBtn = document.getElementById('browseBtn');
+      const keepOriginalCheck = document.getElementById('keepOriginalCheck');
+      const customDimsGroup = document.getElementById('customDimsGroup');
+      const customWidthInput = document.getElementById('customWidth');
+      const customHeightInput = document.getElementById('customHeight');
+      const applyResizeBtn = document.getElementById('applyResizeBtn');
+      const statusMsg = document.getElementById('statusMsg');
+      const resultsSection = document.getElementById('resultsSection');
+      const resultsCount = document.getElementById('resultsCount');
+      const cardsGrid = document.getElementById('cardsGrid');
+      const downloadAllBtn = document.getElementById('downloadAllBtn');
+      const clearAllBtn = document.getElementById('clearAllBtn');
+
+      // Store processed items: { id, file, originalName, pngName, origSize, origWidth, origHeight, outWidth, outHeight, pngSize, pngDataUrl, pngBytes }
+      let convertedItems = [];
+      let idCounter = 0;
+
+      function formatBytes(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+      }
+
+      function showError(msg) {
+        statusMsg.textContent = msg;
+        statusMsg.style.display = msg ? 'block' : 'none';
+      }
+
+      function baseNameWithoutExt(filename) {
+        const idx = filename.lastIndexOf('.');
+        return idx > 0 ? filename.slice(0, idx) : filename;
+      }
+
+      function dataUrlToUint8Array(dataUrl) {
+        const base64 = dataUrl.split(',')[1];
+        const binStr = atob(base64);
+        const len = binStr.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+          bytes[i] = binStr.charCodeAt(i);
+        }
+        return bytes;
+      }
+
+      function getTargetDimensions(natW, natH) {
+        if (keepOriginalCheck.checked) {
+          return { width: natW, height: natH };
+        }
+        const reqW = parseInt(customWidthInput.value, 10);
+        const reqH = parseInt(customHeightInput.value, 10);
+        const validW = Number.isFinite(reqW) && reqW > 0;
+        const validH = Number.isFinite(reqH) && reqH > 0;
+
+        if (validW && validH) {
+          return { width: reqW, height: reqH };
+        } else if (validW) {
+          return { width: reqW, height: Math.max(1, Math.round((natH / natW) * reqW)) };
+        } else if (validH) {
+          return { width: Math.max(1, Math.round((natW / natH) * reqH)), height: reqH };
+        }
+        return { width: natW, height: natH };
+      }
+
+      function convertFileToPng(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onerror = () => reject(new Error('Could not read file: ' + file.name));
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onerror = () => reject(new Error('Invalid or corrupted JPEG image: ' + file.name));
+            img.onload = () => {
+              const natW = img.naturalWidth || img.width;
+              const natH = img.naturalHeight || img.height;
+              const target = getTargetDimensions(natW, natH);
+
+              const canvas = document.createElement('canvas');
+              canvas.width = target.width;
+              canvas.height = target.height;
+              const ctx = canvas.getContext('2d');
+              ctx.imageSmoothingEnabled = true;
+              ctx.imageSmoothingQuality = 'high';
+              ctx.drawImage(img, 0, 0, target.width, target.height);
+
+              const pngDataUrl = canvas.toDataURL('image/png');
+              const pngBytes = dataUrlToUint8Array(pngDataUrl);
+
+              resolve({
+                file,
+                originalName: file.name,
+                pngName: baseNameWithoutExt(file.name) + '.png',
+                origSize: file.size,
+                origWidth: natW,
+                origHeight: natH,
+                outWidth: target.width,
+                outHeight: target.height,
+                pngSize: pngBytes.length,
+                pngDataUrl,
+                pngBytes
+              });
+            };
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function triggerDownload(dataUrl, filename) {
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+
+      function renderCards() {
+        cardsGrid.innerHTML = '';
+        const count = convertedItems.length;
+
+        if (count === 0) {
+          resultsSection.style.display = 'none';
+          return;
+        }
+
+        resultsSection.style.display = 'block';
+        resultsCount.textContent = count === 1 ? '1 image converted to PNG' : `${count} images converted to PNG`;
+        downloadAllBtn.style.display = count > 1 ? 'inline-flex' : 'none';
+
+        convertedItems.forEach((item) => {
+          const card = document.createElement('div');
+          card.className = 'file-card';
+
+          const dimText =
+            item.origWidth === item.outWidth && item.origHeight === item.outHeight
+              ? `${item.outWidth} × ${item.outHeight} px`
+              : `${item.outWidth} × ${item.outHeight} px (from ${item.origWidth}×${item.origHeight})`;
+
+          card.innerHTML = `
+            <div class="card-thumb-wrap">
+              <img src="${item.pngDataUrl}" alt="${item.pngName}" />
+              <button type="button" class="card-remove" title="Remove image" aria-label="Remove ${item.originalName}">&times;</button>
+            </div>
+            <div class="card-body">
+              <div class="card-filename" title="${item.originalName}">${item.pngName}</div>
+              <div class="card-meta">
+                <div>
+                  <span class="meta-label">Dimensions</span>
+                  <span class="meta-val">${dimText}</span>
+                </div>
+                <div>
+                  <span class="meta-label">Original JPG</span>
+                  <span class="meta-val">${formatBytes(item.origSize)}</span>
+                </div>
+                <div style="grid-column: span 2;">
+                  <span class="meta-label">Converted Lossless PNG</span>
+                  <span class="meta-val">${formatBytes(item.pngSize)}</span>
+                </div>
+              </div>
+              <button type="button" class="card-download">Download .PNG</button>
+            </div>
+          `;
+
+          card.querySelector('.card-download').addEventListener('click', () => {
+            triggerDownload(item.pngDataUrl, item.pngName);
+          });
+
+          card.querySelector('.card-remove').addEventListener('click', () => {
+            convertedItems = convertedItems.filter((x) => x.id !== item.id);
+            renderCards();
+          });
+
+          cardsGrid.appendChild(card);
+        });
+      }
+
+      async function handleFiles(fileList) {
+        showError('');
+        const files = Array.from(fileList || []);
+        if (!files.length) return;
+
+        const validFiles = files.filter((f) => {
+          const lower = f.name.toLowerCase();
+          return f.type === 'image/jpeg' || lower.endsWith('.jpg') || lower.endsWith('.jpeg');
+        });
+
+        if (validFiles.length === 0) {
+          showError('Please upload valid .JPG or .JPEG image files.');
+          return;
+        }
+
+        if (validFiles.length < files.length) {
+          showError('Some non-JPG files were skipped. Only .jpg and .jpeg images are supported.');
+        }
+
+        for (const file of validFiles) {
+          try {
+            const result = await convertFileToPng(file);
+            result.id = ++idCounter;
+            convertedItems.push(result);
+          } catch (err) {
+            showError(err.message);
+          }
+        }
+        renderCards();
+      }
+
+      async function reconvertExisting() {
+        if (!convertedItems.length) return;
+        showError('');
+        const updated = [];
+        for (const item of convertedItems) {
+          try {
+            const res = await convertFileToPng(item.file);
+            res.id = item.id;
+            updated.push(res);
+          } catch (err) {
+            showError(err.message);
+          }
+        }
+        convertedItems = updated;
+        renderCards();
+      }
+
+      // Pure JS uncompressed (STORE) ZIP builder with CRC32 for reliable zero-dependency batch download
+      const crcTable = (function () {
+        const table = new Uint32Array(256);
+        for (let n = 0; n < 256; n++) {
+          let c = n;
+          for (let k = 0; k < 8; k++) {
+            c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+          }
+          table[n] = c >>> 0;
+        }
+        return table;
+      })();
+
+      function crc32(bytes) {
+        let crc = 0xffffffff;
+        for (let i = 0; i < bytes.length; i++) {
+          crc = crcTable[(crc ^ bytes[i]) & 0xff] ^ (crc >>> 8);
+        }
+        return (crc ^ 0xffffffff) >>> 0;
+      }
+
+      function createZipBlob(entries) {
+        const encoder = new TextEncoder();
+        const localParts = [];
+        const centralParts = [];
+        let offset = 0;
+        const usedNames = new Map();
+
+        entries.forEach((entry) => {
+          let name = entry.name;
+          if (usedNames.has(name)) {
+            const n = usedNames.get(name) + 1;
+            usedNames.set(name, n);
+            name = baseNameWithoutExt(name) + ` (${n}).png`;
+          } else {
+            usedNames.set(name, 1);
+          }
+
+          const nameBytes = encoder.encode(name);
+          const data = entry.bytes;
+          const crc = crc32(data);
+
+          const localHeader = new ArrayBuffer(30 + nameBytes.length);
+          const lv = new DataView(localHeader);
+          lv.setUint32(0, 0x04034b50, true);
+          lv.setUint16(4, 20, true);
+          lv.setUint16(6, 0x0800, true);
+          lv.setUint16(8, 0, true);
+          lv.setUint16(10, 0, true);
+          lv.setUint16(12, 0, true);
+          lv.setUint32(14, crc, true);
+          lv.setUint32(18, data.length, true);
+          lv.setUint32(22, data.length, true);
+          lv.setUint16(26, nameBytes.length, true);
+          lv.setUint16(28, 0, true);
+          new Uint8Array(localHeader, 30).set(nameBytes);
+
+          localParts.push(localHeader, data);
+
+          const centralHeader = new ArrayBuffer(46 + nameBytes.length);
+          const cv = new DataView(centralHeader);
+          cv.setUint32(0, 0x02014b50, true);
+          cv.setUint16(4, 20, true);
+          cv.setUint16(6, 20, true);
+          cv.setUint16(8, 0x0800, true);
+          cv.setUint16(10, 0, true);
+          cv.setUint16(12, 0, true);
+          cv.setUint16(14, 0, true);
+          cv.setUint32(16, crc, true);
+          cv.setUint32(20, data.length, true);
+          cv.setUint32(24, data.length, true);
+          cv.setUint16(28, nameBytes.length, true);
+          cv.setUint16(30, 0, true);
+          cv.setUint16(32, 0, true);
+          cv.setUint16(34, 0, true);
+          cv.setUint16(36, 0, true);
+          cv.setUint32(38, 0, true);
+          cv.setUint32(42, offset, true);
+          new Uint8Array(centralHeader, 46).set(nameBytes);
+
+          centralParts.push(centralHeader);
+          offset += 30 + nameBytes.length + data.length;
+        });
+
+        let centralSize = 0;
+        centralParts.forEach((p) => { centralSize += p.byteLength; });
+
+        const endRecord = new ArrayBuffer(22);
+        const ev = new DataView(endRecord);
+        ev.setUint32(0, 0x06054b50, true);
+        ev.setUint16(4, 0, true);
+        ev.setUint16(6, 0, true);
+        ev.setUint16(8, entries.length, true);
+        ev.setUint16(10, entries.length, true);
+        ev.setUint32(12, centralSize, true);
+        ev.setUint32(16, offset, true);
+        ev.setUint16(20, 0, true);
+
+        return new Blob([...localParts, ...centralParts, endRecord], { type: 'application/zip' });
+      }
+
+      // Event Listeners
+      browseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fileInput.click();
+      });
+
+      dropzone.addEventListener('click', () => fileInput.click());
+
+      dropzone.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          fileInput.click();
+        }
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+        fileInput.value = '';
+      });
+
+      dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+
+      dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('dragover');
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+      });
+
+      keepOriginalCheck.addEventListener('change', () => {
+        if (keepOriginalCheck.checked) {
+          customDimsGroup.classList.add('disabled');
+          reconvertExisting();
+        } else {
+          customDimsGroup.classList.remove('disabled');
+        }
+      });
+
+      applyResizeBtn.addEventListener('click', reconvertExisting);
+
+      downloadAllBtn.addEventListener('click', () => {
+        if (convertedItems.length < 2) return;
+        const zipBlob = createZipBlob(
+          convertedItems.map((item) => ({ name: item.pngName, bytes: item.pngBytes }))
+        );
+        const url = URL.createObjectURL(zipBlob);
+        triggerDownload(url, 'PureWebKits-png-images.zip');
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+      });
+
+      clearAllBtn.addEventListener('click', () => {
+        convertedItems = [];
+        showError('');
+        renderCards();
+      });
+
+      // Accordion FAQs
+      document.querySelectorAll('.faq-question').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const item = btn.closest('.faq-item');
+          const isOpen = item.classList.toggle('open');
+          btn.setAttribute('aria-expanded', String(isOpen));
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

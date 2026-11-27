@@ -1,0 +1,1092 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Favicon Generator Online — Create .ICO, PNG & Apple Touch Icons | PureWebKits</title>
+  <meta name="description" content="Generate multi-size favicons (favicon.ico, 16x16, 32x32, 180x180 Apple Touch, 192x192 & 512x512 Android/PWA) from any logo or custom initials 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/favicon-generator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Source Mode Tabs */
+    .mode-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 22px;
+    }
+    .mode-tab {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      border-radius: 9px;
+      padding: 9px 16px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+    }
+    .mode-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    /* 2-Column Designer Grid */
+    .fav-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .controls-col { display: flex; flex-direction: column; gap: 14px; }
+    .dropzone {
+      border: 2px dashed #93C5FD;
+      background: #F8FAFC;
+      border-radius: 12px;
+      padding: 28px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .dropzone:hover, .dropzone.dragover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+    }
+    .drop-title { font-size: 15px; font-weight: 800; margin-bottom: 4px; }
+    .drop-sub { font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px; }
+    .btn-primary {
+      display: inline-block;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-group label { font-size: 12.5px; font-weight: 700; color: var(--text-main); }
+    .std-input, .std-select {
+      height: 40px;
+      padding: 0 11px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #FFFFFF;
+    }
+    .color-input {
+      width: 100%;
+      height: 40px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 2px;
+      background: #FFFFFF;
+      cursor: pointer;
+    }
+
+    /* Browser Tab Live Mockup + Download Cards */
+    .preview-col {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .browser-tab-mock {
+      background: #E2E8F0;
+      border-radius: 10px 10px 0 0;
+      padding: 8px 10px 0;
+    }
+    .active-tab-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      padding: 7px 14px;
+      border-radius: 8px 8px 0 0;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      box-shadow: 0 -1px 4px rgba(0,0,0,0.05);
+    }
+    .tab-fav-img { width: 16px; height: 16px; border-radius: 3px; }
+
+    .ico-hero-bar {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .ico-title { font-size: 14px; font-weight: 800; }
+    .ico-sub { font-size: 12px; opacity: 0.9; }
+    .btn-ico-dl {
+      background: #FFFFFF;
+      color: var(--primary);
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .btn-ico-dl:hover { background: #EFF6FF; }
+
+    .sizes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .size-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .size-preview-box {
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #F1F5F9;
+      border-radius: 8px;
+    }
+    .size-name { font-size: 12px; font-weight: 800; color: var(--text-main); }
+    .size-role { font-size: 11px; color: var(--text-muted); }
+    .btn-mini-dl {
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: 1px solid #BFDBFE;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-mini-dl:hover { background: var(--primary); color: #FFFFFF; }
+
+    /* HTML Snippet Box */
+    .html-snippet-box {
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+    .snippet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .snippet-lbl { font-size: 13.5px; font-weight: 800; }
+    .snippet-pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      padding: 14px;
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px;
+      line-height: 1.55;
+      overflow-x: auto;
+    }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .fav-grid { grid-template-columns: 1fr; }
+      .sizes-grid, .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .sizes-grid, .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Favicon Generator -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Favicon Generator Online — Multi-Size .ICO, PNG & Apple Touch Icons</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Build real multi-resolution favicon.ico & PWA icons locally in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="mode-tabs" role="tablist" aria-label="Favicon Source Type">
+          <button type="button" class="mode-tab active" data-fmode="image" role="tab" aria-selected="true">From Logo Image (PNG/JPG/SVG)</button>
+          <button type="button" class="mode-tab" data-fmode="text" role="tab" aria-selected="false">From Text / Brand Initials</button>
+        </div>
+
+        <div class="fav-grid">
+          <!-- Left Controls -->
+          <div class="controls-col">
+            <div id="imageSourcePane">
+              <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Upload square logo image">
+                <div class="drop-title">Drop your logo image here, or click to select</div>
+                <div class="drop-sub">Square PNG, SVG, JPG, or WebP (512×512 px recommended)</div>
+                <span class="btn-primary">Choose Logo Image</span>
+                <input type="file" id="favImgInput" accept="image/*" style="display:none;" />
+              </div>
+            </div>
+
+            <div id="textSourcePane" style="display:none; flex-direction:column; gap:12px;">
+              <div class="row-2col">
+                <div class="field-group">
+                  <label for="favCharsInput">Brand Initials (1–3 chars)</label>
+                  <input type="text" id="favCharsInput" class="std-input" maxlength="3" value="PW" />
+                </div>
+                <div class="field-group">
+                  <label for="favFontSelect">Font Style</label>
+                  <select id="favFontSelect" class="std-select">
+                    <option value="sans-serif" selected>Modern Sans-Serif</option>
+                    <option value="Georgia, serif">Classic Editorial Serif</option>
+                    <option value="monospace">Developer Monospace</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row-2col">
+                <div class="field-group">
+                  <label for="favBgColor">Background Color</label>
+                  <input type="color" id="favBgColor" class="color-input" value="#2563EB" />
+                </div>
+                <div class="field-group">
+                  <label for="favTxtColor">Text Color</label>
+                  <input type="color" id="favTxtColor" class="color-input" value="#FFFFFF" />
+                </div>
+              </div>
+            </div>
+
+            <div class="row-2col">
+              <div class="field-group">
+                <label for="cornerRadiusSelect">Corner Shape</label>
+                <select id="cornerRadiusSelect" class="std-select">
+                  <option value="0">Square (0% Radius)</option>
+                  <option value="0.18" selected>Rounded App Icon (18%)</option>
+                  <option value="0.5">Circle Badge (50%)</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label for="paddingSelect">Inner Padding</label>
+                <select id="paddingSelect" class="std-select">
+                  <option value="0" selected>0% (Edge-to-Edge)</option>
+                  <option value="0.08">8% Subtle Margin</option>
+                  <option value="0.15">15% Icon Margin</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Preview & Multi-Size Export Cards -->
+          <div class="preview-col" aria-live="polite">
+            <div class="browser-tab-mock">
+              <div class="active-tab-pill">
+                <img id="tabFavPreview" class="tab-fav-img" alt="Browser Tab Icon Preview" />
+                <span>PureWebKits — Live Browser Tab Preview</span>
+              </div>
+            </div>
+
+            <div class="ico-hero-bar">
+              <div>
+                <div class="ico-title">favicon.ico (Multi-Resolution Bundle)</div>
+                <div class="ico-sub">Embeds both 16×16 & 32×32 icons for desktop browsers</div>
+              </div>
+              <button type="button" id="downloadIcoBtn" class="btn-ico-dl">Download favicon.ico</button>
+            </div>
+
+            <div id="sizesGrid" class="sizes-grid"></div>
+          </div>
+        </div>
+
+        <!-- HTML Head Tags Snippet -->
+        <div class="html-snippet-box">
+          <div class="snippet-header">
+            <span class="snippet-lbl">Copy & Paste Into Your Website <head> Section</span>
+            <button type="button" id="copyHtmlTagsBtn" class="btn-primary" style="padding:6px 14px;font-size:12.5px;">Copy HTML Tags</button>
+          </div>
+          <pre id="htmlTagsCode" class="snippet-pre"><link rel="icon" type="image/x-icon" href="/favicon.ico" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" /></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Multi-Size Favicons, Binary .ICO Containers & Apple Touch Icons Work</h2>
+
+      <h3>Why Modern Websites Need Both favicon.ico and High-DPI PNG Icons</h3>
+      <p>
+        A <strong>favicon (favorite icon)</strong> is the small brand emblem displayed in browser tabs, bookmark bars, Google mobile search snippets, and smartphone home-screen shortcuts. While a classic root-level <code>/favicon.ico</code> file remains essential because desktop browsers and search crawlers automatically request it, modern mobile operating systems and Progressive Web Apps (PWAs) require dedicated high-resolution PNG assets: <strong>180×180 px</strong> for iOS Safari <code>apple-touch-icon</code> home shortcuts, and <strong>192×192 px</strong> plus <strong>512×512 px</strong> for Android Chrome and Google Search results. Our generator renders crisp anti-aliased icons at every standard resolution and packs dual <code>16×16</code> and <code>32×32</code> PNG frames into a valid binary <code>.ico</code> container directly inside your browser.
+      </p>
+
+      <h3>How to Create & Install Your Website Favicon Package in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Upload Logo or Type Brand Initials:</strong> Drop a square PNG/SVG/JPG logo—or switch to <em>From Text / Brand Initials</em> and customize colors and corner rounding.</li>
+        <li><strong>Download <code>favicon.ico</code> & PNG Sizes:</strong> Click <em>Download favicon.ico</em> along with <code>16x16</code>, <code>32x32</code>, <code>180x180</code>, and <code>192x192</code> PNG files.</li>
+        <li><strong>Paste the <code><link></code> Tags:</strong> Upload the icon files to your website's root folder and paste the HTML snippet into your <code><head></code> tag.</li>
+      </ol>
+
+      <h3>Binary .ICO Directory Offset Formula & Worked Example</h3>
+      <p>
+        A standard Windows/Web <code>.ico</code> file starts with a 6-byte <code>ICONDIR</code> header followed by 16-byte <code>ICONDIRENTRY</code> records for each embedded resolution:
+      </p>
+      <div class="formula-box">
+        ICO Header Size = 6 bytes + ( 16 bytes × Number of Embedded Icon Sizes )
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> When embedding <strong>2 resolutions</strong> (<code>16×16</code> and <code>32×32</code>) into <code>favicon.ico</code>:</p>
+        <p>Header + Directory Table = <code>6 + (16 × 2) = 38 bytes</code>.</p>
+        <p>The <code>16×16</code> PNG payload begins at byte offset <code>38</code>, and the <code>32×32</code> PNG payload immediately follows—allowing every browser to pick the sharpest icon for standard or Retina displays.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="fav-table-heading">
+      <h2 id="fav-table-heading">Complete Website Favicon, Mobile & PWA Icon Dimensions Chart (16 Specs)</h2>
+      <p>Use this webmaster reference guide to ensure your brand icon displays cleanly across desktop browsers, Google Search, iOS, and Android.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Icon Filename / Standard</th>
+              <th>Dimensions (px)</th>
+              <th>Format</th>
+              <th>Where It Appears</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>favicon.ico (Multi-Size Root)</strong></td>
+              <td><span class="limit-badge">16×16 & 32×32</span></td>
+              <td>ICO Container</td>
+              <td>Legacy desktop browsers, RSS readers, root fallback</td>
+            </tr>
+            <tr>
+              <td><strong>favicon-16x16.png</strong></td>
+              <td><span class="limit-badge">16 × 16 px</span></td>
+              <td>PNG</td>
+              <td>Standard 1x desktop browser tabs & bookmarks</td>
+            </tr>
+            <tr>
+              <td><strong>favicon-32x32.png</strong></td>
+              <td><span class="limit-badge">32 × 32 px</span></td>
+              <td>PNG</td>
+              <td>Retina @2x browser tabs & Windows taskbar shortcuts</td>
+            </tr>
+            <tr>
+              <td><strong>favicon-48x48.png</strong></td>
+              <td><span class="limit-badge">48 × 48 px</span></td>
+              <td>PNG</td>
+              <td>Google Search SERP site icon minimum requirement</td>
+            </tr>
+            <tr>
+              <td><strong>apple-touch-icon.png</strong></td>
+              <td><span class="limit-badge">180 × 180 px</span></td>
+              <td>PNG (Opaque)</td>
+              <td>iPhone & iPad Safari "Add to Home Screen" icon</td>
+            </tr>
+            <tr>
+              <td><strong>android-chrome-192x192.png</strong></td>
+              <td><span class="limit-badge">192 × 192 px</span></td>
+              <td>PNG</td>
+              <td>Android Chrome home screen & Google Search icon</td>
+            </tr>
+            <tr>
+              <td><strong>android-chrome-512x512.png</strong></td>
+              <td><span class="limit-badge">512 × 512 px</span></td>
+              <td>PNG</td>
+              <td>PWA splash screen & Web App Manifest high-res icon</td>
+            </tr>
+            <tr>
+              <td><strong>Google Search Site Icon Rule</strong></td>
+              <td><span class="limit-badge">Multiple of 48 px</span></td>
+              <td>PNG / ICO / SVG</td>
+              <td>48×48, 96×96, 144×144, or 192×192 px</td>
+            </tr>
+            <tr>
+              <td><strong>Windows Metro / Edge Tile</strong></td>
+              <td><span class="limit-badge">150 × 150 px</span></td>
+              <td>PNG</td>
+              <td>Pinned Start Menu tiles via <code>browserconfig.xml</code></td>
+            </tr>
+            <tr>
+              <td><strong>Safari Pinned Tab SVG</strong></td>
+              <td><span class="limit-badge">Vector Mask</span></td>
+              <td>Monochrome SVG</td>
+              <td>macOS Safari pinned tab silhouette</td>
+            </tr>
+            <tr>
+              <td><strong>WordPress Site Icon Upload</strong></td>
+              <td><span class="limit-badge">512 × 512 px</span></td>
+              <td>PNG / JPG</td>
+              <td>Appearance → Customize → Site Identity</td>
+            </tr>
+            <tr>
+              <td><strong>Shopify / Wix / Webflow Favicon</strong></td>
+              <td><span class="limit-badge">32×32 or 256×256</span></td>
+              <td>PNG / ICO</td>
+              <td>Storefront browser tab & checkout header</td>
+            </tr>
+            <tr>
+              <td><strong>iOS Transparency Rule</strong></td>
+              <td>Solid Background</td>
+              <td>Opaque PNG</td>
+              <td>iOS fills transparent areas black on home icons</td>
+            </tr>
+            <tr>
+              <td><strong>Aspect Ratio Requirement</strong></td>
+              <td>1 : 1 Square</td>
+              <td>Square Canvas</td>
+              <td>Non-square icons get distorted or cropped in SERPs</td>
+            </tr>
+            <tr>
+              <td><strong>Recommended Source Logo Size</strong></td>
+              <td>512 × 512 px+</td>
+              <td>PNG / SVG</td>
+              <td>Downscaling preserves crisp anti-aliased edges</td>
+            </tr>
+            <tr>
+              <td><strong>Browser Cache Refresh Tip</strong></td>
+              <td>Append <code>?v=2</code></td>
+              <td>Cache Busting</td>
+              <td>Forces Chrome/Firefox to reload updated favicons</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Image, Vector & Webmaster Tools</h2>
+      <p>Converting SVG vectors to PNG, cropping square logos, picking brand HEX colors, or generating QR codes? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="svg-to-png.html"><span>SVG to PNG Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-cropper.html"><span>Image Cropper (1:1)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-resizer.html"><span>Image Resizer (px)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="color-picker.html"><span>Color Picker & HEX</span><span class="arrow">→</span></a>
+        <a class="related-link" href="webp-converter.html"><span>WebP Image Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="png-to-jpg.html"><span>PNG to JPG Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="base64-encode-decode.html"><span>Base64 Data URI Gen</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What favicon size does Google Search require to show my site icon next to search results?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Google Search's official favicon guidelines require your site icon to be a square <strong>1:1 image at least 48×48 px</strong> (or any larger multiple of 48 px, such as <code>96×96</code>, <code>144×144</code>, or <code>192×192 px</code>) and crawlable by Googlebot.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Does this tool generate a real binary .ICO file or just a renamed PNG?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            It builds a <strong>100% genuine binary ICO file</strong> with a valid 6-byte <code>ICONDIR</code> header and 16-byte directory entries containing both <code>16×16</code> and <code>32×32</code> icon frames—compatible with all desktop browsers and Windows shortcuts.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Why isn't my new favicon showing up immediately after I upload it?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Web browsers cache <code>/favicon.ico</code> aggressively. Hard-refresh your page (<code>Ctrl + F5</code> on Windows or <code>Cmd + Shift + R</code> on Mac), or append a version query string such as <code>href="/favicon.ico?v=2"</code> in your HTML <code><link></code> tag.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my brand logos uploaded to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All image resizing, text-icon rendering, and binary <code>.ico</code> file assembly run 100% locally inside your web browser using JavaScript and HTML5 Canvas.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Multi-Size Favicon & Binary .ICO Generator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const modeTabs = document.querySelectorAll(".mode-tab");
+      const imageSourcePane = document.getElementById("imageSourcePane");
+      const textSourcePane = document.getElementById("textSourcePane");
+
+      const dropzone = document.getElementById("dropzone");
+      const favImgInput = document.getElementById("favImgInput");
+      const favCharsInput = document.getElementById("favCharsInput");
+      const favFontSelect = document.getElementById("favFontSelect");
+      const favBgColor = document.getElementById("favBgColor");
+      const favTxtColor = document.getElementById("favTxtColor");
+      const cornerRadiusSelect = document.getElementById("cornerRadiusSelect");
+      const paddingSelect = document.getElementById("paddingSelect");
+
+      const tabFavPreview = document.getElementById("tabFavPreview");
+      const downloadIcoBtn = document.getElementById("downloadIcoBtn");
+      const sizesGrid = document.getElementById("sizesGrid");
+      const copyHtmlTagsBtn = document.getElementById("copyHtmlTagsBtn");
+      const htmlTagsCode = document.getElementById("htmlTagsCode");
+
+      let sourceMode = "image"; // "image" or "text"
+      let uploadedLogoImg = null;
+
+      const ICON_SPECS = [
+        { size: 16, name: "favicon-16x16.png", role: "Browser Tab (1x)" },
+        { size: 32, name: "favicon-32x32.png", role: "Retina Tab (2x)" },
+        { size: 48, name: "favicon-48x48.png", role: "Google Search" },
+        { size: 180, name: "apple-touch-icon.png", role: "iOS Home Screen" },
+        { size: 192, name: "android-chrome-192x192.png", role: "Android Chrome" },
+        { size: 512, name: "android-chrome-512x512.png", role: "PWA Splash Icon" }
+      ];
+
+      function createDefaultLogoImage() {
+        const svg =
+          '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 28 28">' +
+          '<rect width="28" height="28" fill="#EFF6FF"/>' +
+          '<path d="M14 3L24 8.7V19.3L14 25L4 19.3V8.7L14 3Z" fill="#2563EB"/>' +
+          '<path d="M14 3L24 8.7L14 14.4L4 8.7L14 3Z" fill="#60A5FA"/>' +
+          '<path d="M14 14.4L24 8.7V19.3L14 25V14.4Z" fill="#1D4ED8"/>' +
+          '</svg>';
+        const img = new Image();
+        img.onload = function () {
+          uploadedLogoImg = img;
+          renderAllIcons();
+        };
+        img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+      }
+
+      function drawRoundedClip(ctx, size, radiusPct) {
+        if (radiusPct <= 0) return;
+        const r = size * radiusPct;
+        ctx.beginPath();
+        ctx.moveTo(r, 0);
+        ctx.arcTo(size, 0, size, size, r);
+        ctx.arcTo(size, size, 0, size, r);
+        ctx.arcTo(0, size, 0, 0, r);
+        ctx.arcTo(0, 0, size, 0, r);
+        ctx.closePath();
+        ctx.clip();
+      }
+
+      function renderIconCanvas(size) {
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+
+        const radiusPct = parseFloat(cornerRadiusSelect.value) || 0;
+        const padPct = parseFloat(paddingSelect.value) || 0;
+        const padPx = size * padPct;
+        const innerSize = size - padPx * 2;
+
+        ctx.save();
+        drawRoundedClip(ctx, size, radiusPct);
+
+        if (sourceMode === "text" || !uploadedLogoImg) {
+          ctx.fillStyle = favBgColor.value || "#2563EB";
+          ctx.fillRect(0, 0, size, size);
+
+          const chars = (favCharsInput.value || "PW").trim().slice(0, 3);
+          const fontScale = chars.length === 1 ? 0.58 : (chars.length === 2 ? 0.46 : 0.36);
+          ctx.fillStyle = favTxtColor.value || "#FFFFFF";
+          ctx.font = "800 " + Math.round(innerSize * fontScale) + "px " + favFontSelect.value;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(chars, size / 2, size / 2 + size * 0.03);
+        } else {
+          ctx.drawImage(uploadedLogoImg, padPx, padPx, innerSize, innerSize);
+        }
+
+        ctx.restore();
+        return canvas;
+      }
+
+      function renderAllIcons() {
+        sizesGrid.innerHTML = "";
+
+        ICON_SPECS.forEach(function (spec) {
+          const canvas = renderIconCanvas(spec.size);
+          const dataUrl = canvas.toDataURL("image/png");
+
+          if (spec.size === 32) {
+            tabFavPreview.src = dataUrl;
+          }
+
+          const dispSize = Math.min(44, Math.max(16, spec.size));
+          const card = document.createElement("div");
+          card.className = "size-card";
+          card.innerHTML =
+            '<div class="size-preview-box">' +
+              '<img src="' + dataUrl + '" width="' + dispSize + '" height="' + dispSize + '" alt="' + spec.name + '" />' +
+            '</div>' +
+            '<div class="size-name">' + spec.size + '×' + spec.size + ' px</div>' +
+            '<div class="size-role">' + spec.role + '</div>' +
+            '<a class="btn-mini-dl" href="' + dataUrl + '" download="' + spec.name + '">Download PNG</a>';
+
+          sizesGrid.appendChild(card);
+        });
+      }
+
+      // Build real binary .ICO containing 16x16 & 32x32 PNG frames
+      async function buildMultiSizeIcoBlob() {
+        const icoSizes = [16, 32];
+        const pngBuffers = [];
+
+        for (let i = 0; i < icoSizes.length; i++) {
+          const c = renderIconCanvas(icoSizes[i]);
+          const blob = await new Promise(function (res) { c.toBlob(res, "image/png"); });
+          const buf = await blob.arrayBuffer();
+          pngBuffers.push(new Uint8Array(buf));
+        }
+
+        const headerSize = 6 + 16 * icoSizes.length;
+        let totalBytes = headerSize;
+        pngBuffers.forEach(function (b) { totalBytes += b.byteLength; });
+
+        const out = new Uint8Array(totalBytes);
+        const view = new DataView(out.buffer);
+
+        // ICONDIR Header
+        view.setUint16(0, 0, true); // Reserved
+        view.setUint16(2, 1, true); // Type 1 = ICO
+        view.setUint16(4, icoSizes.length, true); // Image count
+
+        let offset = headerSize;
+        for (let i = 0; i < icoSizes.length; i++) {
+          const sz = icoSizes[i];
+          const pngData = pngBuffers[i];
+          const entryPos = 6 + i * 16;
+
+          out[entryPos] = sz === 256 ? 0 : sz;
+          out[entryPos + 1] = sz === 256 ? 0 : sz;
+          out[entryPos + 2] = 0; // Color palette
+          out[entryPos + 3] = 0; // Reserved
+          view.setUint16(entryPos + 4, 1, true); // Color planes
+          view.setUint16(entryPos + 6, 32, true); // Bits per pixel
+          view.setUint32(entryPos + 8, pngData.byteLength, true); // Image size
+          view.setUint32(entryPos + 12, offset, true); // Data offset
+
+          out.set(pngData, offset);
+          offset += pngData.byteLength;
+        }
+
+        return new Blob([out], { type: "image/x-icon" });
+      }
+
+      downloadIcoBtn.addEventListener("click", async function () {
+        const icoBlob = await buildMultiSizeIcoBlob();
+        const url = URL.createObjectURL(icoBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "favicon.ico";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+
+      modeTabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+          modeTabs.forEach(function (t) {
+            t.classList.remove("active");
+            t.setAttribute("aria-selected", "false");
+          });
+          tab.classList.add("active");
+          tab.setAttribute("aria-selected", "true");
+          sourceMode = tab.getAttribute("data-fmode");
+
+          imageSourcePane.style.display = sourceMode === "image" ? "block" : "none";
+          textSourcePane.style.display = sourceMode === "text" ? "flex" : "none";
+          renderAllIcons();
+        });
+      });
+
+      function loadLogoFile(file) {
+        if (!file || !file.type.startsWith("image/")) return;
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          const img = new Image();
+          img.onload = function () {
+            uploadedLogoImg = img;
+            renderAllIcons();
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      dropzone.addEventListener("click", function () { favImgInput.click(); });
+      dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+      dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+      dropzone.addEventListener("drop", function (e) {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          loadLogoFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      favImgInput.addEventListener("change", function (e) {
+        if (e.target.files && e.target.files[0]) {
+          loadLogoFile(e.target.files[0]);
+        }
+        e.target.value = "";
+      });
+
+      [favCharsInput, favFontSelect, favBgColor, favTxtColor, cornerRadiusSelect, paddingSelect].forEach(function (el) {
+        el.addEventListener("input", renderAllIcons);
+        el.addEventListener("change", renderAllIcons);
+      });
+
+      copyHtmlTagsBtn.addEventListener("click", async function () {
+        try {
+          await navigator.clipboard.writeText(htmlTagsCode.textContent);
+          const orig = copyHtmlTagsBtn.textContent;
+          copyHtmlTagsBtn.textContent = "Copied!";
+          setTimeout(function () { copyHtmlTagsBtn.textContent = orig; }, 1400);
+        } catch (e) {}
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      createDefaultLogoImage();
+    });
+  </script>
+</body>
+</html>
