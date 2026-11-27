@@ -1,0 +1,1045 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Metric & Imperial Converter (Length, Mass, Volume & Temp) — PureWebKits</title>
+  <meta name="description" content="Convert between Metric and Imperial units across Length, Mass/Weight, Volume, and Temperature online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/metric-imperial-converter.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Metric & Imperial Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      flex-wrap: wrap;
+      gap: 2px;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .mi-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .mi-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .mi-hero-title { font-size: 16px; font-weight: 800; }
+    .mi-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .mi-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 23px;
+      font-weight: 800;
+      color: #38BDF8;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Metric & Imperial Converter Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Metric & Imperial Converter</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Convert Metric & Imperial units across Length, Mass, Volume & Temperature in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="Measurement category">
+            <button type="button" class="mode-btn active" data-domain="length">Length</button>
+            <button type="button" class="mode-btn" data-domain="mass">Mass / Weight</button>
+            <button type="button" class="mode-btn" data-domain="volume">Volume</button>
+            <button type="button" class="mode-btn" data-domain="temperature">Temperature</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="swapUnitsBtn" class="btn-sec">Swap Units</button>
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample</button>
+            <button type="button" id="resetMiBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="miValueInput" class="field-label">Input Value</label>
+              <input type="number" id="miValueInput" class="std-input" step="any" value="10" />
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="miFromUnitSelect" class="field-label">From Unit</label>
+                <select id="miFromUnitSelect" class="std-select"></select>
+              </div>
+
+              <div class="field-group">
+                <label for="miToUnitSelect" class="field-label">To Unit</label>
+                <select id="miToUnitSelect" class="std-select"></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="mi-hero-box">
+              <div>
+                <div class="mi-hero-kicker" id="miHeroKicker">Converted Measurement</div>
+                <div class="mi-hero-title" id="miHeroTitle">10 km → Miles</div>
+                <div class="mi-hero-sub" id="miHeroSub">Length conversion</div>
+              </div>
+              <div class="mi-hero-num" id="miPrimaryDisplay">6.2137 mi</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key" id="eq1Key">Metric Reference</div>
+                <div class="metric-val" id="eq1Val">10,000.00 m</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key" id="eq2Key">Imperial Reference</div>
+                <div class="metric-val" id="eq2Val">32,808.40 ft</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key" id="eq3Key">Secondary Metric</div>
+                <div class="metric-val" id="eq3Val">1,000,000.0 cm</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key" id="eq4Key">Secondary Imperial</div>
+                <div class="metric-val" id="eq4Val">10,936.13 yd</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyMiBtn" class="btn-primary">Copy Conversion</button>
+              <button type="button" id="downloadMiBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Constants & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Metric and Imperial Unit Conversions (Length, Mass, Volume & Temperature)</h2>
+
+      <h3>How the Metric (SI) and Imperial Systems Differ</h3>
+      <p>
+        The <strong>Metric system</strong> (based on the International System of Units, or SI) scales units in clean decimal factors of <code>10</code>, <code>100</code>, and <code>1,000</code>—such as millimeters, centimeters, meters, and kilometers for length; grams and kilograms for mass; and milliliters and liters for volume. The <strong>Imperial / US customary systems</strong> use historical and practical step ratios—such as <code>12 inches</code> per foot, <code>3 feet</code> per yard, <code>1,760 yards</code> (<code>5,280 feet</code>) per mile, <code>16 ounces</code> per pound, and <code>14 pounds</code> per stone—while temperature scales compare <strong>Celsius (°C)</strong>, <strong>Fahrenheit (°F)</strong>, and <strong>Kelvin (K)</strong> on offset linear scales. A browser-based <strong>Metric & Imperial Converter</strong> handles all four categories 100% locally in your browser using JavaScript—with zero server uploads.
+      </p>
+
+      <h3>How to Convert Between Metric and Imperial Units in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Select Measurement Category:</strong> Click <strong>Length</strong>, <strong>Mass / Weight</strong>, <strong>Volume</strong>, or <strong>Temperature</strong> at the top of the studio, or click <strong>Load Sample</strong>.</li>
+        <li><strong>Enter Value & Choose From/To Units:</strong> Type your numeric value and pick source and target units—or click <strong>Swap Units</strong> to flip the conversion direction instantly.</li>
+        <li><strong>Inspect Equivalents & Export:</strong> View the converted output alongside four quick reference equivalents across the system, then click <strong>Copy Conversion</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Exact International Conversion Anchors & Temperature Equations</h3>
+      <p>
+        Standard international definitions anchor linear conversions, while temperature uses affine formulas:
+      </p>
+      <div class="formula-box">
+        1 in = 2.54 cm = 0.0254 m  |  1 lb = 0.45359237 kg  |  1 mi = 1.609344 km<br />
+        °F = (°C × 9/5) + 32  |  °C = (°F − 32) × 5/9  |  K = °C + 273.15
+      </div>
+
+      <h3>Helpful Tips for Accurate Unit Conversions</h3>
+      <ul>
+        <li><strong>Distinguish US Gallons vs. UK Imperial Gallons:</strong> <code>1 US gallon</code> is <code>3.785411784 L</code>, whereas <code>1 UK imperial gallon</code> is <code>4.54609 L</code>.</li>
+        <li><strong>Keep Full Precision During Multi-Step Math:</strong> Avoid rounding intermediate figures until the final result so rounding errors do not accumulate.</li>
+        <li><strong>Allow Negative Values Only Where Physically Meaningful:</strong> Temperatures can be negative (such as <code>−10 °C</code>), whereas positive lengths, masses, and volumes are standard.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Converting <code>10 km</code> to miles gives <code>10 / 1.609344 ≈ 6.2137 mi</code> (which equals <code>10,000 m</code> or <code>32,808.40 ft</code>).</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="mi-table-heading">
+      <h2 id="mi-table-heading">Exact Metric & Imperial Conversion Anchors Reference Table (16 Rows)</h2>
+      <p>Use this reference table to check exact conversion factors across length, mass, volume, and temperature.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Category / Unit</th>
+              <th>Exact / Standard Equivalent</th>
+              <th>System</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1 Inch (in)</strong></td>
+              <td><code>2.54 cm</code> (<code>0.0254 m</code>)</td>
+              <td>Imperial → Metric</td>
+              <td>Exact international definition</td>
+            </tr>
+            <tr>
+              <td><strong>1 Foot (ft)</strong></td>
+              <td><code>12 in</code> = <code>0.3048 m</code></td>
+              <td>Imperial → Metric</td>
+              <td><code>3 ft = 1 yd</code></td>
+            </tr>
+            <tr>
+              <td><strong>1 Yard (yd)</strong></td>
+              <td><code>3 ft</code> = <code>0.9144 m</code></td>
+              <td>Imperial → Metric</td>
+              <td><code>1,760 yd = 1 mi</code></td>
+            </tr>
+            <tr>
+              <td><strong>1 Mile (mi)</strong></td>
+              <td><code>1.609344 km</code></td>
+              <td>Imperial → Metric</td>
+              <td><code>5,280 ft</code> per statute mile</td>
+            </tr>
+            <tr>
+              <td><strong>1 Ounce (oz)</strong></td>
+              <td><code>28.349523125 g</code></td>
+              <td>Imperial → Metric</td>
+              <td><code>16 oz = 1 lb</code></td>
+            </tr>
+            <tr>
+              <td><strong>1 Pound (lb)</strong></td>
+              <td><code>0.45359237 kg</code></td>
+              <td>Imperial → Metric</td>
+              <td>Exact avoirdupois pound</td>
+            </tr>
+            <tr>
+              <td><strong>1 Stone (st)</strong></td>
+              <td><code>14 lb</code> ≈ <code>6.35029318 kg</code></td>
+              <td>Imperial (UK) → Metric</td>
+              <td>Common UK body weight unit</td>
+            </tr>
+            <tr>
+              <td><strong>1 US Gallon (gal US)</strong></td>
+              <td><code>3.785411784 L</code></td>
+              <td>US Customary → Metric</td>
+              <td><code>128 fl oz (US)</code></td>
+            </tr>
+            <tr>
+              <td><strong>1 UK Gallon (gal UK)</strong></td>
+              <td><code>4.54609 L</code></td>
+              <td>Imperial → Metric</td>
+              <td><code>160 fl oz (UK)</code></td>
+            </tr>
+            <tr>
+              <td><strong>Water Freezing Point</strong></td>
+              <td><code>0 °C</code> = <code>32 °F</code> = <code>273.15 K</code></td>
+              <td>Temperature</td>
+              <td>At standard atmospheric pressure</td>
+            </tr>
+            <tr>
+              <td><strong>Water Boiling Point</strong></td>
+              <td><code>100 °C</code> = <code>212 °F</code> = <code>373.15 K</code></td>
+              <td>Temperature</td>
+              <td>At standard atmospheric pressure</td>
+            </tr>
+            <tr>
+              <td><strong>Swap Units Button</strong></td>
+              <td>Flips From & To units</td>
+              <td>Studio control</td>
+              <td>Instant reverse conversion</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Export tools</td>
+              <td>Copies full conversion breakdown</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Multi-Domain Converter — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — All conversions run locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Your inputs stay strictly on your device</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Unit, Measurement & Everyday Calculators</h2>
+      <p>Converting stones & pounds, area, volume, or UK fuel economy? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="stone-pounds-to-kg-converter.html"><span>Stone & Pounds to KG</span><span class="arrow">→</span></a>
+        <a class="related-link" href="area-converter.html"><span>Area Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="volume-converter.html"><span>Volume Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="uk-fuel-cost-l100km-calculator.html"><span>UK Fuel Cost & L/100km</span><span class="arrow">→</span></a>
+        <a class="related-link" href="speed-distance-time-calculator.html"><span>Speed Distance Time Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Which categories are supported by this Metric & Imperial Converter?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            It supports <strong>Length</strong> (<code>km, m, cm, mm, mi, yd, ft, in</code>), <strong>Mass / Weight</strong> (<code>kg, g, lb, oz, st</code>), <strong>Volume</strong> (<code>L, mL, gal US, gal UK, fl oz US</code>), and <strong>Temperature</strong> (<code>°C, °F, K</code>).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How do I flip the conversion between two units quickly?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Click the <strong>Swap Units</strong> button in the top toolbar to exchange the <strong>From Unit</strong> and <strong>To Unit</strong> selections and recalculate immediately.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my conversion values sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Metric & Imperial Converter free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Metric & Imperial Converter Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const DOMAINS = {
+        length: {
+          label: "Length",
+          defaultFrom: "km",
+          defaultTo: "mi",
+          defaultVal: "10",
+          // Base = meters (m)
+          units: {
+            km: { name: "Kilometers (km)", abbr: "km", toBase: function (v) { return v * 1000; }, fromBase: function (b) { return b / 1000; } },
+            m: { name: "Meters (m)", abbr: "m", toBase: function (v) { return v; }, fromBase: function (b) { return b; } },
+            cm: { name: "Centimeters (cm)", abbr: "cm", toBase: function (v) { return v * 0.01; }, fromBase: function (b) { return b / 0.01; } },
+            mm: { name: "Millimeters (mm)", abbr: "mm", toBase: function (v) { return v * 0.001; }, fromBase: function (b) { return b / 0.001; } },
+            mi: { name: "Miles (mi)", abbr: "mi", toBase: function (v) { return v * 1609.344; }, fromBase: function (b) { return b / 1609.344; } },
+            yd: { name: "Yards (yd)", abbr: "yd", toBase: function (v) { return v * 0.9144; }, fromBase: function (b) { return b / 0.9144; } },
+            ft: { name: "Feet (ft)", abbr: "ft", toBase: function (v) { return v * 0.3048; }, fromBase: function (b) { return b / 0.3048; } },
+            in: { name: "Inches (in)", abbr: "in", toBase: function (v) { return v * 0.0254; }, fromBase: function (b) { return b / 0.0254; } }
+          },
+          refs: [
+            { key: "Meters (Metric)", unit: "m" },
+            { key: "Feet (Imperial)", unit: "ft" },
+            { key: "Centimeters (Metric)", unit: "cm" },
+            { key: "Miles (Imperial)", unit: "mi" }
+          ]
+        },
+        mass: {
+          label: "Mass / Weight",
+          defaultFrom: "kg",
+          defaultTo: "lb",
+          defaultVal: "70",
+          // Base = kilograms (kg)
+          units: {
+            kg: { name: "Kilograms (kg)", abbr: "kg", toBase: function (v) { return v; }, fromBase: function (b) { return b; } },
+            g: { name: "Grams (g)", abbr: "g", toBase: function (v) { return v * 0.001; }, fromBase: function (b) { return b * 1000; } },
+            lb: { name: "Pounds (lb)", abbr: "lb", toBase: function (v) { return v * 0.45359237; }, fromBase: function (b) { return b / 0.45359237; } },
+            oz: { name: "Ounces (oz)", abbr: "oz", toBase: function (v) { return v * 0.028349523125; }, fromBase: function (b) { return b / 0.028349523125; } },
+            st: { name: "Stones (st)", abbr: "st", toBase: function (v) { return v * 14 * 0.45359237; }, fromBase: function (b) { return b / (14 * 0.45359237); } }
+          },
+          refs: [
+            { key: "Kilograms (Metric)", unit: "kg" },
+            { key: "Pounds (Imperial)", unit: "lb" },
+            { key: "Grams (Metric)", unit: "g" },
+            { key: "Stones (UK Imperial)", unit: "st" }
+          ]
+        },
+        volume: {
+          label: "Volume",
+          defaultFrom: "L",
+          defaultTo: "gal_us",
+          defaultVal: "10",
+          // Base = liters (L)
+          units: {
+            L: { name: "Liters (L)", abbr: "L", toBase: function (v) { return v; }, fromBase: function (b) { return b; } },
+            mL: { name: "Milliliters (mL)", abbr: "mL", toBase: function (v) { return v * 0.001; }, fromBase: function (b) { return b * 1000; } },
+            gal_us: { name: "US Gallons (gal US)", abbr: "gal US", toBase: function (v) { return v * 3.785411784; }, fromBase: function (b) { return b / 3.785411784; } },
+            gal_uk: { name: "UK Gallons (gal UK)", abbr: "gal UK", toBase: function (v) { return v * 4.54609; }, fromBase: function (b) { return b / 4.54609; } },
+            floz_us: { name: "US Fluid Ounces (fl oz)", abbr: "fl oz", toBase: function (v) { return v * (3.785411784 / 128); }, fromBase: function (b) { return b / (3.785411784 / 128); } }
+          },
+          refs: [
+            { key: "Liters (Metric)", unit: "L" },
+            { key: "US Gallons", unit: "gal_us" },
+            { key: "Milliliters (Metric)", unit: "mL" },
+            { key: "UK Imperial Gallons", unit: "gal_uk" }
+          ]
+        },
+        temperature: {
+          label: "Temperature",
+          defaultFrom: "C",
+          defaultTo: "F",
+          defaultVal: "25",
+          // Base = Celsius (C)
+          units: {
+            C: { name: "Celsius (\u00b0C)", abbr: "\u00b0C", toBase: function (v) { return v; }, fromBase: function (b) { return b; } },
+            F: { name: "Fahrenheit (\u00b0F)", abbr: "\u00b0F", toBase: function (v) { return (v - 32) * (5 / 9); }, fromBase: function (b) { return (b * (9 / 5)) + 32; } },
+            K: { name: "Kelvin (K)", abbr: "K", toBase: function (v) { return v - 273.15; }, fromBase: function (b) { return b + 273.15; } }
+          },
+          refs: [
+            { key: "Celsius", unit: "C" },
+            { key: "Fahrenheit", unit: "F" },
+            { key: "Kelvin", unit: "K" },
+            { key: "Freezing Ref. (0\u00b0C)", unit: "C", fixedCelsius: 0 }
+          ]
+        }
+      };
+
+      const domainBtns = document.querySelectorAll(".mode-btn[data-domain]");
+      const miValueInput = document.getElementById("miValueInput");
+      const miFromUnitSelect = document.getElementById("miFromUnitSelect");
+      const miToUnitSelect = document.getElementById("miToUnitSelect");
+
+      const swapUnitsBtn = document.getElementById("swapUnitsBtn");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetMiBtn = document.getElementById("resetMiBtn");
+
+      const miHeroKicker = document.getElementById("miHeroKicker");
+      const miHeroTitle = document.getElementById("miHeroTitle");
+      const miHeroSub = document.getElementById("miHeroSub");
+      const miPrimaryDisplay = document.getElementById("miPrimaryDisplay");
+
+      const eq1Key = document.getElementById("eq1Key");
+      const eq1Val = document.getElementById("eq1Val");
+      const eq2Key = document.getElementById("eq2Key");
+      const eq2Val = document.getElementById("eq2Val");
+      const eq3Key = document.getElementById("eq3Key");
+      const eq3Val = document.getElementById("eq3Val");
+      const eq4Key = document.getElementById("eq4Key");
+      const eq4Val = document.getElementById("eq4Val");
+
+      const copyMiBtn = document.getElementById("copyMiBtn");
+      const downloadMiBtn = document.getElementById("downloadMiBtn");
+
+      let currentDomain = "length";
+      let latestSummaryText = "";
+
+      function fmtNum(n) {
+        if (!Number.isFinite(n)) return "—";
+        const abs = Math.abs(n);
+        const dec = abs >= 100 ? 2 : abs >= 1 ? 4 : 6;
+        return n.toLocaleString("en-US", {
+          minimumFractionDigits: abs >= 100 ? 2 : 2,
+          maximumFractionDigits: dec
+        });
+      }
+
+      function populateDomainUnits(domainKey) {
+        const d = DOMAINS[domainKey] || DOMAINS.length;
+        miFromUnitSelect.innerHTML = "";
+        miToUnitSelect.innerHTML = "";
+
+        Object.keys(d.units).forEach(function (uKey) {
+          const u = d.units[uKey];
+          const o1 = document.createElement("option");
+          o1.value = uKey;
+          o1.textContent = u.name;
+          if (uKey === d.defaultFrom) o1.selected = true;
+          miFromUnitSelect.appendChild(o1);
+
+          const o2 = document.createElement("option");
+          o2.value = uKey;
+          o2.textContent = u.name;
+          if (uKey === d.defaultTo) o2.selected = true;
+          miToUnitSelect.appendChild(o2);
+        });
+      }
+
+      function calculateConversion() {
+        domainBtns.forEach(function (btn) {
+          btn.classList.toggle("active", btn.getAttribute("data-domain") === currentDomain);
+        });
+
+        const d = DOMAINS[currentDomain] || DOMAINS.length;
+        const fromKey = miFromUnitSelect.value;
+        const toKey = miToUnitSelect.value;
+        const fromU = d.units[fromKey] || d.units[d.defaultFrom];
+        const toU = d.units[toKey] || d.units[d.defaultTo];
+
+        miHeroKicker.textContent = `Converted ${d.label}`;
+        miHeroTitle.textContent = `${fromU.abbr} \u2192 ${toU.abbr}`;
+        miHeroSub.textContent = `${d.label} conversion`;
+
+        const raw = parseFloat(miValueInput.value);
+        if (!Number.isFinite(raw)) {
+          miPrimaryDisplay.textContent = "—";
+          eq1Val.textContent = "—";
+          eq2Val.textContent = "—";
+          eq3Val.textContent = "—";
+          eq4Val.textContent = "—";
+          latestSummaryText = "";
+          return;
+        }
+
+        const baseVal = fromU.toBase(raw);
+        const convertedVal = toU.fromBase(baseVal);
+        miPrimaryDisplay.textContent = `${fmtNum(convertedVal)} ${toU.abbr}`;
+
+        const refEls = [
+          [eq1Key, eq1Val],
+          [eq2Key, eq2Val],
+          [eq3Key, eq3Val],
+          [eq4Key, eq4Val]
+        ];
+
+        d.refs.forEach(function (rSpec, idx) {
+          const kEl = refEls[idx][0];
+          const vEl = refEls[idx][1];
+          kEl.textContent = rSpec.key;
+          const ru = d.units[rSpec.unit];
+          if (ru) {
+            const valToShow = typeof rSpec.fixedCelsius === "number"
+              ? ru.fromBase(rSpec.fixedCelsius)
+              : ru.fromBase(baseVal);
+            vEl.textContent = `${fmtNum(valToShow)} ${ru.abbr}`;
+          }
+        });
+
+        latestSummaryText = [
+          `PureWebKits ${d.label} Conversion`,
+          "-----------------------------------",
+          `Input: ${fmtNum(raw)} ${fromU.abbr} (${fromU.name})`,
+          `Converted: ${fmtNum(convertedVal)} ${toU.abbr} (${toU.name})`
+        ].join("\n");
+      }
+
+      domainBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const dom = btn.getAttribute("data-domain");
+          if (dom && DOMAINS[dom]) {
+            currentDomain = dom;
+            populateDomainUnits(dom);
+            miValueInput.value = DOMAINS[dom].defaultVal;
+            calculateConversion();
+          }
+        });
+      });
+
+      swapUnitsBtn.addEventListener("click", function () {
+        const prevFrom = miFromUnitSelect.value;
+        const prevTo = miToUnitSelect.value;
+        miFromUnitSelect.value = prevTo;
+        miToUnitSelect.value = prevFrom;
+        calculateConversion();
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        const d = DOMAINS[currentDomain] || DOMAINS.length;
+        miFromUnitSelect.value = d.defaultFrom;
+        miToUnitSelect.value = d.defaultTo;
+        miValueInput.value = d.defaultVal;
+        calculateConversion();
+      });
+
+      resetMiBtn.addEventListener("click", function () {
+        miValueInput.value = "";
+        calculateConversion();
+      });
+
+      [miValueInput, miFromUnitSelect, miToUnitSelect].forEach(function (el) {
+        el.addEventListener("input", calculateConversion);
+        el.addEventListener("change", calculateConversion);
+      });
+
+      copyMiBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyMiBtn.textContent;
+          copyMiBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyMiBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadMiBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "metric-imperial-conversion.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      populateDomainUnits(currentDomain);
+      calculateConversion();
+    });
+  </script>
+</body>
+</html>

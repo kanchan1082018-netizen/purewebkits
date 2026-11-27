@@ -1,0 +1,854 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Lorem Ipsum Generator — PureWebKits</title>
+  <meta name="description" content="Generate placeholder Lorem Ipsum paragraphs, sentences, or words for UI mockups, layouts, and typography testing online for free. 100% client-side generator with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/lorem-ipsum.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Lorem Ipsum Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 13px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .chk-stack { display: flex; flex-direction: column; gap: 8px; margin-top: 2px; }
+    .chk-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .code-output {
+      width: 100%;
+      height: 250px;
+      background: #0F172A;
+      color: #E2E8F0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      padding: 14px;
+      border-radius: 8px;
+      border: none;
+      resize: vertical;
+      outline: none;
+    }
+    .stats-strip {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14.5px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Lorem Ipsum Generator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Lorem Ipsum Generator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Generate placeholder paragraphs, sentences, or words for layouts and wireframes in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Choose unit type, quantity, and formatting options to generate placeholder text:</div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">3 Paragraphs Sample</button>
+            <button type="button" id="regenerateBtn" class="btn-sec">Regenerate</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="unitType" class="field-label">Output Unit</label>
+              <select id="unitType" class="std-select">
+                <option value="paragraphs" selected>Paragraphs</option>
+                <option value="sentences">Sentences</option>
+                <option value="words">Words</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label for="unitCount" class="field-label">Quantity (1 – 100)</label>
+              <input type="number" id="unitCount" class="std-input" min="1" max="100" value="3" />
+            </div>
+
+            <div class="chk-stack">
+              <label class="chk-inline"><input type="checkbox" id="startClassicChk" checked /> Start with "Lorem ipsum dolor sit amet..."</label>
+              <label class="chk-inline"><input type="checkbox" id="wrapHtmlPChk" /> Wrap paragraphs in <p> tags</label>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="field-group">
+              <label for="loremOutput" class="field-label">Generated Placeholder Text</label>
+              <textarea id="loremOutput" class="code-output" readonly></textarea>
+            </div>
+
+            <div class="stats-strip">
+              <span id="loremWordCount">Words: 0</span>
+              <span id="loremCharCount">Characters: 0</span>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyLoremBtn" class="btn-primary">Copy Text</button>
+              <button type="button" id="downloadLoremBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Lorem Ipsum Placeholder Text, Wireframing, and Typography Testing</h2>
+
+      <h3>Why Designers and Developers Use Lorem Ipsum Placeholder Text</h3>
+      <p>
+        When designing a webpage, mobile screen, card grid, email template, or print layout before final editorial copy is written, visual structure can be hard to judge with empty boxes or repetitive single words. <strong>Lorem Ipsum</strong> provides neutral, Latin-inspired placeholder text with realistic word-length distribution so designers and frontend engineers can evaluate line height, font pairing, column widths, responsive wrapping, and spacing without getting distracted by unfinished headlines. Because this <strong>Lorem Ipsum Generator</strong> runs 100% locally inside your browser using JavaScript, you can generate paragraphs, sentences, or word counts instantaneously with zero server round-trips.
+      </p>
+
+      <h3>How to Generate Placeholder Text in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Choose Unit Type and Count:</strong> Select <strong>Paragraphs</strong>, <strong>Sentences</strong>, or <strong>Words</strong>, and set a quantity between <code>1</code> and <code>100</code>.</li>
+        <li><strong>Customize Classic Opening or HTML Tags:</strong> Keep <em>Start with "Lorem ipsum dolor sit amet..."</em> enabled for familiar dummy copy, or check <em>Wrap paragraphs in <p> tags</em> when pasting directly into HTML templates.</li>
+        <li><strong>Copy or Export Your Text:</strong> Click <strong>Copy Text</strong> to copy to your clipboard or <strong>Download .txt</strong> to save the generated copy locally.</li>
+      </ol>
+
+      <h3>Placeholder Generation Structure Formula</h3>
+      <p>
+        Each generated block assembles sentences from a curated word bank with natural punctuation and optional HTML paragraph wrapping:
+      </p>
+      <div class="formula-box">
+        Output = Assemble(Unit in {Paragraphs, Sentences, Words}, Count in [1..100], ClassicLead?, Wrap<p>?)
+      </div>
+
+      <h3>Best Practices for Using Dummy Text in UI & Content Projects</h3>
+      <ul>
+        <li><strong>Match Expected Real-World Copy Length:</strong> If real headlines are 6–9 words and real summaries are 2–3 sentences, test your UI cards with similar lengths so production copy does not overflow containers later.</li>
+        <li><strong>Replace All Placeholder Copy Before Publishing:</strong> Always audit templates, staging builds, and SEO metadata before launch so <code>Lorem ipsum</code> never appears on live pages or in search snippets.</li>
+        <li><strong>Inspect Word & Character Counts:</strong> Use the live counters below the output box—or our dedicated Word & Character Counter—to verify copy budgets across components.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Selecting <strong>Paragraphs</strong> with quantity <code>3</code> and <em>Start with "Lorem ipsum dolor sit amet..."</em> checked creates three balanced paragraphs starting with the classic opening phrase, ready to drop into a blog layout or design mockup.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="lorem-table-heading">
+      <h2 id="lorem-table-heading">Lorem Ipsum Generation Options & Layout Guide Reference (16 Rules)</h2>
+      <p>Use this reference table to understand unit modes, formatting toggles, and layout testing rules.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Option / Feature</th>
+              <th>Setting / Range</th>
+              <th>Behavior</th>
+              <th>Best Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Paragraphs Mode</strong></td>
+              <td>1 – 100 paragraphs</td>
+              <td>Generates multi-sentence blocks separated by blank lines</td>
+              <td>Articles, long-form cards & body layouts</td>
+            </tr>
+            <tr>
+              <td><strong>Sentences Mode</strong></td>
+              <td>1 – 100 sentences</td>
+              <td>Generates individual punctuated sentences</td>
+              <td>Summaries, tooltips & list items</td>
+            </tr>
+            <tr>
+              <td><strong>Words Mode</strong></td>
+              <td>1 – 100 words</td>
+              <td>Generates an exact count of lowercase Latin-style words</td>
+              <td>Buttons, badges, titles & tight slots</td>
+            </tr>
+            <tr>
+              <td><strong>Classic Opening</strong></td>
+              <td>Toggle Checkbox</td>
+              <td>Begins with <code>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</code></td>
+              <td>Standard design & wireframe mockups</td>
+            </tr>
+            <tr>
+              <td><strong>Wrap in <p> Tags</strong></td>
+              <td>Toggle Checkbox</td>
+              <td>Wraps each paragraph in <code><p>...</p></code></td>
+              <td>Pasting directly into HTML markup</td>
+            </tr>
+            <tr>
+              <td><strong>Regenerate Button</strong></td>
+              <td>Action Button</td>
+              <td>Produces fresh varied sentences/words on demand</td>
+              <td>Testing multiple copy variations</td>
+            </tr>
+            <tr>
+              <td><strong>Word Counter</strong></td>
+              <td>Live Metric</td>
+              <td>Displays total word count in generated output</td>
+              <td>Estimating reading or layout density</td>
+            </tr>
+            <tr>
+              <td><strong>Character Counter</strong></td>
+              <td>Live Metric</td>
+              <td>Displays total character count including spaces</td>
+              <td>Checking fixed-width UI boxes</td>
+            </tr>
+            <tr>
+              <td><strong>Copy Text</strong></td>
+              <td>Clipboard Action</td>
+              <td>Copies generated text with one click</td>
+              <td>Figma, VS Code, browser & docs</td>
+            </tr>
+            <tr>
+              <td><strong>Download .txt</strong></td>
+              <td>File Export</td>
+              <td>Downloads output as <code>lorem-ipsum.txt</code></td>
+              <td>Saving offline test copy</td>
+            </tr>
+            <tr>
+              <td><strong>Quantity Clamping</strong></td>
+              <td>Min 1, Max 100</td>
+              <td>Keeps counts within safe browser limits</td>
+              <td>Fast, responsive generation</td>
+            </tr>
+            <tr>
+              <td><strong>Pre-Launch Check</strong></td>
+              <td>Quality Rule</td>
+              <td>Replace placeholder text before going live</td>
+              <td>Preventing accidental dummy copy in prod</td>
+            </tr>
+            <tr>
+              <td><strong>Typography Testing</strong></td>
+              <td>Design Practice</td>
+              <td>Tests font weight, tracking & line-height</td>
+              <td>Refining readability across viewports</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Generator — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — All placeholder text is generated locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Everything runs right on your device</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Text, Formatting & Developer Utilities</h2>
+      <p>Counting words, changing text case, or cleaning up copy? Explore our companion client-side tools[cite: 3]:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="case-converter.html"><span>Case Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="remove-line-breaks.html"><span>Line Break Remover</span><span class="arrow">→</span></a>
+        <a class="related-link" href="remove-spaces.html"><span>Remove Extra Spaces</span><span class="arrow">→</span></a>
+        <a class="related-link" href="slugify.html"><span>Slugify Text</span><span class="arrow">→</span></a>
+        <a class="related-link" href="readability.html"><span>Readability Score Checker</span><span class="arrow">→</span></a>
+        <a class="related-link" href="html-minifier.html"><span>HTML Minifier</span><span class="arrow">→</span></a>
+        <a class="related-link" href="css-minifier.html"><span>CSS Minifier</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Can I generate an exact number of words or sentences instead of full paragraphs?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> Change <strong>Output Unit</strong> to <strong>Sentences</strong> or <strong>Words</strong> and enter any number from <code>1</code> to <code>100</code>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I wrap generated paragraphs in HTML <p> tags automatically?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> Check <em>Wrap paragraphs in <p> tags</em> to enclose each paragraph block cleanly inside HTML paragraph tags.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Does this Lorem Ipsum Generator require a server connection?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            No. It runs 100% client-side in your browser using JavaScript with zero server uploads.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Lorem Ipsum Generator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no login required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Lorem Ipsum Generator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const unitType = document.getElementById("unitType");
+      const unitCount = document.getElementById("unitCount");
+      const startClassicChk = document.getElementById("startClassicChk");
+      const wrapHtmlPChk = document.getElementById("wrapHtmlPChk");
+
+      const loremOutput = document.getElementById("loremOutput");
+      const loremWordCount = document.getElementById("loremWordCount");
+      const loremCharCount = document.getElementById("loremCharCount");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const regenerateBtn = document.getElementById("regenerateBtn");
+      const copyLoremBtn = document.getElementById("copyLoremBtn");
+      const downloadLoremBtn = document.getElementById("downloadLoremBtn");
+
+      const CLASSIC_LEAD_WORDS = ["lorem", "ipsum", "dolor", "sit", "amet,", "consectetur", "adipiscing", "elit."];
+      const WORD_BANK = [
+        "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore", "magna",
+        "aliqua", "enim", "ad", "minim", "veniam", "quis", "nostrud", "exercitation", "ullamco", "laboris",
+        "nisi", "aliquip", "ex", "ea", "commodo", "consequat", "duis", "aute", "irure", "dolor",
+        "in", "reprehenderit", "voluptate", "velit", "esse", "cillum", "eu", "fugiat", "nulla", "pariatur",
+        "excepteur", "sint", "occaecat", "cupidatat", "non", "proident", "sunt", "culpa", "qui", "officia",
+        "deserunt", "mollit", "anim", "id", "est", "laborum", "integer", "nec", "odio", "praesent",
+        "libero", "cursus", "ante", "dapibus", "diam", "nunc", "feugiat", "mi", "vitae", "mauris",
+        "phasellus", "porta", "fusce", "pellentesque", "habitant", "morbi", "tristique", "senectus", "netus"
+      ];
+
+      function pickWord() {
+        return WORD_BANK[Math.floor(Math.random() * WORD_BANK.length)];
+      }
+
+      function buildSentence(minWords, maxWords, forceClassicStart) {
+        const targetLen = minWords + Math.floor(Math.random() * (maxWords - minWords + 1));
+        const words = [];
+
+        if (forceClassicStart) {
+          for (let i = 0; i < Math.min(targetLen, CLASSIC_LEAD_WORDS.length); i++) {
+            words.push(CLASSIC_LEAD_WORDS[i]);
+          }
+        }
+
+        while (words.length < targetLen) {
+          let w = pickWord();
+          if (words.length > 2 && words.length < targetLen - 2 && Math.random() < 0.14 && !w.endsWith(",")) {
+            w = w + ",";
+          }
+          words.push(w);
+        }
+
+        let sentence = words.join(" ").replace(/,+$/, "");
+        if (!/[.!?]$/.test(sentence)) {
+          sentence += ".";
+        }
+        return sentence.charAt(0).toUpperCase() + sentence.slice(1);
+      }
+
+      function buildParagraph(forceClassicStart) {
+        const sentenceCount = 3 + Math.floor(Math.random() * 3); // 3 to 5 sentences
+        const sentences = [];
+        for (let i = 0; i < sentenceCount; i++) {
+          sentences.push(buildSentence(7, 13, forceClassicStart && i === 0));
+        }
+        return sentences.join(" ");
+      }
+
+      function generateLorem() {
+        let count = parseInt(unitCount.value, 10);
+        if (!Number.isFinite(count) || count < 1) count = 1;
+        if (count > 100) count = 100;
+        unitCount.value = count;
+
+        const type = unitType.value;
+        const classic = startClassicChk.checked;
+        const wrapP = wrapHtmlPChk.checked;
+
+        let outputText = "";
+
+        if (type === "words") {
+          const words = [];
+          if (classic) {
+            for (let i = 0; i < Math.min(count, CLASSIC_LEAD_WORDS.length); i++) {
+              words.push(CLASSIC_LEAD_WORDS[i].replace(/[,.;]+$/, ""));
+            }
+          }
+          while (words.length < count) {
+            words.push(pickWord().replace(/[,.;]+$/, ""));
+          }
+          outputText = words.join(" ");
+        } else if (type === "sentences") {
+          const sentences = [];
+          for (let i = 0; i < count; i++) {
+            sentences.push(buildSentence(7, 13, classic && i === 0));
+          }
+          outputText = sentences.join(" ");
+        } else {
+          const paragraphs = [];
+          for (let i = 0; i < count; i++) {
+            const p = buildParagraph(classic && i === 0);
+            paragraphs.push(wrapP ? `<p>${p}</p>` : p);
+          }
+          outputText = paragraphs.join(wrapP ? "\n" : "\n\n");
+        }
+
+        loremOutput.value = outputText;
+        const plainForStats = outputText.replace(/<[^>]+>/g, " ").trim();
+        const wordTotal = plainForStats ? plainForStats.split(/\s+/).length : 0;
+        loremWordCount.textContent = `Words: ${wordTotal}`;
+        loremCharCount.textContent = `Characters: ${outputText.length}`;
+      }
+
+      [unitType, unitCount, startClassicChk, wrapHtmlPChk].forEach(function (el) {
+        el.addEventListener("input", generateLorem);
+        el.addEventListener("change", generateLorem);
+      });
+
+      regenerateBtn.addEventListener("click", generateLorem);
+
+      loadSampleBtn.addEventListener("click", function () {
+        unitType.value = "paragraphs";
+        unitCount.value = "3";
+        startClassicChk.checked = true;
+        wrapHtmlPChk.checked = false;
+        generateLorem();
+      });
+
+      copyLoremBtn.addEventListener("click", function () {
+        if (!loremOutput.value) return;
+        navigator.clipboard.writeText(loremOutput.value).then(function () {
+          const orig = copyLoremBtn.textContent;
+          copyLoremBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyLoremBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadLoremBtn.addEventListener("click", function () {
+        if (!loremOutput.value) return;
+        const ext = wrapHtmlPChk.checked && unitType.value === "paragraphs" ? "html" : "txt";
+        const mime = ext === "html" ? "text/html;charset=utf-8" : "text/plain;charset=utf-8";
+        const blob = new Blob([loremOutput.value], { type: mime });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `lorem-ipsum.${ext}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      loadSampleBtn.click();
+    });
+  </script>
+</body>
+</html>

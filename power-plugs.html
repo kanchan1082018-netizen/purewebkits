@@ -1,0 +1,956 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Global Power Plug Reference (Types A–N, Voltage & Hz) — PureWebKits</title>
+  <meta name="description" content="Look up international AC power plug and socket types (Type A through Type N), nominal mains voltage (110V–240V), and frequency (50Hz / 60Hz) by country online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/global-power-plug-reference.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Global Power Plug Reference Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .quick-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .plug-chip {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 7px;
+      padding: 5px 11px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .plug-chip:hover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary-dark);
+    }
+
+    .plug-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .plug-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .plug-hero-title { font-size: 17px; font-weight: 800; }
+    .plug-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .plug-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 20px;
+      font-weight: 800;
+      color: #38BDF8;
+      white-space: nowrap;
+      text-align: right;
+    }
+    .plug-hero-num.error { color: #FCA5A5; font-size: 13.5px; text-align: left; white-space: normal; }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+      word-break: break-word;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Global Power Plug Reference Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Global Power Plug Reference</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Look up international AC plug types, nominal voltage & frequency by country in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Search by country or plug type (e.g., India, Type D/M, US, Type A/B, UK, Type G):</div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample (India)</button>
+            <button type="button" id="resetPlugBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="plugSearchInput" class="field-label">Search Country or Plug Type</label>
+                <input type="text" id="plugSearchInput" class="std-input" value="India" placeholder="e.g., India, Type G, US, Type C, Japan" autocomplete="off" />
+              </div>
+
+              <div class="field-group">
+                <label for="plugCountrySelect" class="field-label">Or Select Country / Region</label>
+                <select id="plugCountrySelect" class="std-select"></select>
+              </div>
+            </div>
+
+            <div class="quick-chips" aria-label="Popular travel destination presets">
+              <button type="button" class="plug-chip" data-pq="India">India (C/D/M • 230V)</button>
+              <button type="button" class="plug-chip" data-pq="United States">US (A/B • 120V)</button>
+              <button type="button" class="plug-chip" data-pq="United Kingdom">UK (G • 230V)</button>
+              <button type="button" class="plug-chip" data-pq="Germany">EU / Germany (C/F • 230V)</button>
+              <button type="button" class="plug-chip" data-pq="Japan">Japan (A/B • 100V)</button>
+              <button type="button" class="plug-chip" data-pq="Australia">Australia (I • 230V)</button>
+              <button type="button" class="plug-chip" data-pq="United Arab Emirates">UAE (C/D/G • 230V)</button>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="plug-hero-box">
+              <div>
+                <div class="plug-hero-kicker" id="plugHeroKicker">Plug & Socket Types</div>
+                <div class="plug-hero-title" id="plugCountryTitle">India</div>
+                <div class="plug-hero-sub" id="plugRegionSub">South Asia • Grounding & travel adapter note</div>
+              </div>
+              <div class="plug-hero-num" id="plugTypesDisplay">Type C / D / M</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Plug Type(s)</div>
+                <div class="metric-val" id="plugTypeVal">Type C, Type D, Type M</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Nominal Voltage</div>
+                <div class="metric-val" id="plugVoltageVal">230 V AC</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Mains Frequency</div>
+                <div class="metric-val" id="plugFreqVal">50 Hz</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Adapter vs. Converter</div>
+                <div class="metric-val" id="plugNoteVal">Plug adapter if dual-voltage</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyPlugBtn" class="btn-primary">Copy Plug Info</button>
+              <button type="button" id="downloadPlugBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Voltage/Hz & Adapter Rules & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Global Power Plugs, Mains Voltage (110V–240V), Frequency & Travel Adapters</h2>
+
+      <h3>Why Plug Shape, Voltage, and Frequency All Matter When Traveling</h3>
+      <p>
+        International travelers and hardware buyers often discover that plugging an appliance abroad involves two distinct considerations: <strong>physical plug/socket geometry</strong> (designated in travel guides by letters such as <code>Type A</code>, <code>Type B</code>, <code>Type C</code>, <code>Type D</code>, <code>Type F</code>, <code>Type G</code>, <code>Type I</code>, <code>Type J</code>, <code>Type K</code>, <code>Type L</code>, and <code>Type N</code>) and <strong>electrical supply characteristics</strong>—specifically <strong>nominal voltage</strong> (commonly around <code>100V–127V</code> in North America and Japan vs. <code>220V–240V</code> across Europe, Asia, Africa, and Oceania) and <strong>AC frequency</strong> (<code>50 Hz</code> or <code>60 Hz</code>). A simple travel <strong>plug adapter</strong> changes pin shape without altering voltage; by contrast, a single-voltage <code>110V–120V</code> device (such as a basic hair dryer, curling iron, or heating element) plugged into a <code>230V</code> outlet without a proper step-down voltage converter can overheat or suffer damage. A browser-based <strong>Global Power Plug Reference</strong> lets you check plug types, voltage, and frequency 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Look Up a Country's Power Plug & Voltage in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Search by Country or Plug Type:</strong> Enter a country name (such as <code>India</code>, <code>United States</code>, or <code>United Kingdom</code>) or plug code into <strong>Search Country or Plug Type</strong>, select from the dropdown, or click a quick preset chip.</li>
+        <li><strong>Check Voltage, Frequency & Adapter Guidance:</strong> Review the plug types, nominal AC voltage, mains frequency (<code>50 Hz</code> or <code>60 Hz</code>), and adapter guidance on the right.</li>
+        <li><strong>Copy or Export:</strong> Click <strong>Copy Plug Info</strong> to copy the summary to your clipboard, or click <strong>Download .txt</strong> to save a packing note locally.</li>
+      </ol>
+
+      <h3>Checking Appliance Input Ratings Before Plugging In</h3>
+      <p>
+        Always check the rating label or power brick printed on your device before traveling:
+      </p>
+      <div class="formula-box">
+        Universal / Dual-Voltage PSU: Input labeled "100–240V ~ 50/60Hz" → Needs physical plug adapter only<br />
+        Single-Voltage Appliance: Rated strictly for ~120V or ~230V → Check voltage compatibility before connecting
+      </div>
+
+      <h3>Helpful Tips for International Power & Travel</h3>
+      <ul>
+        <li><strong>Laptops, Phone Chargers & Camera Bricks Are Often Dual-Voltage:</strong> Most modern switching power supplies accept <code>100–240V, 50/60Hz</code> automatically and only need a physical pin adapter.</li>
+        <li><strong>Watch High-Wattage Heating & Motor Appliances:</strong> Hair dryers, straighteners, kettles, and motors draw high wattage and can behave differently or overheat on mismatched voltage or frequency.</li>
+        <li><strong>Check Multiple Outlets in Regions With Legacy Sockets:</strong> Some countries use more than one socket style across older and newer buildings.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Looking up <strong>India</strong> shows <code>Type C / D / M</code> plugs, a nominal supply of <code>230 V AC</code> at <code>50 Hz</code>, and indicates that dual-voltage travel adapters work for <code>100–240V</code> chargers while single-voltage <code>120V</code> appliances require voltage compatibility care.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="plug-table-heading">
+      <h2 id="plug-table-heading">Major Global Plug Types, Voltage & Frequency Reference Table (16 Rows)</h2>
+      <p>Use this reference table to compare common international plug types, voltages, and frequencies.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Country / Region</th>
+              <th>Plug Type(s)</th>
+              <th>Nominal Voltage</th>
+              <th>Frequency & Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>India</strong></td>
+              <td><code>Type C, Type D, Type M</code></td>
+              <td><code>230 V</code></td>
+              <td><code>50 Hz</code> • Round 2- & 3-pin styles</td>
+            </tr>
+            <tr>
+              <td><strong>United States</strong></td>
+              <td><code>Type A, Type B</code></td>
+              <td><code>120 V</code></td>
+              <td><code>60 Hz</code> • Flat blades + ground pin (B)</td>
+            </tr>
+            <tr>
+              <td><strong>Canada</strong></td>
+              <td><code>Type A, Type B</code></td>
+              <td><code>120 V</code></td>
+              <td><code>60 Hz</code> • North American standard</td>
+            </tr>
+            <tr>
+              <td><strong>United Kingdom</strong></td>
+              <td><code>Type G</code></td>
+              <td><code>230 V</code></td>
+              <td><code>50 Hz</code> • 3 rectangular pins (BS 1363)</td>
+            </tr>
+            <tr>
+              <td><strong>Germany</strong></td>
+              <td><code>Type C, Type F</code></td>
+              <td><code>230 V</code></td>
+              <td><code>50 Hz</code> • Europlug & Schuko</td>
+            </tr>
+            <tr>
+              <td><strong>France</strong></td>
+              <td><code>Type C, Type E</code></td>
+              <td><code>230 V</code></td>
+              <td><code>50 Hz</code> • Socket with earth pin</td>
+            </tr>
+            <tr>
+              <td><strong>Japan</strong></td>
+              <td><code>Type A, Type B</code></td>
+              <td><code>100 V</code></td>
+              <td><code>50 Hz</code> (East) / <code>60 Hz</code> (West)</td>
+            </tr>
+            <tr>
+              <td><strong>Australia</strong></td>
+              <td><code>Type I</code></td>
+              <td><code>230 V</code></td>
+              <td><code>50 Hz</code> • Angled flat pins + earth</td>
+            </tr>
+            <tr>
+              <td><strong>New Zealand</strong></td>
+              <td><code>Type I</code></td>
+              <td><code>230 V</code></td>
+              <td><code>50 Hz</code> • Angled flat pins + earth</td>
+            </tr>
+            <tr>
+              <td><strong>United Arab Emirates</strong></td>
+              <td><code>Type C, Type D, Type G</code></td>
+              <td><code>230 V</code></td>
+              <td><code>50 Hz</code> • Type G common in new builds</td>
+            </tr>
+            <tr>
+              <td><strong>Singapore</strong></td>
+              <td><code>Type G</code></td>
+              <td><code>230 V</code></td>
+              <td><code>50 Hz</code> • UK-style 3-pin standard</td>
+            </tr>
+            <tr>
+              <td><strong>Brazil</strong></td>
+              <td><code>Type C, Type N</code></td>
+              <td><code>127 V / 220 V</code></td>
+              <td><code>60 Hz</code> • Varies by state/city</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download</strong></td>
+              <td colspan="3">One-click clipboard copy or <code>.txt</code> download of plug & voltage specs</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Plug Reference Lookup — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — All lookups run locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Your lookups stay strictly on your device</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Travel, Time, Currency & Unit Utilities</h2>
+      <p>Checking world clocks, time zones, country codes, or metric/imperial units? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="world-clock.html"><span>World Clock</span><span class="arrow">→</span></a>
+        <a class="related-link" href="time-zone-converter.html"><span>Time Zone Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="country-code-lookup.html"><span>Country Code Lookup</span><span class="arrow">→</span></a>
+        <a class="related-link" href="metric-imperial-converter.html"><span>Metric & Imperial Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="international-dialing-code-finder.html"><span>International Dialing Codes</span><span class="arrow">→</span></a>
+        <a class="related-link" href="global-shipping-cost-estimator.html"><span>Global Shipping Estimator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Does a travel plug adapter convert voltage from 230V to 120V (or vice versa)?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>No.</strong> A travel plug adapter only changes the physical pin shape to fit a foreign outlet—it does not step voltage up or down. Always check your device's input voltage rating (such as <code>100–240V</code>) before connecting.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I search by plug type letter (like Type G or Type A) as well as country?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> Type a country name or a plug type such as <code>Type G</code>, <code>Type A</code>, <code>Type C</code>, or <code>Type I</code> into the search box to find matching countries.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my power plug lookups sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All lookups run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Global Power Plug Reference free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Global Power Plug Reference Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const PLUG_COUNTRIES = [
+        { name: "India", plugs: ["Type C", "Type D", "Type M"], voltage: "230 V", freq: "50 Hz", region: "South Asia", note: "Plug adapter for 100–240V gear" },
+        { name: "United States", plugs: ["Type A", "Type B"], voltage: "120 V", freq: "60 Hz", region: "North America", note: "Check voltage on 230V devices" },
+        { name: "Canada", plugs: ["Type A", "Type B"], voltage: "120 V", freq: "60 Hz", region: "North America", note: "Check voltage on 230V devices" },
+        { name: "United Kingdom", plugs: ["Type G"], voltage: "230 V", freq: "50 Hz", region: "Europe", note: "Plug adapter for 100–240V gear" },
+        { name: "Germany", plugs: ["Type C", "Type F"], voltage: "230 V", freq: "50 Hz", region: "Europe", note: "Plug adapter for 100–240V gear" },
+        { name: "France", plugs: ["Type C", "Type E"], voltage: "230 V", freq: "50 Hz", region: "Europe", note: "Plug adapter for 100–240V gear" },
+        { name: "Italy", plugs: ["Type C", "Type F", "Type L"], voltage: "230 V", freq: "50 Hz", region: "Europe", note: "Plug adapter for 100–240V gear" },
+        { name: "Spain", plugs: ["Type C", "Type F"], voltage: "230 V", freq: "50 Hz", region: "Europe", note: "Plug adapter for 100–240V gear" },
+        { name: "Switzerland", plugs: ["Type C", "Type J"], voltage: "230 V", freq: "50 Hz", region: "Europe", note: "Plug adapter for 100–240V gear" },
+        { name: "Japan", plugs: ["Type A", "Type B"], voltage: "100 V", freq: "50 Hz / 60 Hz", region: "East Asia", note: "100V supply; verify sensitive gear" },
+        { name: "China", plugs: ["Type A", "Type C", "Type I"], voltage: "220 V", freq: "50 Hz", region: "East Asia", note: "Plug adapter for 100–240V gear" },
+        { name: "South Korea", plugs: ["Type C", "Type F"], voltage: "220 V", freq: "60 Hz", region: "East Asia", note: "220V at 60Hz; check 50/60Hz rating" },
+        { name: "Singapore", plugs: ["Type G"], voltage: "230 V", freq: "50 Hz", region: "Southeast Asia", note: "Plug adapter for 100–240V gear" },
+        { name: "United Arab Emirates", plugs: ["Type C", "Type D", "Type G"], voltage: "230 V", freq: "50 Hz", region: "Middle East", note: "Plug adapter for 100–240V gear" },
+        { name: "Saudi Arabia", plugs: ["Type A", "Type B", "Type C", "Type G"], voltage: "230 V / 127 V", freq: "60 Hz", region: "Middle East", note: "Verify local outlet voltage" },
+        { name: "Australia", plugs: ["Type I"], voltage: "230 V", freq: "50 Hz", region: "Oceania", note: "Plug adapter for 100–240V gear" },
+        { name: "New Zealand", plugs: ["Type I"], voltage: "230 V", freq: "50 Hz", region: "Oceania", note: "Plug adapter for 100–240V gear" },
+        { name: "Brazil", plugs: ["Type C", "Type N"], voltage: "127 V / 220 V", freq: "60 Hz", region: "South America", note: "Check state/city voltage" },
+        { name: "South Africa", plugs: ["Type C", "Type D", "Type M", "Type N"], voltage: "230 V", freq: "50 Hz", region: "Southern Africa", note: "Plug adapter for 100–240V gear" }
+      ];
+
+      const plugSearchInput = document.getElementById("plugSearchInput");
+      const plugCountrySelect = document.getElementById("plugCountrySelect");
+      const plugChips = document.querySelectorAll(".plug-chip");
+
+      const plugHeroKicker = document.getElementById("plugHeroKicker");
+      const plugCountryTitle = document.getElementById("plugCountryTitle");
+      const plugRegionSub = document.getElementById("plugRegionSub");
+      const plugTypesDisplay = document.getElementById("plugTypesDisplay");
+
+      const plugTypeVal = document.getElementById("plugTypeVal");
+      const plugVoltageVal = document.getElementById("plugVoltageVal");
+      const plugFreqVal = document.getElementById("plugFreqVal");
+      const plugNoteVal = document.getElementById("plugNoteVal");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetPlugBtn = document.getElementById("resetPlugBtn");
+      const copyPlugBtn = document.getElementById("copyPlugBtn");
+      const downloadPlugBtn = document.getElementById("downloadPlugBtn");
+
+      let latestSummaryText = "";
+
+      function populateDropdown() {
+        const sorted = PLUG_COUNTRIES.slice().sort(function (a, b) {
+          return a.name.localeCompare(b.name);
+        });
+        sorted.forEach(function (c) {
+          const opt = document.createElement("option");
+          opt.value = c.name;
+          opt.textContent = `${c.name} (${c.plugs.join(", ")}) • ${c.voltage}`;
+          if (c.name === "India") opt.selected = true;
+          plugCountrySelect.appendChild(opt);
+        });
+      }
+
+      function renderCountryPlug(c) {
+        const plugSummary = c.plugs.join(" / ");
+        plugHeroKicker.textContent = "Plug & Socket Types";
+        plugCountryTitle.textContent = c.name;
+        plugRegionSub.textContent = `${c.region} • ${c.voltage} • ${c.freq}`;
+        plugTypesDisplay.className = "plug-hero-num";
+        plugTypesDisplay.textContent = plugSummary;
+
+        plugTypeVal.textContent = c.plugs.join(", ");
+        plugVoltageVal.textContent = `${c.voltage} AC`;
+        plugFreqVal.textContent = c.freq;
+        plugNoteVal.textContent = c.note;
+        plugCountrySelect.value = c.name;
+
+        latestSummaryText = [
+          "PureWebKits Global Power Plug Reference",
+          "--------------------------------------",
+          `Country / Region: ${c.name} (${c.region})`,
+          `Plug Type(s): ${c.plugs.join(", ")}`,
+          `Nominal Voltage: ${c.voltage} AC | Mains Frequency: ${c.freq}`,
+          `Guidance: ${c.note}`
+        ].join("\n");
+      }
+
+      function renderNoMatch(q) {
+        plugHeroKicker.textContent = "Power Plug Lookup";
+        plugCountryTitle.textContent = "No Matching Country or Plug Found";
+        plugRegionSub.textContent = "Try a country name (India, US, UK, Japan) or plug type (Type G, Type C)";
+        plugTypesDisplay.className = "plug-hero-num error";
+        plugTypesDisplay.textContent = `No match for "${q}"`;
+        plugTypeVal.textContent = "—";
+        plugVoltageVal.textContent = "—";
+        plugFreqVal.textContent = "—";
+        plugNoteVal.textContent = "—";
+        latestSummaryText = "";
+      }
+
+      function findPlugMatch(rawQ) {
+        const q = String(rawQ || "").trim().toLowerCase();
+        if (!q) return null;
+
+        let match = PLUG_COUNTRIES.find(function (c) {
+          return c.name.toLowerCase() === q;
+        });
+        if (match) return match;
+
+        match = PLUG_COUNTRIES.find(function (c) {
+          return (
+            c.name.toLowerCase().includes(q) ||
+            c.region.toLowerCase().includes(q) ||
+            c.voltage.toLowerCase().includes(q) ||
+            c.plugs.some(function (p) { return p.toLowerCase().includes(q); })
+          );
+        });
+        return match || null;
+      }
+
+      function handleSearch() {
+        const raw = plugSearchInput.value;
+        if (!raw.trim()) {
+          renderNoMatch("");
+          return;
+        }
+        const found = findPlugMatch(raw);
+        if (found) {
+          renderCountryPlug(found);
+        } else {
+          renderNoMatch(raw.trim());
+        }
+      }
+
+      plugSearchInput.addEventListener("input", handleSearch);
+
+      plugCountrySelect.addEventListener("change", function () {
+        const found = PLUG_COUNTRIES.find(function (c) { return c.name === plugCountrySelect.value; });
+        if (found) {
+          plugSearchInput.value = found.name;
+          renderCountryPlug(found);
+        }
+      });
+
+      plugChips.forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          const q = chip.getAttribute("data-pq");
+          plugSearchInput.value = q;
+          handleSearch();
+        });
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        plugSearchInput.value = "India";
+        handleSearch();
+      });
+
+      resetPlugBtn.addEventListener("click", function () {
+        plugSearchInput.value = "";
+        handleSearch();
+      });
+
+      copyPlugBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyPlugBtn.textContent;
+          copyPlugBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyPlugBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadPlugBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "global-power-plug-reference.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      populateDropdown();
+      handleSearch();
+    });
+  </script>
+</body>
+</html>

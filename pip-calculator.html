@@ -1,0 +1,994 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Pip Value Calculator (Forex Lots, Mini & Micro Lots) — PureWebKits</title>
+  <meta name="description" content="Calculate Forex pip value in your account currency for Standard, Mini, and Micro lots across major, JPY, and cross currency pairs online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/pip-value-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Pip Value Calculator Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .pip-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .pip-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .pip-hero-title { font-size: 16px; font-weight: 800; }
+    .pip-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .pip-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 22px;
+      font-weight: 800;
+      color: #38BDF8;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Pip Value Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Pip Value Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate Forex pip value for Standard, Mini & Micro lots in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Choose currency pair, lot size, account currency, and exchange rate to calculate exact pip value:</div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample (EUR/USD 1.0 Lot)</button>
+            <button type="button" id="resetPipBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="currencyPairSelect" class="field-label">Currency Pair</label>
+                <select id="currencyPairSelect" class="std-select">
+                  <option value="EUR/USD" selected>EUR/USD (Pip = 0.0001)</option>
+                  <option value="GBP/USD">GBP/USD (Pip = 0.0001)</option>
+                  <option value="AUD/USD">AUD/USD (Pip = 0.0001)</option>
+                  <option value="NZD/USD">NZD/USD (Pip = 0.0001)</option>
+                  <option value="USD/JPY">USD/JPY (Pip = 0.01)</option>
+                  <option value="USD/CHF">USD/CHF (Pip = 0.0001)</option>
+                  <option value="USD/CAD">USD/CAD (Pip = 0.0001)</option>
+                  <option value="EUR/JPY">EUR/JPY (Pip = 0.01)</option>
+                  <option value="GBP/JPY">GBP/JPY (Pip = 0.01)</option>
+                  <option value="USD/INR">USD/INR (Pip = 0.01)</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="accountCurrencySelect" class="field-label">Account Deposit Currency</label>
+                <select id="accountCurrencySelect" class="std-select">
+                  <option value="USD" selected>USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                  <option value="GBP">GBP (£)</option>
+                  <option value="JPY">JPY (¥)</option>
+                  <option value="INR">INR (₹)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="lotSizeInput" class="field-label">Trade Size (Standard Lots)</label>
+                <input type="number" id="lotSizeInput" class="std-input" min="0.01" step="0.01" value="1.00" />
+              </div>
+
+              <div class="field-group">
+                <label for="lotPresetSelect" class="field-label">Quick Lot Preset</label>
+                <select id="lotPresetSelect" class="std-select">
+                  <option value="1" selected>1.00 Standard Lot (100,000 units)</option>
+                  <option value="0.1">0.10 Mini Lot (10,000 units)</option>
+                  <option value="0.01">0.01 Micro Lot (1,000 units)</option>
+                  <option value="0.001">0.001 Nano Lot (100 units)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="pairRateInput" class="field-label" id="pairRateLabel">EUR/USD Exchange Rate</label>
+                <input type="number" id="pairRateInput" class="std-input" min="0.0001" step="0.0001" value="1.0850" />
+              </div>
+
+              <div class="field-group">
+                <label for="acctConvRateInput" class="field-label" id="acctConvRateLabel">Quote-to-Account Rate (USD/USD)</label>
+                <input type="number" id="acctConvRateInput" class="std-input" min="0.0001" step="0.0001" value="1.0000" />
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="pip-hero-box">
+              <div>
+                <div class="pip-hero-kicker">Pip Value (1 Pip Move)</div>
+                <div class="pip-hero-title" id="pipSummaryTitle">1.00 Lot (100,000 units)</div>
+                <div class="pip-hero-sub" id="pipSubCaption">EUR/USD • 1 pip = 0.0001 • 10 pips = $100.00</div>
+              </div>
+              <div class="pip-hero-num" id="pipValueDisplay">$10.00 / pip</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Standard Lot (1.00)</div>
+                <div class="metric-val" id="stdLotPipVal">$10.00 / pip</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Mini Lot (0.10)</div>
+                <div class="metric-val" id="miniLotPipVal">$1.00 / pip</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Micro Lot (0.01)</div>
+                <div class="metric-val" id="microLotPipVal">$0.10 / pip</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Pipette (0.1 Pip)</div>
+                <div class="metric-val" id="pipetteVal">$1.00 / pipette</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyPipBtn" class="btn-primary">Copy Pip Value Summary</button>
+              <button type="button" id="downloadPipBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Pip Math & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Forex Pip Value, Lot Sizes (Standard, Mini, Micro) & Account Currency Conversion</h2>
+
+      <h3>What Is a Pip and How Lot Size Determines Monetary Risk per Pip</h3>
+      <p>
+        In foreign exchange (Forex) trading, a <strong>pip</strong> ("percentage in point" or "price interest point") is the standard unit of price movement for a currency pair. For most currency pairs quoted to four or five decimal places (such as <code>EUR/USD</code>, <code>GBP/USD</code>, <code>AUD/USD</code>, or <code>USD/CHF</code>), <code>1 pip = 0.0001</code> (the fourth decimal place, while the fifth decimal place is a fractional <strong>pipette</strong> equal to <code>0.1 pip</code>). For Japanese Yen pairs (such as <code>USD/JPY</code>, <code>EUR/JPY</code>, or <code>GBP/JPY</code>) and <code>USD/INR</code> quoted to two or three decimal places, <code>1 pip = 0.01</code> (the second decimal place). Knowing your exact pip value in your account currency lets you connect stop-loss distance in pips directly to dollar risk before opening a position. A browser-based <strong>Pip Value Calculator</strong> runs 100% locally in your browser using JavaScript—with zero server uploads.
+      </p>
+
+      <h3>How to Calculate Forex Pip Value in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Select Currency Pair & Account Currency:</strong> Pick your traded pair (such as <code>EUR/USD</code> or <code>USD/JPY</code>) and your account deposit currency (<code>USD</code>, <code>EUR</code>, <code>GBP</code>, <code>JPY</code>, or <code>INR</code>).</li>
+        <li><strong>Enter Lot Size & Exchange Rates:</strong> Enter your trade size in standard lots (e.g., <code>1.00</code> standard, <code>0.10</code> mini, or <code>0.01</code> micro), verify the pair exchange rate, and set the quote-to-account conversion rate if your account currency differs from the quote currency.</li>
+        <li><strong>Inspect Pip Values & Export:</strong> View the exact value per pip, 10-pip move, standard/mini/micro lot comparison, and pipette value, then click <strong>Copy Pip Value Summary</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Forex Pip Value Formula</h3>
+      <p>
+        Let <code>Units = Lots × 100,000</code>, <code>PipSize</code> be <code>0.0001</code> (or <code>0.01</code> for JPY/INR pairs), and <code>R_quote_to_acct</code> be the conversion rate from 1 unit of the quote currency into your account currency:
+      </p>
+      <div class="formula-box">
+        Pip Value (Quote Currency) = Units × PipSize<br />
+        Pip Value (Account Currency) = (Units × PipSize) × R_quote_to_acct
+      </div>
+
+      <h3>Helpful Tips for Forex Risk & Lot Sizing</h3>
+      <ul>
+        <li><strong>USD-Quoted Pairs Have Fixed USD Pip Values:</strong> When trading <code>EUR/USD</code>, <code>GBP/USD</code>, <code>AUD/USD</code>, or <code>NZD/USD</code> in a USD account, <code>1.00 standard lot</code> is always <code>$10.00/pip</code>, <code>0.10 mini lot</code> is <code>$1.00/pip</code>, and <code>0.01 micro lot</code> is <code>$0.10/pip</code>.</li>
+        <li><strong>Base-USD Pairs Scale With the Exchange Rate:</strong> For pairs like <code>USD/JPY</code> or <code>USD/CAD</code> in a USD account, <code>R_quote_to_acct = 1 / ExchangeRate</code>, so pip value shifts slightly as the pair's price moves.</li>
+        <li><strong>Educational Math Tool Only:</strong> This calculator provides Forex arithmetic and risk modeling only and is not financial or investment advice.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Trading <code>1.00 standard lot</code> (<code>100,000 units</code>) of <code>EUR/USD</code> (<code>PipSize = 0.0001</code>) in a <code>USD</code> account gives <code>100,000 × 0.0001 = $10.00 per pip</code> (<code>$1.00/pip</code> for a <code>0.10</code> mini lot and <code>$0.10/pip</code> for a <code>0.01</code> micro lot).</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="pip-table-heading">
+      <h2 id="pip-table-heading">Forex Lot Sizes, Pip Increments & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to compare contract unit sizes, pip decimal definitions, and USD pip benchmarks.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Contract / Pair Type</th>
+              <th>Units / Pip Size</th>
+              <th>EUR/USD Benchmark</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1.00 Standard Lot</strong></td>
+              <td><code>100,000</code> base units</td>
+              <td><code>$10.00 / pip</code></td>
+              <td>Institutional / standard contract</td>
+            </tr>
+            <tr>
+              <td><strong>0.10 Mini Lot</strong></td>
+              <td><code>10,000</code> base units</td>
+              <td><code>$1.00 / pip</code></td>
+              <td>One-tenth of a standard lot</td>
+            </tr>
+            <tr>
+              <td><strong>0.01 Micro Lot</strong></td>
+              <td><code>1,000</code> base units</td>
+              <td><code>$0.10 / pip</code></td>
+              <td>Common retail granular size</td>
+            </tr>
+            <tr>
+              <td><strong>0.001 Nano Lot</strong></td>
+              <td><code>100</code> base units</td>
+              <td><code>$0.01 / pip</code></td>
+              <td>Cent / nano account contract</td>
+            </tr>
+            <tr>
+              <td><strong>4-Decimal Major Pairs</strong></td>
+              <td><code>1 pip = 0.0001</code></td>
+              <td><code>EUR/USD, GBP/USD, AUD/USD</code></td>
+              <td>5th decimal = 1 pipette (<code>0.00001</code>)</td>
+            </tr>
+            <tr>
+              <td><strong>2-Decimal JPY Pairs</strong></td>
+              <td><code>1 pip = 0.01</code></td>
+              <td><code>USD/JPY, EUR/JPY, GBP/JPY</code></td>
+              <td>3rd decimal = 1 pipette (<code>0.001</code>)</td>
+            </tr>
+            <tr>
+              <td><strong>USD/INR Pair</strong></td>
+              <td><code>1 pip = 0.01</code></td>
+              <td><code>0.01</code> INR per unit</td>
+              <td><code>1,000 INR/pip</code> per 100k units</td>
+            </tr>
+            <tr>
+              <td><strong>Quote = Account Currency</strong></td>
+              <td><code>Conv. Rate = 1.0000</code></td>
+              <td>Direct multiplication</td>
+              <td>E.g., <code>EUR/USD</code> in <code>USD</code> account</td>
+            </tr>
+            <tr>
+              <td><strong>Base = Account Currency</strong></td>
+              <td><code>Conv. Rate = 1 / Pair Rate</code></td>
+              <td>Inverse of pair rate</td>
+              <td>E.g., <code>USD/JPY</code> in <code>USD</code> account</td>
+            </tr>
+            <tr>
+              <td><strong>Cross Currency Pair</strong></td>
+              <td><code>Quote → Account Rate</code></td>
+              <td>User-adjustable rate</td>
+              <td>E.g., <code>EUR/JPY</code> in <code>USD</code> account</td>
+            </tr>
+            <tr>
+              <td><strong>1 Pipette (Fractional Pip)</strong></td>
+              <td><code>0.1 × Pip Value</code></td>
+              <td><code>$1.00 / pipette</code> (1 lot)</td>
+              <td>Used on 5-digit / 3-digit brokers</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports pip value report</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Forex Pip & Lot Calculator — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your lot sizes and rates stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero trading data transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Trading, Currency, Risk & Everyday Calculators</h2>
+      <p>Calculating position sizes, margin requirements, currency conversions, or percentages? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="position-size-calculator.html"><span>Position Size Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="margin-trading-calculator.html"><span>Margin Trading Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="crypto-leverage-calculator.html"><span>Crypto Leverage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="crypto-profit-loss-calculator.html"><span>Crypto Profit & Loss</span><span class="arrow">→</span></a>
+        <a class="related-link" href="net-worth-calculator.html"><span>Net Worth Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Why is 1 pip equal to 0.0001 on EUR/USD but 0.01 on USD/JPY?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Standard major currency pairs are quoted to <code>4</code> decimal places (<code>0.0001</code> per pip), whereas Japanese Yen pairs have much smaller unit values (~100+ yen per dollar) and are quoted to <code>2</code> decimal places (<code>0.01</code> per pip).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How do I calculate pip value when my account currency differs from the quote currency?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Multiply the raw pip value in the quote currency (<code>Units × Pip Size</code>) by the conversion rate from the quote currency into your account deposit currency—for example, for <code>USD/JPY</code> in a <code>USD</code> account, enter <code>1 / USDJPY_Rate</code> (or let the calculator auto-fill it when selecting the pair).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my lot sizes or exchange rates sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Pip Value Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Pip Value Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const PAIRS = {
+        "EUR/USD": { base: "EUR", quote: "USD", pipSize: 0.0001, defaultRate: 1.0850 },
+        "GBP/USD": { base: "GBP", quote: "USD", pipSize: 0.0001, defaultRate: 1.2700 },
+        "AUD/USD": { base: "AUD", quote: "USD", pipSize: 0.0001, defaultRate: 0.6550 },
+        "NZD/USD": { base: "NZD", quote: "USD", pipSize: 0.0001, defaultRate: 0.6000 },
+        "USD/JPY": { base: "USD", quote: "JPY", pipSize: 0.01, defaultRate: 152.00 },
+        "USD/CHF": { base: "USD", quote: "CHF", pipSize: 0.0001, defaultRate: 0.8800 },
+        "USD/CAD": { base: "USD", quote: "CAD", pipSize: 0.0001, defaultRate: 1.3900 },
+        "EUR/JPY": { base: "EUR", quote: "JPY", pipSize: 0.01, defaultRate: 165.00 },
+        "GBP/JPY": { base: "GBP", quote: "JPY", pipSize: 0.01, defaultRate: 193.00 },
+        "USD/INR": { base: "USD", quote: "INR", pipSize: 0.01, defaultRate: 84.40 }
+      };
+
+      const ACCT_SYMBOLS = {
+        USD: "$",
+        EUR: "€",
+        GBP: "£",
+        JPY: "¥",
+        INR: "₹"
+      };
+
+      const currencyPairSelect = document.getElementById("currencyPairSelect");
+      const accountCurrencySelect = document.getElementById("accountCurrencySelect");
+      const lotSizeInput = document.getElementById("lotSizeInput");
+      const lotPresetSelect = document.getElementById("lotPresetSelect");
+      const pairRateInput = document.getElementById("pairRateInput");
+      const acctConvRateInput = document.getElementById("acctConvRateInput");
+      const pairRateLabel = document.getElementById("pairRateLabel");
+      const acctConvRateLabel = document.getElementById("acctConvRateLabel");
+
+      const pipSummaryTitle = document.getElementById("pipSummaryTitle");
+      const pipSubCaption = document.getElementById("pipSubCaption");
+      const pipValueDisplay = document.getElementById("pipValueDisplay");
+
+      const stdLotPipVal = document.getElementById("stdLotPipVal");
+      const miniLotPipVal = document.getElementById("miniLotPipVal");
+      const microLotPipVal = document.getElementById("microLotPipVal");
+      const pipetteVal = document.getElementById("pipetteVal");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetPipBtn = document.getElementById("resetPipBtn");
+      const copyPipBtn = document.getElementById("copyPipBtn");
+      const downloadPipBtn = document.getElementById("downloadPipBtn");
+
+      let latestSummaryText = "";
+
+      function fmtAcct(acctCode, amt) {
+        const sym = ACCT_SYMBOLS[acctCode] || "$";
+        const safe = Number.isFinite(amt) ? amt : 0;
+        const dec = safe > 0 && safe < 0.05 ? 4 : 2;
+        const formatted = safe.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: dec
+        });
+        return `${sym}${formatted}`;
+      }
+
+      function syncRatesForSelection() {
+        const pairKey = currencyPairSelect.value;
+        const pairObj = PAIRS[pairKey] || PAIRS["EUR/USD"];
+        const acctCode = accountCurrencySelect.value;
+
+        pairRateLabel.textContent = `${pairKey} Exchange Rate`;
+        pairRateInput.step = pairObj.pipSize === 0.01 ? "0.01" : "0.0001";
+        pairRateInput.value = pairObj.pipSize === 0.01
+          ? pairObj.defaultRate.toFixed(2)
+          : pairObj.defaultRate.toFixed(4);
+
+        acctConvRateLabel.textContent = `Quote-to-Account Rate (${pairObj.quote}/${acctCode})`;
+        if (pairObj.quote === acctCode) {
+          acctConvRateInput.value = "1.0000";
+        } else if (pairObj.base === acctCode && pairObj.defaultRate > 0) {
+          acctConvRateInput.value = (1 / pairObj.defaultRate).toFixed(6);
+        } else {
+          // Approximate baseline conversion from quote to selected account currency
+          const approxUsdPerUnit = { USD: 1, EUR: 1.085, GBP: 1.27, JPY: 1 / 152, CHF: 1 / 0.88, CAD: 1 / 1.39, INR: 1 / 84.4 };
+          const qUsd = approxUsdPerUnit[pairObj.quote] || 1;
+          const aUsd = approxUsdPerUnit[acctCode] || 1;
+          acctConvRateInput.value = (qUsd / aUsd).toFixed(6);
+        }
+      }
+
+      function calculatePipValue() {
+        const pairKey = currencyPairSelect.value;
+        const pairObj = PAIRS[pairKey] || PAIRS["EUR/USD"];
+        const acctCode = accountCurrencySelect.value;
+        const lots = parseFloat(lotSizeInput.value);
+        const pairRate = parseFloat(pairRateInput.value);
+        const convRate = parseFloat(acctConvRateInput.value);
+
+        if (
+          !Number.isFinite(lots) || lots <= 0 ||
+          !Number.isFinite(pairRate) || pairRate <= 0 ||
+          !Number.isFinite(convRate) || convRate <= 0
+        ) {
+          pipValueDisplay.textContent = "—";
+          pipSubCaption.textContent = "Enter valid positive lot size and exchange rates";
+          stdLotPipVal.textContent = "—";
+          miniLotPipVal.textContent = "—";
+          microLotPipVal.textContent = "—";
+          pipetteVal.textContent = "—";
+          latestSummaryText = "";
+          return;
+        }
+
+        // If base == account currency and user changes pairRate, keep convRate synced if it matches inverse
+        const units = lots * 100000;
+        const pipValue = units * pairObj.pipSize * convRate;
+        const tenPipValue = pipValue * 10;
+
+        const stdPip = 100000 * pairObj.pipSize * convRate;
+        const miniPip = 10000 * pairObj.pipSize * convRate;
+        const microPip = 1000 * pairObj.pipSize * convRate;
+        const pipette = pipValue * 0.1;
+
+        pipSummaryTitle.textContent = `${lots.toFixed(2)} Lot (${units.toLocaleString("en-US")} units)`;
+        pipSubCaption.textContent = `${pairKey} \u2022 1 pip = ${pairObj.pipSize} \u2022 10 pips = ${fmtAcct(acctCode, tenPipValue)}`;
+        pipValueDisplay.textContent = `${fmtAcct(acctCode, pipValue)} / pip`;
+
+        stdLotPipVal.textContent = `${fmtAcct(acctCode, stdPip)} / pip`;
+        miniLotPipVal.textContent = `${fmtAcct(acctCode, miniPip)} / pip`;
+        microLotPipVal.textContent = `${fmtAcct(acctCode, microPip)} / pip`;
+        pipetteVal.textContent = `${fmtAcct(acctCode, pipette)} / pipette`;
+
+        latestSummaryText = [
+          "PureWebKits Forex Pip Value Summary",
+          "------------------------------------",
+          `Pair: ${pairKey} (1 pip = ${pairObj.pipSize}) | Account Currency: ${acctCode}`,
+          `Trade Size: ${lots.toFixed(2)} Standard Lots (${units.toLocaleString("en-US")} units)`,
+          `Pair Rate: ${pairRate} | Quote-to-Account Rate (${pairObj.quote}/${acctCode}): ${convRate}`,
+          `Pip Value: ${fmtAcct(acctCode, pipValue)} / pip (10 pips = ${fmtAcct(acctCode, tenPipValue)})`,
+          `Benchmarks: Standard (1.0) = ${fmtAcct(acctCode, stdPip)}/pip | Mini (0.1) = ${fmtAcct(acctCode, miniPip)}/pip | Micro (0.01) = ${fmtAcct(acctCode, microPip)}/pip`
+        ].join("\n");
+      }
+
+      currencyPairSelect.addEventListener("change", function () {
+        syncRatesForSelection();
+        calculatePipValue();
+      });
+
+      accountCurrencySelect.addEventListener("change", function () {
+        syncRatesForSelection();
+        calculatePipValue();
+      });
+
+      lotPresetSelect.addEventListener("change", function () {
+        lotSizeInput.value = parseFloat(lotPresetSelect.value).toFixed(
+          lotPresetSelect.value === "0.001" ? 3 : 2
+        );
+        calculatePipValue();
+      });
+
+      pairRateInput.addEventListener("input", function () {
+        const pairKey = currencyPairSelect.value;
+        const pairObj = PAIRS[pairKey] || PAIRS["EUR/USD"];
+        const acctCode = accountCurrencySelect.value;
+        const r = parseFloat(pairRateInput.value);
+        if (pairObj.base === acctCode && Number.isFinite(r) && r > 0) {
+          acctConvRateInput.value = (1 / r).toFixed(6);
+        }
+        calculatePipValue();
+      });
+
+      [lotSizeInput, acctConvRateInput].forEach(function (el) {
+        el.addEventListener("input", calculatePipValue);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        currencyPairSelect.value = "EUR/USD";
+        accountCurrencySelect.value = "USD";
+        lotSizeInput.value = "1.00";
+        lotPresetSelect.value = "1";
+        syncRatesForSelection();
+        calculatePipValue();
+      });
+
+      resetPipBtn.addEventListener("click", function () {
+        lotSizeInput.value = "";
+        calculatePipValue();
+      });
+
+      copyPipBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyPipBtn.textContent;
+          copyPipBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyPipBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadPipBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "forex-pip-value.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      syncRatesForSelection();
+      calculatePipValue();
+    });
+  </script>
+</body>
+</html>

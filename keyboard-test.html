@@ -1,0 +1,1333 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Keyboard Test (NKRO Ghosting, Keycode & Numpad Tester) — PureWebKits</title>
+  <meta name="description" content="Test every key on your mechanical or laptop keyboard online for free. Check N-Key Rollover (NKRO) ghosting, event.code, keyCode, chatter/bounce warnings, and full QWERTY + Numpad coverage 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/keyboard-test.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1120px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Keyboard Test Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    /* Live Telemetry Strip */
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .tele-hero {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 11px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .tele-kicker {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .tele-main {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 17px;
+      font-weight: 800;
+      color: #34D399;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tele-sub {
+      font-size: 11.5px;
+      color: #CBD5E1;
+    }
+    .tele-card {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .tele-card-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .tele-card-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    /* Visual Keyboard Chassis */
+    .kb-scroll-wrap {
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+    .kb-chassis {
+      background: #0F172A;
+      border: 2px solid #1E293B;
+      border-radius: 12px;
+      padding: 14px;
+      display: inline-flex;
+      gap: 14px;
+      min-width: 100%;
+      justify-content: center;
+      user-select: none;
+    }
+    .kb-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .kb-row {
+      display: flex;
+      gap: 5px;
+      align-items: stretch;
+    }
+    .kb-gap-fn {
+      width: 12px;
+      flex-shrink: 0;
+    }
+    .kb-spacer-row {
+      height: 8px;
+    }
+    .keycap {
+      height: 38px;
+      min-width: 38px;
+      padding: 0 6px;
+      border-radius: 6px;
+      background: #1E293B;
+      border: 1px solid #334155;
+      border-bottom: 3px solid #020617;
+      color: #E2E8F0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.15;
+      cursor: pointer;
+      transition: background-color 0.08s ease, transform 0.05s ease, border-color 0.08s ease;
+    }
+    .keycap:hover {
+      border-color: #64748B;
+    }
+    .keycap.tested {
+      background: #065F46;
+      border-color: #10B981;
+      border-bottom-color: #064E3B;
+      color: #ECFDF5;
+    }
+    .keycap.active {
+      background: #2563EB;
+      border-color: #93C5FD;
+      border-bottom-color: #1D4ED8;
+      color: #FFFFFF;
+      transform: translateY(1px);
+    }
+
+    /* Key Width Modifiers */
+    .w-125 { min-width: 49px; }
+    .w-150 { min-width: 59px; }
+    .w-175 { min-width: 70px; }
+    .w-200 { min-width: 81px; }
+    .w-225 { min-width: 92px; }
+    .w-275 { min-width: 113px; }
+    .w-space { min-width: 248px; }
+
+    /* Numpad Grid */
+    .numpad-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 38px);
+      grid-template-rows: repeat(5, 38px);
+      gap: 5px;
+    }
+    .numpad-grid .keycap {
+      height: 100%;
+      min-width: 0;
+      width: 100%;
+    }
+    .np-plus { grid-column: 4; grid-row: 2 / span 2; }
+    .np-enter { grid-column: 4; grid-row: 4 / span 2; }
+    .np-zero { grid-column: 1 / span 2; grid-row: 5; }
+
+    /* Recent Key History Strip */
+    .history-bar {
+      margin-top: 14px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .history-chips {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      flex: 1;
+      min-height: 26px;
+    }
+    .hist-chip {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11.5px;
+      font-weight: 800;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: var(--text-main);
+      padding: 2px 8px;
+      border-radius: 5px;
+    }
+    .hist-chip.chatter {
+      background: #FEF2F2;
+      border-color: #FCA5A5;
+      color: var(--danger);
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 12px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+    .legend-items {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .leg-dot {
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      border-radius: 3px;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 900px) {
+      .telemetry-grid { grid-template-columns: 1fr 1fr; }
+      .tele-hero { grid-column: 1 / -1; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Keyboard Test Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Keyboard Test & NKRO Ghosting Tester</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Test every key, N-Key Rollover (NKRO), keyCode & switch chatter in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="Keyboard layout selector">
+            <button type="button" class="mode-btn active" id="fullLayoutBtn" data-layout="full">Full 104-Key (+ Numpad)</button>
+            <button type="button" class="mode-btn" id="tklLayoutBtn" data-layout="tkl">TKL / Laptop (87-Key)</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="soundClickToggleBtn" class="btn-sec">Click Sound: Off</button>
+            <button type="button" id="resetKbBtn" class="btn-sec">Reset All Keys</button>
+          </div>
+        </div>
+
+        <!-- Telemetry Strip -->
+        <div class="telemetry-grid">
+          <div class="tele-hero">
+            <div class="tele-kicker">Last Key Event</div>
+            <div class="tele-main" id="lastKeyMain">Press any key...</div>
+            <div class="tele-sub" id="lastKeySub">code: — • keyCode: —</div>
+          </div>
+          <div class="tele-card">
+            <div class="tele-card-key">Keys Tested</div>
+            <div class="tele-card-val" id="keysTestedVal">0 / 104 (0%)</div>
+          </div>
+          <div class="tele-card">
+            <div class="tele-card-key">Simultaneous (NKRO)</div>
+            <div class="tele-card-val" id="nkroVal">0 active (Max: 0)</div>
+          </div>
+          <div class="tele-card">
+            <div class="tele-card-key">Total Keystrokes</div>
+            <div class="tele-card-val" id="totalPressesVal">0 presses</div>
+          </div>
+          <div class="tele-card">
+            <div class="tele-card-key">Chatter / Double-Tap</div>
+            <div class="tele-card-val" id="chatterStatusVal">0 warnings (<35ms)</div>
+          </div>
+        </div>
+
+        <!-- Visual 104-Key / 87-Key Keyboard -->
+        <div class="kb-scroll-wrap">
+          <div class="kb-chassis" id="keyboardChassis">
+            <!-- Section 1: Main Alphanumeric + Function Row -->
+            <div class="kb-section">
+              <div class="kb-row">
+                <div class="keycap" data-code="Escape">Esc</div>
+                <div class="kb-gap-fn"></div>
+                <div class="keycap" data-code="F1">F1</div>
+                <div class="keycap" data-code="F2">F2</div>
+                <div class="keycap" data-code="F3">F3</div>
+                <div class="keycap" data-code="F4">F4</div>
+                <div class="kb-gap-fn"></div>
+                <div class="keycap" data-code="F5">F5</div>
+                <div class="keycap" data-code="F6">F6</div>
+                <div class="keycap" data-code="F7">F7</div>
+                <div class="keycap" data-code="F8">F8</div>
+                <div class="kb-gap-fn"></div>
+                <div class="keycap" data-code="F9">F9</div>
+                <div class="keycap" data-code="F10">F10</div>
+                <div class="keycap" data-code="F11">F11</div>
+                <div class="keycap" data-code="F12">F12</div>
+              </div>
+
+              <div class="kb-spacer-row"></div>
+
+              <div class="kb-row">
+                <div class="keycap" data-code="Backquote">~<br>`</div>
+                <div class="keycap" data-code="Digit1">!<br>1</div>
+                <div class="keycap" data-code="Digit2">@<br>2</div>
+                <div class="keycap" data-code="Digit3">#<br>3</div>
+                <div class="keycap" data-code="Digit4">$<br>4</div>
+                <div class="keycap" data-code="Digit5">%<br>5</div>
+                <div class="keycap" data-code="Digit6">^<br>6</div>
+                <div class="keycap" data-code="Digit7">&<br>7</div>
+                <div class="keycap" data-code="Digit8">*<br>8</div>
+                <div class="keycap" data-code="Digit9">(<br>9</div>
+                <div class="keycap" data-code="Digit0">)<br>0</div>
+                <div class="keycap" data-code="Minus">_<br>-</div>
+                <div class="keycap" data-code="Equal">+<br>=</div>
+                <div class="keycap w-200" data-code="Backspace">Backspace</div>
+              </div>
+
+              <div class="kb-row">
+                <div class="keycap w-150" data-code="Tab">Tab</div>
+                <div class="keycap" data-code="KeyQ">Q</div>
+                <div class="keycap" data-code="KeyW">W</div>
+                <div class="keycap" data-code="KeyE">E</div>
+                <div class="keycap" data-code="KeyR">R</div>
+                <div class="keycap" data-code="KeyT">T</div>
+                <div class="keycap" data-code="KeyY">Y</div>
+                <div class="keycap" data-code="KeyU">U</div>
+                <div class="keycap" data-code="KeyI">I</div>
+                <div class="keycap" data-code="KeyO">O</div>
+                <div class="keycap" data-code="KeyP">P</div>
+                <div class="keycap" data-code="BracketLeft">{<br>[</div>
+                <div class="keycap" data-code="BracketRight">}<br>]</div>
+                <div class="keycap w-150" data-code="Backslash">|<br>\</div>
+              </div>
+
+              <div class="kb-row">
+                <div class="keycap w-175" data-code="CapsLock">Caps Lock</div>
+                <div class="keycap" data-code="KeyA">A</div>
+                <div class="keycap" data-code="KeyS">S</div>
+                <div class="keycap" data-code="KeyD">D</div>
+                <div class="keycap" data-code="KeyF">F</div>
+                <div class="keycap" data-code="KeyG">G</div>
+                <div class="keycap" data-code="KeyH">H</div>
+                <div class="keycap" data-code="KeyJ">J</div>
+                <div class="keycap" data-code="KeyK">K</div>
+                <div class="keycap" data-code="KeyL">L</div>
+                <div class="keycap" data-code="Semicolon">:<br>;</div>
+                <div class="keycap" data-code="Quote">"<br>'</div>
+                <div class="keycap w-225" data-code="Enter">Enter</div>
+              </div>
+
+              <div class="kb-row">
+                <div class="keycap w-225" data-code="ShiftLeft">Shift</div>
+                <div class="keycap" data-code="KeyZ">Z</div>
+                <div class="keycap" data-code="KeyX">X</div>
+                <div class="keycap" data-code="KeyC">C</div>
+                <div class="keycap" data-code="KeyV">V</div>
+                <div class="keycap" data-code="KeyB">B</div>
+                <div class="keycap" data-code="KeyN">N</div>
+                <div class="keycap" data-code="KeyM">M</div>
+                <div class="keycap" data-code="Comma"><<br>,</div>
+                <div class="keycap" data-code="Period">><br>.</div>
+                <div class="keycap" data-code="Slash">?<br>/</div>
+                <div class="keycap w-275" data-code="ShiftRight">Shift</div>
+              </div>
+
+              <div class="kb-row">
+                <div class="keycap w-125" data-code="ControlLeft">Ctrl</div>
+                <div class="keycap w-125" data-code="MetaLeft">Win/Cmd</div>
+                <div class="keycap w-125" data-code="AltLeft">Alt</div>
+                <div class="keycap w-space" data-code="Space">Space</div>
+                <div class="keycap w-125" data-code="AltRight">Alt</div>
+                <div class="keycap w-125" data-code="MetaRight">Win/Cmd</div>
+                <div class="keycap w-125" data-code="ContextMenu">Menu</div>
+                <div class="keycap w-125" data-code="ControlRight">Ctrl</div>
+              </div>
+            </div>
+
+            <!-- Section 2: Navigation & Arrow Cluster -->
+            <div class="kb-section">
+              <div class="kb-row">
+                <div class="keycap" data-code="PrintScreen">PrtSc</div>
+                <div class="keycap" data-code="ScrollLock">ScrLk</div>
+                <div class="keycap" data-code="Pause">Pause</div>
+              </div>
+
+              <div class="kb-spacer-row"></div>
+
+              <div class="kb-row">
+                <div class="keycap" data-code="Insert">Ins</div>
+                <div class="keycap" data-code="Home">Home</div>
+                <div class="keycap" data-code="PageUp">PgUp</div>
+              </div>
+
+              <div class="kb-row">
+                <div class="keycap" data-code="Delete">Del</div>
+                <div class="keycap" data-code="End">End</div>
+                <div class="keycap" data-code="PageDown">PgDn</div>
+              </div>
+
+              <div class="kb-row">
+                <div style="height:38px;"></div>
+              </div>
+
+              <div class="kb-row">
+                <div style="width:38px;"></div>
+                <div class="keycap" data-code="ArrowUp">↑</div>
+                <div style="width:38px;"></div>
+              </div>
+
+              <div class="kb-row">
+                <div class="keycap" data-code="ArrowLeft">←</div>
+                <div class="keycap" data-code="ArrowDown">↓</div>
+                <div class="keycap" data-code="ArrowRight">→</div>
+              </div>
+            </div>
+
+            <!-- Section 3: Numpad Cluster -->
+            <div class="kb-section" id="numpadClusterSection">
+              <div class="kb-row">
+                <div style="height:38px;"></div>
+              </div>
+
+              <div class="kb-spacer-row"></div>
+
+              <div class="numpad-grid">
+                <div class="keycap" data-code="NumLock">Num</div>
+                <div class="keycap" data-code="NumpadDivide">/</div>
+                <div class="keycap" data-code="NumpadMultiply">*</div>
+                <div class="keycap" data-code="NumpadSubtract">-</div>
+
+                <div class="keycap" data-code="Numpad7">7</div>
+                <div class="keycap" data-code="Numpad8">8</div>
+                <div class="keycap" data-code="Numpad9">9</div>
+                <div class="keycap np-plus" data-code="NumpadAdd">+</div>
+
+                <div class="keycap" data-code="Numpad4">4</div>
+                <div class="keycap" data-code="Numpad5">5</div>
+                <div class="keycap" data-code="Numpad6">6</div>
+
+                <div class="keycap" data-code="Numpad1">1</div>
+                <div class="keycap" data-code="Numpad2">2</div>
+                <div class="keycap" data-code="Numpad3">3</div>
+                <div class="keycap np-enter" data-code="NumpadEnter">Ent</div>
+
+                <div class="keycap np-zero" data-code="Numpad0">0</div>
+                <div class="keycap" data-code="NumpadDecimal">.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Key Log & Export -->
+        <div class="history-bar">
+          <div style="font-size:11.5px; font-weight:800; text-transform:uppercase; color:var(--text-muted);">Recent Keys:</div>
+          <div class="history-chips" id="recentKeysContainer">
+            <span style="font-size:12.5px; color:var(--text-muted);">Start typing on your physical keyboard to test keys...</span>
+          </div>
+        </div>
+
+        <div class="legend-row">
+          <div class="legend-items">
+            <span><span class="leg-dot" style="background:#1E293B; border:1px solid #475569;"></span>Untested</span>
+            <span><span class="leg-dot" style="background:#2563EB;"></span>Currently Held Down</span>
+            <span><span class="leg-dot" style="background:#059669;"></span>Tested & Working</span>
+          </div>
+          <div class="btn-row">
+            <button type="button" id="copyKbReportBtn" class="btn-primary">Copy Keyboard Report</button>
+            <button type="button" id="downloadKbReportBtn" class="btn-sec" style="height: 38px;">Download .txt</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, NKRO & Chatter Detection -->
+    <article class="content-card">
+      <h2>Complete User Guide to Keyboard Testing, N-Key Rollover (NKRO) & Switch Chatter Detection</h2>
+
+      <h3>How Physical Keycodes, N-Key Rollover (NKRO), and Switch Chatter Work</h3>
+      <p>
+        Whether you just unboxed a new mechanical keyboard, cleaned keycaps, or suspect a failing laptop membrane switch, testing physical key registration in your browser reveals dead switches, key ghosting, and double-typing chatter immediately. Modern browsers expose the physical switch position via <code>KeyboardEvent.code</code> (such as <code>KeyA</code>, <code>ShiftLeft</code>, <code>ShiftRight</code>, or <code>NumpadEnter</code>)—allowing this tester to distinguish left modifiers from right modifiers and main-row digits from numpad digits independently of your active OS language layout. Holding down multiple keys at once measures your keyboard's <strong>Key Rollover (NKRO / 6KRO)</strong> capability: budget membrane keyboards often block or "ghost" a third or fourth simultaneous key in the same matrix row, whereas gaming and mechanical keyboards with anti-ghosting diodes register <code>6, 10, or all keys</code> simultaneously. Additionally, measuring the millisecond interval between consecutive presses of the same physical switch flags rapid <code>< 35 ms</code> re-triggers caused by worn mechanical switch contacts (<strong>key chatter</strong>). A browser-based <strong>Keyboard Test</strong> runs 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Test Your Keyboard in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Select Full 104-Key or TKL (87-Key) Layout:</strong> Choose <strong>Full 104-Key (+ Numpad)</strong> for full-size desktop keyboards or <strong>TKL / Laptop (87-Key)</strong> to hide the numeric keypad when testing compact laptops and tenkeyless boards.</li>
+        <li><strong>Press Every Key & Test Multi-Key Combos:</strong> Tap across every row—each key flashes <strong>blue</strong> while pressed and turns <strong>emerald green</strong> once verified—and hold down several keys together to check your maximum simultaneous <strong>NKRO</strong> count.</li>
+        <li><strong>Inspect Chatter Warnings & Export Report:</strong> Check the <strong>Chatter / Double-Tap</strong> counter for accidental double registrations, then export your coverage report via <strong>Copy Keyboard Report</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Keyboard Diagnostics & Rollover Metrics</h3>
+      <p>
+        Three hardware indicators summarize your keyboard's health:
+      </p>
+      <div class="formula-box">
+        Coverage (%) = (Unique Tested Keys / Layout Key Count) × 100<br />
+        Peak Rollover (NKRO) = max(Simultaneously Held Keys)  |  Chatter Alert = Same-Key Interval < 35 ms
+      </div>
+
+      <h3>Helpful Tips When Testing Laptop & Mechanical Keyboards</h3>
+      <ul>
+        <li><strong>Browser Shortcut Prevention:</strong> While this page is focused, browser shortcuts like <code>Tab</code>, <code>Space</code>, <code>F1–F12</code>, and arrow keys are intercepted so they highlight on the virtual keyboard instead of scrolling the page or opening help menus (note that OS-level reserved keys like <code>PrtSc</code> or <code>Win/Cmd</code> may still be captured by Windows or macOS before reaching the browser).</li>
+        <li><strong>Check NumLock When Testing the Numpad:</strong> Toggling <code>NumLock</code> changes numpad sub-labels in Windows/Linux, while physical <code>Numpad0–9</code> codes still illuminate cleanly.</li>
+        <li><strong>Fixing Switch Chatter on Hot-Swappable Keyboards:</strong> If one mechanical key consistently triggers a <code>< 35 ms</code> chatter warning or fails to light up, pulling and reseating—or swapping—that individual switch usually resolves the fault.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Pressing across all <code>87</code> keys on a TKL mechanical keyboard and holding <code>W + A + Shift + Space + E + R</code> simultaneously confirms <code>100%</code> switch coverage, <code>6+ key</code> rollover without matrix ghosting, and <code>0</code> switch chatter warnings.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="kb-table-heading">
+      <h2 id="kb-table-heading">Keyboard Rollover Tiers, Event Codes & Diagnostics Reference Table (16 Rows)</h2>
+      <p>Use this reference table to interpret rollover specifications, key event properties, and hardware diagnostics.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Term / Diagnostic</th>
+              <th>Specification / Code</th>
+              <th>Meaning</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>2KRO (2-Key Rollover)</strong></td>
+              <td>2 simultaneous keys guaranteed</td>
+              <td>Basic membrane matrix limit</td>
+              <td>3rd key in same block may ghost</td>
+            </tr>
+            <tr>
+              <td><strong>6KRO (6-Key Rollover)</strong></td>
+              <td>6 simultaneous keys + modifiers</td>
+              <td>Standard USB HID boot protocol</td>
+              <td>Sufficient for fast typing & gaming</td>
+            </tr>
+            <tr>
+              <td><strong>NKRO (N-Key Rollover)</strong></td>
+              <td>All keys registered simultaneously</td>
+              <td>Per-switch anti-ghosting diodes</td>
+              <td>Standard on modern mechanical boards</td>
+            </tr>
+            <tr>
+              <td><strong>Switch Chatter (< 35 ms)</strong></td>
+              <td>Double press within <code>35 ms</code></td>
+              <td>Bouncing metal switch leaf</td>
+              <td>Causes unintended double letters</td>
+            </tr>
+            <tr>
+              <td><strong><code>event.code</code></strong></td>
+              <td>Physical key location (e.g., <code>KeyQ</code>)</td>
+              <td>Layout-independent hardware ID</td>
+              <td>Distinguishes Left vs. Right Shift/Ctrl</td>
+            </tr>
+            <tr>
+              <td><strong><code>event.key</code></strong></td>
+              <td>Character output (e.g., <code>q</code> or <code>Q</code>)</td>
+              <td>Reflects Shift, CapsLock & OS layout</td>
+              <td>Displayed in Last Key Event box</td>
+            </tr>
+            <tr>
+              <td><strong><code>event.keyCode</code></strong></td>
+              <td>Legacy numeric code (e.g., <code>81</code>)</td>
+              <td>Classic JavaScript key identifier</td>
+              <td>Helpful for web developers</td>
+            </tr>
+            <tr>
+              <td><strong>Full 104-Key Layout</strong></td>
+              <td>Main + Function + Nav + Numpad</td>
+              <td>Standard ANSI full-size keyboard</td>
+              <td>Default studio layout</td>
+            </tr>
+            <tr>
+              <td><strong>TKL / Laptop (87-Key)</strong></td>
+              <td>Omits right-side numeric keypad</td>
+              <td>Tenkeyless & laptop keyboards</td>
+              <td>Switch layout in top bar</td>
+            </tr>
+            <tr>
+              <td><strong>OS-Intercepted Keys</strong></td>
+              <td><code>PrtSc</code>, <code>Win/Cmd</code>, <code>Fn</code></td>
+              <td>Handled directly by OS / firmware</td>
+              <td><code>Fn</code> operates at hardware level</td>
+            </tr>
+            <tr>
+              <td><strong>Optional Web Audio Click</strong></td>
+              <td>Synthesized mechanical click sound</td>
+              <td>Auditory feedback per keydown</td>
+              <td>Toggle on/off in top bar</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download Report</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports coverage, NKRO & untested keys</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript <code>keydown</code>/<code>keyup</code> Telemetry Engine — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your keystrokes are never recorded, stored, or transmitted anywhere</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero keystroke logging or network calls</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser hardware check with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Hardware, Timer, Developer & Everyday Utilities</h2>
+      <p>Testing your microphone, running a Pomodoro timer, testing password strength, or formatting JSON? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="microphone-test.html"><span>Microphone Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="study-timer-pomodoro.html"><span>Study Timer (Pomodoro)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-strength-tester.html"><span>Password Strength Tester</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="spin-wheel.html"><span>Spin Wheel</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How do I test my keyboard for key ghosting or N-Key Rollover (NKRO)?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Hold down multiple keys simultaneously (for example, <code>W + A + S + D + Space + Shift</code>) and watch the <strong>Simultaneous (NKRO)</strong> counter—every key currently registered by your keyboard stays highlighted in blue and increments the active key count.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Why doesn't the Fn key light up when I press it on my laptop?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            On almost all laptops and compact keyboards, the <code>Fn</code> key is handled internally by the keyboard's hardware microcontroller to modify other keys and never sends a standard scan code to the operating system or web browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are any of my keystrokes logged or sent to a server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All key event listeners run 100% client-side in browser memory and are cleared immediately when you click <strong>Reset All Keys</strong> or close the tab.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online Keyboard Test free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Keyboard Test & NKRO Rollover Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const fullLayoutBtn = document.getElementById("fullLayoutBtn");
+      const tklLayoutBtn = document.getElementById("tklLayoutBtn");
+      const numpadClusterSection = document.getElementById("numpadClusterSection");
+
+      const soundClickToggleBtn = document.getElementById("soundClickToggleBtn");
+      const resetKbBtn = document.getElementById("resetKbBtn");
+
+      const lastKeyMain = document.getElementById("lastKeyMain");
+      const lastKeySub = document.getElementById("lastKeySub");
+      const keysTestedVal = document.getElementById("keysTestedVal");
+      const nkroVal = document.getElementById("nkroVal");
+      const totalPressesVal = document.getElementById("totalPressesVal");
+      const chatterStatusVal = document.getElementById("chatterStatusVal");
+
+      const recentKeysContainer = document.getElementById("recentKeysContainer");
+      const copyKbReportBtn = document.getElementById("copyKbReportBtn");
+      const downloadKbReportBtn = document.getElementById("downloadKbReportBtn");
+
+      const keyMap = new Map();
+      document.querySelectorAll(".keycap[data-code]").forEach(function (el) {
+        keyMap.set(el.getAttribute("data-code"), el);
+      });
+
+      let layoutMode = "full"; // "full" | "tkl"
+      let clickSoundOn = false;
+      let audioCtx = null;
+
+      const testedSet = new Set();
+      const activeSet = new Set();
+      const lastPressTimestamp = new Map();
+      let maxRollover = 0;
+      let totalPresses = 0;
+      let chatterWarnings = 0;
+      let recentLog = [];
+
+      function playKeyClick() {
+        if (!clickSoundOn) return;
+        try {
+          if (!audioCtx) {
+            const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtxClass) audioCtx = new AudioCtxClass();
+          }
+          if (audioCtx && audioCtx.state === "suspended") {
+            audioCtx.resume();
+          }
+          if (!audioCtx) return;
+
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(140, audioCtx.currentTime + 0.025);
+          gain.gain.setValueAtTime(0.09, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.026);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.028);
+        } catch (e) {
+          // Ignore audio errors
+        }
+      }
+
+      function getVisibleKeyCodes() {
+        const codes = [];
+        keyMap.forEach(function (_, code) {
+          if (layoutMode === "tkl" && code.startsWith("Numpad") || (layoutMode === "tkl" && code === "NumLock")) {
+            return;
+          }
+          codes.push(code);
+        });
+        return codes;
+      }
+
+      function updateTelemetry() {
+        const visibleCodes = getVisibleKeyCodes();
+        const totalKeys = visibleCodes.length;
+        let testedVisible = 0;
+        visibleCodes.forEach(function (c) {
+          if (testedSet.has(c)) testedVisible++;
+        });
+        const pct = totalKeys > 0 ? ((testedVisible / totalKeys) * 100).toFixed(0) : "0";
+
+        keysTestedVal.textContent = `${testedVisible} / ${totalKeys} (${pct}%)`;
+        nkroVal.textContent = `${activeSet.size} active (Max: ${maxRollover})`;
+        totalPressesVal.textContent = `${totalPresses} ${totalPresses === 1 ? "press" : "presses"}`;
+        chatterStatusVal.textContent = `${chatterWarnings} ${chatterWarnings === 1 ? "warning" : "warnings"} (<35ms)`;
+      }
+
+      function renderRecentChips() {
+        if (recentLog.length === 0) {
+          recentKeysContainer.innerHTML = '<span style="font-size:12.5px; color:var(--text-muted);">Start typing on your physical keyboard to test keys...</span>';
+          return;
+        }
+        recentKeysContainer.innerHTML = "";
+        recentLog.forEach(function (item) {
+          const chip = document.createElement("span");
+          chip.className = "hist-chip" + (item.chatter ? " chatter" : "");
+          chip.textContent = item.chatter ? `${item.label} (!${item.delta}ms)` : item.label;
+          recentKeysContainer.appendChild(chip);
+        });
+      }
+
+      function registerKeyPress(code, keyLabel, keyCodeNum) {
+        const now = performance.now();
+        const prevTime = lastPressTimestamp.get(code);
+        let isChatter = false;
+        let deltaMs = 0;
+
+        if (prevTime !== undefined) {
+          deltaMs = Math.round(now - prevTime);
+          if (deltaMs > 0 && deltaMs < 35) {
+            isChatter = true;
+            chatterWarnings += 1;
+          }
+        }
+        lastPressTimestamp.set(code, now);
+
+        activeSet.add(code);
+        testedSet.add(code);
+        if (activeSet.size > maxRollover) {
+          maxRollover = activeSet.size;
+        }
+        totalPresses += 1;
+
+        const el = keyMap.get(code);
+        if (el) {
+          el.classList.add("tested", "active");
+        }
+
+        const displayKey = keyLabel === " " ? "Space" : keyLabel;
+        lastKeyMain.textContent = `${displayKey} (${code})`;
+        lastKeySub.textContent = `code: ${code} \u2022 keyCode: ${keyCodeNum || "—"}`;
+
+        recentLog.unshift({ label: code, chatter: isChatter, delta: deltaMs });
+        if (recentLog.length > 14) recentLog.pop();
+
+        playKeyClick();
+        renderRecentChips();
+        updateTelemetry();
+      }
+
+      function releaseKey(code) {
+        activeSet.delete(code);
+        const el = keyMap.get(code);
+        if (el) {
+          el.classList.remove("active");
+        }
+        updateTelemetry();
+      }
+
+      window.addEventListener("keydown", function (e) {
+        if (e.repeat) return;
+        // Prevent browser shortcuts from navigating away while testing
+        if (
+          e.code === "Tab" ||
+          e.code === "Space" ||
+          e.code === "AltLeft" ||
+          e.code === "AltRight" ||
+          e.code === "ContextMenu" ||
+          e.code.startsWith("Arrow") ||
+          /^F([1-9]|1[0-2])$/.test(e.code)
+        ) {
+          e.preventDefault();
+        }
+        registerKeyPress(e.code, e.key, e.keyCode || e.which);
+      });
+
+      window.addEventListener("keyup", function (e) {
+        releaseKey(e.code);
+      });
+
+      window.addEventListener("blur", function () {
+        activeSet.clear();
+        keyMap.forEach(function (el) {
+          el.classList.remove("active");
+        });
+        updateTelemetry();
+      });
+
+      // Allow clicking virtual keycaps directly to verify UI/audio
+      keyMap.forEach(function (el, code) {
+        el.addEventListener("mousedown", function () {
+          registerKeyPress(code, el.textContent.replace(/\s+/g, " ").trim(), 0);
+        });
+        el.addEventListener("mouseup", function () {
+          releaseKey(code);
+        });
+        el.addEventListener("mouseleave", function () {
+          releaseKey(code);
+        });
+      });
+
+      function setLayout(mode) {
+        layoutMode = mode;
+        const isFull = mode === "full";
+        fullLayoutBtn.classList.toggle("active", isFull);
+        tklLayoutBtn.classList.toggle("active", !isFull);
+        numpadClusterSection.style.display = isFull ? "flex" : "none";
+        updateTelemetry();
+      }
+
+      fullLayoutBtn.addEventListener("click", function () { setLayout("full"); });
+      tklLayoutBtn.addEventListener("click", function () { setLayout("tkl"); });
+
+      soundClickToggleBtn.addEventListener("click", function () {
+        clickSoundOn = !clickSoundOn;
+        soundClickToggleBtn.textContent = `Click Sound: ${clickSoundOn ? "On" : "Off"}`;
+        if (clickSoundOn) playKeyClick();
+      });
+
+      resetKbBtn.addEventListener("click", function () {
+        testedSet.clear();
+        activeSet.clear();
+        lastPressTimestamp.clear();
+        maxRollover = 0;
+        totalPresses = 0;
+        chatterWarnings = 0;
+        recentLog = [];
+
+        keyMap.forEach(function (el) {
+          el.classList.remove("tested", "active");
+        });
+
+        lastKeyMain.textContent = "Press any key...";
+        lastKeySub.textContent = "code: — \u2022 keyCode: —";
+        renderRecentChips();
+        updateTelemetry();
+      });
+
+      function buildKeyboardReport() {
+        const visibleCodes = getVisibleKeyCodes();
+        const untested = visibleCodes.filter(function (c) { return !testedSet.has(c); });
+        const testedCount = visibleCodes.length - untested.length;
+        const pct = visibleCodes.length > 0 ? ((testedCount / visibleCodes.length) * 100).toFixed(1) : "0.0";
+
+        return [
+          "PureWebKits Keyboard Diagnostic Report",
+          "---------------------------------------",
+          `Layout: ${layoutMode === "full" ? "Full 104-Key (+ Numpad)" : "TKL / Laptop (87-Key)"}`,
+          `Keys Tested: ${testedCount} / ${visibleCodes.length} (${pct}%)`,
+          `Max Simultaneous Keys (NKRO): ${maxRollover}`,
+          `Total Keystrokes: ${totalPresses} | Chatter Warnings (<35ms): ${chatterWarnings}`,
+          `Untested Keys (${untested.length}): ${untested.length > 0 ? untested.join(", ") : "None (100% Tested)"}`
+        ].join("\n");
+      }
+
+      copyKbReportBtn.addEventListener("click", function () {
+        navigator.clipboard.writeText(buildKeyboardReport()).then(function () {
+          const orig = copyKbReportBtn.textContent;
+          copyKbReportBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyKbReportBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadKbReportBtn.addEventListener("click", function () {
+        const blob = new Blob([buildKeyboardReport()], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "keyboard-diagnostic-report.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      updateTelemetry();
+    });
+  </script>
+</body>
+</html>

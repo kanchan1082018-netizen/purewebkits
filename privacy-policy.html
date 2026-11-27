@@ -1,0 +1,636 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - PureWebKits</title>
+  <meta name="description" content="Read the Privacy Policy for PureWebKits (PureWebKits.com). Learn about our 100% client-side processing guarantee, Google AdSense cookies, GDPR, and CCPA privacy rights.">
+  <link rel="canonical" href="https://PureWebKits.com/privacy-policy">
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-light: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --bg-footer: #182234;
+      --text-main: #0F172A;
+      --text-body: #334155;
+      --text-muted: #64748B;
+      --border-color: #E2E8F0;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-page);
+      color: var(--text-body);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    a:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+
+    /* Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      height: 70px;
+      background-color: #FFFFFF;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+    }
+
+    .header-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-logo:hover {
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-body);
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+      color: var(--text-main);
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Hero Banner */
+    .page-hero {
+      background-color: var(--bg-hero);
+      border-bottom: 1px solid var(--border-color);
+      padding: 56px 24px;
+      text-align: center;
+    }
+
+    .hero-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .page-hero h1 {
+      font-size: 2.35rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.025em;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .page-hero p {
+      font-size: 1.075rem;
+      color: var(--text-muted);
+      max-width: 660px;
+      margin: 0 auto;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 0 20px 40px;
+    }
+
+    .legal-card {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 40px;
+      background-color: var(--bg-card);
+      border-radius: 14px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .legal-intro {
+      padding-bottom: 24px;
+      margin-bottom: 28px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 1rem;
+      color: var(--text-body);
+    }
+
+    .highlight-box {
+      background-color: var(--primary-light);
+      border-left: 4px solid var(--primary);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 16px 0 20px;
+      color: var(--text-main);
+      font-size: 0.96rem;
+    }
+
+    .legal-section {
+      margin-bottom: 34px;
+    }
+
+    .legal-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .legal-section h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 14px;
+      letter-spacing: -0.015em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      background-color: var(--primary-light);
+      color: var(--primary);
+      font-size: 0.9rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .legal-section h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin: 18px 0 8px;
+    }
+
+    .legal-section p {
+      margin-bottom: 12px;
+      color: var(--text-body);
+      font-size: 0.98rem;
+    }
+
+    .legal-section ul {
+      margin: 10px 0 16px 22px;
+      color: var(--text-body);
+      font-size: 0.97rem;
+    }
+
+    .legal-section li {
+      margin-bottom: 8px;
+    }
+
+    .legal-section li strong {
+      color: var(--text-main);
+    }
+
+    /* Footer */
+    .site-footer {
+      background-color: var(--bg-footer);
+      color: #CBD5E1;
+      padding: 60px 24px 0;
+      margin-top: auto;
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr;
+      gap: 36px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #FFFFFF;
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      text-decoration: none;
+    }
+
+    .footer-brand:hover {
+      color: #FFFFFF;
+      text-decoration: none;
+    }
+
+    .footer-desc {
+      font-size: 0.9rem;
+      color: #94A3B8;
+      line-height: 1.6;
+      max-width: 280px;
+    }
+
+    .footer-col h4 {
+      color: #FFFFFF;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      letter-spacing: 0.01em;
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 10px;
+    }
+
+    .footer-links a {
+      color: #94A3B8;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    .footer-links a:hover {
+      color: #FFFFFF;
+      text-decoration: none;
+    }
+
+    .footer-bottom {
+      padding: 24px 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.875rem;
+      color: #94A3B8;
+    }
+
+    .footer-bottom-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-bottom-links a {
+      color: #94A3B8;
+      text-decoration: none;
+    }
+
+    .footer-bottom-links a:hover {
+      color: #FFFFFF;
+    }
+
+    /* Responsive */
+    @media (max-width: 960px) {
+      .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .footer-brand-col {
+        grid-column: span 2;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .mobile-menu-btn {
+        display: inline-flex;
+      }
+
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background-color: #FFFFFF;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px 24px;
+        gap: 14px;
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: 0 8px 16px rgba(15, 23, 42, 0.06);
+      }
+
+      .nav-links.active {
+        display: flex;
+      }
+
+      .page-hero {
+        padding: 40px 20px;
+      }
+
+      .page-hero h1 {
+        font-size: 1.85rem;
+      }
+
+      .legal-card {
+        margin: 24px auto;
+        padding: 24px 20px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+      .footer-brand-col {
+        grid-column: span 1;
+      }
+      .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M16 2L28.1244 9V23L16 30L3.87564 23V9L16 2Z" fill="#2563EB"/>
+          <path d="M16 2L28.1244 9L16 16L3.87564 9L16 2Z" fill="#60A5FA"/>
+          <path d="M16 16L28.1244 9V23L16 30V16Z" fill="#1D4ED8"/>
+          <path d="M16 16L3.87564 9V23L16 30V16Z" fill="#3B82F6"/>
+        </svg>
+        <span class="brand-name">PureWebKits</span>
+      </a>
+
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation menu" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <nav aria-label="Main Navigation">
+        <ul class="nav-links" id="navLinks">
+          <li><a href="index.html">All Tools</a></li>
+          <li><a href="index.html#categories">Categories</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="page-hero">
+    <div class="hero-container">
+      <h1>Privacy Policy</h1>
+      <p>Last Updated: November 2026 — How PureWebKits protects your data and privacy.</p>
+    </div>
+  </section>
+
+  <!-- Main Legal Document Card -->
+  <main class="main-content">
+    <article class="legal-card">
+      <div class="legal-intro">
+        <p>Welcome to <strong>PureWebKits</strong> (<a href="https://PureWebKits.com">PureWebKits.com</a>). Your privacy is fundamental to our architecture and mission. This Privacy Policy explains how we handle information when you visit our website or use our suite of browser-based utilities, in compliance with Google AdSense requirements, the European Union General Data Protection Regulation (GDPR), the California Consumer Privacy Act (CCPA/CPRA), and the Children's Online Privacy Protection Act (COPPA).</p>
+      </div>
+
+      <!-- Section 1 -->
+      <section class="legal-section" id="client-side-guarantee">
+        <h2><span class="section-num">1</span> 100% Client-Side Processing Guarantee</h2>
+        <div class="highlight-box">
+          <strong>Zero-Upload Promise:</strong> Every image compression, PDF editing, text conversion, developer formatting, and financial calculation tool on PureWebKits runs <strong>100% locally inside your web browser</strong> using modern HTML5, JavaScript, and WebAssembly technologies.
+        </div>
+        <p>Unlike traditional online utilities that upload your files to remote cloud servers for processing, PureWebKits operates strictly on the client side:</p>
+        <ul>
+          <li><strong>No File Uploads:</strong> Your images, PDF documents, text snippets, source code, and financial figures are <strong>never uploaded</strong> to, transmitted to, stored on, or viewed by PureWebKits servers.</li>
+          <li><strong>Instant Local Cleanup:</strong> Once you close or refresh your browser tab, all temporary in-memory data used during processing is immediately cleared by your browser.</li>
+          <li><strong>Total Confidentiality:</strong> Because your data never leaves your device, sensitive personal documents, business spreadsheets, and private media remain completely under your control.</li>
+        </ul>
+      </section>
+
+      <!-- Section 2 -->
+      <section class="legal-section" id="information-we-collect">
+        <h2><span class="section-num">2</span> Information We Collect</h2>
+        <p>PureWebKits does not require user registration, accounts, or logins. We limit data collection strictly to what is necessary to operate securely and respond to direct inquiries:</p>
+        <h3>A. Non-Personal Technical &amp; Server Logs</h3>
+        <p>Like most modern websites, our hosting and network security infrastructure (such as Cloudflare) automatically collects standard, non-personally-identifying technical metadata when you access <code>PureWebKits.com</code>. This may include:</p>
+        <ul>
+          <li>Browser type, operating system, and device category (desktop/mobile).</li>
+          <li>Referring/exit pages, timestamps, and general country-level geographic region.</li>
+          <li>Anonymized or transient IP address logs used strictly for DDoS protection, rate limiting, spam prevention, and aggregate traffic analytics.</li>
+        </ul>
+        <h3>B. Voluntary Contact Information</h3>
+        <p>If you choose to reach out to us via our <a href="contact.html">Contact Page</a> or send an email directly to <a href="mailto:website1082018@gmail.com">website1082018@gmail.com</a>, we collect your name, email address, and message content solely for the purpose of responding to your inquiry, fixing reported bugs, or reviewing feature requests. We never sell, rent, or trade your email address with third parties.</p>
+      </section>
+
+      <!-- Section 3 -->
+      <section class="legal-section" id="google-adsense">
+        <h2><span class="section-num">3</span> Google AdSense &amp; Third-Party Advertising Cookies</h2>
+        <p>To keep PureWebKits 100% free and accessible without paywalls or subscriptions, we display advertisements served by <strong>Google AdSense</strong> and authorized third-party advertising partners.</p>
+        <ul>
+          <li><strong>Use of Advertising Cookies:</strong> Third-party vendors, including Google, use cookies (such as the Google DoubleClick / DART cookie) to serve ads to you based on your prior visits to <code>PureWebKits.com</code> and other websites across the Internet.</li>
+          <li><strong>Personalized Advertising:</strong> Google's use of advertising cookies enables it and its partners to serve ads to users based on their visit to our site and/or other sites on the Internet, measuring ad performance and preventing repetitive ad displays.</li>
+          <li><strong>Opt-Out of Personalized Advertising:</strong> You have full control over personalized ads. You may opt out of personalized advertising at any time by visiting <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer">Google Ads Settings (https://adssettings.google.com)</a>. Alternatively, you can opt out of a third-party vendor's use of cookies for personalized advertising by visiting <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener noreferrer">www.aboutads.info/choices</a> or <a href="https://www.youronlinechoices.eu/" target="_blank" rel="noopener noreferrer">www.youronlinechoices.eu</a> (for EU users).</li>
+          <li><strong>Browser Cookie Controls:</strong> You may also instruct your web browser to refuse all cookies or notify you when a cookie is being sent. Please note that disabling cookies will not break our client-side tools, though ad relevance may change.</li>
+        </ul>
+      </section>
+
+      <!-- Section 4 -->
+      <section class="legal-section" id="gdpr-ccpa-rights">
+        <h2><span class="section-num">4</span> GDPR (European Users) &amp; CCPA (California Users) Privacy Rights</h2>
+        <p>PureWebKits respects global data protection standards and extends clear privacy rights to all visitors, including residents of the European Economic Area (EEA), the United Kingdom, and California.</p>
+        <h3>European Economic Area &amp; UK Rights (GDPR)</h3>
+        <p>If you are located in the EEA or UK, you have the following rights regarding any personal data we may hold (such as support emails you sent us):</p>
+        <ul>
+          <li><strong>Right of Access &amp; Portability:</strong> Request confirmation of whether we process your personal data and obtain a copy of it.</li>
+          <li><strong>Right to Rectification &amp; Erasure ("Right to be Forgotten"):</strong> Request that we correct inaccurate information or permanently delete your support correspondence.</li>
+          <li><strong>Right to Restrict or Object to Processing:</strong> Manage consent for non-essential advertising cookies via our consent prompts or your browser settings.</li>
+        </ul>
+        <h3>California Privacy Rights (CCPA / CPRA)</h3>
+        <p>If you are a California resident, under the California Consumer Privacy Act (CCPA), you have the right to:</p>
+        <ul>
+          <li><strong>Know What Data Is Collected:</strong> Request disclosure of the categories and specific pieces of personal information collected (which, for PureWebKits, is limited to voluntary support emails and standard automated web logs).</li>
+          <li><strong>Request Deletion:</strong> Request deletion of any personal information we have collected from you.</li>
+          <li><strong>Opt-Out of "Sale" or "Sharing":</strong> PureWebKits does not sell user data for monetary consideration. Where third-party advertising cookies constitute "sharing" for cross-context behavioral advertising under CCPA, you may opt out via <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer">Google Ads Settings</a> or your browser's Global Privacy Control (GPC) signal.</li>
+          <li><strong>Non-Discrimination:</strong> We will never discriminate against you or restrict access to any PureWebKits utility for exercising your privacy rights.</li>
+        </ul>
+      </section>
+
+      <!-- Section 5 -->
+      <section class="legal-section" id="childrens-privacy">
+        <h2><span class="section-num">5</span> Children's Privacy (COPPA)</h2>
+        <p>PureWebKits is a general-audience utility website and is not directed at children under the age of 13 (or 16 in certain European jurisdictions). We do not knowingly collect personally identifiable information from children under 13. If you are a parent or guardian and believe that your child has provided personal information to us via email or our contact form, please contact us immediately at <a href="mailto:website1082018@gmail.com">website1082018@gmail.com</a>, and we will promptly delete such information from our records.</p>
+      </section>
+
+      <!-- Section 6 -->
+      <section class="legal-section" id="contact-us">
+        <h2><span class="section-num">6</span> Contact Us &amp; Policy Updates</h2>
+        <p>We may update this Privacy Policy from time to time to reflect changes in legal requirements, advertising partners, or new client-side tools. Any updates will be posted on this page with an updated "Last Updated" date.</p>
+        <p>If you have any questions, concerns, or requests regarding this Privacy Policy or your GDPR/CCPA rights, please contact us:</p>
+        <ul>
+          <li><strong>Online Form:</strong> <a href="contact.html">PureWebKits Contact Page</a></li>
+          <li><strong>Email:</strong> <a href="mailto:website1082018@gmail.com">websote1082018@gmail.com</a></li>
+          <li><strong>Website:</strong> <a href="https://PureWebKits.com">https://PureWebKits.com</a></li>
+        </ul>
+      </section>
+    </article>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand-col">
+          <a href="index.html" class="footer-brand">
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M16 2L28.1244 9V23L16 30L3.87564 23V9L16 2Z" fill="#2563EB"/>
+              <path d="M16 2L28.1244 9L16 16L3.87564 9L16 2Z" fill="#60A5FA"/>
+              <path d="M16 16L28.1244 9V23L16 30V16Z" fill="#1D4ED8"/>
+              <path d="M16 16L3.87564 9V23L16 30V16Z" fill="#3B82F6"/>
+            </svg>
+            <span>PureWebKits</span>
+          </a>
+          <p class="footer-desc">Fast, free, and 100% private client-side web utilities. All tools process files directly in your browser with zero server uploads.</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Image &amp; PDF</h4>
+          <ul class="footer-links">
+            <li><a href="index.html#categories">Image Compressor</a></li>
+            <li><a href="index.html#categories">Image Resizer</a></li>
+            <li><a href="index.html#categories">PDF Merger</a></li>
+            <li><a href="index.html#categories">PDF Splitter</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Text &amp; Dev</h4>
+          <ul class="footer-links">
+            <li><a href="index.html#categories">Word Counter</a></li>
+            <li><a href="index.html#categories">JSON Formatter</a></li>
+            <li><a href="index.html#categories">Base64 Encoder</a></li>
+            <li><a href="index.html#categories">Password Generator</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Calculators</h4>
+          <ul class="footer-links">
+            <li><a href="index.html#categories">EMI Calculator</a></li>
+            <li><a href="index.html#categories">Percentage Calc</a></li>
+            <li><a href="index.html#categories">Age Calculator</a></li>
+            <li><a href="index.html#categories">Unit Converter</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul class="footer-links">
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 PureWebKits.com. All rights reserved.</p>
+        <div class="footer-bottom-links">
+          <a href="privacy-policy.html">Privacy Policy</a>
+          <a href="terms.html">Terms</a>
+          <a href="contact.html">Support</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const menuBtn = document.getElementById('mobileMenuBtn');
+      const navLinks = document.getElementById('navLinks');
+
+      if (menuBtn && navLinks) {
+        menuBtn.addEventListener('click', function () {
+          const isOpen = navLinks.classList.toggle('active');
+          menuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+
+        document.addEventListener('click', function (event) {
+          if (!menuBtn.contains(event.target) && !navLinks.contains(event.target)) {
+            navLinks.classList.remove('active');
+            menuBtn.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

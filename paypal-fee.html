@@ -1,0 +1,939 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online PayPal Fee Calculator (Net Payout & Gross-Up Invoice) — PureWebKits</title>
+  <meta name="description" content="Calculate PayPal transaction fees, net received payout, or reverse gross-up invoice amount for domestic, cross-border, and international rates online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/paypal-fee-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* PayPal Calculator Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      flex-wrap: wrap;
+      gap: 2px;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 14px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 11.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-select { font-family: inherit; font-size: 13.5px; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 2px;
+    }
+    .preset-chip {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      border-radius: 999px;
+      padding: 5px 11px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .preset-chip:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .pp-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .pp-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .pp-title { font-size: 15px; font-weight: 800; color: #CBD5E1; margin-top: 2px; }
+    .pp-sub { font-size: 12px; color: #94A3B8; margin-top: 2px; }
+    .pp-big-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 26px;
+      font-weight: 800;
+      color: #34D399;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid, .two-col-fields { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive PayPal Fee Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online PayPal Fee Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate net received payout or gross-up invoice amounts in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="Calculation mode selector">
+            <button type="button" class="mode-btn active" data-mode="forward">Gross → Net Payout</button>
+            <button type="button" class="mode-btn" data-mode="reverse">Target Net → Gross-Up</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="resetPpBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="ppAmountInput" class="field-label" id="ppAmountLabel">Gross Transaction Amount ($)</label>
+              <input type="number" id="ppAmountInput" class="std-input" min="0" step="0.01" value="500.00" />
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="ppPercentInput" class="field-label">Percentage Fee (%)</label>
+                <input type="number" id="ppPercentInput" class="std-input" min="0" max="50" step="0.01" value="3.49" />
+              </div>
+
+              <div class="field-group">
+                <label for="ppFixedInput" class="field-label">Fixed Transaction Fee ($)</label>
+                <input type="number" id="ppFixedInput" class="std-input" min="0" step="0.01" value="0.49" />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <span class="field-label">Common Rate Presets (Editable)</span>
+              <div class="preset-chips">
+                <button type="button" class="preset-chip" data-pct="3.49" data-fix="0.49">US Domestic (3.49% + $0.49)</button>
+                <button type="button" class="preset-chip" data-pct="4.99" data-fix="0.49">US Cross-Border (4.99% + $0.49)</button>
+                <button type="button" class="preset-chip" data-pct="2.99" data-fix="0.49">US Card Std (2.99% + $0.49)</button>
+                <button type="button" class="preset-chip" data-pct="4.40" data-fix="0.30">Intl Commercial (4.40% + $0.30)</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="pp-hero-box">
+              <div>
+                <div class="pp-kicker" id="ppHeroKicker">Estimated Net Received</div>
+                <div class="pp-title" id="ppHeroDesc">After deducting percentage & fixed fee</div>
+                <div class="pp-sub" id="ppRateFormulaCaption">Rate: 3.49% + $0.49</div>
+              </div>
+              <div class="pp-big-num" id="ppHeroAmount">$482.06</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Total PayPal Fee</div>
+                <div class="metric-val" id="ppTotalFeeVal">$17.94</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Gross Invoice / Charge</div>
+                <div class="metric-val" id="ppGrossVal">$500.00</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Net Amount Received</div>
+                <div class="metric-val" id="ppNetVal">$482.06</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Effective Fee Rate</div>
+                <div class="metric-val" id="ppEffRateVal">3.59%</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyPpReportBtn" class="btn-primary">Copy Fee Breakdown</button>
+              <button type="button" id="downloadPpReportBtn" class="btn-sec" style="height:40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Forward vs Gross-Up Math & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to PayPal Fee Calculation, Net Payouts & Invoice Gross-Up</h2>
+
+      <h3>How Percentage + Fixed Transaction Fees and Gross-Up Pricing Work</h3>
+      <p>
+        Standard commercial payment fees combine a <strong>percentage fee</strong> (calculated on the transaction amount) with a <strong>fixed per-transaction fee</strong> (such as <code>$0.49</code> or <code>$0.30</code> in USD). Because published fee rates differ by country, account type, currency, and payment method—and may also be accompanied by currency conversion spreads or applicable local taxes on fees—entering your exact percentage and fixed fee into a calculator gives you clear visibility before sending an invoice or pricing a product. In <strong>Gross → Net Payout</strong> mode, you start with the gross amount a buyer pays and see how much remains after fees; in <strong>Target Net → Gross-Up</strong> mode, you enter the net amount you want to keep and compute the higher gross invoice total to charge so your take-home payout hits your target. A browser-based <strong>PayPal Fee Calculator</strong> runs 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Calculate PayPal Fees & Gross-Up Invoices in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Choose Gross → Net or Target Net → Gross-Up:</strong> Select <strong>Gross → Net Payout</strong> to check what you receive from a given charge, or <strong>Target Net → Gross-Up</strong> to find how much to invoice for a desired net payout.</li>
+        <li><strong>Enter Amount & Fee Rate (or Pick a Preset):</strong> Type your amount, percentage rate, and fixed fee—or click one of the rate preset chips and customize any figure to match your account's exact schedule.</li>
+        <li><strong>Review Breakdown & Export Summary:</strong> Check total fee, gross amount, net received, and effective fee percentage, then save via <strong>Copy Fee Breakdown</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Forward Fee & Reverse Gross-Up Formulas</h3>
+      <p>
+        With decimal rate <code>r = percent / 100</code> and fixed fee <code>F</code>:
+      </p>
+      <div class="formula-box">
+        Forward (Gross G → Net N): Fee = (G × r) + F  |  Net (N) = G − Fee<br />
+        Reverse (Target Net N → Gross G): G = (N + F) / (1 − r)
+      </div>
+
+      <h3>Helpful Tips for Pricing Invoices & Small Transactions</h3>
+      <ul>
+        <li><strong>Watch Fixed-Fee Drag on Small Payments:</strong> On a small <code>$10.00</code> payment, a fixed <code>$0.49</code> fee equals <code>4.90%</code> on its own before adding any percentage fee—factoring this into small-ticket pricing protects your margin.</li>
+        <li><strong>Account for FX Conversion & Local Taxes Separately:</strong> If a payment involves currency conversion or local tax on service fees in your region, add any expected conversion markup or tax adjustment on top of base transaction fees.</li>
+        <li><strong>Verify Your Exact Account Rate Schedule:</strong> Always confirm your current country and account-specific fee terms before finalizing client invoices.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> To receive <code>$500.00</code> net at <code>3.49% + $0.49</code>, reverse gross-up calculation gives <code>($500.00 + $0.49) / (1 − 0.0349) = $500.49 / 0.9651 ≈ $518.59</code> gross—resulting in a <code>$18.59</code> fee and <code>$500.00</code> net received.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="pp-table-heading">
+      <h2 id="pp-table-heading">PayPal Fee Scenarios, Gross-Up Benchmarks & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to compare sample fee profiles on a <code>$1,000.00</code> transaction and review key concepts.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Rate Profile / Concept</th>
+              <th>Sample Rate</th>
+              <th>$1,000.00 Example</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>US Domestic Checkout/Invoice</strong></td>
+              <td><code>3.49% + $0.49</code></td>
+              <td>Fee <code>$35.39</code> → Net <code>$964.61</code></td>
+              <td>Gross-up for $1,000 net: <code>$1,036.65</code></td>
+            </tr>
+            <tr>
+              <td><strong>US Cross-Border</strong></td>
+              <td><code>4.99% + $0.49</code></td>
+              <td>Fee <code>$50.39</code> → Net <code>$949.61</code></td>
+              <td>Gross-up for $1,000 net: <code>$1,053.08</code></td>
+            </tr>
+            <tr>
+              <td><strong>US Card Standard</strong></td>
+              <td><code>2.99% + $0.49</code></td>
+              <td>Fee <code>$30.39</code> → Net <code>$969.61</code></td>
+              <td>Gross-up for $1,000 net: <code>$1,031.33</code></td>
+            </tr>
+            <tr>
+              <td><strong>Intl Commercial Preset</strong></td>
+              <td><code>4.40% + $0.30</code></td>
+              <td>Fee <code>$44.30</code> → Net <code>$955.70</code></td>
+              <td>Before any FX spread or local tax</td>
+            </tr>
+            <tr>
+              <td><strong>Forward Mode</strong></td>
+              <td><code>Gross → Net Payout</code></td>
+              <td>Computes fee & net from gross</td>
+              <td>Ideal for checking incoming payouts</td>
+            </tr>
+            <tr>
+              <td><strong>Reverse Mode</strong></td>
+              <td><code>Target Net → Gross-Up</code></td>
+              <td>Computes invoice total for net goal</td>
+              <td>Ideal for freelance & agency billing</td>
+            </tr>
+            <tr>
+              <td><strong>Percentage Fee</strong></td>
+              <td><code>Gross × (pct / 100)</code></td>
+              <td>Scales proportionally with amount</td>
+              <td>Editable in percentage input</td>
+            </tr>
+            <tr>
+              <td><strong>Fixed Fee</strong></td>
+              <td>Flat per-txn charge</td>
+              <td>Constant across order sizes</td>
+              <td>Editable in fixed-fee input</td>
+            </tr>
+            <tr>
+              <td><strong>Effective Fee Rate</strong></td>
+              <td><code>(Total Fee / Gross) × 100</code></td>
+              <td>Combined real percentage cost</td>
+              <td>Higher on small amounts due to fixed fee</td>
+            </tr>
+            <tr>
+              <td><strong>FX Spread Awareness</strong></td>
+              <td>Currency conversion margin</td>
+              <td>Applies when converting currencies</td>
+              <td>Check currency conversion terms</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download Report</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports full fee calculation</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Custom Rate Support</strong></td>
+              <td>Any % & fixed fee</td>
+              <td>Supports regional/merchant tiers</td>
+              <td>100% user-configurable inputs</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Fee & Gross-Up Calculator — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your invoice amounts and pricing figures stay strictly inside your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero financial figures transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser fee calculation with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Finance, Tax, Pricing & Everyday Utilities</h2>
+      <p>Calculating percentages, GST, loans/EMI, or currency conversions? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="indian-gst-calculator.html"><span>Indian GST Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="emi-calculator.html"><span>EMI Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="us-paycheck-calculator.html"><span>US Paycheck Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How do I calculate how much to invoice so I receive an exact net amount?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Switch to <strong>Target Net → Gross-Up</strong>, enter the net amount you want to keep, enter your percentage and fixed fee, and the calculator computes <code>Gross = (Target Net + Fixed Fee) / (1 − Rate)</code>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I enter custom percentage and fixed fees for my country or merchant tier?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes.</strong> Both the <strong>Percentage Fee (%)</strong> and <strong>Fixed Transaction Fee</strong> fields are fully editable so you can model any country, currency, or account rate schedule.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my invoice amounts or fee calculations sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations, clipboard copies, and text downloads run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online PayPal Fee Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side PayPal Fee & Gross-Up Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const modeBtns = document.querySelectorAll(".mode-btn");
+      const resetPpBtn = document.getElementById("resetPpBtn");
+
+      const ppAmountLabel = document.getElementById("ppAmountLabel");
+      const ppAmountInput = document.getElementById("ppAmountInput");
+      const ppPercentInput = document.getElementById("ppPercentInput");
+      const ppFixedInput = document.getElementById("ppFixedInput");
+      const presetChips = document.querySelectorAll(".preset-chip");
+
+      const ppHeroKicker = document.getElementById("ppHeroKicker");
+      const ppHeroDesc = document.getElementById("ppHeroDesc");
+      const ppRateFormulaCaption = document.getElementById("ppRateFormulaCaption");
+      const ppHeroAmount = document.getElementById("ppHeroAmount");
+
+      const ppTotalFeeVal = document.getElementById("ppTotalFeeVal");
+      const ppGrossVal = document.getElementById("ppGrossVal");
+      const ppNetVal = document.getElementById("ppNetVal");
+      const ppEffRateVal = document.getElementById("ppEffRateVal");
+
+      const copyPpReportBtn = document.getElementById("copyPpReportBtn");
+      const downloadPpReportBtn = document.getElementById("downloadPpReportBtn");
+
+      let calcMode = "forward"; // "forward" | "reverse"
+      let latestReportText = "";
+
+      function fmtMoney(num) {
+        if (!Number.isFinite(num)) return "$0.00";
+        return "$" + num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function recalculatePaypal() {
+        const inputAmt = Math.max(0, parseFloat(ppAmountInput.value) || 0);
+        const pct = Math.max(0, Math.min(99.9, parseFloat(ppPercentInput.value) || 0));
+        const fixedFee = Math.max(0, parseFloat(ppFixedInput.value) || 0);
+        const rate = pct / 100;
+
+        let gross = 0;
+        let fee = 0;
+        let net = 0;
+
+        if (calcMode === "forward") {
+          gross = inputAmt;
+          fee = inputAmt > 0 ? (gross * rate) + fixedFee : 0;
+          net = gross - fee;
+
+          ppAmountLabel.textContent = "Gross Transaction Amount ($)";
+          ppHeroKicker.textContent = "Estimated Net Received";
+          ppHeroDesc.textContent = "After deducting percentage & fixed fee";
+          ppHeroAmount.textContent = fmtMoney(net);
+        } else {
+          net = inputAmt;
+          const denom = Math.max(0.0001, 1 - rate);
+          gross = inputAmt > 0 ? (net + fixedFee) / denom : 0;
+          fee = Math.max(0, gross - net);
+
+          ppAmountLabel.textContent = "Desired Net Payout Amount ($)";
+          ppHeroKicker.textContent = "Gross Amount to Charge";
+          ppHeroDesc.textContent = "Invoice total needed to keep target net";
+          ppHeroAmount.textContent = fmtMoney(gross);
+        }
+
+        const effPct = gross > 0 ? (fee / gross) * 100 : 0;
+
+        ppRateFormulaCaption.textContent = `Rate: ${pct.toFixed(2)}% + ${fmtMoney(fixedFee)}`;
+        ppTotalFeeVal.textContent = fmtMoney(fee);
+        ppGrossVal.textContent = fmtMoney(gross);
+        ppNetVal.textContent = fmtMoney(net);
+        ppEffRateVal.textContent = `${effPct.toFixed(2)}%`;
+
+        latestReportText = [
+          "PureWebKits PayPal Fee Calculation Report",
+          "----------------------------------------",
+          `Mode: ${calcMode === "forward" ? "Gross -> Net Payout" : "Target Net -> Gross-Up"}`,
+          `Rate Applied: ${pct.toFixed(2)}% + ${fmtMoney(fixedFee)}`,
+          `Gross Amount: ${fmtMoney(gross)}`,
+          `Total PayPal Fee: ${fmtMoney(fee)} (${effPct.toFixed(2)}% effective)`,
+          `Net Received: ${fmtMoney(net)}`
+        ].join("\n");
+      }
+
+      modeBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          modeBtns.forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          calcMode = btn.getAttribute("data-mode") || "forward";
+          recalculatePaypal();
+        });
+      });
+
+      presetChips.forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          ppPercentInput.value = chip.getAttribute("data-pct") || "3.49";
+          ppFixedInput.value = chip.getAttribute("data-fix") || "0.49";
+          recalculatePaypal();
+        });
+      });
+
+      resetPpBtn.addEventListener("click", function () {
+        calcMode = "forward";
+        modeBtns.forEach(function (b) {
+          b.classList.toggle("active", b.getAttribute("data-mode") === "forward");
+        });
+        ppAmountInput.value = "500.00";
+        ppPercentInput.value = "3.49";
+        ppFixedInput.value = "0.49";
+        recalculatePaypal();
+      });
+
+      [ppAmountInput, ppPercentInput, ppFixedInput].forEach(function (inp) {
+        inp.addEventListener("input", recalculatePaypal);
+        inp.addEventListener("change", recalculatePaypal);
+      });
+
+      copyPpReportBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        navigator.clipboard.writeText(latestReportText).then(function () {
+          const orig = copyPpReportBtn.textContent;
+          copyPpReportBtn.textContent = "Copied!";
+          setTimeout(function () { copyPpReportBtn.textContent = orig; }, 1800);
+        });
+      });
+
+      downloadPpReportBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        const blob = new Blob([latestReportText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "paypal-fee-calculation.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      recalculatePaypal();
+    });
+  </script>
+</body>
+</html>

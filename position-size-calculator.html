@@ -1,0 +1,936 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Position Size Calculator (Risk %, Stop-Loss & Units) — PureWebKits</title>
+  <meta name="description" content="Calculate optimal trading position size in units/shares, total position value, dollar risk amount, and reward-to-risk ratio from your account balance, risk percentage, entry price, and stop-loss online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/position-size-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Position Size Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .ps-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .ps-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .ps-hero-title { font-size: 16px; font-weight: 800; }
+    .ps-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .ps-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 22px;
+      font-weight: 800;
+      color: #38BDF8;
+      white-space: nowrap;
+      text-align: right;
+    }
+    .ps-hero-num.error { color: #FCA5A5; font-size: 13.5px; text-align: left; white-space: normal; }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Position Size Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Position Size Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate optimal trade units, position value, dollar risk & reward-to-risk ratio in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Enter your account balance, risk percentage per trade, entry price, stop-loss, and optional target:</div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample ($10,000 • 1% Risk)</button>
+            <button type="button" id="resetPsBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="psCurrency" class="field-label">Currency Symbol</label>
+                <select id="psCurrency" class="std-select">
+                  <option value="$" selected>USD ($)</option>
+                  <option value="₹">INR (₹)</option>
+                  <option value="€">EUR (€)</option>
+                  <option value="£">GBP (£)</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="accountBalanceInput" class="field-label">Total Account Balance</label>
+                <input type="number" id="accountBalanceInput" class="std-input" min="0" step="500" value="10000" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="riskPctInput" class="field-label">Risk Per Trade (%)</label>
+                <input type="number" id="riskPctInput" class="std-input" min="0.1" max="100" step="0.25" value="1" />
+              </div>
+
+              <div class="field-group">
+                <label for="psEntryPriceInput" class="field-label">Entry Price</label>
+                <input type="number" id="psEntryPriceInput" class="std-input" min="0" step="1" value="100" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="psStopLossInput" class="field-label">Stop-Loss Price</label>
+                <input type="number" id="psStopLossInput" class="std-input" min="0" step="1" value="95" />
+              </div>
+
+              <div class="field-group">
+                <label for="psTakeProfitInput" class="field-label">Optional Take-Profit Price</label>
+                <input type="number" id="psTakeProfitInput" class="std-input" min="0" step="1" value="115" />
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="ps-hero-box">
+              <div>
+                <div class="ps-hero-kicker">Recommended Position Size</div>
+                <div class="ps-hero-title" id="psSummaryTitle">Notional Value: $2,000.00 (20.0%)</div>
+                <div class="ps-hero-sub" id="psSubCaption">Max Loss at Stop: $100.00 • Stop Distance: $5.00 (5.00%)</div>
+              </div>
+              <div class="ps-hero-num" id="psUnitsDisplay">20.00 units</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Capital at Risk (1R)</div>
+                <div class="metric-val" id="dollarRiskVal">$100.00 (1.00%)</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Total Position Value</div>
+                <div class="metric-val" id="positionNotionalVal">$2,000.00</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Stop-Loss Distance</div>
+                <div class="metric-val" id="stopDistanceVal">$5.00 / unit (5.00%)</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Reward-to-Risk Ratio</div>
+                <div class="metric-val" id="rrRatioVal">3.00 : 1 (+$300.00)</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyPsBtn" class="btn-primary">Copy Position Sizing</button>
+              <button type="button" id="downloadPsBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Position Sizing, Fixed-Fractional Risk (1% Rule), Stop-Loss Distance & R:R Ratio</h2>
+
+      <h3>Why Position Sizing Protects Trading Capital Better Than Arbitrary Trade Sizes</h3>
+      <p>
+        In disciplined risk management across equities, forex, commodities, and crypto markets, traders determine how many shares or units to buy or sell <em>after</em> setting their technical invalidation level (the <strong>stop-loss price</strong>) rather than guessing a round dollar amount. Using <strong>fixed-fractional position sizing</strong>—such as risking <code>1%</code> or <code>2%</code> of total account equity on a single setup—ensures that even a string of consecutive losing trades causes a controlled, survivable drawdown rather than wiping out the account. Whether a stop-loss is tight (<code>1%</code> away from entry) or wide (<code>10%</code> away from entry), scaling position units inversely with stop-loss distance keeps maximum dollar loss constant. A browser-based <strong>Position Size Calculator</strong> computes exact units, notional exposure, and reward-to-risk ratio 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Calculate Optimal Position Size in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter Currency, Account Balance & Risk %:</strong> Choose your currency symbol, enter your <strong>Total Account Balance</strong>, and set <strong>Risk Per Trade (%)</strong> (or click <strong>Load Sample ($10,000 • 1% Risk)</strong>).</li>
+        <li><strong>Set Entry Price, Stop-Loss & Optional Target:</strong> Type your planned <strong>Entry Price</strong>, <strong>Stop-Loss Price</strong> (works for both Long setups where stop < entry and Short setups where stop > entry), and optional <strong>Take-Profit Price</strong>.</li>
+        <li><strong>Review Units, Capital Risk & Export:</strong> Check recommended units, notional position value, stop distance, and Reward-to-Risk ratio, then click <strong>Copy Position Sizing</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Fixed-Fractional Position Sizing Formula</h3>
+      <p>
+        Let <code>B</code> be total account balance, <code>r%</code> be risk percentage per trade, <code>P_entry</code> be entry price, and <code>P_stop</code> be stop-loss price:
+      </p>
+      <div class="formula-box">
+        Capital at Risk (1R) = B × (r% / 100)  |  Stop Distance / Unit = |P_entry − P_stop|<br />
+        Position Size (Units) = Capital at Risk / Stop Distance  |  Position Value = Units × P_entry
+      </div>
+
+      <h3>Helpful Tips for Consistent Risk & Position Sizing</h3>
+      <ul>
+        <li><strong>Watch Total Position Value vs. Account Balance:</strong> If your stop-loss is very tight relative to entry, calculated position value may exceed <code>100%</code> of your cash balance (requiring margin/leverage) unless capped.</li>
+        <li><strong>Account for Slippage, Gaps & Commissions:</strong> Live market stops can execute slightly beyond your exact stop-loss price during fast volatility or overnight gaps.</li>
+        <li><strong>Educational Math Tool Only:</strong> This calculator provides risk-sizing math only and is not financial or investment advice.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> On a <code>$10,000</code> account risking <code>1%</code> (<code>$100.00</code> max loss), entering at <code>$100</code> with a stop-loss at <code>$95</code> (<code>$5.00</code> risk per unit) gives <code>$100 / $5 = 20.00 units</code> (<code>$2,000.00</code> notional value, or <code>20.0%</code> of account), with a <code>3.00 : 1</code> reward-to-risk ratio at a <code>$115</code> target.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="ps-table-heading">
+      <h2 id="ps-table-heading">Position Sizing Formulas, Risk Tiers & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to check fixed-fractional risk formulas, Long/Short stop rules, and calculator outputs.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Metric / Rule</th>
+              <th>Formula / Value</th>
+              <th>Role</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Capital at Risk (1R)</strong></td>
+              <td><code>Account Balance × (Risk% / 100)</code></td>
+              <td>Maximum planned dollar loss</td>
+              <td><code>$10,000 × 1% = $100.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Stop-Loss Distance</strong></td>
+              <td><code>|Entry Price − Stop-Loss Price|</code></td>
+              <td>Per-unit risk before exit</td>
+              <td><code>|$100 − $95| = $5.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Stop Distance (%)</strong></td>
+              <td><code>(Stop Distance / Entry Price) × 100</code></td>
+              <td>Percentage stop width</td>
+              <td><code>5.00%</code> in sample</td>
+            </tr>
+            <tr>
+              <td><strong>Position Size (Units)</strong></td>
+              <td><code>Capital at Risk / Stop Distance</code></td>
+              <td>Exact shares / coins / units</td>
+              <td><code>$100 / $5 = 20.00 units</code></td>
+            </tr>
+            <tr>
+              <td><strong>Total Position Value</strong></td>
+              <td><code>Position Units × Entry Price</code></td>
+              <td>Notional capital allocated</td>
+              <td><code>20 × $100 = $2,000.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Account Allocation (%)</strong></td>
+              <td><code>(Position Value / Account Balance) × 100</code></td>
+              <td>Share of equity deployed</td>
+              <td><code>20.0%</code> in sample</td>
+            </tr>
+            <tr>
+              <td><strong>Long Setup Detection</strong></td>
+              <td><code>Stop-Loss < Entry Price</code></td>
+              <td>Profits above entry</td>
+              <td>Target > Entry gives positive R:R</td>
+            </tr>
+            <tr>
+              <td><strong>Short Setup Detection</strong></td>
+              <td><code>Stop-Loss > Entry Price</code></td>
+              <td>Profits below entry</td>
+              <td>Target < Entry gives positive R:R</td>
+            </tr>
+            <tr>
+              <td><strong>Reward-to-Risk Ratio</strong></td>
+              <td><code>|Target − Entry| / |Entry − Stop|</code></td>
+              <td>Potential gain vs. 1R risk</td>
+              <td><code>$15 / $5 = 3.00 : 1</code></td>
+            </tr>
+            <tr>
+              <td><strong>Projected Target Profit</strong></td>
+              <td><code>Position Units × Reward / Unit</code></td>
+              <td>Gross gain at take-profit</td>
+              <td><code>+$300.00</code> in sample</td>
+            </tr>
+            <tr>
+              <td><strong>Equal Entry & Stop Guard</strong></td>
+              <td>Prompts for distinct stop price</td>
+              <td>Prevents division by zero</td>
+              <td>Stop must differ from entry</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports position sizing plan</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Risk & Position Sizer — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your account balance and trade levels stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero account data transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Trading, Finance, Percentage & Everyday Calculators</h2>
+      <p>Simulating margin requirements, crypto leverage, trade PnL, or percentages? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="margin-trading-calculator.html"><span>Margin Trading Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="crypto-leverage-calculator.html"><span>Crypto Leverage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="crypto-profit-loss-calculator.html"><span>Crypto Profit & Loss</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="dividend-yield-calculator.html"><span>Dividend Yield Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="net-worth-calculator.html"><span>Net Worth Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How does the Position Size Calculator determine the number of units to trade?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            It multiplies your <strong>Total Account Balance</strong> by your <strong>Risk Per Trade (%)</strong> to find your maximum dollar risk (<code>1R</code>), then divides that dollar risk by the per-unit stop-loss distance (<code>|Entry Price − Stop-Loss Price|</code>).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Does this calculator work for both Long and Short setups?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> If your stop-loss is below entry, it treats the setup as a <strong>Long</strong>; if your stop-loss is above entry, it treats the setup as a <strong>Short</strong> and computes Reward-to-Risk accordingly.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my account balance or entry levels sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Position Size Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Position Size Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const psCurrency = document.getElementById("psCurrency");
+      const accountBalanceInput = document.getElementById("accountBalanceInput");
+      const riskPctInput = document.getElementById("riskPctInput");
+      const psEntryPriceInput = document.getElementById("psEntryPriceInput");
+      const psStopLossInput = document.getElementById("psStopLossInput");
+      const psTakeProfitInput = document.getElementById("psTakeProfitInput");
+
+      const psSummaryTitle = document.getElementById("psSummaryTitle");
+      const psSubCaption = document.getElementById("psSubCaption");
+      const psUnitsDisplay = document.getElementById("psUnitsDisplay");
+
+      const dollarRiskVal = document.getElementById("dollarRiskVal");
+      const positionNotionalVal = document.getElementById("positionNotionalVal");
+      const stopDistanceVal = document.getElementById("stopDistanceVal");
+      const rrRatioVal = document.getElementById("rrRatioVal");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetPsBtn = document.getElementById("resetPsBtn");
+      const copyPsBtn = document.getElementById("copyPsBtn");
+      const downloadPsBtn = document.getElementById("downloadPsBtn");
+
+      let latestSummaryText = "";
+
+      function fmtCurr(sym, amt) {
+        const safe = Number.isFinite(amt) ? amt : 0;
+        const locale = sym === "₹" ? "en-IN" : "en-US";
+        const absStr = Math.abs(safe).toLocaleString(locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        return safe < 0 ? `-${sym}${absStr}` : `${sym}${absStr}`;
+      }
+
+      function clearPsOutput(msg) {
+        psUnitsDisplay.className = "ps-hero-num error";
+        psUnitsDisplay.textContent = "CHECK INPUTS";
+        psSummaryTitle.textContent = "Position Sizing";
+        psSubCaption.textContent = msg;
+        dollarRiskVal.textContent = "—";
+        positionNotionalVal.textContent = "—";
+        stopDistanceVal.textContent = "—";
+        rrRatioVal.textContent = "—";
+        latestSummaryText = "";
+      }
+
+      function calculatePositionSize() {
+        const sym = psCurrency.value;
+        const balance = parseFloat(accountBalanceInput.value);
+        const riskPct = parseFloat(riskPctInput.value);
+        const entry = parseFloat(psEntryPriceInput.value);
+        const stop = parseFloat(psStopLossInput.value);
+        const targetRaw = psTakeProfitInput.value.trim();
+        const target = targetRaw === "" ? NaN : parseFloat(targetRaw);
+
+        if (
+          !Number.isFinite(balance) || balance < 0 ||
+          !Number.isFinite(riskPct) || riskPct < 0 || riskPct > 100 ||
+          !Number.isFinite(entry) || entry <= 0 ||
+          !Number.isFinite(stop) || stop < 0
+        ) {
+          clearPsOutput("Enter valid balance, risk %, entry (>0), and stop-loss");
+          return;
+        }
+
+        const stopDist = Math.abs(entry - stop);
+        if (stopDist === 0) {
+          clearPsOutput("Stop-loss price must differ from entry price");
+          return;
+        }
+
+        const isLong = stop < entry;
+        const dollarRisk = balance * (riskPct / 100);
+        const units = dollarRisk / stopDist;
+        const positionValue = units * entry;
+        const allocPct = balance > 0 ? (positionValue / balance) * 100 : 0;
+        const stopPct = (stopDist / entry) * 100;
+
+        let rrDisplay = "Not set";
+        if (Number.isFinite(target) && target > 0) {
+          const rewardPerUnit = isLong ? (target - entry) : (entry - target);
+          const rr = rewardPerUnit / stopDist;
+          const targetProfit = rewardPerUnit * units;
+          const sign = targetProfit >= 0 ? "+" : "";
+          rrDisplay = `${rr.toFixed(2)} : 1 (${sign}${fmtCurr(sym, targetProfit)})`;
+        }
+
+        const unitsFormatted = units >= 100
+          ? units.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+          : units.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+
+        psUnitsDisplay.className = "ps-hero-num";
+        psUnitsDisplay.textContent = `${unitsFormatted} units`;
+        psSummaryTitle.textContent = `Notional Value: ${fmtCurr(sym, positionValue)} (${allocPct.toFixed(1)}%)`;
+        psSubCaption.textContent = `${isLong ? "Long" : "Short"} \u2022 Max Loss: ${fmtCurr(sym, dollarRisk)} \u2022 Stop: ${fmtCurr(sym, stopDist)} (${stopPct.toFixed(2)}%)`;
+
+        dollarRiskVal.textContent = `${fmtCurr(sym, dollarRisk)} (${riskPct.toFixed(2)}%)`;
+        positionNotionalVal.textContent = fmtCurr(sym, positionValue);
+        stopDistanceVal.textContent = `${fmtCurr(sym, stopDist)} / unit (${stopPct.toFixed(2)}%)`;
+        rrRatioVal.textContent = rrDisplay;
+
+        latestSummaryText = [
+          "PureWebKits Position Sizing Plan",
+          "---------------------------------",
+          `Direction: ${isLong ? "Long" : "Short"} | Account Balance: ${fmtCurr(sym, balance)} | Risk Per Trade: ${riskPct}% (${fmtCurr(sym, dollarRisk)})`,
+          `Entry: ${fmtCurr(sym, entry)} | Stop-Loss: ${fmtCurr(sym, stop)} (Stop Distance: ${fmtCurr(sym, stopDist)} / ${stopPct.toFixed(2)}%)`,
+          `Recommended Position Size: ${unitsFormatted} units | Total Position Value: ${fmtCurr(sym, positionValue)} (${allocPct.toFixed(1)}% of account)`,
+          `Reward-to-Risk Ratio: ${rrDisplay}`
+        ].join("\n");
+      }
+
+      [
+        psCurrency,
+        accountBalanceInput,
+        riskPctInput,
+        psEntryPriceInput,
+        psStopLossInput,
+        psTakeProfitInput
+      ].forEach(function (el) {
+        el.addEventListener("input", calculatePositionSize);
+        el.addEventListener("change", calculatePositionSize);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        psCurrency.value = "$";
+        accountBalanceInput.value = "10000";
+        riskPctInput.value = "1";
+        psEntryPriceInput.value = "100";
+        psStopLossInput.value = "95";
+        psTakeProfitInput.value = "115";
+        calculatePositionSize();
+      });
+
+      resetPsBtn.addEventListener("click", function () {
+        accountBalanceInput.value = "";
+        psEntryPriceInput.value = "";
+        psStopLossInput.value = "";
+        psTakeProfitInput.value = "";
+        calculatePositionSize();
+      });
+
+      copyPsBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyPsBtn.textContent;
+          copyPsBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyPsBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadPsBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "position-sizing-plan.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculatePositionSize();
+    });
+  </script>
+</body>
+</html>

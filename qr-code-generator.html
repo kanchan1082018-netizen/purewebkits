@@ -1,0 +1,1351 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR Code Generator Online Free — Create Custom PNG & SVG QR Codes | PureWebKits</title>
+  <meta name="description" content="Generate custom QR codes online for free. Create high-resolution PNG and SVG QR codes for URLs, Wi-Fi networks, text, email, and phone numbers 100% locally in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/qr-code-generator" />
+
+  <!-- Reliable Client-Side QR Code Generator Library (jsDelivr CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+
+  <!-- JSON-LD Structured Data for SEO & Rich Snippets -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "QR Code Generator Online",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Web Browser",
+        "url": "https://PureWebKits.com/qr-code-generator",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Free 100% client-side QR code generator supporting URLs, Wi-Fi credentials, plain text, email, and phone numbers with instant PNG and SVG vector downloads."
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Do QR codes created with this generator expire?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Never. PureWebKits creates 100% static QR codes that encode your URL, Wi-Fi credentials, or text directly inside the black-and-white matrix pattern. There are no tracking redirects, subscriptions, or scan limits, so your QR codes work forever."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Should I download my QR code as PNG or SVG?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Download PNG for websites, social media, WhatsApp sharing, and standard office documents. Download SVG (Scalable Vector Graphics) when sending QR codes to a commercial print shop for large banners, product packaging, or restaurant menus, as SVG scales infinitely without pixelation."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I create a Wi-Fi QR code so guests can connect without typing the password?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Select the 'Wi-Fi' tab in the generator, enter your Wi-Fi network name (SSID), password, and security type (WPA/WPA2), and download the resulting QR code. Any iPhone or Android camera can scan it to join automatically."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What does Error Correction Level (L, M, Q, H) mean?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Error correction adds redundant data blocks so a QR code remains scannable even if partially scratched, smudged, or curved. Level M (15%) is ideal for screens, while Level Q (25%) or Level H (30%) is recommended for outdoor stickers and printed packaging."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are my Wi-Fi passwords or private links uploaded to any server?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Never. The entire Reed-Solomon matrix encoding and PNG/SVG rendering execute 100% locally inside your web browser using JavaScript. Your Wi-Fi passwords and private URLs never leave your device."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --success-soft: #ECFDF5;
+      --danger: #DC2626;
+      --danger-soft: #FEF2F2;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero Section */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container {
+      max-width: 1020px;
+      margin: 0 auto;
+    }
+    .hero-header {
+      text-align: center;
+      max-width: 780px;
+      margin: 0 auto 24px;
+    }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      flex-shrink: 0;
+    }
+
+    /* Tool Card */
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Category Tabs */
+    .qr-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 22px;
+    }
+    .qr-tab {
+      background: #F1F5F9;
+      color: #334155;
+      border: 1px solid #CBD5E1;
+      border-radius: 9px;
+      padding: 9px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .qr-tab:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .qr-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    /* Main Workspace Grid */
+    .qr-workspace {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .form-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .field-group label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .field-group input[type="text"],
+    .field-group input[type="url"],
+    .field-group input[type="email"],
+    .field-group input[type="tel"],
+    .field-group select,
+    .field-group textarea {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: #FFFFFF;
+      outline: none;
+    }
+    .field-group textarea {
+      height: 92px;
+      resize: vertical;
+    }
+    .field-group input:focus,
+    .field-group select:focus,
+    .field-group textarea:focus {
+      border-color: var(--primary);
+    }
+
+    .row-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* Styling Controls Box */
+    .style-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .style-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .color-picker-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      height: 42px;
+      padding: 0 10px;
+      border: 1px solid #CBD5E1;
+      border-radius: 9px;
+      background: #FFFFFF;
+    }
+    .color-picker-wrap input[type="color"] {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+    }
+    .color-hex {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    /* QR Preview Card */
+    .preview-panel {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .qr-canvas-frame {
+      width: 240px;
+      height: 240px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+    }
+    .qr-canvas-frame img {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+    }
+    .preview-meta {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .download-stack {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .btn-primary {
+      width: 100%;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 10px;
+      padding: 11px 18px;
+      font-size: 14.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s ease;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary {
+      width: 100%;
+      background: #FFFFFF;
+      color: #1E293B;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+    .btn-secondary:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .alert-box {
+      display: none;
+      padding: 12px 14px;
+      border-radius: 9px;
+      background: var(--danger-soft);
+      border: 1px solid #FECACA;
+      color: var(--danger);
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+
+    /* Content Sections (Blocks 2, 3, 4) */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 14px;
+      color: var(--text-main);
+    }
+    .content-card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin: 20px 0 8px;
+      color: var(--text-main);
+    }
+    .content-card p {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 12px;
+    }
+    .content-card ol {
+      padding-left: 20px;
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 14px;
+    }
+    .content-card li { margin-bottom: 8px; }
+    code {
+      background: #F1F5F9;
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-size: 13.5px;
+      color: #0F172A;
+    }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      text-align: left;
+    }
+    th {
+      background: #F1F5F9;
+      color: var(--text-main);
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge {
+      display: inline-block;
+      background: #EFF6FF;
+      color: #1D4ED8;
+      font-weight: 700;
+      font-size: 12.5px;
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+
+    /* Related Tools Grid */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .related-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 15px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      transition: all 0.15s ease;
+    }
+    .related-link:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    /* Accordion FAQs */
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .faq-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .faq-btn {
+      width: 100%;
+      background: #F8FAFC;
+      border: none;
+      padding: 16px 18px;
+      text-align: left;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .faq-icon {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      transition: transform 0.2s ease;
+    }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none;
+      padding: 16px 18px;
+      background: #FFFFFF;
+      border-top: 1px solid var(--border);
+      font-size: 14.5px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer {
+      background: var(--navy);
+      color: #CBD5E1;
+      padding-top: 48px;
+    }
+    .footer-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px 40px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+      gap: 30px;
+    }
+    .footer-brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      background: var(--primary);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .footer-brand-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 10px;
+    }
+    .footer-brand-desc {
+      font-size: 13.5px;
+      color: #94A3B8;
+      line-height: 1.6;
+    }
+    .footer-col h4 {
+      color: #FFFFFF;
+      font-size: 14.5px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom {
+      background: var(--navy-dark);
+      padding: 18px 20px;
+      font-size: 13.5px;
+      color: #94A3B8;
+    }
+    .footer-bottom-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 860px) {
+      .qr-workspace { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .row-2col { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" fill="#2563EB"/>
+          <path d="M12 22V12M12 12L3 7M12 12l9-5" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive QR Code Generator -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>QR Code Generator Online — Create Custom PNG & SVG QR Codes</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Static QR codes generated locally in your browser—zero tracking & zero expiration
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="qr-tabs" role="tablist" aria-label="QR Code Content Type">
+          <button type="button" class="qr-tab active" data-type="url" role="tab" aria-selected="true">Website URL</button>
+          <button type="button" class="qr-tab" data-type="text" role="tab" aria-selected="false">Plain Text</button>
+          <button type="button" class="qr-tab" data-type="wifi" role="tab" aria-selected="false">Wi-Fi Network</button>
+          <button type="button" class="qr-tab" data-type="email" role="tab" aria-selected="false">Email</button>
+          <button type="button" class="qr-tab" data-type="phone" role="tab" aria-selected="false">Phone / Call</button>
+        </div>
+
+        <div class="qr-workspace">
+          <div class="form-panel">
+            <!-- URL Input -->
+            <div id="panel-url" class="type-panel">
+              <div class="field-group">
+                <label for="urlInput">Website or Landing Page URL</label>
+                <input type="url" id="urlInput" value="https://PureWebKits.com" placeholder="https://example.com" />
+              </div>
+            </div>
+
+            <!-- Text Input -->
+            <div id="panel-text" class="type-panel" style="display:none;">
+              <div class="field-group">
+                <label for="textInput">Plain Text, Coupon Code, or Note</label>
+                <textarea id="textInput" placeholder="Enter any text message, serial code, or instructions..."></textarea>
+              </div>
+            </div>
+
+            <!-- Wi-Fi Input -->
+            <div id="panel-wifi" class="type-panel" style="display:none;">
+              <div class="row-2col" style="margin-bottom:12px;">
+                <div class="field-group">
+                  <label for="wifiSsid">Network Name (SSID)</label>
+                  <input type="text" id="wifiSsid" placeholder="MyHomeWiFi" />
+                </div>
+                <div class="field-group">
+                  <label for="wifiEncryption">Security Encryption</label>
+                  <select id="wifiEncryption">
+                    <option value="WPA" selected>WPA / WPA2 / WPA3</option>
+                    <option value="WEP">WEP</option>
+                    <option value="nopass">None (Open Network)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field-group">
+                <label for="wifiPassword">Wi-Fi Password</label>
+                <input type="text" id="wifiPassword" placeholder="Enter Wi-Fi password" />
+              </div>
+            </div>
+
+            <!-- Email Input -->
+            <div id="panel-email" class="type-panel" style="display:none;">
+              <div class="row-2col" style="margin-bottom:12px;">
+                <div class="field-group">
+                  <label for="emailTo">Recipient Email Address</label>
+                  <input type="email" id="emailTo" placeholder="hello@example.com" />
+                </div>
+                <div class="field-group">
+                  <label for="emailSubject">Subject Line (Optional)</label>
+                  <input type="text" id="emailSubject" placeholder="Inquiry from QR Code" />
+                </div>
+              </div>
+              <div class="field-group">
+                <label for="emailBody">Message Body (Optional)</label>
+                <input type="text" id="emailBody" placeholder="Hi, I scanned your QR code..." />
+              </div>
+            </div>
+
+            <!-- Phone Input -->
+            <div id="panel-phone" class="type-panel" style="display:none;">
+              <div class="field-group">
+                <label for="phoneInput">Phone Number (Include Country Code)</label>
+                <input type="tel" id="phoneInput" placeholder="+1 555 234 5678" />
+              </div>
+            </div>
+
+            <div id="alertBox" class="alert-box" role="alert"></div>
+
+            <!-- Customization Controls -->
+            <div class="style-box">
+              <div class="style-title">Customize QR Design & Print Resolution</div>
+              <div class="row-2col">
+                <div class="field-group">
+                  <label for="fgColorInput">QR Dots Color (Foreground)</label>
+                  <div class="color-picker-wrap">
+                    <input type="color" id="fgColorInput" value="#0F172A" />
+                    <span id="fgHexText" class="color-hex">#0F172A</span>
+                  </div>
+                </div>
+
+                <div class="field-group">
+                  <label for="bgColorInput">Background Color</label>
+                  <div class="color-picker-wrap">
+                    <input type="color" id="bgColorInput" value="#FFFFFF" />
+                    <span id="bgHexText" class="color-hex">#FFFFFF</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row-2col">
+                <div class="field-group">
+                  <label for="sizeSelect">Export Resolution (PNG)</label>
+                  <select id="sizeSelect">
+                    <option value="300">300 × 300 px (Web / Social)</option>
+                    <option value="500" selected>500 × 500 px (Standard Print)</option>
+                    <option value="1000">1000 × 1000 px (High-Res Poster)</option>
+                  </select>
+                </div>
+
+                <div class="field-group">
+                  <label for="eccSelect">Error Correction Level</label>
+                  <select id="eccSelect">
+                    <option value="L">Level L (7% — Compact)</option>
+                    <option value="M" selected>Level M (15% — Balanced)</option>
+                    <option value="Q">Level Q (25% — Packaging)</option>
+                    <option value="H">Level H (30% — High Durability)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Preview & Download -->
+          <div class="preview-panel">
+            <div class="qr-canvas-frame">
+              <img id="qrPreviewImg" src="" alt="Generated QR Code Preview" />
+            </div>
+            <div id="qrMetaLabel" class="preview-meta">500 × 500 px • Level M • Static QR</div>
+
+            <div class="download-stack">
+              <button type="button" id="downloadPngBtn" class="btn-primary">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download High-Res .PNG
+              </button>
+              <button type="button" id="downloadSvgBtn" class="btn-secondary">
+                Download Vector .SVG
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Static QR Codes, Error Correction & Print Sizing Work</h2>
+
+      <h3>Static vs. Dynamic QR Codes: Why Static Never Expires</h3>
+      <p>
+        Many commercial QR generators wrap your URL inside a paid redirect link that stops working the moment a subscription ends. PureWebKits generates <strong>100% static ISO/IEC 18004 QR codes</strong> directly inside your browser: your destination URL, Wi-Fi network credentials, email address, or plain text is encoded mathematically into the two-dimensional module grid itself. Because no external database or redirect server is involved, your downloaded <code>.png</code> and <code>.svg</code> QR codes work permanently with zero scan limits and complete data privacy.
+      </p>
+
+      <h3>How to Create & Download a Custom QR Code in 3 Steps</h3>
+      <ol>
+        <li><strong>Pick a QR Category:</strong> Choose <em>Website URL</em>, <em>Plain Text</em>, <em>Wi-Fi Network</em>, <em>Email</em>, or <em>Phone / Call</em> and enter your details.</li>
+        <li><strong>Customize Colors & Error Correction:</strong> Keep high contrast (dark dots on a light background) so smartphone cameras lock on instantaneously, and choose <em>Level M</em> for digital screens or <em>Level H</em> for outdoor flyers.</li>
+        <li><strong>Export as PNG or Vector SVG:</strong> Click <em>Download High-Res .PNG</em> for digital sharing or <em>Download Vector .SVG</em> for sharp commercial printing at any scale.</li>
+      </ol>
+
+      <h3>Minimum Print Size & Scanning Distance Formula + Worked Example</h3>
+      <p>
+        Print engineers determine the minimum physical width of a printed QR code using the industry-standard <strong>10:1 Scan-Distance Ratio</strong>:
+      </p>
+      <div class="formula-box">
+        Minimum Printed QR Width = Scanning Distance / 10
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Suppose you are printing a storefront window poster or event standee that customers will scan from <strong>1.5 meters (150 cm / ~59 inches)</strong> away.</p>
+        <p>Minimum QR Width = <code>150 cm / 10 = 15 cm</code> (approximately <strong>6 inches × 6 inches</strong>).</p>
+        <p>Downloading the <strong>Vector .SVG</strong> file and scaling it to <code>15 × 15 cm</code> with <em>Level Q</em> error correction guarantees instant camera recognition even through glass reflections.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="qr-specs-heading">
+      <h2 id="qr-specs-heading">QR Code Print Size, Error Correction & Format Guide (16 Use Cases)</h2>
+      <p>Use this quick reference chart to choose the right export format, physical size, and error correction level for print and digital campaigns.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Placement / Use Case</th>
+              <th>Recommended Print Size</th>
+              <th>Export Format</th>
+              <th>Error Correction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Business Card Website / vCard Link</strong></td>
+              <td>2.0 × 2.0 cm (0.8 × 0.8 in)</td>
+              <td><span class="limit-badge">Vector .SVG</span></td>
+              <td>Level M (15%)</td>
+            </tr>
+            <tr>
+              <td><strong>Restaurant Table Tent / Digital Menu</strong></td>
+              <td>4.0 × 4.0 cm (1.6 × 1.6 in)</td>
+              <td><span class="limit-badge">Vector .SVG / 500px PNG</span></td>
+              <td>Level Q (25%)</td>
+            </tr>
+            <tr>
+              <td><strong>Guest Wi-Fi Frame (Home / Office / Cafe)</strong></td>
+              <td>5.0 × 5.0 cm (2.0 × 2.0 in)</td>
+              <td><span class="limit-badge">500px PNG / SVG</span></td>
+              <td>Level M (15%)</td>
+            </tr>
+            <tr>
+              <td><strong>Product Packaging / Retail Label</strong></td>
+              <td>2.5 × 2.5 cm (1.0 × 1.0 in)</td>
+              <td><span class="limit-badge">Vector .SVG</span></td>
+              <td>Level H (30%)</td>
+            </tr>
+            <tr>
+              <td><strong>A4 / US Letter Event Flyer</strong></td>
+              <td>3.5 × 3.5 cm (1.4 × 1.4 in)</td>
+              <td><span class="limit-badge">Vector .SVG</span></td>
+              <td>Level M (15%)</td>
+            </tr>
+            <tr>
+              <td><strong>Storefront Window Decal (1.5 m scan)</strong></td>
+              <td>15 × 15 cm (6.0 × 6.0 in)</td>
+              <td><span class="limit-badge">Vector .SVG</span></td>
+              <td>Level Q (25%)</td>
+            </tr>
+            <tr>
+              <td><strong>Trade Show Roll-Up Banner (2.5 m scan)</strong></td>
+              <td>25 × 25 cm (10 × 10 in)</td>
+              <td><span class="limit-badge">Vector .SVG</span></td>
+              <td>Level H (30%)</td>
+            </tr>
+            <tr>
+              <td><strong>Conference Lanyard / Name Badge</strong></td>
+              <td>2.5 × 2.5 cm (1.0 × 1.0 in)</td>
+              <td><span class="limit-badge">500px PNG</span></td>
+              <td>Level M (15%)</td>
+            </tr>
+            <tr>
+              <td><strong>Website Footer / Checkout Page</strong></td>
+              <td>160 × 160 px on screen</td>
+              <td><span class="limit-badge">300px PNG</span></td>
+              <td>Level L (7%)</td>
+            </tr>
+            <tr>
+              <td><strong>Presentation Slide (Projector / TV)</strong></td>
+              <td>350 × 350 px on slide</td>
+              <td><span class="limit-badge">500px PNG</span></td>
+              <td>Level M (15%)</td>
+            </tr>
+            <tr>
+              <td><strong>Wedding / Party Photo Album Upload</strong></td>
+              <td>4.5 × 4.5 cm (1.8 × 1.8 in)</td>
+              <td><span class="limit-badge">Vector .SVG</span></td>
+              <td>Level M (15%)</td>
+            </tr>
+            <tr>
+              <td><strong>Real Estate Yard Sign (4 m scan)</strong></td>
+              <td>40 × 40 cm (16 × 16 in)</td>
+              <td><span class="limit-badge">Vector .SVG</span></td>
+              <td>Level H (30%)</td>
+            </tr>
+            <tr>
+              <td><strong>PDF Invoice / Payment Link</strong></td>
+              <td>2.2 × 2.2 cm (0.85 × 0.85 in)</td>
+              <td><span class="limit-badge">500px PNG</span></td>
+              <td>Level M (15%)</td>
+            </tr>
+            <tr>
+              <td><strong>T-Shirt / Merchandise Apparel Print</strong></td>
+              <td>8.0 × 8.0 cm (3.1 × 3.1 in)</td>
+              <td><span class="limit-badge">Vector .SVG</span></td>
+              <td>Level H (30%)</td>
+            </tr>
+            <tr>
+              <td><strong>YouTube Video Overlay / End Screen</strong></td>
+              <td>220 × 220 px in 1080p</td>
+              <td><span class="limit-badge">500px PNG</span></td>
+              <td>Level M (15%)</td>
+            </tr>
+            <tr>
+              <td><strong>Equipment Asset Tag / Serial Sticker</strong></td>
+              <td>1.8 × 1.8 cm (0.7 × 0.7 in)</td>
+              <td><span class="limit-badge">Vector .SVG</span></td>
+              <td>Level H (30%)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Web, SEO & Utility Tools</h2>
+      <p>Need to generate SEO meta tags, create strong Wi-Fi passwords, compress images, or format JSON locally? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="password-generator.html"><span>Password Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="meta-tag-generator.html"><span>Meta Tag Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="url-encoder-decoder.html"><span>URL Encoder / Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="base64-encode-decode.html"><span>Base64 Encode / Decode</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compress-image-to-exact-kb.html"><span>Compress Image to KB</span><span class="arrow">→</span></a>
+        <a class="related-link" href="jpg-to-png.html"><span>JPG to PNG</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 5 Unique Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>Do QR codes created with this generator expire?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. PureWebKits creates <strong>100% static QR codes</strong> that encode your URL, Wi-Fi credentials, or text directly inside the matrix pattern itself. There are no intermediary redirect servers, subscriptions, or scan limits, so your QR codes work forever.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>Should I download my QR code as PNG or SVG?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Download <strong>.PNG</strong> for websites, social media posts, presentations, and standard office documents. Download <strong>.SVG (Scalable Vector Graphics)</strong> when sending QR codes to a commercial printer for large banners, storefront decals, or product packaging, because SVG scales to any size with razor-sharp edges.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>How do I create a Wi-Fi QR code so guests can connect automatically?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Click the <strong>Wi-Fi Network</strong> tab above, type your exact Wi-Fi network name (SSID), select your encryption protocol (usually <code>WPA / WPA2 / WPA3</code>), enter your password, and download the QR code. Pointing any iPhone or Android camera at the code connects immediately.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>Why is high color contrast important for custom-colored QR codes?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Smartphone barcode scanners rely on luminance contrast between the dark modules and the light background. Always keep the foreground dots significantly darker than the background (for example, navy blue or black dots on a white background) and avoid inverted light-on-dark QR codes.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>Are my Wi-Fi passwords or private links uploaded to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. Every Reed-Solomon matrix calculation and PNG/SVG export runs 100% locally inside your browser using JavaScript. Your Wi-Fi passwords and private URLs never leave your device.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <div class="footer-brand-title">PureWebKits</div>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="meta-tag-generator.html">Meta Tag Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side QR Code Generator Engine -->
+  <script>
+    (function () {
+      const tabs = document.querySelectorAll(".qr-tab");
+      const panels = document.querySelectorAll(".type-panel");
+      const urlInput = document.getElementById("urlInput");
+      const textInput = document.getElementById("textInput");
+      const wifiSsid = document.getElementById("wifiSsid");
+      const wifiEncryption = document.getElementById("wifiEncryption");
+      const wifiPassword = document.getElementById("wifiPassword");
+      const emailTo = document.getElementById("emailTo");
+      const emailSubject = document.getElementById("emailSubject");
+      const emailBody = document.getElementById("emailBody");
+      const phoneInput = document.getElementById("phoneInput");
+
+      const fgColorInput = document.getElementById("fgColorInput");
+      const fgHexText = document.getElementById("fgHexText");
+      const bgColorInput = document.getElementById("bgColorInput");
+      const bgHexText = document.getElementById("bgHexText");
+      const sizeSelect = document.getElementById("sizeSelect");
+      const eccSelect = document.getElementById("eccSelect");
+
+      const qrPreviewImg = document.getElementById("qrPreviewImg");
+      const qrMetaLabel = document.getElementById("qrMetaLabel");
+      const downloadPngBtn = document.getElementById("downloadPngBtn");
+      const downloadSvgBtn = document.getElementById("downloadSvgBtn");
+      const alertBox = document.getElementById("alertBox");
+
+      let activeType = "url";
+      let latestPngDataUrl = "";
+      let latestSvgString = "";
+
+      function showAlert(msg) {
+        alertBox.textContent = msg;
+        alertBox.style.display = "block";
+      }
+
+      function hideAlert() {
+        alertBox.style.display = "none";
+        alertBox.textContent = "";
+      }
+
+      function escapeWifiField(str) {
+        return str.replace(/([\\;,:"])/g, "\\$1");
+      }
+
+      function buildPayload() {
+        if (activeType === "url") {
+          return (urlInput.value || "").trim() || "https://PureWebKits.com";
+        }
+        if (activeType === "text") {
+          return (textInput.value || "").trim() || "PureWebKits Free QR Code";
+        }
+        if (activeType === "wifi") {
+          const ssid = escapeWifiField((wifiSsid.value || "").trim() || "PureWebKits-WiFi");
+          const enc = wifiEncryption.value;
+          const pass = enc === "nopass" ? "" : escapeWifiField((wifiPassword.value || "").trim());
+          return `WIFI:T:${enc};S:${ssid};P:${pass};;`;
+        }
+        if (activeType === "email") {
+          const to = (emailTo.value || "").trim() || "support@PureWebKits.com";
+          const sub = encodeURIComponent((emailSubject.value || "").trim());
+          const body = encodeURIComponent((emailBody.value || "").trim());
+          const params = [];
+          if (sub) params.push(`subject=${sub}`);
+          if (body) params.push(`body=${body}`);
+          return params.length ? `mailto:${to}?${params.join("&")}` : `mailto:${to}`;
+        }
+        if (activeType === "phone") {
+          const tel = (phoneInput.value || "").trim().replace(/\s+/g, "") || "+15552345678";
+          return `tel:${tel}`;
+        }
+        return "https://PureWebKits.com";
+      }
+
+      function renderQRCode() {
+        hideAlert();
+        if (typeof window.qrcode !== "function") {
+          showAlert("QR generator library is loading. Please check your connection and refresh.");
+          return;
+        }
+
+        const payload = buildPayload();
+        const ecc = eccSelect.value || "M";
+        const pxSize = parseInt(sizeSelect.value, 10) || 500;
+        const fg = fgColorInput.value || "#0F172A";
+        const bg = bgColorInput.value || "#FFFFFF";
+
+        fgHexText.textContent = fg.toUpperCase();
+        bgHexText.textContent = bg.toUpperCase();
+
+        try {
+          // Type 0 auto-selects minimum QR version needed for payload length
+          const qr = qrcode(0, ecc);
+          qr.addData(payload);
+          qr.make();
+
+          const count = qr.getModuleCount();
+          const quietModules = 2;
+          const totalModules = count + quietModules * 2;
+
+          // Build crisp Canvas PNG
+          const canvas = document.createElement("canvas");
+          canvas.width = pxSize;
+          canvas.height = pxSize;
+          const ctx = canvas.getContext("2d");
+
+          ctx.fillStyle = bg;
+          ctx.fillRect(0, 0, pxSize, pxSize);
+
+          const tileSize = pxSize / totalModules;
+          ctx.fillStyle = fg;
+
+          for (let r = 0; r < count; r++) {
+            for (let c = 0; c < count; c++) {
+              if (qr.isDark(r, c)) {
+                const x = Math.round((c + quietModules) * tileSize);
+                const y = Math.round((r + quietModules) * tileSize);
+                const w = Math.ceil(tileSize);
+                const h = Math.ceil(tileSize);
+                ctx.fillRect(x, y, w, h);
+              }
+            }
+          }
+
+          latestPngDataUrl = canvas.toDataURL("image/png");
+          qrPreviewImg.src = latestPngDataUrl;
+
+          // Build scalable SVG string
+          const svgParts = [
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalModules} ${totalModules}" width="${pxSize}" height="${pxSize}" shape-rendering="crispEdges">`,
+            `<rect width="${totalModules}" height="${totalModules}" fill="${bg}"/>`
+          ];
+          for (let r = 0; r < count; r++) {
+            for (let c = 0; c < count; c++) {
+              if (qr.isDark(r, c)) {
+                svgParts.push(`<rect x="${c + quietModules}" y="${r + quietModules}" width="1" height="1" fill="${fg}"/>`);
+              }
+            }
+          }
+          svgParts.push("</svg>");
+          latestSvgString = svgParts.join("");
+
+          qrMetaLabel.textContent = `${pxSize} × ${pxSize} px • Level ${ecc} • Static QR`;
+        } catch (err) {
+          showAlert("Text is too long for the selected Error Correction Level. Try shortening the text or choosing Level L.");
+        }
+      }
+
+      // Tab Switching
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          tabs.forEach((t) => {
+            t.classList.remove("active");
+            t.setAttribute("aria-selected", "false");
+          });
+          tab.classList.add("active");
+          tab.setAttribute("aria-selected", "true");
+          activeType = tab.getAttribute("data-type");
+
+          panels.forEach((p) => (p.style.display = "none"));
+          const activePanel = document.getElementById(`panel-${activeType}`);
+          if (activePanel) activePanel.style.display = "block";
+
+          renderQRCode();
+        });
+      });
+
+      // Live Input Listeners
+      [
+        urlInput,
+        textInput,
+        wifiSsid,
+        wifiEncryption,
+        wifiPassword,
+        emailTo,
+        emailSubject,
+        emailBody,
+        phoneInput,
+        fgColorInput,
+        bgColorInput,
+        sizeSelect,
+        eccSelect
+      ].forEach((el) => {
+        el.addEventListener("input", renderQRCode);
+        el.addEventListener("change", renderQRCode);
+      });
+
+      // Downloads
+      downloadPngBtn.addEventListener("click", () => {
+        if (!latestPngDataUrl) return;
+        const a = document.createElement("a");
+        a.href = latestPngDataUrl;
+        a.download = `qr-code-${activeType}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      });
+
+      downloadSvgBtn.addEventListener("click", () => {
+        if (!latestSvgString) return;
+        const blob = new Blob([latestSvgString], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `qr-code-${activeType}.svg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      renderQRCode();
+    })();
+  </script>
+</body>
+</html>

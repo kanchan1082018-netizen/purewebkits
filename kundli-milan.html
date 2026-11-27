@@ -1,0 +1,1362 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Kundli Milan Calculator (Ashtakoot Gun Milan 36 Points & Nadi Dosha) — PureWebKits</title>
+  <meta name="description" content="Calculate Vedic Kundli Milan (Ashtakoot Gun Milan out of 36 points) from Boy and Girl Nakshatra & Rashi, check Varna, Vashya, Tara, Yoni, Graha Maitri, Gana, Bhakoot, and Nadi Dosha online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/kundli-milan.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Kundli Milan Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.02fr 1.08fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 14px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .partner-card {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .partner-card-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--primary-dark);
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 4px; }
+    .field-label { font-size: 11.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 40px;
+      padding: 0 10px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #FFFFFF;
+      outline: none;
+    }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); }
+
+    .km-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .km-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .km-hero-title { font-size: 16px; font-weight: 800; }
+    .km-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .km-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 24px;
+      font-weight: 800;
+      color: #34D399;
+      white-space: nowrap;
+      text-align: right;
+    }
+    .km-hero-num.warn { color: #FBBF24; }
+    .km-hero-num.low { color: #FCA5A5; }
+
+    /* 8 Koota Breakdown Grid */
+    .koota-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .koota-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .koota-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .koota-name {
+      font-size: 11.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-main);
+    }
+    .koota-score {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      background: var(--primary-soft);
+      padding: 1px 7px;
+      border-radius: 5px;
+    }
+    .koota-score.dosha {
+      color: var(--danger);
+      background: #FEF2F2;
+    }
+    .koota-detail {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    .dosha-banner {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 860px) {
+      .calc-grid, .koota-list { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Kundli Milan (Ashtakoot Gun Milan) Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Kundli Milan Calculator (Ashtakoot Gun Milan)</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate 36-point Ashtakoot Gun Milan, 8 Koota scores & Nadi/Bhakoot Dosha in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="Kundli Milan input mode">
+            <button type="button" class="mode-btn active" id="nakshatraModeBtn" data-mode="nakshatra">By Janma Nakshatra & Pada (Exact)</button>
+            <button type="button" class="mode-btn" id="birthDateModeBtn" data-mode="birthdate">By Birth Date & Time (Approx. Moon)</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample Match</button>
+            <button type="button" id="resetKmBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <!-- Boy / Groom Details -->
+            <div class="partner-card">
+              <div class="partner-card-title">Boy / Groom Details</div>
+              <div class="two-col-fields">
+                <div class="field-group">
+                  <label for="boyNameInput" class="field-label">Name (Optional)</label>
+                  <input type="text" id="boyNameInput" class="std-input" placeholder="e.g., Aarav Sharma" value="Aarav" />
+                </div>
+
+                <div class="field-group" id="boyNakGroup">
+                  <label for="boyNakshatraSelect" class="field-label">Janma Nakshatra (Birth Star)</label>
+                  <select id="boyNakshatraSelect" class="std-select"></select>
+                </div>
+
+                <div class="field-group" id="boyDobGroup" style="display:none;">
+                  <label for="boyDobInput" class="field-label">Date of Birth</label>
+                  <input type="date" id="boyDobInput" class="std-input" value="1996-05-14" />
+                </div>
+              </div>
+
+              <div class="two-col-fields">
+                <div class="field-group" id="boyPadaGroup">
+                  <label for="boyPadaSelect" class="field-label">Nakshatra Pada (Quarter)</label>
+                  <select id="boyPadaSelect" class="std-select">
+                    <option value="1">Pada 1</option>
+                    <option value="2" selected>Pada 2</option>
+                    <option value="3">Pada 3</option>
+                    <option value="4">Pada 4</option>
+                  </select>
+                </div>
+
+                <div class="field-group" id="boyTobGroup" style="display:none;">
+                  <label for="boyTobInput" class="field-label">Birth Time (IST +05:30)</label>
+                  <input type="time" id="boyTobInput" class="std-input" value="09:30" />
+                </div>
+
+                <div class="field-group">
+                  <label class="field-label">Derived Moon Rashi & Gana</label>
+                  <input type="text" id="boyDerivedSummary" class="std-input" readonly style="background:#EFF6FF; color:#1E3A8A;" value="Rohini (Pada 2) • Vrishabha" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Girl / Bride Details -->
+            <div class="partner-card">
+              <div class="partner-card-title">Girl / Bride Details</div>
+              <div class="two-col-fields">
+                <div class="field-group">
+                  <label for="girlNameInput" class="field-label">Name (Optional)</label>
+                  <input type="text" id="girlNameInput" class="std-input" placeholder="e.g., Ananya Verma" value="Ananya" />
+                </div>
+
+                <div class="field-group" id="girlNakGroup">
+                  <label for="girlNakshatraSelect" class="field-label">Janma Nakshatra (Birth Star)</label>
+                  <select id="girlNakshatraSelect" class="std-select"></select>
+                </div>
+
+                <div class="field-group" id="girlDobGroup" style="display:none;">
+                  <label for="girlDobInput" class="field-label">Date of Birth</label>
+                  <input type="date" id="girlDobInput" class="std-input" value="1998-09-22" />
+                </div>
+              </div>
+
+              <div class="two-col-fields">
+                <div class="field-group" id="girlPadaGroup">
+                  <label for="girlPadaSelect" class="field-label">Nakshatra Pada (Quarter)</label>
+                  <select id="girlPadaSelect" class="std-select">
+                    <option value="1">Pada 1</option>
+                    <option value="2">Pada 2</option>
+                    <option value="3" selected>Pada 3</option>
+                    <option value="4">Pada 4</option>
+                  </select>
+                </div>
+
+                <div class="field-group" id="girlTobGroup" style="display:none;">
+                  <label for="girlTobInput" class="field-label">Birth Time (IST +05:30)</label>
+                  <input type="time" id="girlTobInput" class="std-input" value="14:15" />
+                </div>
+
+                <div class="field-group">
+                  <label class="field-label">Derived Moon Rashi & Gana</label>
+                  <input type="text" id="girlDerivedSummary" class="std-input" readonly style="background:#EFF6FF; color:#1E3A8A;" value="Hasta (Pada 3) • Kanya" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="km-hero-box">
+              <div>
+                <div class="km-hero-kicker">Ashtakoot Gun Milan Score</div>
+                <div class="km-hero-title" id="kmVerdictTitle">Excellent Match (80.6%)</div>
+                <div class="km-hero-sub" id="kmSubCaption">Aarav (Vrishabha) & Ananya (Kanya) • Minimum Recommended: 18 / 36</div>
+              </div>
+              <div class="km-hero-num" id="kmScoreDisplay">29 / 36</div>
+            </div>
+
+            <div class="koota-list" id="kootaBreakdownGrid"></div>
+
+            <div class="dosha-banner" id="doshaSummaryBanner">
+              Dosha Check: No Nadi Dosha (8/8) • No Bhakoot Dosha (7/7)
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyKmBtn" class="btn-primary">Copy Kundli Milan Report</button>
+              <button type="button" id="downloadKmBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, 8 Kootas & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Vedic Kundli Milan, Ashtakoot Gun Milan (36 Points) & Dosha Checks</h2>
+
+      <h3>How Ashtakoot Gun Milan Evaluates Compatibility Out of 36 Points</h3>
+      <p>
+        In traditional Vedic astrology (Jyotish), <strong>Kundli Milan</strong> (also called <strong>Gun Milan</strong> or <strong>Horoscope Matching</strong>) evaluates marriage compatibility between prospective partners using the <strong>Ashtakoot</strong> ("eight-fold") system, which awards up to <code>36</code> total points (<strong>Gunas</strong>) based on each partner's <strong>Janma Nakshatra</strong> (lunar mansion, out of 27) and <strong>Chandra Rashi</strong> (Moon sign, out of 12). Each of the eight Kootas carries an ascending weight from <code>1</code> to <code>8</code> points: <strong>Varna (1)</strong>, <strong>Vashya (2)</strong>, <strong>Tara (3)</strong>, <strong>Yoni (4)</strong>, <strong>Graha Maitri (5)</strong>, <strong>Gana (6)</strong>, <strong>Bhakoot (7)</strong>, and <strong>Nadi (8)</strong>. Traditionally, a total score of <code>18 or higher</code> out of 36 is considered acceptable, <code>24 to 31</code> is considered a strong match, and <code>32 to 36</code> is considered exceptional. A browser-based <strong>Kundli Milan Calculator</strong> computes all eight Koota scores, Rashi/Nakshatra attributes, and Nadi/Bhakoot Dosha alerts 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Calculate Ashtakoot Gun Milan in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Select Input Mode:</strong> Use <strong>By Janma Nakshatra & Pada (Exact)</strong> if you know each partner's birth star and quarter (Pada 1–4) from their Janam Kundli, or switch to <strong>By Birth Date & Time (Approx. Moon)</strong> to compute the sidereal Lahiri Moon Nakshatra automatically.</li>
+        <li><strong>Enter Boy & Girl Details:</strong> Select the Groom's and Bride's Nakshatra and Pada (or birth date and IST time), or click <strong>Load Sample Match</strong> to view a worked compatibility breakdown.</li>
+        <li><strong>Inspect All 8 Kootas, Doshas & Export:</strong> Review the total score out of <code>36</code>, each individual Koota score, and Nadi/Bhakoot Dosha status, then click <strong>Copy Kundli Milan Report</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>The 8 Ashtakoot Gun Milan Components (1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 = 36)</h3>
+      <p>
+        Summing all eight Koota scores produces the total Ashtakoot compatibility score:
+      </p>
+      <div class="formula-box">
+        Total Gun Milan (Max 36) = Varna (1) + Vashya (2) + Tara (3) + Yoni (4) + Graha Maitri (5) + Gana (6) + Bhakoot (7) + Nadi (8)
+      </div>
+
+      <h3>Helpful Tips When Interpreting Gun Milan & Dosha Results</h3>
+      <ul>
+        <li><strong>Understand Nadi Dosha (8 Points) & Bhakoot Dosha (7 Points):</strong> When both partners share the same Nadi (Adi, Madhya, or Antya), Nadi scores <code>0/8</code>; certain traditional exceptions (such as same Rashi with different Nakshatras or same Nakshatra with different Rashis) are evaluated by a qualified astrologer alongside full birth charts.</li>
+        <li><strong>Check Mangal Dosha (Kuja Dosha) Separately With Birth Place:</strong> Full Lagna/Mars chart matching depends on exact birth coordinates and ascendant degree—consult a full Panchang/Kundli chart for Manglik evaluation.</li>
+        <li><strong>Cultural & Educational Tool:</strong> This calculator implements classical Ashtakoot lookup tables for informational and educational reference.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Matching a Groom born in <code>Rohini Nakshatra, Pada 2</code> (<em>Vrishabha</em> / Taurus Moon, Antya Nadi, Manushya Gana) with a Bride born in <code>Hasta Nakshatra, Pada 3</code> (<em>Kanya</em> / Virgo Moon, Adi Nadi, Deva Gana) scores <strong>29 / 36 Gunas</strong> with full points in <strong>Nadi (8/8)</strong>, <strong>Bhakoot (7/7)</strong>, <strong>Gana (6/6)</strong>, and <strong>Graha Maitri (5/5)</strong>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="km-table-heading">
+      <h2 id="km-table-heading">Ashtakoot 8 Kootas, Score Thresholds & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to understand each of the eight Kootas, their maximum point weights, and compatibility bands.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Koota / Score Band</th>
+              <th>Max Points / Range</th>
+              <th>Astrological Attribute</th>
+              <th>Significance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1. Varna Koota</strong></td>
+              <td><code>1 Point</code></td>
+              <td>Spiritual & ego compatibility</td>
+              <td>Brahmin, Kshatriya, Vaishya, Shudra</td>
+            </tr>
+            <tr>
+              <td><strong>2. Vashya Koota</strong></td>
+              <td><code>2 Points</code></td>
+              <td>Mutual attraction & harmony</td>
+              <td>Chatushpad, Manav, Jalchar, Vanchar, Keet</td>
+            </tr>
+            <tr>
+              <td><strong>3. Tara Koota</strong></td>
+              <td><code>3 Points</code></td>
+              <td>Birth star destiny & health</td>
+              <td>27-Nakshatra modulo-9 count</td>
+            </tr>
+            <tr>
+              <td><strong>4. Yoni Koota</strong></td>
+              <td><code>4 Points</code></td>
+              <td>Physical & temperamental affinity</td>
+              <td>14 symbolic Yoni pairings</td>
+            </tr>
+            <tr>
+              <td><strong>5. Graha Maitri</strong></td>
+              <td><code>5 Points</code></td>
+              <td>Intellectual & Moon-lord friendship</td>
+              <td>Planetary friendship of Rashi lords</td>
+            </tr>
+            <tr>
+              <td><strong>6. Gana Koota</strong></td>
+              <td><code>6 Points</code></td>
+              <td>Behavior & temperament match</td>
+              <td>Deva, Manushya, Rakshasa</td>
+            </tr>
+            <tr>
+              <td><strong>7. Bhakoot Koota</strong></td>
+              <td><code>7 Points</code></td>
+              <td>Emotional & family prosperity</td>
+              <td>12-Rashi relative house distance</td>
+            </tr>
+            <tr>
+              <td><strong>8. Nadi Koota</strong></td>
+              <td><code>8 Points</code></td>
+              <td>Constitutional & genetic vitality</td>
+              <td>Adi (Vata), Madhya (Pitta), Antya (Kapha)</td>
+            </tr>
+            <tr>
+              <td><strong>Below 18 / 36 Points</strong></td>
+              <td><code>< 18 Gunas</code></td>
+              <td>Low Ashtakoot score</td>
+              <td>Generally not recommended without remedies</td>
+            </tr>
+            <tr>
+              <td><strong>18 to 23 / 36 Points</strong></td>
+              <td><code>18 – 23 Gunas</code></td>
+              <td>Average / Acceptable match</td>
+              <td>Passes minimum traditional threshold</td>
+            </tr>
+            <tr>
+              <td><strong>24 to 31 / 36 Points</strong></td>
+              <td><code>24 – 31 Gunas</code></td>
+              <td>Very Good / Strong match</td>
+              <td>High multi-dimensional compatibility</td>
+            </tr>
+            <tr>
+              <td><strong>32 to 36 / 36 Points</strong></td>
+              <td><code>32 – 36 Gunas</code></td>
+              <td>Exceptional / Uttam match</td>
+              <td>Rare top-tier Ashtakoot alignment</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Ashtakoot & Lahiri Sidereal Moon Calculator — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your names, birth dates, and Nakshatras stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero personal birth details transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Date, Age, Randomizer & Everyday Calculators</h2>
+      <p>Calculating exact age, spinning a decision wheel, creating QR codes, or calculating percentages? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="spin-wheel.html"><span>Spin Wheel</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="life-insurance-calculator.html"><span>Life Insurance Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="sip-ppf-calculator.html"><span>SIP & PPF Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="indian-gst-calculator.html"><span>Indian GST Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is the minimum Gun Milan score recommended for marriage in Kundli Milan?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Traditionally, a score of at least <strong>18 out of 36 Gunas</strong> is considered the minimum acceptable threshold, while scores of <code>24+</code> indicate strong compatibility—provided major Doshas like Nadi Dosha and Bhakoot Dosha are also checked.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. What if I don't know my Janma Nakshatra and Pada?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Switch to <strong>By Birth Date & Time (Approx. Moon)</strong> at the top of the studio, enter both partners' birth dates and birth times (IST), and the calculator computes the sidereal Lahiri Moon Nakshatra and Pada automatically.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are our names or birth dates sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All Ashtakoot calculations and Moon longitude math run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Kundli Milan Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Ashtakoot Kundli Milan Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // 27 Nakshatras with Yoni (0..13), Gana (0:Deva, 1:Manushya, 2:Rakshasa), Nadi (0:Adi, 1:Madhya, 2:Antya)
+      // Yoni indices: 0:Ashwa, 1:Gaja, 2:Mesha, 3:Sarpa, 4:Shwan, 5:Marjara, 6:Mushak, 7:Gau, 8:Mahisha, 9:Vyaghra, 10:Mriga, 11:Vanara, 12:Nakula, 13:Simha
+      const NAKSHATRAS = [
+        { name: "Ashwini", yoni: 0, gana: 0, nadi: 0 },
+        { name: "Bharani", yoni: 1, gana: 1, nadi: 1 },
+        { name: "Krittika", yoni: 2, gana: 2, nadi: 2 },
+        { name: "Rohini", yoni: 3, gana: 1, nadi: 2 },
+        { name: "Mrigashira", yoni: 3, gana: 0, nadi: 1 },
+        { name: "Ardra", yoni: 4, gana: 1, nadi: 0 },
+        { name: "Punarvasu", yoni: 5, gana: 0, nadi: 0 },
+        { name: "Pushya", yoni: 2, gana: 0, nadi: 1 },
+        { name: "Ashlesha", yoni: 5, gana: 2, nadi: 2 },
+        { name: "Magha", yoni: 6, gana: 2, nadi: 2 },
+        { name: "Purva Phalguni", yoni: 6, gana: 1, nadi: 1 },
+        { name: "Uttara Phalguni", yoni: 7, gana: 1, nadi: 0 },
+        { name: "Hasta", yoni: 8, gana: 0, nadi: 0 },
+        { name: "Chitra", yoni: 9, gana: 2, nadi: 1 },
+        { name: "Swati", yoni: 8, gana: 0, nadi: 2 },
+        { name: "Vishakha", yoni: 9, gana: 2, nadi: 2 },
+        { name: "Anuradha", yoni: 10, gana: 0, nadi: 1 },
+        { name: "Jyeshtha", yoni: 10, gana: 2, nadi: 0 },
+        { name: "Mula", yoni: 4, gana: 2, nadi: 0 },
+        { name: "Purva Ashadha", yoni: 11, gana: 1, nadi: 1 },
+        { name: "Uttara Ashadha", yoni: 12, gana: 1, nadi: 2 },
+        { name: "Shravana", yoni: 11, gana: 0, nadi: 2 },
+        { name: "Dhanishta", yoni: 13, gana: 2, nadi: 1 },
+        { name: "Shatabhisha", yoni: 0, gana: 2, nadi: 0 },
+        { name: "Purva Bhadrapada", yoni: 13, gana: 1, nadi: 0 },
+        { name: "Uttara Bhadrapada", yoni: 7, gana: 1, nadi: 1 },
+        { name: "Revati", yoni: 1, gana: 0, nadi: 2 }
+      ];
+
+      const YONI_NAMES = [
+        "Ashwa (Horse)", "Gaja (Elephant)", "Mesha (Sheep)", "Sarpa (Serpent)",
+        "Shwan (Dog)", "Marjara (Cat)", "Mushak (Rat)", "Gau (Cow)",
+        "Mahisha (Buffalo)", "Vyaghra (Tiger)", "Mriga (Deer)", "Vanara (Monkey)",
+        "Nakula (Mongoose)", "Simha (Lion)"
+      ];
+
+      // 14x14 Yoni Compatibility Matrix (0..4)
+      const YONI_MATRIX = [
+        [4,2,2,3,2,2,2,1,0,1,3,3,2,1],
+        [2,4,3,3,2,2,2,2,3,1,2,3,2,0],
+        [2,3,4,2,1,2,1,3,3,1,2,0,3,1],
+        [3,3,2,4,2,1,1,1,1,2,2,2,0,2],
+        [2,2,1,2,4,2,1,2,2,1,0,2,1,1],
+        [2,2,2,1,2,4,0,2,2,1,3,3,2,1],
+        [2,2,1,1,1,0,4,2,2,2,2,2,1,2],
+        [1,2,3,1,2,2,2,4,3,0,3,2,2,1],
+        [0,3,3,1,2,2,2,3,4,1,2,2,2,1],
+        [1,1,1,2,1,1,2,0,1,4,1,1,2,1],
+        [3,2,2,2,0,3,2,3,2,1,4,2,2,1],
+        [3,3,0,2,2,3,2,2,2,1,2,4,3,2],
+        [2,2,3,0,1,2,1,2,2,2,2,3,4,2],
+        [1,0,1,2,1,1,2,1,1,1,1,2,2,4]
+      ];
+
+      // 12 Rashis (0:Mesha .. 11:Meena)
+      // varna: 0:Shudra, 1:Vaishya, 2:Kshatriya, 3:Brahmin
+      // vashya: 0:Chatushpad, 1:Manav, 2:Jalchar, 3:Vanchar, 4:Keet
+      // lord: 0:Sun, 1:Moon, 2:Mars, 3:Mercury, 4:Jupiter, 5:Venus, 6:Saturn
+      const RASHIS = [
+        { name: "Mesha (Aries)", varna: 2, vashya: 0, lord: 2 },
+        { name: "Vrishabha (Taurus)", varna: 1, vashya: 0, lord: 5 },
+        { name: "Mithuna (Gemini)", varna: 0, vashya: 1, lord: 3 },
+        { name: "Karka (Cancer)", varna: 3, vashya: 2, lord: 1 },
+        { name: "Simha (Leo)", varna: 2, vashya: 3, lord: 0 },
+        { name: "Kanya (Virgo)", varna: 1, vashya: 1, lord: 3 },
+        { name: "Tula (Libra)", varna: 0, vashya: 1, lord: 5 },
+        { name: "Vrishchika (Scorpio)", varna: 3, vashya: 4, lord: 2 },
+        { name: "Dhanu (Sagittarius)", varna: 2, vashya: 1, lord: 4 },
+        { name: "Makara (Capricorn)", varna: 1, vashya: 0, lord: 6 },
+        { name: "Kumbha (Aquarius)", varna: 0, vashya: 1, lord: 6 },
+        { name: "Meena (Pisces)", varna: 3, vashya: 2, lord: 4 }
+      ];
+
+      const VARNA_NAMES = ["Shudra", "Vaishya", "Kshatriya", "Brahmin"];
+      const GANA_NAMES = ["Deva", "Manushya", "Rakshasa"];
+      const NADI_NAMES = ["Adi (Vata)", "Madhya (Pitta)", "Antya (Kapha)"];
+
+      // Vashya 5x5 Matrix (0:Chatushpad, 1:Manav, 2:Jalchar, 3:Vanchar, 4:Keet)
+      const VASHYA_MATRIX = [
+        [2, 1, 1, 0, 1],
+        [1, 2, 0.5, 0, 1],
+        [1, 0.5, 2, 1, 1],
+        [0, 0, 1, 2, 0],
+        [1, 1, 1, 0, 2]
+      ];
+
+      // Graha Maitri 7x7 Matrix (0:Sun, 1:Moon, 2:Mars, 3:Mercury, 4:Jupiter, 5:Venus, 6:Saturn)
+      const MAITRI_MATRIX = [
+        [5, 5, 5, 4, 5, 0, 0],
+        [5, 5, 4, 1, 4, 0.5, 0.5],
+        [5, 4, 5, 0.5, 5, 3, 0.5],
+        [4, 1, 0.5, 5, 0.5, 5, 4],
+        [5, 4, 5, 0.5, 5, 0.5, 3],
+        [0, 0.5, 3, 5, 0.5, 5, 5],
+        [0, 0.5, 0.5, 4, 3, 5, 5]
+      ];
+
+      // Gana 3x3 Matrix [boyGana][girlGana]
+      const GANA_MATRIX = [
+        [6, 6, 1],
+        [5, 6, 0],
+        [1, 0, 6]
+      ];
+
+      const nakshatraModeBtn = document.getElementById("nakshatraModeBtn");
+      const birthDateModeBtn = document.getElementById("birthDateModeBtn");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetKmBtn = document.getElementById("resetKmBtn");
+
+      const boyNameInput = document.getElementById("boyNameInput");
+      const boyNakGroup = document.getElementById("boyNakGroup");
+      const boyNakshatraSelect = document.getElementById("boyNakshatraSelect");
+      const boyPadaGroup = document.getElementById("boyPadaGroup");
+      const boyPadaSelect = document.getElementById("boyPadaSelect");
+      const boyDobGroup = document.getElementById("boyDobGroup");
+      const boyDobInput = document.getElementById("boyDobInput");
+      const boyTobGroup = document.getElementById("boyTobGroup");
+      const boyTobInput = document.getElementById("boyTobInput");
+      const boyDerivedSummary = document.getElementById("boyDerivedSummary");
+
+      const girlNameInput = document.getElementById("girlNameInput");
+      const girlNakGroup = document.getElementById("girlNakGroup");
+      const girlNakshatraSelect = document.getElementById("girlNakshatraSelect");
+      const girlPadaGroup = document.getElementById("girlPadaGroup");
+      const girlPadaSelect = document.getElementById("girlPadaSelect");
+      const girlDobGroup = document.getElementById("girlDobGroup");
+      const girlDobInput = document.getElementById("girlDobInput");
+      const girlTobGroup = document.getElementById("girlTobGroup");
+      const girlTobInput = document.getElementById("girlTobInput");
+      const girlDerivedSummary = document.getElementById("girlDerivedSummary");
+
+      const kmVerdictTitle = document.getElementById("kmVerdictTitle");
+      const kmSubCaption = document.getElementById("kmSubCaption");
+      const kmScoreDisplay = document.getElementById("kmScoreDisplay");
+      const kootaBreakdownGrid = document.getElementById("kootaBreakdownGrid");
+      const doshaSummaryBanner = document.getElementById("doshaSummaryBanner");
+
+      const copyKmBtn = document.getElementById("copyKmBtn");
+      const downloadKmBtn = document.getElementById("downloadKmBtn");
+
+      let mode = "nakshatra";
+      let latestSummaryText = "";
+
+      function populateNakshatraSelect(sel, defaultIdx) {
+        sel.innerHTML = "";
+        NAKSHATRAS.forEach(function (nak, idx) {
+          const opt = document.createElement("option");
+          opt.value = String(idx);
+          opt.textContent = `${idx + 1}. ${nak.name}`;
+          if (idx === defaultIdx) opt.selected = true;
+          sel.appendChild(opt);
+        });
+      }
+
+      // Compute approximate Sidereal Lahiri Moon longitude -> Nakshatra (0..26) & Pada (1..4)
+      function computeSiderealMoonFromDob(dateStr, timeStr) {
+        if (!dateStr) return { nakIdx: 3, pada: 2 };
+        const parts = dateStr.split("-").map(Number);
+        const tParts = (timeStr || "12:00").split(":").map(Number);
+        const yr = parts[0] || 1996;
+        const mo = parts[1] || 1;
+        const dy = parts[2] || 1;
+        const hr = tParts[0] || 12;
+        const mn = tParts[1] || 0;
+
+        // Convert IST (+05:30) to UTC timestamp
+        const utcMs = Date.UTC(yr, mo - 1, dy, hr, mn) - (5.5 * 3600 * 1000);
+        const jd = (utcMs / 86400000) + 2440587.5;
+        const d = jd - 2451545.0; // Days since J2000.0
+
+        // Mean elements & major lunar perturbations
+        const L0 = (218.3164477 + 13.17639648 * d) % 360;
+        const Mm = (134.9633964 + 13.06499295 * d) % 360;
+        const Ms = (357.5291092 + 0.98560028 * d) % 360;
+        const D = (297.8501921 + 12.19074912 * d) % 360;
+        const F = (93.2720950 + 13.22935024 * d) % 360;
+
+        const rad = Math.PI / 180;
+        let lonTrop = L0
+          + 6.289 * Math.sin(Mm * rad)
+          + 1.274 * Math.sin((2 * D - Mm) * rad)
+          + 0.658 * Math.sin(2 * D * rad)
+          + 0.214 * Math.sin(2 * Mm * rad)
+          - 0.186 * Math.sin(Ms * rad)
+          - 0.114 * Math.sin(2 * F * rad);
+
+        // Lahiri Ayanamsa (~23.85 deg at J2000 + 50.29"/yr)
+        const ayanamsa = 23.853 + (50.29 / 3600) * (d / 365.25);
+        const lonSid = (((lonTrop - ayanamsa) % 360) + 360) % 360;
+
+        const padaSize = 360 / 108; // 3 deg 20 min
+        const totalPadas = Math.floor(lonSid / padaSize); // 0..107
+        const nakIdx = Math.floor(totalPadas / 4) % 27;
+        const pada = (totalPadas % 4) + 1;
+        return { nakIdx: nakIdx, pada: pada };
+      }
+
+      function computeAshtakoot(boyNakIdx, boyPada, girlNakIdx, girlPada) {
+        const boyNak = NAKSHATRAS[boyNakIdx];
+        const girlNak = NAKSHATRAS[girlNakIdx];
+
+        const boyTotalPada = boyNakIdx * 4 + (boyPada - 1); // 0..107
+        const girlTotalPada = girlNakIdx * 4 + (girlPada - 1); // 0..107
+
+        const boyRashiIdx = Math.floor(boyTotalPada / 9) % 12;
+        const girlRashiIdx = Math.floor(girlTotalPada / 9) % 12;
+
+        const boyRashi = RASHIS[boyRashiIdx];
+        const girlRashi = RASHIS[girlRashiIdx];
+
+        // 1. Varna (Max 1): Boy varna >= Girl varna -> 1 else 0
+        const varnaPts = boyRashi.varna >= girlRashi.varna ? 1 : 0;
+
+        // 2. Vashya (Max 2)
+        const vashyaPts = VASHYA_MATRIX[boyRashi.vashya][girlRashi.vashya];
+
+        // 3. Tara (Max 3)
+        const girlToBoyCount = ((boyNakIdx - girlNakIdx + 27) % 27) + 1;
+        const boyToGirlCount = ((girlNakIdx - boyNakIdx + 27) % 27) + 1;
+        const tara1 = girlToBoyCount % 9;
+        const tara2 = boyToGirlCount % 9;
+        const badTaras = [3, 5, 7];
+        const ok1 = !badTaras.includes(tara1);
+        const ok2 = !badTaras.includes(tara2);
+        const taraPts = (ok1 && ok2) ? 3 : ((ok1 || ok2) ? 1.5 : 0);
+
+        // 4. Yoni (Max 4)
+        const yoniPts = YONI_MATRIX[boyNak.yoni][girlNak.yoni];
+
+        // 5. Graha Maitri (Max 5)
+        const maitriPts = MAITRI_MATRIX[boyRashi.lord][girlRashi.lord];
+
+        // 6. Gana (Max 6)
+        const ganaPts = GANA_MATRIX[boyNak.gana][girlNak.gana];
+
+        // 7. Bhakoot (Max 7): relative house distance from boyRashi to girlRashi (1..12)
+        const relHouse = ((girlRashiIdx - boyRashiIdx + 12) % 12) + 1;
+        const badBhakoot = [2, 5, 6, 8, 9, 12];
+        const bhakootPts = badBhakoot.includes(relHouse) ? 0 : 7;
+
+        // 8. Nadi (Max 8): Same Nadi = 0 (Nadi Dosha), Different Nadi = 8
+        const nadiPts = boyNak.nadi === girlNak.nadi ? 0 : 8;
+
+        const kootas = [
+          {
+            name: "1. Varna",
+            pts: varnaPts,
+            max: 1,
+            detail: `Boy: ${VARNA_NAMES[boyRashi.varna]} \u2022 Girl: ${VARNA_NAMES[girlRashi.varna]}`,
+            isDosha: false
+          },
+          {
+            name: "2. Vashya",
+            pts: vashyaPts,
+            max: 2,
+            detail: `${boyRashi.name.split(" ")[0]} & ${girlRashi.name.split(" ")[0]}`,
+            isDosha: false
+          },
+          {
+            name: "3. Tara",
+            pts: taraPts,
+            max: 3,
+            detail: `Counts: ${girlToBoyCount} & ${boyToGirlCount}`,
+            isDosha: false
+          },
+          {
+            name: "4. Yoni",
+            pts: yoniPts,
+            max: 4,
+            detail: `${YONI_NAMES[boyNak.yoni].split(" ")[0]} & ${YONI_NAMES[girlNak.yoni].split(" ")[0]}`,
+            isDosha: false
+          },
+          {
+            name: "5. Graha Maitri",
+            pts: maitriPts,
+            max: 5,
+            detail: `Moon Rashi Lord Affinity`,
+            isDosha: false
+          },
+          {
+            name: "6. Gana",
+            pts: ganaPts,
+            max: 6,
+            detail: `Boy: ${GANA_NAMES[boyNak.gana]} \u2022 Girl: ${GANA_NAMES[girlNak.gana]}`,
+            isDosha: ganaPts === 0
+          },
+          {
+            name: "7. Bhakoot",
+            pts: bhakootPts,
+            max: 7,
+            detail: bhakootPts === 0 ? `Bhakoot Dosha (${relHouse}/${14 - relHouse} axis)` : `Favorable (${relHouse}/${14 - relHouse} axis)`,
+            isDosha: bhakootPts === 0
+          },
+          {
+            name: "8. Nadi",
+            pts: nadiPts,
+            max: 8,
+            detail: nadiPts === 0 ? `Nadi Dosha (Both ${NADI_NAMES[boyNak.nadi].split(" ")[0]})` : `${NADI_NAMES[boyNak.nadi].split(" ")[0]} & ${NADI_NAMES[girlNak.nadi].split(" ")[0]}`,
+            isDosha: nadiPts === 0
+          }
+        ];
+
+        const total = kootas.reduce(function (acc, k) { return acc + k.pts; }, 0);
+
+        return {
+          boyNak: boyNak,
+          boyPada: boyPada,
+          boyRashi: boyRashi,
+          girlNak: girlNak,
+          girlPada: girlPada,
+          girlRashi: girlRashi,
+          kootas: kootas,
+          total: total,
+          hasNadiDosha: nadiPts === 0,
+          hasBhakootDosha: bhakootPts === 0
+        };
+      }
+
+      function calculateKundliMilan() {
+        const isNakMode = mode === "nakshatra";
+        nakshatraModeBtn.classList.toggle("active", isNakMode);
+        birthDateModeBtn.classList.toggle("active", !isNakMode);
+
+        boyNakGroup.style.display = isNakMode ? "flex" : "none";
+        boyPadaGroup.style.display = isNakMode ? "flex" : "none";
+        boyDobGroup.style.display = !isNakMode ? "flex" : "none";
+        boyTobGroup.style.display = !isNakMode ? "flex" : "none";
+
+        girlNakGroup.style.display = isNakMode ? "flex" : "none";
+        girlPadaGroup.style.display = isNakMode ? "flex" : "none";
+        girlDobGroup.style.display = !isNakMode ? "flex" : "none";
+        girlTobGroup.style.display = !isNakMode ? "flex" : "none";
+
+        let boyNakIdx = parseInt(boyNakshatraSelect.value, 10) || 0;
+        let boyPada = parseInt(boyPadaSelect.value, 10) || 1;
+        let girlNakIdx = parseInt(girlNakshatraSelect.value, 10) || 0;
+        let girlPada = parseInt(girlPadaSelect.value, 10) || 1;
+
+        if (!isNakMode) {
+          const bMoon = computeSiderealMoonFromDob(boyDobInput.value, boyTobInput.value);
+          boyNakIdx = bMoon.nakIdx;
+          boyPada = bMoon.pada;
+          boyNakshatraSelect.value = String(boyNakIdx);
+          boyPadaSelect.value = String(boyPada);
+
+          const gMoon = computeSiderealMoonFromDob(girlDobInput.value, girlTobInput.value);
+          girlNakIdx = gMoon.nakIdx;
+          girlPada = gMoon.pada;
+          girlNakshatraSelect.value = String(girlNakIdx);
+          girlPadaSelect.value = String(girlPada);
+        }
+
+        const res = computeAshtakoot(boyNakIdx, boyPada, girlNakIdx, girlPada);
+
+        boyDerivedSummary.value = `${res.boyNak.name} (Pada ${res.boyPada}) \u2022 ${res.boyRashi.name.split(" ")[0]} \u2022 ${GANA_NAMES[res.boyNak.gana]}`;
+        girlDerivedSummary.value = `${res.girlNak.name} (Pada ${res.girlPada}) \u2022 ${res.girlRashi.name.split(" ")[0]} \u2022 ${GANA_NAMES[res.girlNak.gana]}`;
+
+        const boyLabel = boyNameInput.value.trim() || "Boy";
+        const girlLabel = girlNameInput.value.trim() || "Girl";
+        const pct = ((res.total / 36) * 100).toFixed(1);
+
+        let verdict = "Low Compatibility (< 18 Gunas)";
+        let numClass = "km-hero-num low";
+        if (res.total >= 32) {
+          verdict = `Exceptional Match (${pct}%)`;
+          numClass = "km-hero-num";
+        } else if (res.total >= 24) {
+          verdict = `Very Good Match (${pct}%)`;
+          numClass = "km-hero-num";
+        } else if (res.total >= 18) {
+          verdict = `Acceptable Match (${pct}%)`;
+          numClass = "km-hero-num warn";
+        }
+
+        kmScoreDisplay.className = numClass;
+        kmScoreDisplay.textContent = `${res.total} / 36`;
+        kmVerdictTitle.textContent = verdict;
+        kmSubCaption.textContent = `${boyLabel} (${res.boyRashi.name.split(" ")[0]}) & ${girlLabel} (${res.girlRashi.name.split(" ")[0]}) \u2022 Min. Recommended: 18 / 36`;
+
+        kootaBreakdownGrid.innerHTML = "";
+        res.kootas.forEach(function (k) {
+          const card = document.createElement("div");
+          card.className = "koota-card";
+          card.innerHTML = `
+            <div class="koota-top">
+              <span class="koota-name">${k.name}</span>
+              <span class="koota-score${k.isDosha ? " dosha" : ""}">${k.pts} / ${k.max}</span>
+            </div>
+            <div class="koota-detail">${k.detail}</div>
+          `;
+          kootaBreakdownGrid.appendChild(card);
+        });
+
+        const nadiStatus = res.hasNadiDosha
+          ? "Nadi Dosha Present (0/8 — Same Nadi)"
+          : "No Nadi Dosha (8/8)";
+        const bhakootStatus = res.hasBhakootDosha
+          ? "Bhakoot Dosha Present (0/7)"
+          : "No Bhakoot Dosha (7/7)";
+        doshaSummaryBanner.textContent = `Dosha Check: ${nadiStatus} \u2022 ${bhakootStatus}`;
+
+        latestSummaryText = [
+          "PureWebKits Kundli Milan (Ashtakoot Gun Milan) Report",
+          "------------------------------------------------------",
+          `${boyLabel}: ${res.boyNak.name} (Pada ${res.boyPada}) | Moon Rashi: ${res.boyRashi.name} | Gana: ${GANA_NAMES[res.boyNak.gana]} | Nadi: ${NADI_NAMES[res.boyNak.nadi]}`,
+          `${girlLabel}: ${res.girlNak.name} (Pada ${res.girlPada}) | Moon Rashi: ${res.girlRashi.name} | Gana: ${GANA_NAMES[res.girlNak.gana]} | Nadi: ${NADI_NAMES[res.girlNak.nadi]}`,
+          "",
+          `Total Ashtakoot Score: ${res.total} / 36 (${pct}%) — ${verdict}`,
+          ...res.kootas.map(function (k) {
+            return `- ${k.name}: ${k.pts} / ${k.max} (${k.detail})`;
+          }),
+          "",
+          `Dosha Summary: ${nadiStatus} | ${bhakootStatus}`
+        ].join("\n");
+      }
+
+      nakshatraModeBtn.addEventListener("click", function () { mode = "nakshatra"; calculateKundliMilan(); });
+      birthDateModeBtn.addEventListener("click", function () { mode = "birthdate"; calculateKundliMilan(); });
+
+      [
+        boyNameInput,
+        boyNakshatraSelect,
+        boyPadaSelect,
+        boyDobInput,
+        boyTobInput,
+        girlNameInput,
+        girlNakshatraSelect,
+        girlPadaSelect,
+        girlDobInput,
+        girlTobInput
+      ].forEach(function (el) {
+        el.addEventListener("input", calculateKundliMilan);
+        el.addEventListener("change", calculateKundliMilan);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        mode = "nakshatra";
+        boyNameInput.value = "Aarav";
+        boyNakshatraSelect.value = "3"; // Rohini
+        boyPadaSelect.value = "2";
+        girlNameInput.value = "Ananya";
+        girlNakshatraSelect.value = "12"; // Hasta
+        girlPadaSelect.value = "3";
+        calculateKundliMilan();
+      });
+
+      resetKmBtn.addEventListener("click", function () {
+        boyNameInput.value = "";
+        girlNameInput.value = "";
+        boyNakshatraSelect.value = "0";
+        boyPadaSelect.value = "1";
+        girlNakshatraSelect.value = "0";
+        girlPadaSelect.value = "1";
+        calculateKundliMilan();
+      });
+
+      copyKmBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyKmBtn.textContent;
+          copyKmBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyKmBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadKmBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "kundli-milan-report.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      populateNakshatraSelect(boyNakshatraSelect, 3);  // Rohini
+      populateNakshatraSelect(girlNakshatraSelect, 12); // Hasta
+      calculateKundliMilan();
+    });
+  </script>
+</body>
+</html>

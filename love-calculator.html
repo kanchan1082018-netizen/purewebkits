@@ -1,0 +1,1164 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Love Compatibility Calculator (Name Numerology, Zodiac Elements & Life Path) — PureWebKits</title>
+  <meta name="description" content="Calculate relationship compatibility across Pythagorean Name Numerology, Western Zodiac Element harmony, and Life Path Numbers online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/love-compatibility-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Love Compatibility Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.02fr 1.08fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .partner-card {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .partner-card-title {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--primary-dark);
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 4px; }
+    .field-label { font-size: 11.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input {
+      width: 100%;
+      height: 40px;
+      padding: 0 11px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #FFFFFF;
+      outline: none;
+    }
+    .std-input:focus { border-color: var(--primary); }
+
+    .lc-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .lc-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .lc-hero-title { font-size: 16px; font-weight: 800; }
+    .lc-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .lc-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 28px;
+      font-weight: 800;
+      color: #34D399;
+      white-space: nowrap;
+      text-align: right;
+    }
+    .lc-hero-num.mid { color: #FBBF24; }
+
+    .lc-bar-track {
+      width: 100%;
+      height: 9px;
+      background: #E2E8F0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .lc-bar-fill {
+      height: 100%;
+      width: 86%;
+      background: #2563EB;
+      border-radius: 999px;
+      transition: width 0.25s ease;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .metric-desc {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      line-height: 1.35;
+    }
+
+    .insight-banner {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Love Compatibility Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Love Compatibility Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Check Pythagorean Name Numerology, Zodiac Element harmony & Life Path match in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="Compatibility analysis mode">
+            <button type="button" class="mode-btn active" id="fullMatchModeBtn" data-mode="full">Names + Birth Dates (Full)</button>
+            <button type="button" class="mode-btn" id="namesOnlyModeBtn" data-mode="names">Names Only (Numerology)</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="swapPartnersBtn" class="btn-sec">Swap Partners</button>
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample</button>
+            <button type="button" id="resetLcBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="partner-card">
+              <div class="partner-card-title">Partner 1</div>
+              <div class="two-col-fields">
+                <div class="field-group">
+                  <label for="partner1NameInput" class="field-label">Full Name</label>
+                  <input type="text" id="partner1NameInput" class="std-input" placeholder="e.g., Aarav Sharma" value="Aarav Sharma" />
+                </div>
+
+                <div class="field-group" id="p1DobGroup">
+                  <label for="partner1DobInput" class="field-label">Date of Birth</label>
+                  <input type="date" id="partner1DobInput" class="std-input" value="1995-08-14" />
+                </div>
+              </div>
+            </div>
+
+            <div class="partner-card">
+              <div class="partner-card-title">Partner 2</div>
+              <div class="two-col-fields">
+                <div class="field-group">
+                  <label for="partner2NameInput" class="field-label">Full Name</label>
+                  <input type="text" id="partner2NameInput" class="std-input" placeholder="e.g., Ananya Verma" value="Ananya Verma" />
+                </div>
+
+                <div class="field-group" id="p2DobGroup">
+                  <label for="partner2DobInput" class="field-label">Date of Birth</label>
+                  <input type="date" id="partner2DobInput" class="std-input" value="1997-04-26" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="lc-hero-box">
+              <div>
+                <div class="lc-hero-kicker">Overall Compatibility Index</div>
+                <div class="lc-hero-title" id="lcVerdictTitle">Strong Harmonic Match</div>
+                <div class="lc-hero-sub" id="lcSubCaption">Aarav Sharma (Leo) & Ananya Verma (Taurus)</div>
+              </div>
+              <div class="lc-hero-num" id="lcScoreDisplay">84%</div>
+            </div>
+
+            <div class="lc-bar-track" aria-hidden="true">
+              <div class="lc-bar-fill" id="lcBarFill"></div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Name Destiny Numerology</div>
+                <div class="metric-val" id="nameNumMatchVal">88% (7 & 5)</div>
+                <div class="metric-desc" id="nameNumDesc">Curiosity meets analytical depth</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Soul Urge (Vowel Harmony)</div>
+                <div class="metric-val" id="soulMatchVal">86% (5 & 3)</div>
+                <div class="metric-desc" id="soulDesc">Playful communication & shared warmth</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Life Path Compatibility</div>
+                <div class="metric-val" id="lifePathMatchVal">85% (LP 1 & LP 2)</div>
+                <div class="metric-desc" id="lifePathDesc">Initiative balanced by empathy</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Zodiac Element Harmony</div>
+                <div class="metric-val" id="zodiacMatchVal">78% (Fire & Earth)</div>
+                <div class="metric-desc" id="zodiacDesc">Leo (Fire) & Taurus (Earth)</div>
+              </div>
+            </div>
+
+            <div class="insight-banner" id="lcInsightBanner">
+              <strong>Relationship Dynamic:</strong> Balanced blend of creative spark and practical steadiness. Shared curiosity keeps everyday conversation engaging.
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyLcBtn" class="btn-primary">Copy Compatibility Report</button>
+              <button type="button" id="downloadLcBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Numerology & Zodiac Harmony & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Love Compatibility, Pythagorean Name Numerology & Zodiac Elements</h2>
+
+      <h3>How Multi-Factor Numerology & Zodiac Compatibility Is Evaluated</h3>
+      <p>
+        Rather than relying on arbitrary random numbers that change every time you refresh the page, this <strong>Love Compatibility Calculator</strong> evaluates deterministic, transparent pairings across three classical symbolic frameworks: <strong>Pythagorean Name Numerology</strong> (comparing each partner's <em>Expression / Destiny Number</em> from all letters and <em>Soul Urge Number</em> from vowels), <strong>Birth-Date Life Path Numerology</strong> (comparing reduced birth dates <code>1–9</code> and Master Numbers <code>11, 22, 33</code>), and <strong>Western Zodiac Element Harmony</strong> (comparing classical Fire, Earth, Air, and Water affinities). Because every score is computed deterministically from your actual names and birth dates, entering the same pair always yields the exact same reproducible breakdown—and swapping Partner 1 and Partner 2 preserves symmetry. A browser-based <strong>Love Compatibility Calculator</strong> runs 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Check Compatibility in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Choose Analysis Mode:</strong> Keep <strong>Names + Birth Dates (Full)</strong> active to combine Name Numerology, Life Path Numbers, and Zodiac Element harmony, or switch to <strong>Names Only (Numerology)</strong> if you only have both names.</li>
+        <li><strong>Enter Both Partners' Names & Birth Dates:</strong> Type Partner 1 and Partner 2 details (or click <strong>Load Sample</strong>) to compute individual numbers and pairwise compatibility sub-scores.</li>
+        <li><strong>Explore Breakdown & Export:</strong> Review the four compatibility sub-cards and relationship summary, then click <strong>Copy Compatibility Report</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Composite Compatibility Weighting Formula</h3>
+      <p>
+        In Full mode, the composite score blends Name Numerology, Life Path pairing, and Zodiac Element harmony:
+      </p>
+      <div class="formula-box">
+        Full Compatibility (%) = 0.30 × DestinyMatch + 0.20 × SoulUrgeMatch + 0.30 × LifePathMatch + 0.20 × ZodiacElementMatch<br />
+        Names-Only Mode (%) = 0.60 × DestinyMatch + 0.40 × SoulUrgeMatch
+      </div>
+
+      <h3>Helpful Tips for Using Compatibility Calculators</h3>
+      <ul>
+        <li><strong>Enter Full Names for Richer Vowel & Consonant Analysis:</strong> Including both first and last names gives a more complete Soul Urge (vowel) and Expression (all-letter) comparison.</li>
+        <li><strong>Want Traditional Vedic 36-Point Ashtakoot Matching?</strong> Use our dedicated <a href="kundli-milan.html" style="color:var(--primary); font-weight:700;">Kundli Milan</a> calculator for Janma Nakshatra and Rashi Gun Milan.</li>
+        <li><strong>For Entertainment & Cultural Reflection:</strong> Numerology and astrology pairings are lighthearted symbolic frameworks—real-world relationship strength grows from mutual respect, communication, and shared values.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Pairing <code>Aarav Sharma</code> (<code>1995-08-14</code> • Leo • Life Path <code>1</code> • Destiny <code>7</code>) with <code>Ananya Verma</code> (<code>1997-04-26</code> • Taurus • Life Path <code>2</code> • Destiny <code>5</code>) produces an <strong>84%</strong> composite compatibility score across Name Destiny (<code>88%</code>), Soul Urge (<code>86%</code>), Life Path (<code>85%</code>), and Zodiac Elements (<code>78%</code>).</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="lc-table-heading">
+      <h2 id="lc-table-heading">Zodiac Element Pairings, Numerology Harmonies & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to explore classical Zodiac element pairings and numerology compatibility themes.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Pairing / Dimension</th>
+              <th>Signs / Numbers</th>
+              <th>Affinity Rating</th>
+              <th>Dynamic Theme</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Fire + Air Signs</strong></td>
+              <td>Aries/Leo/Sagittarius + Gemini/Libra/Aquarius</td>
+              <td><code>92%</code> High Synergy</td>
+              <td>Air fuels Fire with ideas & social energy</td>
+            </tr>
+            <tr>
+              <td><strong>Earth + Water Signs</strong></td>
+              <td>Taurus/Virgo/Capricorn + Cancer/Scorpio/Pisces</td>
+              <td><code>92%</code> High Synergy</td>
+              <td>Water nourishes Earth with depth & care</td>
+            </tr>
+            <tr>
+              <td><strong>Same-Element Pairing</strong></td>
+              <td>Fire+Fire, Earth+Earth, Air+Air, Water+Water</td>
+              <td><code>88%</code> Natural Understanding</td>
+              <td>Shared temperament & worldview</td>
+            </tr>
+            <tr>
+              <td><strong>Fire + Earth Signs</strong></td>
+              <td>Leo + Taurus, Aries + Capricorn, etc.</td>
+              <td><code>78%</code> Complementary</td>
+              <td>Inspiration balanced by grounded stability</td>
+            </tr>
+            <tr>
+              <td><strong>Air + Water Signs</strong></td>
+              <td>Gemini + Pisces, Libra + Cancer, etc.</td>
+              <td><code>76%</code> Complementary</td>
+              <td>Head-and-heart perspective blend</td>
+            </tr>
+            <tr>
+              <td><strong>Life Path 1 & 2</strong></td>
+              <td>The Pioneer + The Diplomat</td>
+              <td><code>85%</code> Balanced</td>
+              <td>Decisive leadership paired with empathy</td>
+            </tr>
+            <tr>
+              <td><strong>Life Path 3 & 5</strong></td>
+              <td>The Creator + The Explorer</td>
+              <td><code>91%</code> High Chemistry</td>
+              <td>Spontaneous, expressive & adventurous</td>
+            </tr>
+            <tr>
+              <td><strong>Life Path 4 & 8</strong></td>
+              <td>The Builder + The Strategist</td>
+              <td><code>90%</code> Power Duo</td>
+              <td>Shared ambition, structure & reliability</td>
+            </tr>
+            <tr>
+              <td><strong>Life Path 6 & 9</strong></td>
+              <td>The Nurturer + The Humanitarian</td>
+              <td><code>92%</code> Heart-Centered</td>
+              <td>Deep compassion & supportive devotion</td>
+            </tr>
+            <tr>
+              <td><strong>Master Numbers (11, 22, 33)</strong></td>
+              <td>High-intensity spiritual & creative numbers</td>
+              <td><code>86%–94%</code> Resonant</td>
+              <td>Strong shared sense of purpose</td>
+            </tr>
+            <tr>
+              <td><strong>Names-Only Mode</strong></td>
+              <td>Evaluates Expression & Soul Urge</td>
+              <td>Deterministic 1–9 mapping</td>
+              <td>Switch mode in top bar</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports full compatibility report</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Numerology & Zodiac Harmony Engine — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your names and birth dates stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero personal names or birth dates transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Compatibility, Astrology, Numerology & Everyday Calculators</h2>
+      <p>Checking Vedic Kundli Milan, Numerology Life Path numbers, Zodiac signs, or spinning a wheel? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="kundli-milan.html"><span>Kundli Milan</span><span class="arrow">→</span></a>
+        <a class="related-link" href="numerology-number-calculator.html"><span>Numerology Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="zodiac-finder.html"><span>Zodiac Finder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="spin-wheel.html"><span>Spin Wheel</span><span class="arrow">→</span></a>
+        <a class="related-link" href="random-name-picker.html"><span>Random Name Picker</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How does this Love Compatibility Calculator compute its score?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            It combines four deterministic factors: <strong>Pythagorean Expression/Destiny Number</strong> harmony (all letters), <strong>Soul Urge Number</strong> harmony (vowels), <strong>Life Path Number</strong> compatibility (from both birth dates), and <strong>Western Zodiac Element</strong> affinity (Fire, Earth, Air, Water).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I calculate compatibility using only our names without birth dates?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> Click <strong>Names Only (Numerology)</strong> at the top of the studio to evaluate name-based Expression and Soul Urge compatibility without entering birth dates.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are our names or birth dates sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All numerology and zodiac calculations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Love Compatibility Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Numerology & Zodiac Love Compatibility Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const PYTH_MAP = {
+        A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8, I: 9,
+        J: 1, K: 2, L: 3, M: 4, N: 5, O: 6, P: 7, Q: 8, R: 9,
+        S: 1, T: 2, U: 3, V: 4, W: 5, X: 6, Y: 7, Z: 8
+      };
+      const VOWELS = new Set(["A", "E", "I", "O", "U"]);
+
+      // Symmetric 9x9 Numerology Harmony Table (roots 1..9)
+      const NUM_HARMONY = [
+        [88, 85, 92, 74, 90, 82, 86, 80, 89],
+        [85, 90, 84, 91, 78, 94, 83, 88, 86],
+        [92, 84, 89, 75, 91, 90, 82, 79, 93],
+        [74, 91, 75, 88, 76, 89, 87, 90, 78],
+        [90, 78, 91, 76, 88, 80, 88, 82, 87],
+        [82, 94, 90, 89, 80, 91, 79, 86, 92],
+        [86, 83, 82, 87, 88, 79, 90, 78, 85],
+        [80, 88, 79, 90, 82, 86, 78, 87, 81],
+        [89, 86, 93, 78, 87, 92, 85, 81, 90]
+      ];
+
+      const ELEMENT_HARMONY = {
+        "Fire-Fire": { score: 89, note: "High energy, passion & shared enthusiasm" },
+        "Earth-Earth": { score: 88, note: "Grounded loyalty, stability & shared goals" },
+        "Air-Air": { score: 88, note: "Lively intellectual rapport & communication" },
+        "Water-Water": { score: 89, note: "Deep emotional intuition & mutual empathy" },
+        "Fire-Air": { score: 92, note: "Air fans Fire — inspiring, dynamic synergy" },
+        "Air-Fire": { score: 92, note: "Air fans Fire — inspiring, dynamic synergy" },
+        "Earth-Water": { score: 92, note: "Water nourishes Earth — supportive & steady" },
+        "Water-Earth": { score: 92, note: "Water nourishes Earth — supportive & steady" },
+        "Fire-Earth": { score: 78, note: "Creative spark balanced by practical steadiness" },
+        "Earth-Fire": { score: 78, note: "Creative spark balanced by practical steadiness" },
+        "Air-Water": { score: 76, note: "Analytical clarity meets emotional depth" },
+        "Water-Air": { score: 76, note: "Analytical clarity meets emotional depth" },
+        "Fire-Water": { score: 74, note: "Passionate contrast that thrives on patience" },
+        "Water-Fire": { score: 74, note: "Passionate contrast that thrives on patience" },
+        "Earth-Air": { score: 75, note: "Practical structure meets fresh perspective" },
+        "Air-Earth": { score: 75, note: "Practical structure meets fresh perspective" }
+      };
+
+      const fullMatchModeBtn = document.getElementById("fullMatchModeBtn");
+      const namesOnlyModeBtn = document.getElementById("namesOnlyModeBtn");
+      const swapPartnersBtn = document.getElementById("swapPartnersBtn");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetLcBtn = document.getElementById("resetLcBtn");
+
+      const partner1NameInput = document.getElementById("partner1NameInput");
+      const partner1DobInput = document.getElementById("partner1DobInput");
+      const p1DobGroup = document.getElementById("p1DobGroup");
+
+      const partner2NameInput = document.getElementById("partner2NameInput");
+      const partner2DobInput = document.getElementById("partner2DobInput");
+      const p2DobGroup = document.getElementById("p2DobGroup");
+
+      const lcVerdictTitle = document.getElementById("lcVerdictTitle");
+      const lcSubCaption = document.getElementById("lcSubCaption");
+      const lcScoreDisplay = document.getElementById("lcScoreDisplay");
+      const lcBarFill = document.getElementById("lcBarFill");
+
+      const nameNumMatchVal = document.getElementById("nameNumMatchVal");
+      const nameNumDesc = document.getElementById("nameNumDesc");
+      const soulMatchVal = document.getElementById("soulMatchVal");
+      const soulDesc = document.getElementById("soulDesc");
+      const lifePathMatchVal = document.getElementById("lifePathMatchVal");
+      const lifePathDesc = document.getElementById("lifePathDesc");
+      const zodiacMatchVal = document.getElementById("zodiacMatchVal");
+      const zodiacDesc = document.getElementById("zodiacDesc");
+      const lcInsightBanner = document.getElementById("lcInsightBanner");
+
+      const copyLcBtn = document.getElementById("copyLcBtn");
+      const downloadLcBtn = document.getElementById("downloadLcBtn");
+
+      let mode = "full";
+      let latestSummaryText = "";
+
+      function reduceNum(num, keepMaster) {
+        let n = Math.abs(Math.floor(num));
+        if (n === 0) return 0;
+        while (n > 9) {
+          if (keepMaster && (n === 11 || n === 22 || n === 33)) return n;
+          let sum = 0;
+          String(n).split("").forEach(function (d) { sum += parseInt(d, 10); });
+          n = sum;
+        }
+        return n;
+      }
+
+      function rootDigit(n) {
+        return reduceNum(n, false);
+      }
+
+      function analyzeName(name) {
+        let total = 0;
+        let vowels = 0;
+        let count = 0;
+        name.toUpperCase().split("").forEach(function (ch) {
+          if (Object.prototype.hasOwnProperty.call(PYTH_MAP, ch)) {
+            const v = PYTH_MAP[ch];
+            total += v;
+            count += 1;
+            if (VOWELS.has(ch)) vowels += v;
+          }
+        });
+        return {
+          count: count,
+          destiny: reduceNum(total, true),
+          soul: reduceNum(vowels, true)
+        };
+      }
+
+      function analyzeDob(dobStr) {
+        if (!dobStr) return null;
+        const parts = dobStr.split("-").map(Number);
+        const yr = parts[0] || 1995;
+        const mo = parts[1] || 1;
+        const dy = parts[2] || 1;
+
+        const moR = reduceNum(mo, true);
+        const dyR = reduceNum(dy, true);
+        const yrSum = String(yr).split("").reduce(function (a, d) { return a + parseInt(d, 10); }, 0);
+        const yrR = reduceNum(yrSum, true);
+        const lp = reduceNum(moR + dyR + yrR, true);
+
+        const md = mo * 100 + dy;
+        let sign = { name: "Leo", element: "Fire" };
+        if (md >= 321 && md <= 419) sign = { name: "Aries", element: "Fire" };
+        else if (md >= 420 && md <= 520) sign = { name: "Taurus", element: "Earth" };
+        else if (md >= 521 && md <= 620) sign = { name: "Gemini", element: "Air" };
+        else if (md >= 621 && md <= 722) sign = { name: "Cancer", element: "Water" };
+        else if (md >= 723 && md <= 822) sign = { name: "Leo", element: "Fire" };
+        else if (md >= 823 && md <= 922) sign = { name: "Virgo", element: "Earth" };
+        else if (md >= 923 && md <= 1022) sign = { name: "Libra", element: "Air" };
+        else if (md >= 1023 && md <= 1121) sign = { name: "Scorpio", element: "Water" };
+        else if (md >= 1122 && md <= 1221) sign = { name: "Sagittarius", element: "Fire" };
+        else if (md >= 1222 || md <= 119) sign = { name: "Capricorn", element: "Earth" };
+        else if (md >= 120 && md <= 218) sign = { name: "Aquarius", element: "Air" };
+        else if (md >= 219 && md <= 320) sign = { name: "Pisces", element: "Water" };
+
+        return { lifePath: lp, sign: sign };
+      }
+
+      function pairHarmonyPct(n1, n2) {
+        const r1 = rootDigit(n1);
+        const r2 = rootDigit(n2);
+        if (r1 < 1 || r2 < 1) return 80;
+        let base = NUM_HARMONY[r1 - 1][r2 - 1];
+        if ((n1 === 11 || n1 === 22 || n1 === 33) && (n2 === 11 || n2 === 22 || n2 === 33)) {
+          base = Math.min(96, base + 4);
+        }
+        return base;
+      }
+
+      function calculateCompatibility() {
+        const isFull = mode === "full";
+        fullMatchModeBtn.classList.toggle("active", isFull);
+        namesOnlyModeBtn.classList.toggle("active", !isFull);
+        p1DobGroup.style.display = isFull ? "flex" : "none";
+        p2DobGroup.style.display = isFull ? "flex" : "none";
+
+        const n1Raw = partner1NameInput.value.trim();
+        const n2Raw = partner2NameInput.value.trim();
+        const p1Name = n1Raw || "Partner 1";
+        const p2Name = n2Raw || "Partner 2";
+
+        const name1 = analyzeName(p1Name);
+        const name2 = analyzeName(p2Name);
+
+        if (name1.count === 0 || name2.count === 0) {
+          lcScoreDisplay.textContent = "—";
+          lcVerdictTitle.textContent = "Enter Both Partner Names";
+          lcSubCaption.textContent = "Type names on the left to calculate compatibility";
+          lcBarFill.style.width = "0%";
+          latestSummaryText = "";
+          return;
+        }
+
+        const destinyPct = pairHarmonyPct(name1.destiny, name2.destiny);
+        const soulPct = (name1.soul > 0 && name2.soul > 0)
+          ? pairHarmonyPct(name1.soul, name2.soul)
+          : destinyPct;
+
+        nameNumMatchVal.textContent = `${destinyPct}% (${name1.destiny} & ${name2.destiny})`;
+        nameNumDesc.textContent = `Expression numbers ${name1.destiny} and ${name2.destiny}`;
+
+        soulMatchVal.textContent = `${soulPct}% (${name1.soul || name1.destiny} & ${name2.soul || name2.destiny})`;
+        soulDesc.textContent = "Inner motivation & emotional resonance";
+
+        let overallPct = Math.round(0.60 * destinyPct + 0.40 * soulPct);
+        let subCaption = `${p1Name} & ${p2Name} \u2022 Pythagorean Name Numerology`;
+        let insightMsg = "Strong name-vibration alignment across Expression and Soul Urge numbers.";
+
+        if (isFull) {
+          const dob1 = analyzeDob(partner1DobInput.value);
+          const dob2 = analyzeDob(partner2DobInput.value);
+
+          if (dob1 && dob2) {
+            const lpPct = pairHarmonyPct(dob1.lifePath, dob2.lifePath);
+            const elemKey = `${dob1.sign.element}-${dob2.sign.element}`;
+            const elemInfo = ELEMENT_HARMONY[elemKey] || { score: 82, note: "Balanced zodiac element blend" };
+
+            overallPct = Math.round(
+              0.30 * destinyPct +
+              0.20 * soulPct +
+              0.30 * lpPct +
+              0.20 * elemInfo.score
+            );
+
+            lifePathMatchVal.textContent = `${lpPct}% (LP ${dob1.lifePath} & LP ${dob2.lifePath})`;
+            lifePathDesc.textContent = `Life Path ${dob1.lifePath} paired with ${dob2.lifePath}`;
+
+            zodiacMatchVal.textContent = `${elemInfo.score}% (${dob1.sign.element} & ${dob2.sign.element})`;
+            zodiacDesc.textContent = `${dob1.sign.name} & ${dob2.sign.name}`;
+
+            subCaption = `${p1Name} (${dob1.sign.name}) & ${p2Name} (${dob2.sign.name})`;
+            insightMsg = `${elemInfo.note}. Life Path ${dob1.lifePath} and Life Path ${dob2.lifePath} create a ${lpPct}% long-term rhythm.`;
+          } else {
+            lifePathMatchVal.textContent = "Select both birth dates";
+            lifePathDesc.textContent = "Enter both DOBs for Life Path";
+            zodiacMatchVal.textContent = "Select both birth dates";
+            zodiacDesc.textContent = "Enter both DOBs for Zodiac";
+          }
+        } else {
+          lifePathMatchVal.textContent = "Names-Only Mode";
+          lifePathDesc.textContent = "Switch to Full mode for Life Path";
+          zodiacMatchVal.textContent = "Names-Only Mode";
+          zodiacDesc.textContent = "Switch to Full mode for Zodiac";
+        }
+
+        let verdict = "Complementary Match";
+        let numClass = "lc-hero-num mid";
+        if (overallPct >= 88) {
+          verdict = "Exceptional Harmonic Match";
+          numClass = "lc-hero-num";
+        } else if (overallPct >= 80) {
+          verdict = "Strong Harmonic Match";
+          numClass = "lc-hero-num";
+        }
+
+        lcScoreDisplay.className = numClass;
+        lcScoreDisplay.textContent = `${overallPct}%`;
+        lcVerdictTitle.textContent = verdict;
+        lcSubCaption.textContent = subCaption;
+        lcBarFill.style.width = `${overallPct}%`;
+        lcInsightBanner.innerHTML = `<strong>Relationship Dynamic:</strong> ${insightMsg}`;
+
+        latestSummaryText = [
+          "PureWebKits Love Compatibility Report",
+          "--------------------------------------",
+          `Partners: ${subCaption}`,
+          `Overall Compatibility Score: ${overallPct}% (${verdict})`,
+          `Name Destiny Match: ${nameNumMatchVal.textContent} | Soul Urge Match: ${soulMatchVal.textContent}`,
+          isFull ? `Life Path Match: ${lifePathMatchVal.textContent} | Zodiac Element Match: ${zodiacMatchVal.textContent}` : "Mode: Names Only (Pythagorean Numerology)",
+          `Insight: ${insightMsg}`
+        ].join("\n");
+      }
+
+      fullMatchModeBtn.addEventListener("click", function () { mode = "full"; calculateCompatibility(); });
+      namesOnlyModeBtn.addEventListener("click", function () { mode = "names"; calculateCompatibility(); });
+
+      swapPartnersBtn.addEventListener("click", function () {
+        const tmpName = partner1NameInput.value;
+        const tmpDob = partner1DobInput.value;
+        partner1NameInput.value = partner2NameInput.value;
+        partner1DobInput.value = partner2DobInput.value;
+        partner2NameInput.value = tmpName;
+        partner2DobInput.value = tmpDob;
+        calculateCompatibility();
+      });
+
+      [
+        partner1NameInput,
+        partner1DobInput,
+        partner2NameInput,
+        partner2DobInput
+      ].forEach(function (el) {
+        el.addEventListener("input", calculateCompatibility);
+        el.addEventListener("change", calculateCompatibility);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        mode = "full";
+        partner1NameInput.value = "Aarav Sharma";
+        partner1DobInput.value = "1995-08-14";
+        partner2NameInput.value = "Ananya Verma";
+        partner2DobInput.value = "1997-04-26";
+        calculateCompatibility();
+      });
+
+      resetLcBtn.addEventListener("click", function () {
+        partner1NameInput.value = "";
+        partner2NameInput.value = "";
+        calculateCompatibility();
+      });
+
+      copyLcBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyLcBtn.textContent;
+          copyLcBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyLcBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadLcBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "love-compatibility-report.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateCompatibility();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,949 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Custom Meme Generator Online — Add Top & Bottom Caption Text Free | PureWebKits</title>
+  <meta name="description" content="Create custom memes online for free with classic Impact outlined captions or modern white top-header layouts. No watermarks, 100% client-side in your browser." />
+  <link rel="canonical" href="https://PureWebKits.com/meme-generator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Top Upload & Template Bar */
+    .meme-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .tpl-group { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .tpl-btn {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+    }
+    .tpl-btn:hover, .tpl-btn.active {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .btn-primary {
+      display: inline-block;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* 2-Column Meme Studio */
+    .meme-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .canvas-stage {
+      background: #0F172A;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 330px;
+    }
+    .meme-canvas {
+      max-width: 100%;
+      max-height: 430px;
+      border-radius: 6px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Controls Column */
+    .controls-col { display: flex; flex-direction: column; gap: 14px; }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-group label { font-size: 13px; font-weight: 700; color: var(--text-main); }
+    .std-input, .std-select {
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #FFFFFF;
+      outline: none;
+    }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); }
+    .row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .color-input {
+      width: 100%;
+      height: 42px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 9px;
+      padding: 2px;
+      background: #FFFFFF;
+      cursor: pointer;
+    }
+    .chk-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 12px;
+    }
+    .chk-lbl {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-download-meme {
+      width: 100%;
+      background: var(--success);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 14.5px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .btn-download-meme:hover { background: #047857; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .meme-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Custom Meme Generator -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Custom Meme Generator Online — Outlined Impact & Social Captions</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Create & download watermark-free memes locally in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="meme-topbar">
+          <div class="tpl-group">
+            <span style="font-size:13px;font-weight:700;">Quick Templates:</span>
+            <button type="button" class="tpl-btn active" data-tpl="coding">Dev Bug Meme</button>
+            <button type="button" class="tpl-btn" data-tpl="two">Two Choices</button>
+            <button type="button" class="tpl-btn" data-tpl="stonks">Market / Finance</button>
+          </div>
+
+          <label class="btn-primary" for="memeImgInput">
+            + Upload Your Own Photo
+            <input type="file" id="memeImgInput" accept="image/*" style="display:none;" />
+          </label>
+        </div>
+
+        <div class="meme-grid">
+          <div class="canvas-stage">
+            <canvas id="memeCanvas" class="meme-canvas"></canvas>
+          </div>
+
+          <div class="controls-col">
+            <div class="field-group">
+              <label for="layoutStyleSelect">Caption Layout Style</label>
+              <select id="layoutStyleSelect" class="std-select">
+                <option value="classic" selected>Classic Impact Overlay (Top & Bottom Outlined)</option>
+                <option value="modern">Modern Social Top-Caption Bar (White Header)</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label for="topTextInput">Top Caption Text</label>
+              <input type="text" id="topTextInput" class="std-input" value="WHEN THE CODE COMPILES" placeholder="Enter top caption..." />
+            </div>
+
+            <div id="bottomTextGroup" class="field-group">
+              <label for="bottomTextInput">Bottom Caption Text</label>
+              <input type="text" id="bottomTextInput" class="std-input" value="ON THE VERY FIRST TRY" placeholder="Enter bottom caption..." />
+            </div>
+
+            <div class="row-2col">
+              <div class="field-group">
+                <label for="fontScaleSelect">Font Size Scale</label>
+                <select id="fontScaleSelect" class="std-select">
+                  <option value="0.065">Small (6.5%)</option>
+                  <option value="0.085" selected>Medium (8.5% — Standard)</option>
+                  <option value="0.11">Large (11%)</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="textColorInput">Text Color</label>
+                <input type="color" id="textColorInput" class="color-input" value="#FFFFFF" />
+              </div>
+            </div>
+
+            <div class="chk-row">
+              <label class="chk-lbl" for="allCapsChk">
+                <input type="checkbox" id="allCapsChk" checked />
+                <span>ALL CAPS Meme Formatting</span>
+              </label>
+
+              <label class="chk-lbl" for="strokeChk">
+                <input type="checkbox" id="strokeChk" checked />
+                <span>Black Text Outline</span>
+              </label>
+            </div>
+
+            <button type="button" id="downloadMemeBtn" class="btn-download-meme">Download Meme (.JPG — No Watermark)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Outlined Meme Typography, Auto Line-Wrapping & Social Framing Work</h2>
+
+      <h3>Why Outlined White Text & White Top-Caption Headers Dominate Social Feeds</h3>
+      <p>
+        Viral internet memes rely on instant visual readability within half a second of scrolling on mobile screens. Classic top-and-bottom memes solve the problem of busy photographic backgrounds by rendering bold, condensed white lettering surrounded by a thick black stroke outline (<code>strokeText</code> before <code>fillText</code> on HTML5 Canvas)—guaranteeing crisp contrast over both bright skies and dark shadows. Meanwhile, modern Instagram, X (Twitter), and Reddit memes frequently place black sans-serif text inside a clean <strong>white top header bar</strong> above the image so the photo itself remains unobstructed. Our browser-based meme studio supports both layouts with automatic multi-line word wrapping and zero site watermarks.
+      </p>
+
+      <h3>How to Create a Custom Meme in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Pick a Template or Upload Your Image:</strong> Click <em>+ Upload Your Own Photo</em> (or choose a starter template) to load your graphic locally onto the canvas.</li>
+        <li><strong>Choose Layout & Type Captions:</strong> Select <em>Classic Impact Overlay</em> or <em>Modern Social Top-Caption Bar</em>, enter your top and bottom punchlines, and adjust font scale or colors.</li>
+        <li><strong>Download Watermark-Free JPG:</strong> Click <em>Download Meme (.JPG — No Watermark)</em> to save your finished image immediately.</li>
+      </ol>
+
+      <h3>Proportional Font Scaling & Stroke Width Formula + Worked Example</h3>
+      <p>
+        To keep captions balanced across both compact screenshots and high-resolution photos, font height and outline stroke scale dynamically with image width:
+      </p>
+      <div class="formula-box">
+        Font Size (px) = Image Width × Scale Factor (0.085)  |  Outline Stroke = Font Size × 0.14
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Suppose you upload a standard <strong>1080 × 1080 px</strong> square Instagram image with the medium <code>8.5% (0.085)</code> font scale.</p>
+        <p>Computed font height = <code>1,080 × 0.085 = 91.8 px (≈ 92 px)</code>, with an outer black stroke thickness of <code>92 × 0.14 ≈ 13 px</code>.</p>
+        <p>If a caption exceeds <code>90%</code> of the canvas width (<code>972 px</code>), the renderer automatically wraps the text onto a second centered line without clipping.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="meme-table-heading">
+      <h2 id="meme-table-heading">Social Media Meme Dimensions, Safe Zones & Typography Chart (16 Specs)</h2>
+      <p>Use this social media content creator reference chart to size and format memes for maximum engagement across every platform.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Platform / Meme Format</th>
+              <th>Optimal Pixels & Ratio</th>
+              <th>Recommended Layout</th>
+              <th>Engagement & Cropping Tip</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Instagram Square Feed Meme</strong></td>
+              <td><span class="limit-badge">1080 × 1080 px (1:1)</span></td>
+              <td>Modern White Top Header</td>
+              <td>Maximizes mobile screen real estate in feeds</td>
+            </tr>
+            <tr>
+              <td><strong>Instagram Portrait Feed Meme</strong></td>
+              <td><span class="limit-badge">1080 × 1350 px (4:5)</span></td>
+              <td>Modern Top Header + Photo</td>
+              <td>Highest vertical height allowed in IG grid</td>
+            </tr>
+            <tr>
+              <td><strong>X (Twitter) Timeline Post</strong></td>
+              <td><span class="limit-badge">1200 × 675 px (16:9)</span></td>
+              <td>Classic Impact or Top Header</td>
+              <td>Displays full width without timeline cropping</td>
+            </tr>
+            <tr>
+              <td><strong>Reddit r/memes & Community Posts</strong></td>
+              <td><span class="limit-badge">1000 × 1000 px+</span></td>
+              <td>Classic Impact or White Header</td>
+              <td>Keep text sharp and legible on mobile dark mode</td>
+            </tr>
+            <tr>
+              <td><strong>WhatsApp & Telegram Sticker/Share</strong></td>
+              <td><span class="limit-badge">800 × 800 px (< 300 KB)</span></td>
+              <td>Classic Impact Overlay</td>
+              <td>Bold 8.5%–11% font reads easily in chat previews</td>
+            </tr>
+            <tr>
+              <td><strong>Facebook Group & Page Post</strong></td>
+              <td><span class="limit-badge">1200 × 1200 px (1:1)</span></td>
+              <td>Modern White Top Header</td>
+              <td>High shareability across desktop & mobile</td>
+            </tr>
+            <tr>
+              <td><strong>YouTube Community Tab Poll/Post</strong></td>
+              <td><span class="limit-badge">1080 × 1080 px (1:1)</span></td>
+              <td>Classic or Top Header</td>
+              <td>Square images avoid YouTube feed cropping</td>
+            </tr>
+            <tr>
+              <td><strong>LinkedIn Corporate Humor Post</strong></td>
+              <td><span class="limit-badge">1200 × 1200 px (1:1)</span></td>
+              <td>Modern Clean Top Header</td>
+              <td>Clean sans-serif header looks polished in B2B feeds</td>
+            </tr>
+            <tr>
+              <td><strong>Classic Impact Font Family</strong></td>
+              <td><code>Impact, Arial Black</code></td>
+              <td>ALL CAPS + Black Stroke</td>
+              <td>Traditional 2010–2026 internet meme aesthetic</td>
+            </tr>
+            <tr>
+              <td><strong>Modern Social Header Font</strong></td>
+              <td>Bold Sans-Serif (#0F172A)</td>
+              <td>Sentence Case on #FFFFFF</td>
+              <td>Mimics viral tweet-screenshot meme format</td>
+            </tr>
+            <tr>
+              <td><strong>Ideal Caption Word Count</strong></td>
+              <td>5 – 12 Words per Line</td>
+              <td>1–2 Lines Top / Bottom</td>
+              <td>Short punchlines convert faster than long paragraphs</td>
+            </tr>
+            <tr>
+              <td><strong>Safe Edge Margin</strong></td>
+              <td>4% Padding from Borders</td>
+              <td>Top & Bottom Safe Zone</td>
+              <td>Prevents rounded feed corners from clipping letters</td>
+            </tr>
+            <tr>
+              <td><strong>Output File Format</strong></td>
+              <td>High-Quality JPG (92%)</td>
+              <td>Fast Social Upload</td>
+              <td>Universal compatibility across all social apps</td>
+            </tr>
+            <tr>
+              <td><strong>Brand Watermark Option</strong></td>
+              <td>Zero Forced Watermark</td>
+              <td>100% Clean Export</td>
+              <td>Add your own handle via Bulk Watermark tool if desired</td>
+            </tr>
+            <tr>
+              <td><strong>Multi-Line Word Wrapping</strong></td>
+              <td>Automatic Canvas Wrap</td>
+              <td>90% Max Line Width</td>
+              <td>Long captions wrap cleanly onto multiple lines</td>
+            </tr>
+            <tr>
+              <td><strong>Creation Privacy</strong></td>
+              <td>HTML5 Canvas Local</td>
+              <td><span class="limit-badge">100% Client-Side</span></td>
+              <td>Your photos never leave your browser</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Image Editing, Cropping & Social Media Tools</h2>
+      <p>Cropping photos to 1:1 square or 16:9 ratios, adding a custom channel watermark, compressing images, or converting formats? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="image-cropper.html"><span>Image Cropper (1:1 / 16:9)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-watermark.html"><span>Bulk Image Watermark</span><span class="arrow">→</span></a>
+        <a class="related-link" href="rotate-flip-image.html"><span>Rotate & Flip Image</span><span class="arrow">→</span></a>
+        <a class="related-link" href="grayscale-image.html"><span>Grayscale / B&W Filter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-resizer.html"><span>Image Resizer (px)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compress-image-to-exact-kb.html"><span>Compress Image to KB</span><span class="arrow">→</span></a>
+        <a class="related-link" href="png-to-jpg.html"><span>PNG to JPG Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="webp-converter.html"><span>WebP Image Converter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Does this meme generator add any PureWebKits watermark to my downloaded image?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>No.</strong> Every meme you create and download is 100% watermark-free. If you want to add your own social media handle (such as <code>@YourPage</code>), you can run your image through our <a href="image-watermark.html" style="color:#2563EB;font-weight:700;">Bulk Image Watermark Adder</a>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. What is the difference between Classic Impact Overlay and Modern Social Top-Caption Bar?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Classic Impact Overlay</strong> draws white outlined text directly over the top and bottom edges of your image. <strong>Modern Social Top-Caption Bar</strong> adds a clean white header banner above your image with bold dark text—popular on Instagram and X (Twitter).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. What happens if I type a long sentence for the top or bottom caption?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Our canvas text engine measures pixel width in real time and automatically breaks long captions onto multiple centered lines so words never get cut off on the left or right edges.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my uploaded photos or memes stored on any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All image loading, caption typography rendering, and JPG exports happen 100% locally inside your web browser using HTML5 Canvas. Your photos never leave your device.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Custom Meme Generator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const tplBtns = document.querySelectorAll(".tpl-btn");
+      const memeImgInput = document.getElementById("memeImgInput");
+      const memeCanvas = document.getElementById("memeCanvas");
+
+      const layoutStyleSelect = document.getElementById("layoutStyleSelect");
+      const topTextInput = document.getElementById("topTextInput");
+      const bottomTextGroup = document.getElementById("bottomTextGroup");
+      const bottomTextInput = document.getElementById("bottomTextInput");
+      const fontScaleSelect = document.getElementById("fontScaleSelect");
+      const textColorInput = document.getElementById("textColorInput");
+      const allCapsChk = document.getElementById("allCapsChk");
+      const strokeChk = document.getElementById("strokeChk");
+      const downloadMemeBtn = document.getElementById("downloadMemeBtn");
+
+      let baseImage = null;
+
+      function loadBuiltInTemplate(tplKey) {
+        let svgStr = "";
+        if (tplKey === "two") {
+          topTextInput.value = "FIX THE ROOT CAUSE";
+          bottomTextInput.value = "WRAP IT IN TRY / CATCH";
+          svgStr =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">' +
+            '<rect width="400" height="600" fill="#1E3A8A"/>' +
+            '<rect x="400" width="400" height="600" fill="#B91C1C"/>' +
+            '<circle cx="200" cy="300" r="95" fill="#60A5FA" opacity="0.35"/>' +
+            '<circle cx="600" cy="300" r="95" fill="#FCA5A5" opacity="0.35"/>' +
+            '</svg>';
+        } else if (tplKey === "stonks") {
+          topTextInput.value = "BUYING THE DIP";
+          bottomTextInput.value = "AND IT KEEPS DIPPING";
+          svgStr =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">' +
+            '<rect width="800" height="600" fill="#0F172A"/>' +
+            '<polyline points="60,480 220,380 360,420 520,210 720,120" fill="none" stroke="#10B981" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '<polygon points="745,108 685,105 715,158" fill="#10B981"/>' +
+            '</svg>';
+        } else {
+          topTextInput.value = "WHEN THE CODE COMPILES";
+          bottomTextInput.value = "ON THE VERY FIRST TRY";
+          svgStr =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">' +
+            '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1D4ED8"/><stop offset="100%" stop-color="#0F172A"/></linearGradient></defs>' +
+            '<rect width="800" height="600" fill="url(#g)"/>' +
+            '<circle cx="400" cy="300" r="150" fill="#2563EB" opacity="0.45"/>' +
+            '<circle cx="400" cy="300" r="85" fill="#60A5FA" opacity="0.5"/>' +
+            '</svg>';
+        }
+
+        const img = new Image();
+        img.onload = function () {
+          baseImage = img;
+          renderMeme();
+        };
+        img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgStr);
+      }
+
+      function wrapLines(ctx, text, maxWidth) {
+        if (!text) return [];
+        const words = text.split(/\s+/);
+        const lines = [];
+        let current = words[0] || "";
+
+        for (let i = 1; i < words.length; i++) {
+          const testLine = current + " " + words[i];
+          if (ctx.measureText(testLine).width <= maxWidth) {
+            current = testLine;
+          } else {
+            lines.push(current);
+            current = words[i];
+          }
+        }
+        if (current) lines.push(current);
+        return lines;
+      }
+
+      function renderMeme() {
+        if (!baseImage) return;
+        const iw = baseImage.naturalWidth || baseImage.width || 800;
+        const ih = baseImage.naturalHeight || baseImage.height || 600;
+        const layout = layoutStyleSelect.value;
+        const scaleFactor = parseFloat(fontScaleSelect.value) || 0.085;
+        const caps = allCapsChk.checked;
+
+        const rawTop = caps ? topTextInput.value.toUpperCase() : topTextInput.value;
+        const rawBot = caps ? bottomTextInput.value.toUpperCase() : bottomTextInput.value;
+
+        const ctx = memeCanvas.getContext("2d");
+
+        if (layout === "modern") {
+          const fontSize = Math.max(18, Math.round(iw * (scaleFactor * 0.68)));
+          const lineHeight = Math.round(fontSize * 1.28);
+          ctx.font = "800 " + fontSize + "px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif";
+          const headerLines = wrapLines(ctx, rawTop.trim(), iw * 0.9);
+          const headerH = Math.max(fontSize * 1.8, headerLines.length * lineHeight + fontSize * 0.9);
+
+          memeCanvas.width = iw;
+          memeCanvas.height = ih + headerH;
+
+          ctx.fillStyle = "#FFFFFF";
+          ctx.fillRect(0, 0, iw, headerH);
+          ctx.drawImage(baseImage, 0, headerH, iw, ih);
+
+          ctx.fillStyle = "#0F172A";
+          ctx.font = "800 " + fontSize + "px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif";
+          ctx.textAlign = "left";
+          ctx.textBaseline = "top";
+
+          const startX = Math.round(iw * 0.05);
+          let curY = Math.round(fontSize * 0.45);
+          headerLines.forEach(function (ln) {
+            ctx.fillText(ln, startX, curY);
+            curY += lineHeight;
+          });
+        } else {
+          memeCanvas.width = iw;
+          memeCanvas.height = ih;
+          ctx.drawImage(baseImage, 0, 0, iw, ih);
+
+          const fontSize = Math.max(20, Math.round(iw * scaleFactor));
+          const lineHeight = Math.round(fontSize * 1.15);
+          ctx.font = "900 " + fontSize + "px Impact, 'Arial Black', sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillStyle = textColorInput.value || "#FFFFFF";
+          ctx.strokeStyle = "#000000";
+          ctx.lineWidth = Math.max(2, Math.round(fontSize * 0.14));
+          ctx.lineJoin = "round";
+
+          const maxTextW = iw * 0.92;
+          const padY = Math.round(ih * 0.035);
+
+          // Draw Top Lines
+          const topLines = wrapLines(ctx, rawTop.trim(), maxTextW);
+          ctx.textBaseline = "top";
+          let topY = padY;
+          topLines.forEach(function (ln) {
+            if (strokeChk.checked) ctx.strokeText(ln, iw / 2, topY);
+            ctx.fillText(ln, iw / 2, topY);
+            topY += lineHeight;
+          });
+
+          // Draw Bottom Lines
+          const botLines = wrapLines(ctx, rawBot.trim(), maxTextW);
+          ctx.textBaseline = "bottom";
+          let botY = ih - padY;
+          for (let i = botLines.length - 1; i >= 0; i--) {
+            if (strokeChk.checked) ctx.strokeText(botLines[i], iw / 2, botY);
+            ctx.fillText(botLines[i], iw / 2, botY);
+            botY -= lineHeight;
+          }
+        }
+      }
+
+      tplBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          tplBtns.forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          loadBuiltInTemplate(btn.getAttribute("data-tpl"));
+        });
+      });
+
+      memeImgInput.addEventListener("change", function (e) {
+        const f = e.target.files && e.target.files[0];
+        if (!f) return;
+        tplBtns.forEach(function (b) { b.classList.remove("active"); });
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          const img = new Image();
+          img.onload = function () {
+            baseImage = img;
+            renderMeme();
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(f);
+        e.target.value = "";
+      });
+
+      layoutStyleSelect.addEventListener("change", function () {
+        bottomTextGroup.style.display = layoutStyleSelect.value === "modern" ? "none" : "flex";
+        renderMeme();
+      });
+
+      [topTextInput, bottomTextInput, textColorInput].forEach(function (el) {
+        el.addEventListener("input", renderMeme);
+      });
+      [fontScaleSelect, allCapsChk, strokeChk].forEach(function (el) {
+        el.addEventListener("change", renderMeme);
+      });
+
+      downloadMemeBtn.addEventListener("click", function () {
+        memeCanvas.toBlob(function (blob) {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "custom-meme.jpg";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, "image/jpeg", 0.93);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      loadBuiltInTemplate("coding");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1074 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Numerology Number Calculator (Life Path, Destiny, Soul Urge & Chaldean) — PureWebKits</title>
+  <meta name="description" content="Calculate your Numerology Life Path Number, Expression (Destiny) Number, Soul Urge Number, Personality Number, and Master Numbers (11, 22, 33) using Pythagorean or Chaldean systems online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/numerology-number-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Numerology Calculator Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    /* Letter Breakdown Strip */
+    .letter-strip-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .letter-tiles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .l-tile {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      padding: 3px 5px;
+      border-radius: 6px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      line-height: 1.15;
+    }
+    .l-tile.vowel {
+      background: #EFF6FF;
+      border-color: #93C5FD;
+    }
+    .l-tile .ch {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .l-tile .num {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--primary-dark);
+    }
+
+    .num-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .num-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .num-hero-title { font-size: 16px; font-weight: 800; }
+    .num-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .num-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 32px;
+      font-weight: 800;
+      color: #34D399;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .metric-desc {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      line-height: 1.35;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Numerology Number Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Numerology Number Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate Life Path, Expression (Destiny), Soul Urge, Personality & Master Numbers in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="Numerology letter mapping system">
+            <button type="button" class="mode-btn active" id="pythagoreanModeBtn" data-system="pythagorean">Pythagorean (1–9)</button>
+            <button type="button" class="mode-btn" id="chaldeanModeBtn" data-system="chaldean">Chaldean (1–8)</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample</button>
+            <button type="button" id="resetNumBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="fullNameInput" class="field-label">Full Name (Birth Name or Current Name)</label>
+              <input type="text" id="fullNameInput" class="std-input" placeholder="e.g., Aarav Kumar Sharma" value="Aarav Sharma" />
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="birthDateInput" class="field-label">Date of Birth</label>
+                <input type="date" id="birthDateInput" class="std-input" value="1995-08-14" />
+              </div>
+
+              <div class="field-group">
+                <label for="masterKeepSelect" class="field-label">Master Numbers (11, 22, 33)</label>
+                <select id="masterKeepSelect" class="std-select">
+                  <option value="keep" selected>Preserve Master Numbers (11, 22, 33)</option>
+                  <option value="reduce">Reduce All to Single Digit (1–9)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="letter-strip-box">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="field-label" id="letterMapTitle">Pythagorean Letter Values (Blue = Vowels)</span>
+                <span style="font-size:11px; font-weight:700; color:var(--text-muted);" id="rawNameSumBadge">Raw Sum: 34</span>
+              </div>
+              <div class="letter-tiles" id="letterTilesContainer"></div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="num-hero-box">
+              <div>
+                <div class="num-hero-kicker">Life Path Number (From Birth Date)</div>
+                <div class="num-hero-title" id="lifePathArchetype">1 — The Pioneer & Leader</div>
+                <div class="num-hero-sub" id="lifePathSteps">1995-08-14 → 8 + 5 + 6 = 19 → 1</div>
+              </div>
+              <div class="num-hero-num" id="lifePathDisplay">1</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Expression / Destiny Number</div>
+                <div class="metric-val" id="destinyNumVal">7 (from 34)</div>
+                <div class="metric-desc" id="destinyDesc">Analytical seeker & deep thinker</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Soul Urge (Heart's Desire)</div>
+                <div class="metric-val" id="soulUrgeVal">5 (from Vowels)</div>
+                <div class="metric-desc" id="soulUrgeDesc">Freedom, curiosity & adaptability</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Personality Number</div>
+                <div class="metric-val" id="personalityVal">2 (from Consonants)</div>
+                <div class="metric-desc" id="personalityDesc">Diplomatic, cooperative & warm</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Birthday / Mulank Number</div>
+                <div class="metric-val" id="birthdayNumVal">5 (Day 14 → 5)</div>
+                <div class="metric-desc" id="birthdayDesc">Natural communication & versatility</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyNumBtn" class="btn-primary">Copy Numerology Chart</button>
+              <button type="button" id="downloadNumBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Pythagorean vs Chaldean & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Numerology Core Numbers, Pythagorean vs. Chaldean Charts & Master Numbers</h2>
+
+      <h3>How Life Path, Destiny, Soul Urge, and Personality Numbers Are Derived</h3>
+      <p>
+        Classical numerology reduces dates and alphabetical letter values into core single-digit archetypes (<code>1 through 9</code>) alongside the three traditional <strong>Master Numbers</strong> (<code>11</code>, <code>22</code>, and <code>33</code>). Your <strong>Life Path Number</strong> (often paired with your <strong>Birthday / Mulank Number</strong> from the calendar day of birth) is calculated by reducing your birth month, birth day, and four-digit birth year separately and summing those reduced components—preserving <code>11</code>, <code>22</code>, or <code>33</code> whenever they appear. Your name numbers—<strong>Expression / Destiny Number</strong> (all letters), <strong>Soul Urge / Heart's Desire Number</strong> (vowels <code>A, E, I, O, U</code>), and <strong>Personality Number</strong> (consonants)—map each letter to a digit using either the sequential <strong>Pythagorean (1–9)</strong> alphabet chart or the ancient vibrational <strong>Chaldean (1–8)</strong> chart (where <code>9</code> is reserved and not assigned to any letter). A browser-based <strong>Numerology Number Calculator</strong> computes both systems 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Calculate Your Numerology Chart in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Choose Pythagorean (1–9) or Chaldean (1–8):</strong> Select your preferred letter-to-number chart at the top of the studio and choose whether to preserve <strong>Master Numbers (11, 22, 33)</strong>.</li>
+        <li><strong>Enter Full Name & Date of Birth:</strong> Type your full name and select your birth date (or click <strong>Load Sample</strong>) to inspect the per-letter tile breakdown and vowel/consonant split.</li>
+        <li><strong>Review Core Numbers & Export:</strong> Read your Life Path, Expression/Destiny, Soul Urge, Personality, and Birthday/Mulank numbers, then click <strong>Copy Numerology Chart</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Digit Reduction & Core Numerology Formulas</h3>
+      <p>
+        Recursive digit summation reduces multi-digit totals to <code>1–9</code> (stopping early at <code>11</code>, <code>22</code>, or <code>33</code> when Master Numbers are preserved):
+      </p>
+      <div class="formula-box">
+        Life Path = Reduce(Reduce(Month) + Reduce(Day) + Reduce(Year))<br />
+        Destiny = Reduce(Σ All Letters)  |  Soul Urge = Reduce(Σ Vowels)  |  Personality = Reduce(Σ Consonants)
+      </div>
+
+      <h3>Helpful Tips for Name & Birth-Date Numerology</h3>
+      <ul>
+        <li><strong>Use Full Birth Certificate Name for Traditional Destiny Analysis:</strong> Western Pythagorean numerology traditionally evaluates your full birth name, while Chaldean numerology is also frequently used to check everyday business or brand names.</li>
+        <li><strong>Compare Pythagorean vs. Chaldean Systems:</strong> Toggle between the two top pills to see how letter values shift—for example, <code>A = 1</code> in both systems, while <code>M = 4</code> in Pythagorean and <code>M = 4</code> in Chaldean, whereas <code>S = 1</code> in Pythagorean and <code>S = 3</code> in Chaldean.</li>
+        <li><strong>Cultural & Self-Reflection Tool:</strong> Numerology is a traditional symbolic framework for personal reflection and cultural interest.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> For birth date <code>August 14, 1995</code> (<code>1995-08-14</code>), Month = <code>8</code>, Day = <code>1 + 4 = 5</code>, and Year = <code>1 + 9 + 9 + 5 = 24 → 6</code>; summing <code>8 + 5 + 6 = 19 → 1 + 9 = 10 → 1</code> gives <strong>Life Path Number 1</strong>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="num-table-heading">
+      <h2 id="num-table-heading">Numerology Core Numbers (1–9, 11, 22, 33) & Letter Charts Table (16 Rows)</h2>
+      <p>Use this reference table to review core number archetypes and compare Pythagorean vs. Chaldean letter mappings.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Number / Chart</th>
+              <th>Pythagorean / Archetype</th>
+              <th>Chaldean / Key Themes</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Number 1</strong></td>
+              <td>The Pioneer & Leader</td>
+              <td>Independence, initiative, originality</td>
+              <td>Letters: Pyth <code>A, J, S</code> • Chal <code>A, I, J, Q, Y</code></td>
+            </tr>
+            <tr>
+              <td><strong>Number 2</strong></td>
+              <td>The Diplomat & Peacemaker</td>
+              <td>Cooperation, sensitivity, partnership</td>
+              <td>Letters: Pyth <code>B, K, T</code> • Chal <code>B, K, R</code></td>
+            </tr>
+            <tr>
+              <td><strong>Number 3</strong></td>
+              <td>The Communicator & Creator</td>
+              <td>Expression, optimism, artistry</td>
+              <td>Letters: Pyth <code>C, L, U</code> • Chal <code>C, G, L, S</code></td>
+            </tr>
+            <tr>
+              <td><strong>Number 4</strong></td>
+              <td>The Builder & Organizer</td>
+              <td>Structure, discipline, reliability</td>
+              <td>Letters: Pyth <code>D, M, V</code> • Chal <code>D, M, T</code></td>
+            </tr>
+            <tr>
+              <td><strong>Number 5</strong></td>
+              <td>The Explorer & Catalyst</td>
+              <td>Freedom, adaptability, curiosity</td>
+              <td>Letters: Pyth <code>E, N, W</code> • Chal <code>E, H, N, X</code></td>
+            </tr>
+            <tr>
+              <td><strong>Number 6</strong></td>
+              <td>The Nurturer & Harmonizer</td>
+              <td>Responsibility, family, service</td>
+              <td>Letters: Pyth <code>F, O, X</code> • Chal <code>U, V, W</code></td>
+            </tr>
+            <tr>
+              <td><strong>Number 7</strong></td>
+              <td>The Seeker & Analyst</td>
+              <td>Introspection, wisdom, research</td>
+              <td>Letters: Pyth <code>G, P, Y</code> • Chal <code>O, Z</code></td>
+            </tr>
+            <tr>
+              <td><strong>Number 8</strong></td>
+              <td>The Executive & Strategist</td>
+              <td>Ambition, stewardship, mastery</td>
+              <td>Letters: Pyth <code>H, Q, Z</code> • Chal <code>F, P</code></td>
+            </tr>
+            <tr>
+              <td><strong>Number 9</strong></td>
+              <td>The Humanitarian & Sage</td>
+              <td>Compassion, idealism, completion</td>
+              <td>Letters: Pyth <code>I, R</code> • Chal: none assigned</td>
+            </tr>
+            <tr>
+              <td><strong>Master Number 11</strong></td>
+              <td>The Intuitive Visionary</td>
+              <td>Heightened intuition & inspiration</td>
+              <td>Reduces to <code>2</code> if simplified</td>
+            </tr>
+            <tr>
+              <td><strong>Master Number 22</strong></td>
+              <td>The Master Architect</td>
+              <td>Large-scale practical manifestation</td>
+              <td>Reduces to <code>4</code> if simplified</td>
+            </tr>
+            <tr>
+              <td><strong>Master Number 33</strong></td>
+              <td>The Master Teacher</td>
+              <td>Altruistic guidance & upliftment</td>
+              <td>Reduces to <code>6</code> if simplified</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Pythagorean & Chaldean Numerology Engine — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your name and birth date stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero personal details transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Date, Compatibility, Randomizer & Everyday Calculators</h2>
+      <p>Checking Kundli Milan compatibility, calculating exact age, spinning a decision wheel, or solving percentages? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="kundli-milan.html"><span>Kundli Milan</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="spin-wheel.html"><span>Spin Wheel</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="bmi-sleep-calculator.html"><span>BMI & Sleep Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Password Generator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What is the difference between Pythagorean and Chaldean numerology?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Pythagorean numerology</strong> assigns numbers <code>1 through 9</code> sequentially across the English alphabet (<code>A=1, B=2 ... I=9, J=1</code>), whereas <strong>Chaldean numerology</strong> assigns numbers <code>1 through 8</code> based on traditional phonetic vibration and never assigns <code>9</code> to a letter.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How are Master Numbers (11, 22, 33) handled?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            By default, whenever a reduction step hits <code>11</code>, <code>22</code>, or <code>33</code>, the calculator preserves it as a Master Number—you can also switch the dropdown to <strong>Reduce All to Single Digit (1–9)</strong> to view its root digit (<code>2</code>, <code>4</code>, or <code>6</code>).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my name or birth date sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All numerology reductions run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Numerology Number Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Pythagorean & Chaldean Numerology Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const PYTHAGOREAN_MAP = {
+        A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8, I: 9,
+        J: 1, K: 2, L: 3, M: 4, N: 5, O: 6, P: 7, Q: 8, R: 9,
+        S: 1, T: 2, U: 3, V: 4, W: 5, X: 6, Y: 7, Z: 8
+      };
+
+      const CHALDEAN_MAP = {
+        A: 1, I: 1, J: 1, Q: 1, Y: 1,
+        B: 2, K: 2, R: 2,
+        C: 3, G: 3, L: 3, S: 3,
+        D: 4, M: 4, T: 4,
+        E: 5, H: 5, N: 5, X: 5,
+        U: 6, V: 6, W: 6,
+        O: 7, Z: 7,
+        F: 8, P: 8
+      };
+
+      const ARCHETYPES = {
+        1: { title: "1 — The Pioneer & Leader", desc: "Independent, self-starting & inventive" },
+        2: { title: "2 — The Diplomat & Peacemaker", desc: "Cooperative, intuitive & harmonizing" },
+        3: { title: "3 — The Communicator & Creator", desc: "Expressive, artistic & optimistic" },
+        4: { title: "4 — The Builder & Organizer", desc: "Structured, reliable & detail-driven" },
+        5: { title: "5 — The Explorer & Catalyst", desc: "Adaptable, curious & freedom-loving" },
+        6: { title: "6 — The Nurturer & Harmonizer", desc: "Responsible, supportive & community-minded" },
+        7: { title: "7 — The Seeker & Analyst", desc: "Analytical, reflective & truth-seeking" },
+        8: { title: "8 — The Executive & Strategist", desc: "Ambitious, resourceful & goal-oriented" },
+        9: { title: "9 — The Humanitarian & Sage", desc: "Compassionate, broad-minded & idealistic" },
+        11: { title: "11 — The Intuitive Visionary (Master)", desc: "Inspirational insight & heightened sensitivity" },
+        22: { title: "22 — The Master Architect (Master)", desc: "Turning ambitious vision into lasting structure" },
+        33: { title: "33 — The Master Teacher (Master)", desc: "Compassionate guidance & selfless service" }
+      };
+
+      const VOWELS = new Set(["A", "E", "I", "O", "U"]);
+
+      const pythagoreanModeBtn = document.getElementById("pythagoreanModeBtn");
+      const chaldeanModeBtn = document.getElementById("chaldeanModeBtn");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetNumBtn = document.getElementById("resetNumBtn");
+
+      const fullNameInput = document.getElementById("fullNameInput");
+      const birthDateInput = document.getElementById("birthDateInput");
+      const masterKeepSelect = document.getElementById("masterKeepSelect");
+
+      const letterMapTitle = document.getElementById("letterMapTitle");
+      const rawNameSumBadge = document.getElementById("rawNameSumBadge");
+      const letterTilesContainer = document.getElementById("letterTilesContainer");
+
+      const lifePathArchetype = document.getElementById("lifePathArchetype");
+      const lifePathSteps = document.getElementById("lifePathSteps");
+      const lifePathDisplay = document.getElementById("lifePathDisplay");
+
+      const destinyNumVal = document.getElementById("destinyNumVal");
+      const destinyDesc = document.getElementById("destinyDesc");
+      const soulUrgeVal = document.getElementById("soulUrgeVal");
+      const soulUrgeDesc = document.getElementById("soulUrgeDesc");
+      const personalityVal = document.getElementById("personalityVal");
+      const personalityDesc = document.getElementById("personalityDesc");
+      const birthdayNumVal = document.getElementById("birthdayNumVal");
+      const birthdayDesc = document.getElementById("birthdayDesc");
+
+      const copyNumBtn = document.getElementById("copyNumBtn");
+      const downloadNumBtn = document.getElementById("downloadNumBtn");
+
+      let system = "pythagorean";
+      let latestSummaryText = "";
+
+      function reduceNumber(num, keepMaster) {
+        let n = Math.abs(Math.floor(num));
+        if (n === 0) return 0;
+        while (n > 9) {
+          if (keepMaster && (n === 11 || n === 22 || n === 33)) {
+            return n;
+          }
+          let sum = 0;
+          String(n).split("").forEach(function (d) {
+            sum += parseInt(d, 10);
+          });
+          n = sum;
+        }
+        return n;
+      }
+
+      function calculateNumerology() {
+        const isPyth = system === "pythagorean";
+        pythagoreanModeBtn.classList.toggle("active", isPyth);
+        chaldeanModeBtn.classList.toggle("active", !isPyth);
+        letterMapTitle.textContent = isPyth
+          ? "Pythagorean Letter Values (Blue = Vowels)"
+          : "Chaldean Letter Values (Blue = Vowels)";
+
+        const chart = isPyth ? PYTHAGOREAN_MAP : CHALDEAN_MAP;
+        const keepMaster = masterKeepSelect.value === "keep";
+
+        // 1. Name Breakdown
+        const rawName = fullNameInput.value || "";
+        const upperChars = rawName.toUpperCase().split("");
+        let totalNameSum = 0;
+        let vowelSum = 0;
+        let consonantSum = 0;
+        let letterCount = 0;
+
+        letterTilesContainer.innerHTML = "";
+        upperChars.forEach(function (ch) {
+          if (Object.prototype.hasOwnProperty.call(chart, ch)) {
+            const val = chart[ch];
+            const isVowel = VOWELS.has(ch);
+            totalNameSum += val;
+            letterCount += 1;
+            if (isVowel) {
+              vowelSum += val;
+            } else {
+              consonantSum += val;
+            }
+
+            if (letterTilesContainer.children.length < 36) {
+              const tile = document.createElement("div");
+              tile.className = "l-tile" + (isVowel ? " vowel" : "");
+              tile.innerHTML = `<span class="ch">${ch}</span><span class="num">${val}</span>`;
+              letterTilesContainer.appendChild(tile);
+            }
+          }
+        });
+
+        if (letterCount === 0) {
+          letterTilesContainer.innerHTML = '<span style="font-size:12px; color:var(--text-muted);">Type a name above to view per-letter numerology values.</span>';
+        }
+        rawNameSumBadge.textContent = `Raw Sum: ${totalNameSum}`;
+
+        const destinyNum = reduceNumber(totalNameSum, keepMaster);
+        const soulNum = reduceNumber(vowelSum, keepMaster);
+        const persNum = reduceNumber(consonantSum, keepMaster);
+
+        const destArch = ARCHETYPES[destinyNum] || { desc: "Enter a name to compute Expression / Destiny" };
+        const soulArch = ARCHETYPES[soulNum] || { desc: "Enter vowels to compute Soul Urge" };
+        const persArch = ARCHETYPES[persNum] || { desc: "Enter consonants to compute Personality" };
+
+        destinyNumVal.textContent = letterCount > 0 ? `${destinyNum} (from ${totalNameSum})` : "—";
+        destinyDesc.textContent = letterCount > 0 ? destArch.desc : "Enter name above";
+
+        soulUrgeVal.textContent = vowelSum > 0 ? `${soulNum} (from ${vowelSum})` : "—";
+        soulUrgeDesc.textContent = vowelSum > 0 ? soulArch.desc : "From vowels (A, E, I, O, U)";
+
+        personalityVal.textContent = consonantSum > 0 ? `${persNum} (from ${consonantSum})` : "—";
+        personalityDesc.textContent = consonantSum > 0 ? persArch.desc : "From consonants";
+
+        // 2. Date of Birth Breakdown
+        const dobVal = birthDateInput.value;
+        let lpNum = 0;
+        let bdayNum = 0;
+        let lpStepsStr = "Select date of birth";
+
+        if (dobVal) {
+          const parts = dobVal.split("-").map(Number);
+          const yr = parts[0] || 1995;
+          const mo = parts[1] || 1;
+          const dy = parts[2] || 1;
+
+          const moRed = reduceNumber(mo, keepMaster);
+          const dyRed = reduceNumber(dy, keepMaster);
+          const yrDigitSum = String(yr).split("").reduce(function (acc, d) { return acc + parseInt(d, 10); }, 0);
+          const yrRed = reduceNumber(yrDigitSum, keepMaster);
+
+          const lpRaw = moRed + dyRed + yrRed;
+          lpNum = reduceNumber(lpRaw, keepMaster);
+          bdayNum = reduceNumber(dy, keepMaster);
+
+          lpStepsStr = `${dobVal} \u2192 ${moRed} + ${dyRed} + ${yrRed} = ${lpRaw} \u2192 ${lpNum}`;
+        }
+
+        const lpArch = ARCHETYPES[lpNum] || { title: "Select Date of Birth", desc: "Enter birth date above" };
+        const bdayArch = ARCHETYPES[bdayNum] || { desc: "Enter birth date above" };
+
+        lifePathDisplay.textContent = lpNum > 0 ? String(lpNum) : "—";
+        lifePathArchetype.textContent = lpArch.title;
+        lifePathSteps.textContent = lpStepsStr;
+
+        birthdayNumVal.textContent = bdayNum > 0
+          ? `${bdayNum} (Day ${dobVal.split("-")[2]} \u2192 ${bdayNum})`
+          : "—";
+        birthdayDesc.textContent = bdayNum > 0 ? bdayArch.desc : "Derived from day of month";
+
+        latestSummaryText = [
+          `PureWebKits Numerology Chart (${isPyth ? "Pythagorean" : "Chaldean"} System)`,
+          "----------------------------------------------------",
+          `Name: ${rawName.trim() || "(Not entered)"} | Date of Birth: ${dobVal || "(Not entered)"}`,
+          `Life Path Number: ${lpNum || "N/A"} (${lpArch.title}) [${lpStepsStr}]`,
+          `Expression / Destiny Number: ${letterCount > 0 ? destinyNum + " (raw " + totalNameSum + ")" : "N/A"}`,
+          `Soul Urge Number: ${vowelSum > 0 ? soulNum + " (raw " + vowelSum + ")" : "N/A"} | Personality Number: ${consonantSum > 0 ? persNum + " (raw " + consonantSum + ")" : "N/A"}`,
+          `Birthday / Mulank Number: ${bdayNum || "N/A"}`
+        ].join("\n");
+      }
+
+      pythagoreanModeBtn.addEventListener("click", function () { system = "pythagorean"; calculateNumerology(); });
+      chaldeanModeBtn.addEventListener("click", function () { system = "chaldean"; calculateNumerology(); });
+
+      [fullNameInput, birthDateInput, masterKeepSelect].forEach(function (el) {
+        el.addEventListener("input", calculateNumerology);
+        el.addEventListener("change", calculateNumerology);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        system = "pythagorean";
+        fullNameInput.value = "Aarav Sharma";
+        birthDateInput.value = "1995-08-14";
+        masterKeepSelect.value = "keep";
+        calculateNumerology();
+      });
+
+      resetNumBtn.addEventListener("click", function () {
+        fullNameInput.value = "";
+        birthDateInput.value = "";
+        calculateNumerology();
+      });
+
+      copyNumBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyNumBtn.textContent;
+          copyNumBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyNumBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadNumBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "numerology-chart.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateNumerology();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,741 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Markdown to HTML Live Previewer Online — Convert MD Free | PureWebKits</title>
+  <meta name="description" content="Convert Markdown (.md) notes and documentation to live HTML markup online for free. Real-time parsing 100% locally in your browser with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/markdown-to-html.html" />
+  <!-- Marked.js for Fast Markdown Parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.1/marked.min.js"></script>
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1120px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Top Toolbar */
+    .md-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .action-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+    .btn-primary {
+      display: inline-block;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 9px;
+      padding: 9px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* 2-Column Studio */
+    .md-studio-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: stretch;
+    }
+    .pane-box { display: flex; flex-direction: column; gap: 8px; }
+    .pane-title {
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .md-textarea {
+      width: 100%;
+      height: 440px;
+      padding: 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--text-main);
+      background: #F8FAFC;
+      resize: vertical;
+      outline: none;
+    }
+    .md-textarea:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .preview-render-box {
+      width: 100%;
+      height: 440px;
+      padding: 20px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: #FFFFFF;
+      overflow-y: auto;
+      font-size: 14.5px;
+      line-height: 1.65;
+    }
+    .preview-render-box h1, .preview-render-box h2, .preview-render-box h3 { margin-top: 14px; margin-bottom: 8px; font-weight: 800; color: #0F172A; }
+    .preview-render-box p { margin-bottom: 10px; color: #334155; }
+    .preview-render-box ul, .preview-render-box ol { padding-left: 20px; margin-bottom: 10px; color: #334155; }
+    .preview-render-box code { background: #F1F5F9; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: monospace; }
+    .preview-render-box pre { background: #0F172A; color: #E2E8F0; padding: 12px; border-radius: 8px; margin: 10px 0; overflow-x: auto; }
+    .preview-render-box pre code { background: transparent; color: inherit; padding: 0; }
+    .preview-render-box blockquote { border-left: 4px solid var(--primary); padding-left: 12px; color: var(--text-muted); margin: 10px 0; font-style: italic; }
+    .preview-render-box table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; }
+    .preview-render-box th, .preview-render-box td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .preview-render-box th { background: #F8FAFC; font-weight: 700; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .md-studio-grid { grid-template-columns: 1fr; }
+      .md-textarea, .preview-render-box { height: 320px; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Markdown to HTML Previewer Tool -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Markdown to HTML Live Previewer — Convert MD Free</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Parse Markdown notes into live HTML preview and raw markup in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="md-topbar">
+          <div class="action-group">
+            <button type="button" id="loadSampleMdBtn" class="btn-sec">Load Sample Markdown</button>
+            <button type="button" id="clearMdBtn" class="btn-sec">Clear Editor</button>
+            <button type="button" id="toggleViewBtn" class="btn-sec">Toggle: View Raw HTML</button>
+          </div>
+          <button type="button" id="copyHtmlBtn" class="btn-primary">Copy HTML Output</button>
+        </div>
+
+        <div class="md-studio-grid">
+          <div class="pane-box">
+            <div class="pane-title">Markdown Input (.md)</div>
+            <textarea id="mdTextarea" class="md-textarea" spellcheck="false" placeholder="# Type your Markdown here..."></textarea>
+          </div>
+
+          <div class="pane-box">
+            <div class="pane-title" id="outputPaneTitle">Live HTML Render Preview</div>
+            <div id="previewRenderBox" class="preview-render-box"></div>
+            <textarea id="rawHtmlBox" class="md-textarea" style="display:none;" readonly spellcheck="false" placeholder="Raw HTML markup will appear here..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Markdown Parsing, AST Generation & HTML Rendering Work</h2>
+
+      <h3>Why Converting Markdown to HTML Is Essential for Web Publishing</h3>
+      <p>
+        <strong>Markdown (.md)</strong> has become the global standard for writing documentation, blog posts, study notes, and README files because of its lightweight syntax and readability. However, web browsers only render standard <strong>HTML (HyperText Markup Language)</strong>. Our browser-based <strong>Markdown to HTML Live Previewer</strong> utilizes the high-performance <code>marked.js</code> library to parse raw Markdown text into an Abstract Syntax Tree (AST) and render formatted HTML tags in real time, allowing you to copy clean web markup instantly without server uploads.
+      </p>
+
+      <h3>How to Convert Markdown to HTML in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Type or Paste Markdown:</strong> Write your notes or documentation in the left editor panel (or click <em>Load Sample Markdown</em>).</li>
+        <li><strong>Review Live Preview:</strong> Inspect headings, bullet lists, code blocks, and tables rendered instantly on the right.</li>
+        <li><strong>Copy HTML Output:</strong> Click <em>Toggle View: View Raw HTML</em> to inspect or copy clean HTML markup for your website or CMS.</li>
+      </ol>
+
+      <h3>Markdown AST Parsing & HTML Translation Formula + Worked Example</h3>
+      <p>
+        Markdown parsing translates syntax symbols into semantic HTML wrapper tags:
+      </p>
+      <div class="formula-box">
+        Markdown Syntax (# Title) → Lexical Tokenizer → HTML Tag (<h1>Title</h1>)
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Typing <code>**Bold Text**</code> in Markdown translates instantly to <code><strong>Bold Text</strong></code> in the raw HTML output view[cite: 4].</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="mdhtml-table-heading">
+      <h2 id="mdhtml-table-heading">Markdown Syntax, HTML Output & Publishing Standards (16 Elements)</h2>
+      <p>Use this syntax reference table to understand how Markdown formatting maps into HTML web markup[cite: 4].</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Markdown Syntax</th>
+              <th>Rendered HTML Output Tag</th>
+              <th>Styling & Formatting Purpose</th>
+              <th>Best Web Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code># Heading 1</code></td>
+              <td><code><h1>...</h1></code></td>
+              <td>Top-level page title</td>
+              <td>Article main titles</td>
+            </tr>
+            <tr>
+              <td><code>## Heading 2</code></td>
+              <td><code><h2>...</h2></code></td>
+              <td>Major section heading</td>
+              <td>Chapter or section titles</td>
+            </tr>
+            <tr>
+              <td><code>### Heading 3</code></td>
+              <td><code><h3>...</h3></code></td>
+              <td>Sub-section heading</td>
+              <td>Sub-topic grouping</td>
+            </tr>
+            <tr>
+              <td><code>**Bold**</code></td>
+              <td><code><strong>...</strong></code></td>
+              <td>Strong visual emphasis</td>
+              <td>Highlighting key terms</td>
+            </tr>
+            <tr>
+              <td><code>*Italic*</code></td>
+              <td><code><em>...</em></code></td>
+              <td>Italicized emphasis</td>
+              <td>Captions or book titles</td>
+            </tr>
+            <tr>
+              <td><code>* Bullet item</code></td>
+              <td><code><ul><li>...</li></ul></code></td>
+              <td>Unordered bullet list</td>
+              <td>Feature lists & checklists</td>
+            </tr>
+            <tr>
+              <td><code>1. Numbered item</code></td>
+              <td><code><ol><li>...</li></ol></code></td>
+              <td>Ordered numbered list</td>
+              <td>Step-by-step instructions</td>
+            </tr>
+            <tr>
+              <td><code>`inline code`</code></td>
+              <td><code><code>...</code></code></td>
+              <td>Monospace inline font</td>
+              <td>Commands and variables</td>
+            </tr>
+            <tr>
+              <td>```js code block ```</td>
+              <td><code><pre><code>...</code></pre></code></td>
+              <td>Formatted code block</td>
+              <td>Programming code snippets</td>
+            </tr>
+            <tr>
+              <td><code>> Quote</code></td>
+              <td><code><blockquote>...</blockquote></code></td>
+              <td>Indented callout box</td>
+              <td>Quotations and notes</td>
+            </tr>
+            <tr>
+              <td><code>[Link text](url)</code></td>
+              <td><code><a href="url">...</a></code></td>
+              <td>Hyperlink anchor</td>
+              <td>Web references</td>
+            </tr>
+            <tr>
+              <td><code>| Col 1 | Col 2 |</code></td>
+              <td><code><table><tr><td>...</td></tr></table></code></td>
+              <td>Structured data grid</td>
+              <td>Comparison charts</td>
+            </tr>
+            <tr>
+              <td><code>---</code></td>
+              <td><code><hr /></code></td>
+              <td>Horizontal divider line</td>
+              <td>Section breaks</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Parser</strong></td>
+              <td>JavaScript <code>marked.js</code></td>
+              <td>Zero Server Latency</td>
+              <td>Instant browser execution</td>
+            </tr>
+            <tr>
+              <td><strong>Clipboard Integration</strong></td>
+              <td>1-click copy HTML</td>
+              <td>Workflow Optimization</td>
+              <td>Quick publishing utility</td>
+            </tr>
+            <tr>
+              <td><strong>Data Privacy</strong></td>
+              <td>100% Client-Side Memory</td>
+              <td><span class="limit-badge">Zero Server Upload</span></td>
+              <td>Private notes stay secure on your PC[cite: 4]</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Developer, Text & Publishing Utilities</h2>
+      <p>Need to convert Markdown to PDF, format HTML, count words, or encode Base64? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="markdown-to-pdf.html"><span>Markdown to PDF Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="html-minifier.html"><span>HTML Minifier & Beautifier</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter & Validator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="base64-encode-decode.html"><span>Base64 Encoder / Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="url-encode-decode.html"><span>URL Encoder / Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="regex-tester.html"><span>Regex Live Tester</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Strong Password Generator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How does the Markdown to HTML previewer work?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            As you type Markdown in the left pane, the high-performance <code>marked.js</code> library parses your syntax in real time, displaying both a live rendered visual preview and the clean raw HTML markup.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I view and copy the raw HTML code?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> Click the <strong>Toggle View: View Raw HTML</strong> button in the top toolbar to switch from the visual preview to the raw HTML code editor, then click <em>Copy HTML Output</em> to copy it to your clipboard.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. What Markdown elements are fully supported?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Standard Markdown elements including headings (H1-H3), bold and italic text, unordered and ordered lists, blockquotes, fenced code blocks, tables, and hyperlinks are fully supported.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my notes or documents uploaded to any external server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All parsing and HTML rendering run 100% locally inside your web browser. Your private notes and documentation never leave your computer[cite: 4].
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Markdown to HTML Live Previewer Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const mdTextarea = document.getElementById("mdTextarea");
+      const previewRenderBox = document.getElementById("previewRenderBox");
+      const rawHtmlBox = document.getElementById("rawHtmlBox");
+      const outputPaneTitle = document.getElementById("outputPaneTitle");
+      const loadSampleMdBtn = document.getElementById("loadSampleMdBtn");
+      const clearMdBtn = document.getElementById("clearMdBtn");
+      const toggleViewBtn = document.getElementById("toggleViewBtn");
+      const copyHtmlBtn = document.getElementById("copyHtmlBtn");
+
+      let isRawView = false;
+      let lastHtmlOutput = "";
+
+      function updatePreview() {
+        const rawMd = mdTextarea.value || "";
+        if (window.marked) {
+          lastHtmlOutput = marked.parse(rawMd);
+        } else {
+          lastHtmlOutput = "<p>" + rawMd + "</p>";
+        }
+
+        previewRenderBox.innerHTML = lastHtmlOutput;
+        rawHtmlBox.value = lastHtmlOutput;
+      }
+
+      mdTextarea.addEventListener("input", updatePreview);
+
+      toggleViewBtn.addEventListener("click", function () {
+        isRawView = !isRawView;
+        if (isRawView) {
+          previewRenderBox.style.display = "none";
+          rawHtmlBox.style.display = "block";
+          outputPaneTitle.textContent = "Raw HTML Markup Output";
+          toggleViewBtn.textContent = "Toggle: View Visual Preview";
+        } else {
+          rawHtmlBox.style.display = "none";
+          previewRenderBox.style.display = "block";
+          outputPaneTitle.textContent = "Live HTML Render Preview";
+          toggleViewBtn.textContent = "Toggle: View Raw HTML";
+        }
+      });
+
+      loadSampleMdBtn.addEventListener("click", function () {
+        mdTextarea.value =
+          "# Live Web Publishing Guide\n\n" +
+          "> **Note:** This Markdown previewer runs 100% client-side in your browser.\n\n" +
+          "## 1. Features & Benefits\n\n" +
+          "* Real-time AST parsing via `marked.js`\n" +
+          "* Instant raw HTML markup inspection\n" +
+          "* Zero server-side file uploads\n\n" +
+          "## 2. Comparison Table\n\n" +
+          "| Feature | Traditional Server | PureWebKits Client |\n" +
+          "|---|---|---|\n" +
+          "| Speed | Slow Latency | Instant Response |\n" +
+          "| Privacy | Cloud Storage | 100% Local Browser |\n\n" +
+          "## 3. Conclusion\n\n" +
+          "Enjoy building lightning-fast web documentation!";
+        updatePreview();
+      });
+
+      clearMdBtn.addEventListener("click", function () {
+        mdTextarea.value = "";
+        updatePreview();
+      });
+
+      copyHtmlBtn.addEventListener("click", async function () {
+        if (!lastHtmlOutput) return;
+        try {
+          await navigator.clipboard.writeText(lastHtmlOutput);
+          const orig = copyHtmlBtn.textContent;
+          copyHtmlBtn.textContent = "Copied HTML Output!";
+          setTimeout(function () { copyHtmlBtn.textContent = orig; }, 1400);
+        } catch (e) {}
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      loadSampleMdBtn.click();
+    });
+  </script>
+</body>
+</html>

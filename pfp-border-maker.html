@@ -1,0 +1,979 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Social Media Profile Picture Border Maker Online — Circle PFP Ring Generator | PureWebKits</title>
+  <meta name="description" content="Add gradient or solid circular borders to your LinkedIn, Instagram, YouTube, X, and Discord profile pictures online for free. Zoom, pan, and export 800x800 transparent PNGs locally." />
+  <link rel="canonical" href="https://PureWebKits.com/pfp-border-maker.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* 2-Column PFP Studio */
+    .pfp-grid {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 26px;
+      align-items: start;
+    }
+
+    /* Left Preview Stage */
+    .stage-card {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .checker-circle-wrap {
+      width: 300px;
+      height: 300px;
+      max-width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 16px;
+      border: 1px solid #CBD5E1;
+      background-image: linear-gradient(45deg, #E2E8F0 25%, transparent 25%),
+                        linear-gradient(-45deg, #E2E8F0 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, #E2E8F0 75%),
+                        linear-gradient(-45deg, transparent 75%, #E2E8F0 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+    .pfp-canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .upload-btn-full {
+      width: 100%;
+      text-align: center;
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: 1.5px solid #93C5FD;
+      border-radius: 9px;
+      padding: 10px 16px;
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .upload-btn-full:hover { background: #DBEAFE; }
+
+    /* Right Controls Column */
+    .controls-col { display: flex; flex-direction: column; gap: 15px; }
+    .ctrl-label { font-size: 13px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; display: block; }
+
+    .presets-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .ring-preset-btn {
+      background: #F8FAFC;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 9px;
+      padding: 8px 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+    .ring-preset-btn.active, .ring-preset-btn:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+    .ring-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+    }
+
+    .row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .row-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .field-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 11px;
+    }
+    .field-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+    .val-tag { color: var(--primary); font-weight: 800; }
+    .field-box input[type="range"] { width: 100%; accent-color: var(--primary); cursor: pointer; }
+    .std-select {
+      width: 100%;
+      height: 38px;
+      padding: 0 10px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      background: #FFFFFF;
+      color: var(--text-main);
+    }
+    .color-pair { display: flex; align-items: center; gap: 8px; }
+    .swatch-inp {
+      flex: 1;
+      height: 38px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 2px;
+      background: #FFFFFF;
+      cursor: pointer;
+    }
+
+    .btn-download-pfp {
+      width: 100%;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 10px;
+      padding: 13px 20px;
+      font-size: 14.5px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .btn-download-pfp:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .pfp-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .presets-grid { grid-template-columns: repeat(2, 1fr); }
+      .row-3col { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Social Media Profile Picture Border Maker -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Social Media Profile Picture Border Maker — Circle PFP Ring Studio</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Frame your LinkedIn, Instagram, YouTube & X avatar in 800×800 transparent PNG locally
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="pfp-grid">
+          <!-- Left Live Circular Canvas Preview -->
+          <div class="stage-card">
+            <div class="checker-circle-wrap">
+              <canvas id="pfpCanvas" class="pfp-canvas" width="800" height="800"></canvas>
+            </div>
+
+            <label class="upload-btn-full" for="pfpPhotoInput">
+              + Upload Your Profile Photo (JPG / PNG / WebP)
+              <input type="file" id="pfpPhotoInput" accept="image/*" style="display:none;" />
+            </label>
+          </div>
+
+          <!-- Right Border Presets & Adjustments -->
+          <div class="controls-col">
+            <div>
+              <span class="ctrl-label">1. Choose Border Ring Style</span>
+              <div class="presets-grid">
+                <button type="button" class="ring-preset-btn active" data-c1="#2563EB" data-c2="#38BDF8">
+                  <span class="ring-dot" style="background:linear-gradient(135deg,#2563EB,#38BDF8);"></span>
+                  <span>Brand Blue</span>
+                </button>
+                <button type="button" class="ring-preset-btn" data-c1="#F59E0B" data-c2="#EC4899">
+                  <span class="ring-dot" style="background:linear-gradient(135deg,#F59E0B,#EC4899);"></span>
+                  <span>IG Sunset</span>
+                </button>
+                <button type="button" class="ring-preset-btn" data-c1="#059669" data-c2="#34D399">
+                  <span class="ring-dot" style="background:linear-gradient(135deg,#059669,#34D399);"></span>
+                  <span>Open / Green</span>
+                </button>
+                <button type="button" class="ring-preset-btn" data-c1="#D97706" data-c2="#FDE047">
+                  <span class="ring-dot" style="background:linear-gradient(135deg,#D97706,#FDE047);"></span>
+                  <span>VIP Gold</span>
+                </button>
+                <button type="button" class="ring-preset-btn" data-c1="#7C3AED" data-c2="#EC4899">
+                  <span class="ring-dot" style="background:linear-gradient(135deg,#7C3AED,#EC4899);"></span>
+                  <span>Neon Purple</span>
+                </button>
+                <button type="button" class="ring-preset-btn" data-c1="#DC2626" data-c2="#F97316">
+                  <span class="ring-dot" style="background:linear-gradient(135deg,#DC2626,#F97316);"></span>
+                  <span>YouTube Red</span>
+                </button>
+                <button type="button" class="ring-preset-btn" data-c1="#FFFFFF" data-c2="#E2E8F0">
+                  <span class="ring-dot" style="background:#FFFFFF;border:1px solid #94A3B8;"></span>
+                  <span>Clean White</span>
+                </button>
+                <button type="button" class="ring-preset-btn" data-c1="#0F172A" data-c2="#334155">
+                  <span class="ring-dot" style="background:#0F172A;"></span>
+                  <span>Dark Slate</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="row-2col">
+              <div class="field-box">
+                <div class="field-top">
+                  <span>Custom Gradient Colors</span>
+                </div>
+                <div class="color-pair">
+                  <input type="color" id="ringColor1" class="swatch-inp" value="#2563EB" title="Start Gradient Color" />
+                  <input type="color" id="ringColor2" class="swatch-inp" value="#38BDF8" title="End Gradient Color" />
+                </div>
+              </div>
+
+              <div class="field-box">
+                <div class="field-top">
+                  <label for="pfpShapeSelect">Avatar Frame Shape</label>
+                </div>
+                <select id="pfpShapeSelect" class="std-select">
+                  <option value="circle" selected>Circle (LinkedIn / IG / YT)</option>
+                  <option value="rounded">Rounded Square (Discord / App)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row-2col">
+              <div class="field-box">
+                <div class="field-top">
+                  <label for="ringWidthSlider">Border Thickness</label>
+                  <span id="ringWidthVal" class="val-tag">32 px</span>
+                </div>
+                <input type="range" id="ringWidthSlider" min="0" max="80" step="2" value="32" />
+              </div>
+
+              <div class="field-box">
+                <div class="field-top">
+                  <label for="zoomSlider">Photo Zoom</label>
+                  <span id="zoomVal" class="val-tag">1.00x</span>
+                </div>
+                <input type="range" id="zoomSlider" min="1" max="2.5" step="0.05" value="1" />
+              </div>
+            </div>
+
+            <div class="row-2col">
+              <div class="field-box">
+                <div class="field-top">
+                  <label for="panXSlider">Horizontal Position (X)</label>
+                  <span id="panXVal" class="val-tag">0%</span>
+                </div>
+                <input type="range" id="panXSlider" min="-50" max="50" step="2" value="0" />
+              </div>
+
+              <div class="field-box">
+                <div class="field-top">
+                  <label for="panYSlider">Vertical Position (Y)</label>
+                  <span id="panYVal" class="val-tag">0%</span>
+                </div>
+                <input type="range" id="panYSlider" min="-50" max="50" step="2" value="0" />
+              </div>
+            </div>
+
+            <button type="button" id="downloadPfpBtn" class="btn-download-pfp">Download 800×800 Transparent PNG Avatar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How Circular Avatar Masking, Gradient Border Rings & Social Safe Zones Work</h2>
+
+      <h3>Why Adding a High-Contrast Ring Boosts Profile Click-Through Rates</h3>
+      <p>
+        Nearly every major social network—including <strong>LinkedIn, Instagram, YouTube, X (Twitter), WhatsApp, Telegram, and Discord</strong>—crops square uploaded avatars into a circle inside comment threads, story trays, and search results. Against crowded white or dark-mode feeds, plain portraits often blend into the background. Surrounding your headshot with a crisp <strong>gradient or solid accent ring</strong> creates immediate visual separation, draws the viewer's eye toward your face, and reinforces your personal or company brand palette. Exporting at <strong>800×800 px in 32-bit transparent PNG format</strong> ensures the outer corners outside the circular ring remain completely transparent on every platform.
+      </p>
+
+      <h3>How to Create a Circular Profile Picture Border in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Upload Your Headshot or Logo:</strong> Click <em>+ Upload Your Profile Photo</em> to load any JPG, PNG, or WebP picture locally onto the 800×800 canvas.</li>
+        <li><strong>Pick a Ring Color & Thickness:</strong> Select any preset gradient (<em>Brand Blue</em>, <em>IG Sunset</em>, <em>Open / Green</em>, <em>VIP Gold</em>) or pick two custom colors, and adjust border thickness.</li>
+        <li><strong>Zoom, Center & Download PNG:</strong> Use <em>Photo Zoom</em> and <em>X/Y Position</em> sliders to frame your face cleanly, then click <em>Download 800×800 Transparent PNG Avatar</em>.</li>
+      </ol>
+
+      <h3>Circular Crop Inscribed Diameter Formula + Worked Example</h3>
+      <p>
+        When a square canvas of side <code>S</code> is masked into a circle with border ring thickness <code>T</code>, the inner visible photo diameter and inscribed safe square are governed by:
+      </p>
+      <div class="formula-box">
+        Inner Photo Diameter = S − 2T  |  Inscribed Safe Square = (S − 2T) / √2
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> On our <strong>S = 800 px</strong> avatar canvas with a <strong>T = 32 px</strong> gradient border ring:</p>
+        <p>Inner circular photo diameter = <code>800 − 2(32) = 736 px</code>.</p>
+        <p>Centered safe zone = <code>736 / 1.414 ≈ 520 × 520 px</code>—keeping your eyes, head, and shoulders comfortably inside the circular crop without touching the border ring.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="pfp-table-heading">
+      <h2 id="pfp-table-heading">Social Media Profile Picture Dimensions & Crop Safe-Zone Chart (16 Platforms)</h2>
+      <p>Use this social media branding cheat sheet to ensure your bordered avatar renders crisply without unwanted edge cropping.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Social Network / App</th>
+              <th>Recommended Upload Size</th>
+              <th>Display Crop Shape</th>
+              <th>Recommended Ring Thickness</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>LinkedIn Personal & Company Page</strong></td>
+              <td><span class="limit-badge">800 × 800 px</span></td>
+              <td>Circle (1:1)</td>
+              <td>28 px – 40 px (Blue / Green)</td>
+            </tr>
+            <tr>
+              <td><strong>Instagram Profile Picture</strong></td>
+              <td><span class="limit-badge">320 × 320 px (800px ideal)</span></td>
+              <td>Circle (1:1)</td>
+              <td>32 px – 48 px (High contrast)</td>
+            </tr>
+            <tr>
+              <td><strong>YouTube Channel Avatar</strong></td>
+              <td><span class="limit-badge">800 × 800 px</span></td>
+              <td>Circle (1:1)</td>
+              <td>30 px – 44 px (Red / Brand)</td>
+            </tr>
+            <tr>
+              <td><strong>X (Twitter) Profile Photo</strong></td>
+              <td><span class="limit-badge">400 × 400 px (800px ideal)</span></td>
+              <td>Circle (1:1)</td>
+              <td>28 px – 36 px</td>
+            </tr>
+            <tr>
+              <td><strong>WhatsApp & WhatsApp Business</strong></td>
+              <td><span class="limit-badge">640 × 640 px (800px ideal)</span></td>
+              <td>Circle (1:1)</td>
+              <td>32 px – 45 px</td>
+            </tr>
+            <tr>
+              <td><strong>Facebook Profile & Page Icon</strong></td>
+              <td><span class="limit-badge">512 × 512 px+</span></td>
+              <td>Circle (1:1)</td>
+              <td>28 px – 40 px</td>
+            </tr>
+            <tr>
+              <td><strong>Discord Avatar & Server Icon</strong></td>
+              <td><span class="limit-badge">512 × 512 px</span></td>
+              <td>Circle / Squircle</td>
+              <td>24 px – 36 px</td>
+            </tr>
+            <tr>
+              <td><strong>Telegram Profile & Channel Photo</strong></td>
+              <td><span class="limit-badge">640 × 640 px</span></td>
+              <td>Circle (1:1)</td>
+              <td>28 px – 40 px</td>
+            </tr>
+            <tr>
+              <td><strong>TikTok Creator Profile</strong></td>
+              <td><span class="limit-badge">400 × 400 px+</span></td>
+              <td>Circle (1:1)</td>
+              <td>32 px – 48 px</td>
+            </tr>
+            <tr>
+              <td><strong>GitHub & Developer Gravatar</strong></td>
+              <td><span class="limit-badge">500 × 500 px</span></td>
+              <td>Circle / Rounded</td>
+              <td>20 px – 32 px</td>
+            </tr>
+            <tr>
+              <td><strong>Slack & Microsoft Teams Avatar</strong></td>
+              <td><span class="limit-badge">512 × 512 px</span></td>
+              <td>Rounded Square / Circle</td>
+              <td>24 px – 34 px</td>
+            </tr>
+            <tr>
+              <td><strong>Pinterest Creator Profile</strong></td>
+              <td><span class="limit-badge">400 × 400 px</span></td>
+              <td>Circle (1:1)</td>
+              <td>28 px – 40 px</td>
+            </tr>
+            <tr>
+              <td><strong>Threads & Bluesky Profile</strong></td>
+              <td><span class="limit-badge">800 × 800 px</span></td>
+              <td>Circle (1:1)</td>
+              <td>30 px – 42 px</td>
+            </tr>
+            <tr>
+              <td><strong>Outer Corner Transparency</strong></td>
+              <td>32-Bit RGBA PNG</td>
+              <td>Alpha = 0 Outside Ring</td>
+              <td>Blends cleanly on Light & Dark Mode</td>
+            </tr>
+            <tr>
+              <td><strong>Headroom Safe Margin</strong></td>
+              <td>Leave 12%–15% Above Hair</td>
+              <td>Centered Eye Line</td>
+              <td>Prevents ring from overlapping forehead</td>
+            </tr>
+            <tr>
+              <td><strong>Export Privacy</strong></td>
+              <td>HTML5 Canvas Clip Path</td>
+              <td><span class="limit-badge">100% Client-Side</span></td>
+              <td>Personal portraits never leave your browser</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Image Cropping, Color & Social Media Utilities</h2>
+      <p>Cropping photos to exact 1:1 or 16:9 ratios, extracting brand colors from your logo, generating favicons, or compressing images? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="image-cropper.html"><span>Image Cropper (Circle/1:1)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="color-palette-extractor.html"><span>Color Palette Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="color-picker.html"><span>Color Picker & HEX</span><span class="arrow">→</span></a>
+        <a class="related-link" href="favicon-generator.html"><span>Favicon Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="image-watermark.html"><span>Bulk Image Watermark</span><span class="arrow">→</span></a>
+        <a class="related-link" href="meme-generator.html"><span>Custom Meme Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="compress-image-to-exact-kb.html"><span>Compress Image to KB</span><span class="arrow">→</span></a>
+        <a class="related-link" href="webp-converter.html"><span>WebP Image Converter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Why are the corners outside the circular border transparent?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Exporting as a <strong>32-bit transparent PNG</strong> ensures that the four outer corners outside your circular ring have zero background color—so your circular avatar blends seamlessly onto both light-mode and dark-mode interfaces across LinkedIn, Instagram, YouTube, and Discord.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How do I center my face inside the ring if my photo is off-center?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Use the <strong>Photo Zoom</strong> slider to zoom in slightly, then adjust the <strong>Horizontal Position (X)</strong> and <strong>Vertical Position (Y)</strong> sliders until your face sits centered inside the ring with comfortable headroom.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Can I match my exact brand HEX colors for the border gradient?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Yes! Click the two color swatches under <em>Custom Gradient Colors</em> to choose any start and end HEX color—or select the same color twice for a clean, solid single-color border ring.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is my personal portrait uploaded to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All circular clipping, gradient rendering, and 800×800 PNG export run 100% locally inside your web browser using HTML5 Canvas. Your photos never leave your device.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Circular PFP Border Studio Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const pfpCanvas = document.getElementById("pfpCanvas");
+      const pfpPhotoInput = document.getElementById("pfpPhotoInput");
+      const ringPresetBtns = document.querySelectorAll(".ring-preset-btn");
+      const ringColor1 = document.getElementById("ringColor1");
+      const ringColor2 = document.getElementById("ringColor2");
+      const pfpShapeSelect = document.getElementById("pfpShapeSelect");
+
+      const ringWidthSlider = document.getElementById("ringWidthSlider");
+      const ringWidthVal = document.getElementById("ringWidthVal");
+      const zoomSlider = document.getElementById("zoomSlider");
+      const zoomVal = document.getElementById("zoomVal");
+      const panXSlider = document.getElementById("panXSlider");
+      const panXVal = document.getElementById("panXVal");
+      const panYSlider = document.getElementById("panYSlider");
+      const panYVal = document.getElementById("panYVal");
+
+      const downloadPfpBtn = document.getElementById("downloadPfpBtn");
+
+      let userImg = null;
+
+      function createDefaultPortrait() {
+        const svg =
+          '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800">' +
+          '<rect width="800" height="800" fill="#1E293B"/>' +
+          '<circle cx="400" cy="310" r="135" fill="#94A3B8"/>' +
+          '<path d="M160 740 C160 560, 640 560, 640 740 Z" fill="#64748B"/>' +
+          '</svg>';
+        const img = new Image();
+        img.onload = function () {
+          userImg = img;
+          renderPfpCanvas();
+        };
+        img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+      }
+
+      function traceShapePath(ctx, size, inset, shape) {
+        ctx.beginPath();
+        if (shape === "rounded") {
+          const x = inset;
+          const y = inset;
+          const w = size - inset * 2;
+          const r = Math.max(12, w * 0.22);
+          ctx.moveTo(x + r, y);
+          ctx.arcTo(x + w, y, x + w, y + w, r);
+          ctx.arcTo(x + w, y + w, x, y + w, r);
+          ctx.arcTo(x, y + w, x, y, r);
+          ctx.arcTo(x, y, x + w, y, r);
+          ctx.closePath();
+        } else {
+          const half = size / 2;
+          const rad = Math.max(10, half - inset);
+          ctx.arc(half, half, rad, 0, Math.PI * 2);
+          ctx.closePath();
+        }
+      }
+
+      function renderPfpCanvas() {
+        const size = 800;
+        pfpCanvas.width = size;
+        pfpCanvas.height = size;
+        const ctx = pfpCanvas.getContext("2d");
+        ctx.clearRect(0, 0, size, size);
+
+        const ringW = parseInt(ringWidthSlider.value, 10) || 0;
+        const zoom = parseFloat(zoomSlider.value) || 1;
+        const panX = parseInt(panXSlider.value, 10) || 0;
+        const panY = parseInt(panYSlider.value, 10) || 0;
+        const shape = pfpShapeSelect.value;
+
+        ringWidthVal.textContent = ringW + " px";
+        zoomVal.textContent = zoom.toFixed(2) + "x";
+        panXVal.textContent = panX + "%";
+        panYVal.textContent = panY + "%";
+
+        // 1. Draw Outer Border Ring if ringW > 0
+        if (ringW > 0) {
+          ctx.save();
+          const grad = ctx.createLinearGradient(0, 0, size, size);
+          grad.addColorStop(0, ringColor1.value || "#2563EB");
+          grad.addColorStop(1, ringColor2.value || "#38BDF8");
+          traceShapePath(ctx, size, 2, shape);
+          ctx.fillStyle = grad;
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // 2. Clip Inner Photo Region & Draw Image
+        if (userImg) {
+          ctx.save();
+          const innerInset = ringW > 0 ? ringW + 2 : 2;
+          traceShapePath(ctx, size, innerInset, shape);
+          ctx.clip();
+
+          const iw = userImg.naturalWidth || userImg.width;
+          const ih = userImg.naturalHeight || userImg.height;
+          const innerSpan = size - innerInset * 2;
+          const baseScale = Math.max(innerSpan / iw, innerSpan / ih);
+          const finalScale = baseScale * zoom;
+
+          const drawW = iw * finalScale;
+          const drawH = ih * finalScale;
+          const offsetX = (panX / 100) * innerSpan * 0.6;
+          const offsetY = (panY / 100) * innerSpan * 0.6;
+          const dx = (size - drawW) / 2 + offsetX;
+          const dy = (size - drawH) / 2 + offsetY;
+
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+          ctx.drawImage(userImg, dx, dy, drawW, drawH);
+          ctx.restore();
+        }
+      }
+
+      ringPresetBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          ringPresetBtns.forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          ringColor1.value = btn.getAttribute("data-c1");
+          ringColor2.value = btn.getAttribute("data-c2");
+          renderPfpCanvas();
+        });
+      });
+
+      [ringColor1, ringColor2].forEach(function (inp) {
+        inp.addEventListener("input", function () {
+          ringPresetBtns.forEach(function (b) { b.classList.remove("active"); });
+          renderPfpCanvas();
+        });
+      });
+
+      [pfpShapeSelect, ringWidthSlider, zoomSlider, panXSlider, panYSlider].forEach(function (el) {
+        el.addEventListener("input", renderPfpCanvas);
+        el.addEventListener("change", renderPfpCanvas);
+      });
+
+      pfpPhotoInput.addEventListener("change", function (e) {
+        const f = e.target.files && e.target.files[0];
+        if (!f || !f.type.startsWith("image/")) return;
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          const img = new Image();
+          img.onload = function () {
+            userImg = img;
+            zoomSlider.value = "1";
+            panXSlider.value = "0";
+            panYSlider.value = "0";
+            renderPfpCanvas();
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(f);
+        e.target.value = "";
+      });
+
+      downloadPfpBtn.addEventListener("click", function () {
+        pfpCanvas.toBlob(function (blob) {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "profile-avatar-border.png";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, "image/png");
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      createDefaultPortrait();
+    });
+  </script>
+</body>
+</html>

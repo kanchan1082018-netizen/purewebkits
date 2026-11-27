@@ -1,0 +1,992 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Prime Number Checker & Factor Finder — PureWebKits</title>
+  <meta name="description" content="Check whether an integer is prime or composite, find its smallest prime factor, and list factors online for free. 100% client-side prime number checker with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/prime-number-checker.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Prime Checker Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 14px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input {
+      width: 100%;
+      height: 44px;
+      padding: 0 13px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .quick-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .num-chip {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 7px;
+      padding: 5px 11px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .num-chip:hover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary-dark);
+    }
+
+    .prime-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .prime-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .prime-hero-title { font-size: 16px; font-weight: 800; }
+    .prime-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .prime-hero-badge {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 18px;
+      font-weight: 800;
+      padding: 6px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+    .prime-hero-badge.is-prime { background: rgba(5, 150, 105, 0.22); color: #6EE7B7; border: 1px solid #10B981; }
+    .prime-hero-badge.is-composite { background: rgba(220, 38, 38, 0.22); color: #FCA5A5; border: 1px solid #F87171; }
+    .prime-hero-badge.is-neither { background: rgba(148, 163, 184, 0.2); color: #E2E8F0; border: 1px solid #94A3B8; }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+      word-break: break-word;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Prime Number Checker Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Prime Number Checker</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Test if a number is prime or composite and inspect factors in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">Enter a whole number to check whether it is prime or composite:</div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample (97)</button>
+            <button type="button" id="resetPrimeBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="primeNumberInput" class="field-label">Integer to Check</label>
+              <input type="number" id="primeNumberInput" class="std-input" step="1" value="97" />
+            </div>
+
+            <div class="quick-chips" aria-label="Quick sample numbers">
+              <button type="button" class="num-chip" data-prime-sample="2">2 (Prime)</button>
+              <button type="button" class="num-chip" data-prime-sample="17">17 (Prime)</button>
+              <button type="button" class="num-chip" data-prime-sample="49">49 (Composite)</button>
+              <button type="button" class="num-chip" data-prime-sample="97">97 (Prime)</button>
+              <button type="button" class="num-chip" data-prime-sample="1">1 (Neither)</button>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="prime-hero-box">
+              <div>
+                <div class="prime-hero-kicker">Primality Result</div>
+                <div class="prime-hero-title" id="primeHeadline">97 is a Prime Number</div>
+                <div class="prime-hero-sub" id="primeReasonSub">Divisible only by 1 and 97</div>
+              </div>
+              <span class="prime-hero-badge is-prime" id="primeBadge">PRIME</span>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Trial Division Limit (⌊√n⌋)</div>
+                <div class="metric-val" id="trialLimitVal">9</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Smallest Divisor > 1</div>
+                <div class="metric-val" id="smallestDivVal">97 (self)</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Nearest Primes Around n</div>
+                <div class="metric-val" id="neighborPrimesVal">Prev: 89 • Next: 101</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Divisors List</div>
+                <div class="metric-val" id="divisorsSummaryVal">1, 97 (2 divisors)</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyPrimeBtn" class="btn-primary">Copy Result</button>
+              <button type="button" id="downloadPrimeBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Prime Numbers, Composite Numbers, and Trial Division</h2>
+
+      <h3>Why Prime Numbers Are Foundational to Mathematics and Computing</h3>
+      <p>
+        A <strong>prime number</strong> is a natural number greater than <code>1</code> that has no positive divisors other than <code>1</code> and itself—such as <code>2</code>, <code>3</code>, <code>5</code>, <code>7</code>, <code>11</code>, <code>13</code>, and <code>97</code>. Numbers greater than <code>1</code> that have at least one additional divisor are called <strong>composite numbers</strong> (such as <code>4</code>, <code>6</code>, <code>9</code>, or <code>49</code>), while integers less than or equal to <code>1</code> (such as <code>0</code>, <code>1</code>, and negative integers) are neither prime nor composite. Prime numbers serve as the multiplicative building blocks of integers via unique prime factorization and underpin modern public-key cryptography, hashing, and algorithm design. A browser-based <strong>Prime Number Checker</strong> tests integers immediately—100% locally in your browser with zero server uploads.
+      </p>
+
+      <h3>How to Check a Number for Primality in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter an Integer:</strong> Type a whole number into <strong>Integer to Check</strong>, or click one of the quick chips (<code>2</code>, <code>17</code>, <code>49</code>, <code>97</code>, or <code>1</code>).</li>
+        <li><strong>Read the Classification & Divisor Info:</strong> Check whether the number is <strong>PRIME</strong>, <strong>COMPOSITE</strong>, or <strong>NEITHER</strong>, along with the trial division bound <code>⌊√n⌋</code>, smallest factor greater than <code>1</code>, and nearby primes.</li>
+        <li><strong>Copy or Export Results:</strong> Click <strong>Copy Result</strong> to copy the summary to your clipboard or <strong>Download .txt</strong> to save a local record.</li>
+      </ol>
+
+      <h3>Square-Root Trial Division Rule</h3>
+      <p>
+        If a number <code>n > 1</code> is composite and has a factor <code>a > 1</code>, then <code>n = a × b</code>, meaning at least one of <code>a</code> or <code>b</code> cannot exceed <code>√n</code>:
+      </p>
+      <div class="formula-box">
+        Check divisors d from 2 up to ⌊√n⌋ (skipping even numbers after 2)<br />
+        If n mod d === 0 for any d ≤ ⌊√n⌋ → Composite; otherwise → Prime
+      </div>
+
+      <h3>Common Prime Number Pitfalls to Avoid</h3>
+      <ul>
+        <li><strong>1 Is Not a Prime Number:</strong> By mathematical convention, <code>1</code> is excluded from primes so that every integer greater than <code>1</code> has a unique prime factorization.</li>
+        <li><strong>2 Is the Only Even Prime:</strong> Every other even number is divisible by <code>2</code> and therefore composite.</li>
+        <li><strong>Odd Numbers Like 49 or 91 Can Still Be Composite:</strong> Always check up to <code>⌊√n⌋</code>—for example, <code>49 = 7 × 7</code> and <code>91 = 7 × 13</code>.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Testing <code>97</code> gives trial-division bound <code>⌊√97⌋ = 9</code>. Since none of <code>2, 3, 5, 7</code> divides <code>97</code> evenly, <code>97</code> is a prime number with divisors <code>1</code> and <code>97</code>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="prime-table-heading">
+      <h2 id="prime-table-heading">Prime Number Rules, First Primes & Edge Cases Reference (16 Rules)</h2>
+      <p>Use this reference table to review primality definitions, early primes, and testing rules.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Rule / Category</th>
+              <th>Definition / Value</th>
+              <th>Example</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Prime Number</strong></td>
+              <td>Integer <code>> 1</code> with only 2 divisors (<code>1</code> & itself)</td>
+              <td><code>2, 3, 5, 7, 11, 13</code></td>
+              <td>Has exactly two positive factors</td>
+            </tr>
+            <tr>
+              <td><strong>Composite Number</strong></td>
+              <td>Integer <code>> 1</code> with 3 or more divisors</td>
+              <td><code>4, 6, 8, 9, 49</code></td>
+              <td>Can be factored into smaller integers</td>
+            </tr>
+            <tr>
+              <td><strong>Number 1</strong></td>
+              <td>Neither prime nor composite</td>
+              <td><code>n = 1</code></td>
+              <td>Excluded for unique prime factorization</td>
+            </tr>
+            <tr>
+              <td><strong>Zero & Negatives</strong></td>
+              <td><code>n ≤ 0</code> are not prime</td>
+              <td><code>0, -7</code></td>
+              <td>Primality applies to integers <code>> 1</code></td>
+            </tr>
+            <tr>
+              <td><strong>Smallest Prime</strong></td>
+              <td><code>2</code></td>
+              <td>Only even prime</td>
+              <td>All other even integers are composite</td>
+            </tr>
+            <tr>
+              <td><strong>Trial Division Bound</strong></td>
+              <td><code>⌊√n⌋</code></td>
+              <td>For <code>97</code>, limit is <code>9</code></td>
+              <td>No need to test divisors above <code>√n</code></td>
+            </tr>
+            <tr>
+              <td><strong>Primes Under 20</strong></td>
+              <td>8 primes</td>
+              <td><code>2, 3, 5, 7, 11, 13, 17, 19</code></td>
+              <td><code>9</code> is composite (<code>3×3</code>), <code>15</code> is composite (<code>3×5</code>)</td>
+            </tr>
+            <tr>
+              <td><strong>Primes Under 100</strong></td>
+              <td>25 primes total</td>
+              <td>Largest under 100 is <code>97</code></td>
+              <td><code>91</code> is composite (<code>7×13</code>)</td>
+            </tr>
+            <tr>
+              <td><strong>Twin Primes</strong></td>
+              <td>Primes differing by <code>2</code></td>
+              <td><code>(11, 13)</code>, <code>(17, 19)</code></td>
+              <td>Consecutive odd primes with gap 2</td>
+            </tr>
+            <tr>
+              <td><strong>Coprime Check</strong></td>
+              <td><code>gcd(a, b) = 1</code></td>
+              <td>Any prime is coprime to smaller numbers</td>
+              <td>Related to GCD/LCM calculations</td>
+            </tr>
+            <tr>
+              <td><strong>Copy Result</strong></td>
+              <td>Clipboard export</td>
+              <td>Copies primality & divisor info</td>
+              <td>One-click clipboard copy</td>
+            </tr>
+            <tr>
+              <td><strong>Download .txt</strong></td>
+              <td>File export</td>
+              <td>Saves as <code>prime-check-result.txt</code></td>
+              <td>Local plain-text summary</td>
+            </tr>
+            <tr>
+              <td><strong>Reset Button</strong></td>
+              <td>Clears input</td>
+              <td>Resets field cleanly</td>
+              <td>Start fresh anytime</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Primality & Factor Engine — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — All checks run locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Your numbers stay strictly on your device</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Math, Number & Everyday Utilities</h2>
+      <p>Calculating GCD/LCM, generating random numbers, or simplifying fractions? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="gcd-lcm-calculator.html"><span>GCD & LCM Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="random-number.html"><span>Random Number Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="fraction-calculator.html"><span>Fraction Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="quadratic-equation-solver.html"><span>Quadratic Equation Solver</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="roman-numeral-converter.html"><span>Roman Numeral Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="unit-converter.html"><span>Unit Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Is 1 a prime number?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>No.</strong> By definition, a prime number must be greater than <code>1</code> and have two distinct positive divisors (<code>1</code> and itself), so <code>1</code> is neither prime nor composite.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Why do we only check divisors up to the square root of n?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            If <code>n = a × b</code> and both <code>a</code> and <code>b</code> were strictly greater than <code>√n</code>, their product would exceed <code>n</code>—so any composite number has at least one factor <code>≤ ⌊√n⌋</code>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my numbers sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All checks run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Prime Number Checker free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Prime Number Checker Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const primeNumberInput = document.getElementById("primeNumberInput");
+      const primeHeadline = document.getElementById("primeHeadline");
+      const primeReasonSub = document.getElementById("primeReasonSub");
+      const primeBadge = document.getElementById("primeBadge");
+
+      const trialLimitVal = document.getElementById("trialLimitVal");
+      const smallestDivVal = document.getElementById("smallestDivVal");
+      const neighborPrimesVal = document.getElementById("neighborPrimesVal");
+      const divisorsSummaryVal = document.getElementById("divisorsSummaryVal");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetPrimeBtn = document.getElementById("resetPrimeBtn");
+      const copyPrimeBtn = document.getElementById("copyPrimeBtn");
+      const downloadPrimeBtn = document.getElementById("downloadPrimeBtn");
+      const primeChips = document.querySelectorAll(".num-chip");
+
+      let latestSummaryText = "";
+
+      function isPrimeInt(n) {
+        if (!Number.isSafeInteger(n) || n < 2) return false;
+        if (n === 2) return true;
+        if (n % 2 === 0) return false;
+        const limit = Math.floor(Math.sqrt(n));
+        for (let d = 3; d <= limit; d += 2) {
+          if (n % d === 0) return false;
+        }
+        return true;
+      }
+
+      function smallestDivisorGt1(n) {
+        if (!Number.isSafeInteger(n) || n < 2) return null;
+        if (n % 2 === 0) return 2;
+        const limit = Math.floor(Math.sqrt(n));
+        for (let d = 3; d <= limit; d += 2) {
+          if (n % d === 0) return d;
+        }
+        return n;
+      }
+
+      function findNeighborPrimes(n) {
+        let prevPrime = null;
+        if (Number.isSafeInteger(n) && n > 2) {
+          let cand = Math.min(n - 1, Number.MAX_SAFE_INTEGER);
+          let steps = 0;
+          while (cand >= 2 && steps < 50000) {
+            if (isPrimeInt(cand)) {
+              prevPrime = cand;
+              break;
+            }
+            cand--;
+            steps++;
+          }
+        }
+
+        let nextPrime = null;
+        if (Number.isSafeInteger(n)) {
+          let cand = n < 2 ? 2 : n + 1;
+          let steps = 0;
+          while (cand <= Number.MAX_SAFE_INTEGER && steps < 50000) {
+            if (isPrimeInt(cand)) {
+              nextPrime = cand;
+              break;
+            }
+            cand++;
+            steps++;
+          }
+        }
+
+        return { prev: prevPrime, next: nextPrime };
+      }
+
+      function collectDivisors(n) {
+        const absN = Math.abs(n);
+        if (!Number.isSafeInteger(absN) || absN === 0 || absN > 10000000) {
+          return { list: [], truncated: absN > 10000000 };
+        }
+        const small = [];
+        const large = [];
+        const limit = Math.floor(Math.sqrt(absN));
+        for (let d = 1; d <= limit; d++) {
+          if (absN % d === 0) {
+            small.push(d);
+            const other = absN / d;
+            if (other !== d) large.push(other);
+          }
+        }
+        large.reverse();
+        return { list: small.concat(large), truncated: false };
+      }
+
+      function setEmptyOrInvalid(msg) {
+        primeHeadline.textContent = msg;
+        primeReasonSub.textContent = "Enter a valid whole number (e.g., 2, 17, 49, 97)";
+        primeBadge.className = "prime-hero-badge is-neither";
+        primeBadge.textContent = "INPUT";
+        trialLimitVal.textContent = "—";
+        smallestDivVal.textContent = "—";
+        neighborPrimesVal.textContent = "—";
+        divisorsSummaryVal.textContent = "—";
+        latestSummaryText = "";
+      }
+
+      function checkPrime() {
+        const raw = String(primeNumberInput.value || "").trim();
+        if (!raw) {
+          setEmptyOrInvalid("Enter an integer to check");
+          return;
+        }
+        if (!/^-?\d+$/.test(raw)) {
+          setEmptyOrInvalid("Whole number required");
+          return;
+        }
+        const n = Number(raw);
+        if (!Number.isSafeInteger(n)) {
+          setEmptyOrInvalid("Number exceeds safe integer range");
+          return;
+        }
+
+        const neighbors = findNeighborPrimes(n);
+        const prevStr = neighbors.prev !== null ? String(neighbors.prev) : "—";
+        const nextStr = neighbors.next !== null ? String(neighbors.next) : "—";
+        neighborPrimesVal.textContent = `Prev: ${prevStr} \u2022 Next: ${nextStr}`;
+
+        if (n < 2) {
+          primeHeadline.textContent = `${n} is Neither Prime nor Composite`;
+          primeReasonSub.textContent = "Prime and composite definitions apply to integers > 1";
+          primeBadge.className = "prime-hero-badge is-neither";
+          primeBadge.textContent = "NEITHER";
+          trialLimitVal.textContent = "N/A (n < 2)";
+          smallestDivVal.textContent = "None";
+
+          const divInfo = collectDivisors(n);
+          divisorsSummaryVal.textContent = n === 0 ? "All non-zero integers" : (divInfo.truncated ? "Large number" : `${divInfo.list.join(", ")} (${divInfo.list.length})`);
+
+          latestSummaryText = [
+            "PureWebKits Prime Number Check",
+            "-------------------------------",
+            `Number: ${n}`,
+            `Classification: Neither Prime nor Composite`,
+            `Nearest Primes: Previous = ${prevStr}, Next = ${nextStr}`
+          ].join("\n");
+          return;
+        }
+
+        const limit = Math.floor(Math.sqrt(n));
+        trialLimitVal.textContent = String(limit);
+
+        const prime = isPrimeInt(n);
+        const sDiv = smallestDivisorGt1(n);
+        const divInfo = collectDivisors(n);
+
+        if (prime) {
+          primeHeadline.textContent = `${n.toLocaleString("en-US")} is a Prime Number`;
+          primeReasonSub.textContent = `No divisors in 2..${limit}`;
+          primeBadge.className = "prime-hero-badge is-prime";
+          primeBadge.textContent = "PRIME";
+          smallestDivVal.textContent = `${n} (prime)`;
+        } else {
+          primeHeadline.textContent = `${n.toLocaleString("en-US")} is a Composite Number`;
+          primeReasonSub.textContent = `Divisible by ${sDiv} (${n} = ${sDiv} \u00d7 ${n / sDiv})`;
+          primeBadge.className = "prime-hero-badge is-composite";
+          primeBadge.textContent = "COMPOSITE";
+          smallestDivVal.textContent = String(sDiv);
+        }
+
+        if (divInfo.truncated) {
+          divisorsSummaryVal.textContent = "Skipped (> 10M)";
+        } else if (divInfo.list.length <= 10) {
+          divisorsSummaryVal.textContent = `${divInfo.list.join(", ")} (${divInfo.list.length})`;
+        } else {
+          divisorsSummaryVal.textContent = `${divInfo.list.length} positive divisors`;
+        }
+
+        latestSummaryText = [
+          "PureWebKits Prime Number Check",
+          "-------------------------------",
+          `Number: ${n}`,
+          `Classification: ${prime ? "Prime" : "Composite"}`,
+          `Trial Division Limit (floor(sqrt(n))): ${limit}`,
+          `Smallest Divisor > 1: ${sDiv}`,
+          `Nearest Primes: Previous = ${prevStr}, Next = ${nextStr}`,
+          `Divisors: ${divInfo.truncated ? "Too many to list" : `${divInfo.list.join(", ")} (count: ${divInfo.list.length})`}`
+        ].join("\n");
+      }
+
+      primeNumberInput.addEventListener("input", checkPrime);
+
+      primeChips.forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          primeNumberInput.value = chip.getAttribute("data-prime-sample");
+          checkPrime();
+        });
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        primeNumberInput.value = "97";
+        checkPrime();
+      });
+
+      resetPrimeBtn.addEventListener("click", function () {
+        primeNumberInput.value = "";
+        checkPrime();
+      });
+
+      copyPrimeBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyPrimeBtn.textContent;
+          copyPrimeBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyPrimeBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadPrimeBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "prime-check-result.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      checkPrime();
+    });
+  </script>
+</body>
+</html>

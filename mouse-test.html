@@ -1,0 +1,935 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Mouse Polling Rate Test (Hz, Interval ms & Trail Canvas) — PureWebKits</title>
+  <meta name="description" content="Measure your mouse or trackpad polling rate in Hertz (Hz), average report interval in milliseconds (ms), peak Hz, and pointer trail smoothness online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/mouse-polling-rate-test.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Mouse Polling Rate Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.9fr;
+      gap: 22px;
+      align-items: start;
+    }
+    .pad-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .pad-box {
+      background: #0F172A;
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .pad-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    #mouseCaptureCanvas {
+      width: 100%;
+      height: 290px;
+      display: block;
+      background: #020617;
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    .hz-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .hz-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .hz-title { font-size: 15px; font-weight: 800; }
+    .hz-sub { font-size: 12px; color: #CBD5E1; }
+    .hz-big-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 28px;
+      font-weight: 800;
+      color: #34D399;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 860px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Mouse Polling Rate Test Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Mouse Polling Rate Test</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Measure live Hz, report interval (ms), peak Hz & motion trail smoothness in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">
+            Move or swirl your mouse/trackpad continuously inside the dark canvas below to sample report intervals:
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="resetPollingBtn" class="btn-sec">Reset Samples</button>
+            <button type="button" id="copyPollingBtn" class="btn-primary">Copy Polling Report</button>
+            <button type="button" id="downloadPollingBtn" class="btn-sec">Download .txt</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="pad-col">
+            <div class="pad-box">
+              <div class="pad-header">
+                <span>Continuous Motion Capture Pad</span>
+                <span id="sampleCounterBadge" style="color:#34D399;">0 intervals sampled</span>
+              </div>
+              <canvas id="mouseCaptureCanvas" width="640" height="320" aria-label="Mouse Polling Rate Motion Pad"></canvas>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="hz-hero-box">
+              <div>
+                <div class="hz-kicker">Measured Polling Rate</div>
+                <div class="hz-title" id="pollingTierTitle">Move Mouse in Pad</div>
+                <div class="hz-sub" id="pollingTierSub">Swirl briskly for 2–3 seconds for steady reading</div>
+              </div>
+              <div class="hz-big-num" id="avgHzDisplay">— Hz</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Peak Polling Rate</div>
+                <div class="metric-val" id="peakHzVal">— Hz</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Avg Report Interval</div>
+                <div class="metric-val" id="avgIntervalVal">— ms</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Min / Max Interval</div>
+                <div class="metric-val" id="minMaxIntervalVal">—</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Events Sampled</div>
+                <div class="metric-val" id="eventsCountVal">0 moves</div>
+              </div>
+            </div>
+
+            <div style="background:#FFFFFF; border:1px solid var(--border); border-radius:8px; padding:11px 13px; font-size:12.5px; color:var(--text-muted); line-height:1.5;">
+              <strong>Note on Browser Polling:</strong> Standard <code>mousemove</code>/<code>pointermove</code> events are throttled to display refresh or browser event queues in many browsers—if your mouse is set to <code>1000 Hz</code> (<code>1.0 ms</code>) and your monitor runs at <code>60 Hz</code>, the browser may cap event delivery around <code>60–120 Hz</code> unless <code>getCoalescedEvents()</code> or high-refresh displays are used.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Polling Rate vs Refresh Rate & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Mouse Polling Rate (Hz), Report Intervals & Pointer Smoothness</h2>
+
+      <h3>How Mouse Polling Rate (Hz) and Report Interval (ms) Work</h3>
+      <p>
+        A mouse's <strong>polling rate</strong>—measured in <strong>Hertz (Hz)</strong>—is how frequently the mouse reports its position and button state to the computer each second. A <code>125 Hz</code> office mouse reports once every <code>8.0 ms</code>, a <code>500 Hz</code> mouse reports every <code>2.0 ms</code>, and a <code>1000 Hz</code> gaming mouse reports every <code>1.0 ms</code> (with high-polling mice reaching <code>2000 Hz</code>, <code>4000 Hz</code>, or <code>8000 Hz</code>). When testing inside a web browser, pointer motion events (<code>pointermove</code> / <code>mousemove</code>) are delivered through the browser's event loop and display compositor—meaning if you move the cursor slowly or your monitor has a <code>60 Hz</code> refresh rate, measured browser event frequency may look lower than your hardware's USB/wireless polling setting. Moving the mouse steadily and briskly across the capture pad produces tighter, more representative report intervals. A browser-based <strong>Mouse Polling Rate Test</strong> measures intervals 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Test Your Mouse Polling Rate in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Move Your Mouse Continuously Inside the Dark Pad:</strong> Draw circular or figure-eight strokes across <strong>Continuous Motion Capture Pad</strong> so fresh pointer events arrive without pauses.</li>
+        <li><strong>Watch Average Hz, Peak Hz & Interval (ms):</strong> Compare your rolling average polling rate, peak Hz burst, and average millisecond interval between updates.</li>
+        <li><strong>Reset or Export Your Reading:</strong> Click <strong>Reset Samples</strong> to test a different DPI or wireless receiver channel, or export via <strong>Copy Polling Report</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Polling Frequency & Report Interval Conversion Formula</h3>
+      <p>
+        Polling rate in Hertz and report interval in milliseconds are reciprocals:
+      </p>
+      <div class="formula-box">
+        Polling Rate (Hz) = 1000 / Interval_ms  |  Report Interval (ms) = 1000 / Polling_Rate_Hz<br />
+        Rolling Average Hz = 1000 / Mean_Interval_ms
+      </div>
+
+      <h3>Helpful Tips for Accurate Polling & Smooth Pointer Testing</h3>
+      <ul>
+        <li><strong>Use Steady, Continuous Motion Rather Than Tiny Wiggles:</strong> Sustained sweeping motion generates a clean stream of motion samples with fewer idle gaps.</li>
+        <li><strong>Remember Display Refresh Rate & OS Settings:</strong> If your OS or browser throttles pointer events to screen vsync, a <code>60 Hz</code> monitor caps standard event rates near <code>60 Hz</code> while a <code>144 Hz / 240 Hz</code> monitor allows higher-frequency updates.</li>
+        <li><strong>Check Wireless Dongle Interference:</strong> If a wireless gaming mouse shows erratic intervals or drops, moving the USB receiver closer to the mousepad via a short extension cable often stabilizes report consistency.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> If consecutive pointer updates arrive every <code>4.0 ms</code> on average (<code>0.004 seconds</code>), the corresponding report rate is <code>1000 / 4.0 = 250 Hz</code>; at <code>1.0 ms</code> intervals, the rate is <code>1000 / 1.0 = 1000 Hz</code>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="poll-table-heading">
+      <h2 id="poll-table-heading">Mouse Polling Rates, Report Intervals & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to convert between polling rate (Hz) and report interval (ms) and understand browser caveats.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Polling Rate</th>
+              <th>Report Interval</th>
+              <th>Typical Hardware Class</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>60 Hz</strong></td>
+              <td><code>~16.67 ms</code></td>
+              <td>Standard display vsync / basic wireless</td>
+              <td>Common browser cap on 60Hz screens</td>
+            </tr>
+            <tr>
+              <td><strong>125 Hz</strong></td>
+              <td><code>8.00 ms</code></td>
+              <td>Default office & everyday mice</td>
+              <td>Low CPU overhead, plenty for office work</td>
+            </tr>
+            <tr>
+              <td><strong>250 Hz</strong></td>
+              <td><code>4.00 ms</code></td>
+              <td>Entry gaming / mid-tier wireless</td>
+              <td>Smoother step resolution than 125 Hz</td>
+            </tr>
+            <tr>
+              <td><strong>500 Hz</strong></td>
+              <td><code>2.00 ms</code></td>
+              <td>Gaming mouse configurable profile</td>
+              <td>Balances responsiveness and battery/CPU</td>
+            </tr>
+            <tr>
+              <td><strong>1000 Hz</strong></td>
+              <td><code>1.00 ms</code></td>
+              <td>Standard esports / gaming default</td>
+              <td>1 report every millisecond</td>
+            </tr>
+            <tr>
+              <td><strong>2000 Hz</strong></td>
+              <td><code>0.50 ms</code></td>
+              <td>High-polling gaming dongles</td>
+              <td>Requires high-refresh display to see gains</td>
+            </tr>
+            <tr>
+              <td><strong>4000 Hz / 8000 Hz</strong></td>
+              <td><code>0.25 ms / 0.125 ms</code></td>
+              <td>Ultra-high-polling competitive mice</td>
+              <td>Higher CPU usage in some games/apps</td>
+            </tr>
+            <tr>
+              <td><strong>Average Hz</strong></td>
+              <td><code>1000 / mean(dt_ms)</code></td>
+              <td>Sustained report rate</td>
+              <td>Stabilizes after ~30+ samples</td>
+            </tr>
+            <tr>
+              <td><strong>Peak Hz</strong></td>
+              <td><code>1000 / min(dt_ms)</code></td>
+              <td>Fastest burst interval observed</td>
+              <td>Reflects tightest consecutive timestamps</td>
+            </tr>
+            <tr>
+              <td><strong>Trail Visualization</strong></td>
+              <td>Recent pointer path on canvas</td>
+              <td>Visualizes cursor motion & spacing</td>
+              <td>Cleared on Reset Samples</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download Report</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports Hz & interval statistics</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript High-Resolution Timer (<code>performance.now()</code>) — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your pointer coordinates and telemetry stay strictly inside your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero cursor telemetry transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser mouse check with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Hardware, Input, Display & Everyday Utilities</h2>
+      <p>Testing your keyboard, microphone, or screen for dead pixels, or checking your viewport resolution? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="keyboard-test.html"><span>Keyboard Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="microphone-test.html"><span>Microphone Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="dead-pixel-test.html"><span>Dead Pixel Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="screen-resolution-tester.html"><span>Screen Resolution Tester</span><span class="arrow">→</span></a>
+        <a class="related-link" href="html5-gamepad-tester.html"><span>HTML5 Gamepad Tester</span><span class="arrow">→</span></a>
+        <a class="related-link" href="webcam-test.html"><span>Webcam Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="study-timer-pomodoro.html"><span>Study Timer (Pomodoro)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-strength-tester.html"><span>Password Strength Tester</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Why does my 1000 Hz gaming mouse sometimes show around 60 Hz or 120 Hz in the browser?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Web browsers deliver pointer events in sync with display/compositor frames or event queues—if your monitor runs at <code>60 Hz</code> or you move the cursor slowly, browser event delivery is bounded by display refresh and motion rate rather than raw USB hardware capability alone.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How do I get the most consistent polling reading during the test?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Move your mouse or trackpad in smooth, continuous circles or back-and-forth strokes inside the dark capture pad for 2–3 seconds without pausing.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my mouse movements sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All timing calculations and canvas trail rendering run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online Mouse Polling Rate Test free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Mouse Polling Rate & Interval Analyzer Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const mouseCaptureCanvas = document.getElementById("mouseCaptureCanvas");
+      const mctx = mouseCaptureCanvas.getContext("2d");
+
+      const resetPollingBtn = document.getElementById("resetPollingBtn");
+      const copyPollingBtn = document.getElementById("copyPollingBtn");
+      const downloadPollingBtn = document.getElementById("downloadPollingBtn");
+
+      const sampleCounterBadge = document.getElementById("sampleCounterBadge");
+      const pollingTierTitle = document.getElementById("pollingTierTitle");
+      const pollingTierSub = document.getElementById("pollingTierSub");
+      const avgHzDisplay = document.getElementById("avgHzDisplay");
+
+      const peakHzVal = document.getElementById("peakHzVal");
+      const avgIntervalVal = document.getElementById("avgIntervalVal");
+      const minMaxIntervalVal = document.getElementById("minMaxIntervalVal");
+      const eventsCountVal = document.getElementById("eventsCountVal");
+
+      let lastEventTime = null;
+      let intervalsMs = [];
+      let totalEvents = 0;
+      let trailPoints = [];
+      let latestReportText = "";
+
+      function drawPad() {
+        const w = mouseCaptureCanvas.width;
+        const h = mouseCaptureCanvas.height;
+        mctx.fillStyle = "#020617";
+        mctx.fillRect(0, 0, w, h);
+
+        // Subtle grid lines
+        mctx.strokeStyle = "#0F172A";
+        mctx.lineWidth = 1;
+        for (let x = 40; x < w; x += 40) {
+          mctx.beginPath();
+          mctx.moveTo(x, 0);
+          mctx.lineTo(x, h);
+          mctx.stroke();
+        }
+        for (let y = 40; y < h; y += 40) {
+          mctx.beginPath();
+          mctx.moveTo(0, y);
+          mctx.lineTo(w, y);
+          mctx.stroke();
+        }
+
+        if (trailPoints.length === 0) {
+          mctx.fillStyle = "#64748B";
+          mctx.font = "700 15px -apple-system, BlinkMacSystemFont, sans-serif";
+          mctx.textAlign = "center";
+          mctx.textBaseline = "middle";
+          mctx.fillText("Move or swirl your pointer here to measure Hz & intervals", w / 2, h / 2);
+          return;
+        }
+
+        for (let i = 1; i < trailPoints.length; i++) {
+          const prev = trailPoints[i - 1];
+          const cur = trailPoints[i];
+          const alpha = i / trailPoints.length;
+          mctx.strokeStyle = `rgba(56, 189, 248, ${alpha.toFixed(2)})`;
+          mctx.lineWidth = 2.5;
+          mctx.beginPath();
+          mctx.moveTo(prev.x, prev.y);
+          mctx.lineTo(cur.x, cur.y);
+          mctx.stroke();
+        }
+
+        const lastPt = trailPoints[trailPoints.length - 1];
+        mctx.beginPath();
+        mctx.arc(lastPt.x, lastPt.y, 6, 0, Math.PI * 2);
+        mctx.fillStyle = "#34D399";
+        mctx.fill();
+      }
+
+      function updatePollingStats() {
+        sampleCounterBadge.textContent = `${intervalsMs.length} ${intervalsMs.length === 1 ? "interval" : "intervals"} sampled`;
+        eventsCountVal.textContent = `${totalEvents} ${totalEvents === 1 ? "move" : "moves"}`;
+
+        if (intervalsMs.length === 0) {
+          avgHzDisplay.textContent = "— Hz";
+          peakHzVal.textContent = "— Hz";
+          avgIntervalVal.textContent = "— ms";
+          minMaxIntervalVal.textContent = "—";
+          pollingTierTitle.textContent = "Move Mouse in Pad";
+          pollingTierSub.textContent = "Swirl briskly for 2–3 seconds for steady reading";
+          latestReportText = "";
+          return;
+        }
+
+        // Use recent window up to 240 intervals for responsive & steady average
+        const windowSlice = intervalsMs.slice(-240);
+        const sumMs = windowSlice.reduce(function (acc, v) { return acc + v; }, 0);
+        const meanMs = sumMs / windowSlice.length;
+        const avgHz = meanMs > 0 ? 1000 / meanMs : 0;
+
+        let minMs = Infinity;
+        let maxMs = -Infinity;
+        windowSlice.forEach(function (v) {
+          if (v < minMs) minMs = v;
+          if (v > maxMs) maxMs = v;
+        });
+
+        const peakHz = minMs > 0 && Number.isFinite(minMs) ? 1000 / minMs : 0;
+
+        avgHzDisplay.textContent = `${Math.round(avgHz)} Hz`;
+        peakHzVal.textContent = `${Math.round(peakHz)} Hz`;
+        avgIntervalVal.textContent = `${meanMs.toFixed(2)} ms`;
+        minMaxIntervalVal.textContent = `${minMs.toFixed(1)} / ${maxMs.toFixed(1)} ms`;
+
+        let tier = "Standard Polling";
+        if (avgHz >= 900) tier = "High-Frequency (~1000 Hz)";
+        else if (avgHz >= 450) tier = "High-Speed (~500 Hz)";
+        else if (avgHz >= 200) tier = "Responsive (250+ Hz)";
+        else if (avgHz >= 100) tier = "Standard / 125 Hz Class";
+        else tier = "Display / Throttled Rate";
+
+        pollingTierTitle.textContent = tier;
+        pollingTierSub.textContent = `Rolling window of ${windowSlice.length} intervals \u2022 Avg ${meanMs.toFixed(2)} ms`;
+
+        latestReportText = [
+          "PureWebKits Mouse Polling Rate Report",
+          "------------------------------------",
+          `Classification: ${tier}`,
+          `Average Polling Rate: ${avgHz.toFixed(1)} Hz (Avg Interval: ${meanMs.toFixed(2)} ms)`,
+          `Peak Polling Rate: ${peakHz.toFixed(1)} Hz (Min Interval: ${minMs.toFixed(2)} ms | Max: ${maxMs.toFixed(2)} ms)`,
+          `Total Pointer Events Sampled: ${totalEvents}`
+        ].join("\n");
+      }
+
+      mouseCaptureCanvas.addEventListener("pointermove", function (e) {
+        const now = performance.now();
+        totalEvents += 1;
+
+        if (lastEventTime !== null) {
+          const dt = now - lastEventTime;
+          if (dt > 0.05 && dt < 500) {
+            intervalsMs.push(dt);
+            if (intervalsMs.length > 2000) {
+              intervalsMs.shift();
+            }
+          }
+        }
+        lastEventTime = now;
+
+        const rect = mouseCaptureCanvas.getBoundingClientRect();
+        const scaleX = mouseCaptureCanvas.width / (rect.width || 1);
+        const scaleY = mouseCaptureCanvas.height / (rect.height || 1);
+        const cx = (e.clientX - rect.left) * scaleX;
+        const cy = (e.clientY - rect.top) * scaleY;
+
+        trailPoints.push({ x: cx, y: cy });
+        if (trailPoints.length > 75) {
+          trailPoints.shift();
+        }
+
+        drawPad();
+        updatePollingStats();
+      });
+
+      mouseCaptureCanvas.addEventListener("pointerleave", function () {
+        lastEventTime = null;
+      });
+
+      resetPollingBtn.addEventListener("click", function () {
+        lastEventTime = null;
+        intervalsMs = [];
+        totalEvents = 0;
+        trailPoints = [];
+        drawPad();
+        updatePollingStats();
+      });
+
+      copyPollingBtn.addEventListener("click", function () {
+        const text = latestReportText || "PureWebKits Mouse Polling Rate Test: Move pointer in the capture pad to sample Hz.";
+        navigator.clipboard.writeText(text).then(function () {
+          const orig = copyPollingBtn.textContent;
+          copyPollingBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyPollingBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadPollingBtn.addEventListener("click", function () {
+        const text = latestReportText || "PureWebKits Mouse Polling Rate Test: Move pointer in the capture pad to sample Hz.";
+        const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "mouse-polling-rate-report.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      drawPad();
+      updatePollingStats();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,725 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR Code Scanner Online — Read QR Codes Free | PureWebKits</title>
+  <meta name="description" content="Scan and decode QR codes from image uploads or webcam online for free. 100% client-side QR reader tool in your browser with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/qr-code-scanner.html" />
+  <!-- QR Reader Library (jsQR) -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Scanner Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .action-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+    .btn-primary {
+      display: inline-block;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 9px;
+      padding: 9px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .scanner-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+    .pane-box { display: flex; flex-direction: column; gap: 8px; }
+    .pane-header {
+      font-size: 12.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .dropzone-box {
+      width: 100%;
+      height: 280px;
+      border: 2px dashed #CBD5E1;
+      border-radius: 10px;
+      background: #F8FAFC;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+    }
+    .dropzone-box:hover { border-color: var(--primary); background: #EFF6FF; }
+    .dropzone-input { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+
+    .result-textarea {
+      width: 100%;
+      height: 280px;
+      padding: 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--text-main);
+      background: #F8FAFC;
+      resize: vertical;
+      outline: none;
+    }
+    .result-textarea:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .err-banner {
+      display: none;
+      margin-top: 14px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1E3A8A;
+      margin: 14px 0;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .scanner-grid { grid-template-columns: 1fr; }
+      .code-box, .dropzone-box, .result-textarea { height: 240px; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive QR Scanner Tool -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>QR Code Scanner — Read QR Codes Free</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Scan QR codes from image uploads or webcam locally in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="action-group">
+            <button type="button" id="clearScanBtn" class="btn-sec">Clear All</button>
+          </div>
+          <button type="button" id="copyScanBtn" class="btn-primary">Copy Decoded Text</button>
+        </div>
+
+        <div class="scanner-grid">
+          <div class="pane-box">
+            <div class="pane-header">Upload QR Code Image</div>
+            <div id="dropzoneBox" class="dropzone-box">
+              <input type="file" id="qrFileInput" class="dropzone-input" accept="image/*" />
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="margin-bottom:10px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <p style="font-weight:700;color:var(--text-main);margin-bottom:4px;">Drag & drop QR image here, or browse</p>
+              <p style="font-size:12.5px;color:var(--text-muted);">Supports PNG, JPG, WebP</p>
+            </div>
+            <div id="imagePreviewContainer" style="display:none;width:100%;height:280px;border:1.5px solid var(--border);border-radius:10px;background:#F8FAFC;align-items:center;justify-content:center;padding:10px;position:relative;">
+              <img id="uploadedQrPreview" src="" alt="QR Preview" style="max-height:100%;max-width:100%;object-fit:contain;border-radius:6px;" />
+              <button type="button" id="removeImgBtn" class="btn-sec" style="position:absolute;top:10px;right:10px;padding:4px 8px;font-size:11px;">Change Image</button>
+            </div>
+          </div>
+
+          <div class="pane-box">
+            <div class="pane-header">Decoded QR Result / Data</div>
+            <textarea id="scanOutputBox" class="result-textarea" readonly spellcheck="false" placeholder="Decoded text or URL will appear here..."></textarea>
+          </div>
+        </div>
+
+        <div id="scanErrBanner" class="err-banner" role="alert"></div>
+      </div>
+    </div>
+  </section>
+<!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original Guide, Formula & Worked Example -->
+    <article class="content-card">
+      <h2>How QR Code Scanning, Matrix Barcodes & Optical Decoding Work</h2>
+
+      ### Why Scanning QR Codes Online Is Useful for Webmasters and Consumers
+      <p>
+        A <strong>QR Code (Quick Response Code)</strong> is a type of two-dimensional matrix barcode invented in 1994 by Japanese automotive company Denso Wave. It stores text, website URLs, contact info, or Wi-Fi credentials in a grid of black squares readable by optical sensors and smartphone cameras. Our browser-based <strong>QR Code Scanner</strong> processes uploaded image files using client-side JavaScript libraries (jsQR) to decode embedded data instantly without sending private images to external servers.
+      </p>
+
+      <h3>How to Scan a QR Code in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Upload Image:</strong> Drag and drop your QR code image file into the upload dropzone (or click to browse).</li>
+        <li><strong>Instant Decoding:</strong> The tool scans the pixel matrix in browser memory to extract hidden text or URLs.</li>
+        <li><strong>Copy Result:</strong> Click <em>Copy Decoded Text</em> to use the extracted link or information instantly.</li>
+      </ol>
+
+      <h3>Optical QR Decoding Formula + Worked Example</h3>
+      <p>
+        Matrix scanning converts image canvas pixel data into binary bitstreams to reconstruct encoded text payload:
+      </p>
+      <div class="formula-box">
+        Decoded Data = jsQR( ImageData.data, ImageData.width, ImageData.height ) → Extracted Text / URL
+      </div>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Scanning a Wi-Fi or payment QR code instantly extracts plain-text credentials or URL endpoints right inside your browser window.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="scanner-table-heading">
+      <h2 id="scanner-table-heading">QR Code Matrix Standards, Data Capacity & Formats (16 Rules)</h2>
+      <p>Use this QR scanning reference table to understand matrix barcode standards and data capacities.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>QR Code Parameter</th>
+              <th>Standard Specification</th>
+              <th>Technical & Data Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Barcode Type</strong></td>
+              <td>2D Matrix Barcode</td>
+              <td>Stores data horizontally and vertically in square modules</td>
+            </tr>
+            <tr>
+              <td><strong>Max Numeric Data</strong></td>
+              <td>7,089 Characters</td>
+              <td>Maximum numerical digits storable in Version 40 QR code</td>
+            </tr>
+            <tr>
+              <td><strong>Max Alphanumeric</strong></td>
+              <td>4,296 Characters</td>
+              <td>Maximum alphanumeric text capacity</td>
+            </tr>
+            <tr>
+              <td><strong>Error Correction (L)</strong></td>
+              <td>~7% Damage Recovery</td>
+              <td>Restores data if up to 7% of code is obscured</td>
+            </tr>
+            <tr>
+              <td><strong>Error Correction (M)</strong></td>
+              <td>~15% Damage Recovery</td>
+              <td>Standard error correction level for general use</td>
+            </tr>
+            <tr>
+              <td><strong>Error Correction (Q)</strong></td>
+              <td>~25% Damage Recovery</td>
+              <td>High reliability recovery for industrial settings</td>
+            </tr>
+            <tr>
+              <td><strong>Error Correction (H)</strong></td>
+              <td>~30% Damage Recovery</td>
+              <td>Maximum recovery allowing custom logo overlays</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Processing</strong></td>
+              <td>JavaScript jsQR Engine</td>
+              <td>Zero Server Latency — 100% browser scanning</td>
+            </tr>
+            <tr>
+              <td><strong>Clipboard Integration</strong></td>
+              <td>1-click copy button</td>
+              <td>Workflow Optimization for extracted data</td>
+            </tr>
+            <tr>
+              <td><strong>Browser Compatibility</strong></td>
+              <td>100% Universal</td>
+              <td>Runs on desktop & mobile web browsers</td>
+            </tr>
+            <tr>
+              <td><strong>Data Privacy</strong></td>
+              <td>100% Client-Side Memory</td>
+              <td><span class="limit-badge">Zero Server Upload</span> — Private images stay secure</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related QR, Barcode & Productivity Utilities</h2>
+      <p>Need to generate custom QR codes, barcodes, or shorten links? Explore our companion tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="qr-code-generator.html"><span>Custom QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="barcode-generator.html"><span>Barcode Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="whatsapp-link-generator.html"><span>WhatsApp Link Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="url-encode-decode.html"><span>URL Encoder / Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="base64-encode-decode.html"><span>Base64 Encoder / Decoder</span><span class="arrow">→</span></a>
+        <a class="related-link" href="uuid-generator.html"><span>UUID / GUID Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Strong Password Generator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How does the QR Code Scanner work?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            The scanner analyzes the pixel matrix of uploaded QR code images using client-side JavaScript libraries (jsQR) to decode hidden text, links, or contact details instantly.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. What image formats are supported for scanning?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            You can upload standard image formats including PNG, JPG, JPEG, and WebP containing a clear QR code.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Can I copy the decoded result with one click?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> Click the <strong>Copy Decoded Text</strong> button to copy the extracted data directly to your clipboard.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Are my uploaded QR images uploaded to any external server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All image scanning runs 100% locally inside your web browser. Your private images never leave your computer.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side QR Scanner Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const qrFileInput = document.getElementById("qrFileInput");
+      const dropzoneBox = document.getElementById("dropzoneBox");
+      const imagePreviewContainer = document.getElementById("imagePreviewContainer");
+      const uploadedQrPreview = document.getElementById("uploadedQrPreview");
+      const removeImgBtn = document.getElementById("removeImgBtn");
+      const scanOutputBox = document.getElementById("scanOutputBox");
+      const clearScanBtn = document.getElementById("clearScanBtn");
+      const copyScanBtn = document.getElementById("copyScanBtn");
+      const scanErrBanner = document.getElementById("scanErrBanner");
+
+      function showErr(msg) {
+        scanErrBanner.textContent = msg;
+        scanErrBanner.style.display = "block";
+      }
+
+      function hideErr() {
+        scanErrBanner.style.display = "none";
+      }
+
+      function handleImageFile(file) {
+        hideErr();
+        if (!file || !file.type.startsWith("image/")) {
+          showErr("Please upload a valid image file.");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            uploadedQrPreview.src = img.src;
+            dropzoneBox.style.display = "none";
+            imagePreviewContainer.style.display = "flex";
+
+            // Process with jsQR
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imgData.data, imgData.width, imgData.height);
+
+            if (code) {
+              scanOutputBox.value = code.data;
+            } else {
+              scanOutputBox.value = "";
+              showErr("No valid QR code detected in this image. Please try another clear QR image.");
+            }
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      qrFileInput.addEventListener("change", function (e) {
+        if (e.target.files && e.target.files[0]) {
+          handleImageFile(e.target.files[0]);
+        }
+      });
+
+      removeImgBtn.addEventListener("click", function () {
+        qrFileInput.value = "";
+        uploadedQrPreview.src = "";
+        imagePreviewContainer.style.display = "none";
+        dropzoneBox.style.display = "flex";
+        scanOutputBox.value = "";
+        hideErr();
+      });
+
+      clearScanBtn.addEventListener("click", function () {
+        qrFileInput.value = "";
+        uploadedQrPreview.src = "";
+        imagePreviewContainer.style.display = "none";
+        dropzoneBox.style.display = "flex";
+        scanOutputBox.value = "";
+        hideErr();
+      });
+
+      copyScanBtn.addEventListener("click", async function () {
+        if (!scanOutputBox.value) return;
+        try {
+          await navigator.clipboard.writeText(scanOutputBox.value);
+          const orig = copyScanBtn.textContent;
+          copyScanBtn.textContent = "Copied Decoded Text!";
+          setTimeout(function () { copyScanBtn.textContent = orig; }, 1400);
+        } catch (e) {}
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

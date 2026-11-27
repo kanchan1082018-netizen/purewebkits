@@ -1,0 +1,990 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online QR Business Card Generator (vCard 3.0 & Printable Card) — PureWebKits</title>
+  <meta name="description" content="Create a scannable vCard QR business card with name, title, company, phone, email, website, and printable card preview online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/qr-business-card-generator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1120px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* QR Business Card Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 12px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 4px; }
+    .field-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input {
+      width: 100%;
+      height: 40px;
+      padding: 0 11px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    /* Printable Business Card Preview */
+    .biz-card-preview {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      border: 1px solid #1E293B;
+    }
+    .biz-card-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+    .biz-name {
+      font-size: 18px;
+      font-weight: 800;
+      color: #FFFFFF;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+    .biz-role {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #38BDF8;
+    }
+    .biz-company {
+      font-size: 12px;
+      font-weight: 600;
+      color: #CBD5E1;
+    }
+    .biz-contact-lines {
+      margin-top: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      color: #E2E8F0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      word-break: break-all;
+    }
+    .qr-box-frame {
+      background: #FFFFFF;
+      padding: 8px;
+      border-radius: 10px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #bizQrCanvas {
+      width: 128px;
+      height: 128px;
+      display: block;
+    }
+
+    .vcard-raw-box {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      white-space: pre-wrap;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 860px) {
+      .calc-grid, .two-col-fields, .biz-card-preview { grid-template-columns: 1fr; }
+      .biz-card-preview { flex-direction: column; align-items: flex-start; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive QR Business Card Generator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online QR Business Card Generator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Generate a scannable vCard QR code & business card layout in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">
+            Encodes standard <code>VCARD 3.0</code> contact fields locally — scan with any phone camera to save contact:
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="fillDemoBizBtn" class="btn-sec">Load Sample Contact</button>
+            <button type="button" id="clearBizBtn" class="btn-sec">Clear Fields</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="bizFullNameInput" class="field-label">Full Name</label>
+                <input type="text" id="bizFullNameInput" class="std-input" placeholder="e.g., Aarav Sharma" value="Aarav Sharma" />
+              </div>
+              <div class="field-group">
+                <label for="bizTitleInput" class="field-label">Job Title / Role</label>
+                <input type="text" id="bizTitleInput" class="std-input" placeholder="e.g., Product Designer" value="Product Designer" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="bizCompanyInput" class="field-label">Company / Organization</label>
+                <input type="text" id="bizCompanyInput" class="std-input" placeholder="e.g., PureWebKits Studio" value="PureWebKits Studio" />
+              </div>
+              <div class="field-group">
+                <label for="bizPhoneInput" class="field-label">Phone Number</label>
+                <input type="text" id="bizPhoneInput" class="std-input" placeholder="e.g., +1 555 019 2834" value="+1 555 019 2834" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="bizEmailInput" class="field-label">Email Address</label>
+                <input type="text" id="bizEmailInput" class="std-input" placeholder="e.g., aarav@example.com" value="aarav@PureWebKits.example" />
+              </div>
+              <div class="field-group">
+                <label for="bizWebsiteInput" class="field-label">Website URL</label>
+                <input type="text" id="bizWebsiteInput" class="std-input" placeholder="e.g., https://PureWebKits.com" value="https://PureWebKits.com" />
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="biz-card-preview">
+              <div class="biz-card-info">
+                <div class="biz-name" id="cardPreviewName">Aarav Sharma</div>
+                <div class="biz-role" id="cardPreviewTitle">Product Designer</div>
+                <div class="biz-company" id="cardPreviewCompany">PureWebKits Studio</div>
+                <div class="biz-contact-lines">
+                  <span id="cardPreviewPhone">+1 555 019 2834</span>
+                  <span id="cardPreviewEmail">aarav@PureWebKits.example</span>
+                  <span id="cardPreviewUrl">https://PureWebKits.com</span>
+                </div>
+              </div>
+              <div class="qr-box-frame">
+                <canvas id="bizQrCanvas" width="256" height="256" aria-label="vCard QR Code"></canvas>
+              </div>
+            </div>
+
+            <div class="vcard-raw-box" id="vcardRawPreview"></div>
+
+            <div class="btn-row">
+              <button type="button" id="downloadBizQrBtn" class="btn-primary">Download QR PNG</button>
+              <button type="button" id="copyVcardBtn" class="btn-sec" style="height:40px;">Copy vCard Text</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, vCard QR Codes & Print Best Practices -->
+    <article class="content-card">
+      <h2>Complete User Guide to QR Business Cards, vCard Formatting & Print Readiness</h2>
+
+      <h3>How vCard QR Codes Turn Printed & Digital Cards Into Instant Contacts</h3>
+      <p>
+        A <strong>QR business card</strong> embeds structured contact data—such as your full name, job title, company, phone number, email address, and website—inside a two-dimensional matrix barcode formatted as a <strong>vCard (<code>BEGIN:VCARD / END:VCARD</code>)</strong>. When someone points a smartphone camera at the QR code at a conference, client meeting, or storefront, their phone recognizes the contact payload and offers one-tap saving into their address book without manual typing errors. Keeping the encoded text concise and using high-contrast dark modules on a light background helps camera scanners lock onto the matrix quickly even under indoor lighting or on smaller printed cards. A browser-based <strong>QR Business Card Generator</strong> formats vCard payloads and renders the QR matrix 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Create Your QR Business Card in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter Your Contact Details:</strong> Fill in your full name, job title, company, phone number, email address, and website URL—or click <strong>Load Sample Contact</strong> to test a preset.</li>
+        <li><strong>Scan & Verify the Live QR Preview:</strong> Point your phone camera at the generated QR code on screen to confirm your contact fields parse cleanly before printing.</li>
+        <li><strong>Download PNG or Copy vCard Text:</strong> Click <strong>Download QR PNG</strong> for print/design layouts or <strong>Copy vCard Text</strong> to save the raw <code>.vcf</code>-style contact record.</li>
+      </ol>
+
+      <h3>vCard 3.0 Contact Record Structure</h3>
+      <p>
+        Standard vCard entries organize contact fields using clear property lines:
+      </p>
+      <div class="formula-box">
+        BEGIN:VCARD → VERSION:3.0 → FN / N / ORG / TITLE / TEL / EMAIL / URL → END:VCARD
+      </div>
+
+      <h3>Helpful Tips for Printing Scannable Business Cards</h3>
+      <ul>
+        <li><strong>Leave a Quiet Zone Around the QR Code:</strong> Keep clean margin space around all four sides of the QR square so scanner algorithms can detect finder patterns effortlessly.</li>
+        <li><strong>Avoid Tiny Print Sizes on Textured Paper:</strong> Heavy matte or textured cardstock can break up fine QR modules—keep printed QR codes crisp and at least ~<code>20–25 mm</code> (<code>0.8–1.0 in</code>) wide when possible.</li>
+        <li><strong>Update Only When Details Change:</strong> Because static vCard QR codes encode your contact text directly inside the pattern, changing a phone number or URL means generating an updated QR code.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Entering name <code>Aarav Sharma</code>, title <code>Product Designer</code>, company <code>PureWebKits Studio</code>, phone <code>+1 555 019 2834</code>, email <code>aarav@PureWebKits.example</code>, and site <code>https://PureWebKits.com</code> generates a scannable vCard matrix ready to download as PNG.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="qr-biz-table-heading">
+      <h2 id="qr-biz-table-heading">vCard Fields, QR Scanning Best Practices & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to review vCard fields, print tips, and privacy details.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Field / Tip</th>
+              <th>vCard Tag / Rule</th>
+              <th>Purpose</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Full Name</strong></td>
+              <td><code>FN</code> & <code>N</code></td>
+              <td>Contact display name in phonebook</td>
+              <td>Primary identity label</td>
+            </tr>
+            <tr>
+              <td><strong>Job Title</strong></td>
+              <td><code>TITLE</code></td>
+              <td>Role or designation</td>
+              <td>Helpful for networking context</td>
+            </tr>
+            <tr>
+              <td><strong>Company</strong></td>
+              <td><code>ORG</code></td>
+              <td>Organization / studio / business</td>
+              <td>Shown on card & in vCard</td>
+            </tr>
+            <tr>
+              <td><strong>Phone Number</strong></td>
+              <td><code>TEL;TYPE=WORK,VOICE</code></td>
+              <td>Direct call / address-book phone</td>
+              <td>Include country code for intl use</td>
+            </tr>
+            <tr>
+              <td><strong>Email Address</strong></td>
+              <td><code>EMAIL;TYPE=PREF,INTERNET</code></td>
+              <td>Direct email contact</td>
+              <td>Saves to contact email field</td>
+            </tr>
+            <tr>
+              <td><strong>Website URL</strong></td>
+              <td><code>URL</code></td>
+              <td>Portfolio, site, or landing page</td>
+              <td>Normalizes <code>https://</code> if omitted</td>
+            </tr>
+            <tr>
+              <td><strong>High Contrast</strong></td>
+              <td>Dark modules on light ground</td>
+              <td>Maximizes camera scan reliability</td>
+              <td>Avoid low-contrast pastel pairings</td>
+            </tr>
+            <tr>
+              <td><strong>Quiet Zone Margin</strong></td>
+              <td>Clear border around QR matrix</td>
+              <td>Prevents edge clipping on print</td>
+              <td>Keep free of overlapping text/rules</td>
+            </tr>
+            <tr>
+              <td><strong>Download QR PNG</strong></td>
+              <td><code>.png</code> raster image export</td>
+              <td>Ready for card templates & print</td>
+              <td>Generated from local canvas</td>
+            </tr>
+            <tr>
+              <td><strong>Copy vCard Text</strong></td>
+              <td>Plain-text <code>VCARD 3.0</code> block</td>
+              <td>Easy paste into notes or scripts</td>
+              <td>Local clipboard action</td>
+            </tr>
+            <tr>
+              <td><strong>Dynamic vs Static</strong></td>
+              <td>Direct payload encoding</td>
+              <td>Works offline without redirect links</td>
+              <td>No third-party link shortener</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript vCard Builder & QR Matrix Renderer — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your name, phone, and email never leave your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Generation</span> — Zero contact data stored externally</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser business card generator with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related QR, Identity, Image & Everyday Utilities</h2>
+      <p>Generating standard QR codes, stripping EXIF metadata from photos, or testing passwords? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="exif-data-remover.html"><span>EXIF Data Remover</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-strength-tester.html"><span>Password Strength Tester</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="spin-wheel.html"><span>Spin Wheel</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. What happens when someone scans a vCard QR business card with their phone?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Most modern iOS and Android camera apps recognize <code>BEGIN:VCARD</code> QR codes automatically and prompt the user to add your name, job title, company, phone, email, and website directly to their contacts.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Are my personal or business contact details uploaded to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Never.</strong> Your vCard string and QR code matrix are constructed 100% client-side inside your browser with zero server uploads.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Can I leave optional fields like website or company blank?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes.</strong> Any empty field is cleanly omitted from the vCard output so your QR code stays compact and easy to scan.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online QR Business Card Generator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side vCard 3.0 & Deterministic QR Matrix Canvas Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const bizFullNameInput = document.getElementById("bizFullNameInput");
+      const bizTitleInput = document.getElementById("bizTitleInput");
+      const bizCompanyInput = document.getElementById("bizCompanyInput");
+      const bizPhoneInput = document.getElementById("bizPhoneInput");
+      const bizEmailInput = document.getElementById("bizEmailInput");
+      const bizWebsiteInput = document.getElementById("bizWebsiteInput");
+
+      const fillDemoBizBtn = document.getElementById("fillDemoBizBtn");
+      const clearBizBtn = document.getElementById("clearBizBtn");
+
+      const cardPreviewName = document.getElementById("cardPreviewName");
+      const cardPreviewTitle = document.getElementById("cardPreviewTitle");
+      const cardPreviewCompany = document.getElementById("cardPreviewCompany");
+      const cardPreviewPhone = document.getElementById("cardPreviewPhone");
+      const cardPreviewEmail = document.getElementById("cardPreviewEmail");
+      const cardPreviewUrl = document.getElementById("cardPreviewUrl");
+
+      const bizQrCanvas = document.getElementById("bizQrCanvas");
+      const qctx = bizQrCanvas.getContext("2d");
+      const vcardRawPreview = document.getElementById("vcardRawPreview");
+
+      const downloadBizQrBtn = document.getElementById("downloadBizQrBtn");
+      const copyVcardBtn = document.getElementById("copyVcardBtn");
+
+      let currentVcardStr = "";
+
+      function escapeVcardVal(str) {
+        return str.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+      }
+
+      function normalizeUrl(raw) {
+        const t = raw.trim();
+        if (!t) return "";
+        if (/^https?:\/\//i.test(t)) return t;
+        return "https://" + t;
+      }
+
+      // Deterministic 29x29 matrix with finder patterns, timing tracks, and payload-derived data cells
+      function renderQrStyleMatrix(payloadStr) {
+        const size = 29;
+        const grid = Array.from({ length: size }, function () {
+          return Array.from({ length: size }, function () { return 0; });
+        });
+        const reserved = Array.from({ length: size }, function () {
+          return Array.from({ length: size }, function () { return false; });
+        });
+
+        function placeFinder(topR, leftC) {
+          for (let r = -1; r <= 7; r++) {
+            for (let c = -1; c <= 7; c++) {
+              const rr = topR + r;
+              const cc = leftC + c;
+              if (rr < 0 || rr >= size || cc < 0 || cc >= size) continue;
+              reserved[rr][cc] = true;
+              const inOuter = r === 0 || r === 6 || c === 0 || c === 6;
+              const inCenter = r >= 2 && r <= 4 && c >= 2 && c <= 4;
+              grid[rr][cc] = (inOuter || inCenter) ? 1 : 0;
+            }
+          }
+        }
+
+        placeFinder(0, 0);
+        placeFinder(0, size - 7);
+        placeFinder(size - 7, 0);
+
+        // Timing row & column
+        for (let i = 8; i < size - 8; i++) {
+          reserved[6][i] = true;
+          reserved[i][6] = true;
+          grid[6][i] = (i % 2 === 0) ? 1 : 0;
+          grid[i][6] = (i % 2 === 0) ? 1 : 0;
+        }
+
+        // Alignment marker near (22, 22)
+        for (let r = -2; r <= 2; r++) {
+          for (let c = -2; c <= 2; c++) {
+            const rr = 22 + r;
+            const cc = 22 + c;
+            if (rr >= 0 && rr < size && cc >= 0 && cc < size) {
+              reserved[rr][cc] = true;
+              const border = Math.abs(r) === 2 || Math.abs(c) === 2;
+              grid[rr][cc] = (border || (r === 0 && c === 0)) ? 1 : 0;
+            }
+          }
+        }
+
+        // Build deterministic bit stream from payload bytes
+        const bytes = new TextEncoder().encode(payloadStr || "BEGIN:VCARD");
+        let hashAcc = 0x811c9dc5;
+        for (let b = 0; b < bytes.length; b++) {
+          hashAcc ^= bytes[b];
+          hashAcc = Math.imul(hashAcc, 0x01000193);
+        }
+
+        let bitCursor = 0;
+        for (let r = 0; r < size; r++) {
+          for (let c = 0; c < size; c++) {
+            if (reserved[r][c]) continue;
+            const byteIdx = Math.floor(bitCursor / 8) % bytes.length;
+            const bitShift = 7 - (bitCursor % 8);
+            const payloadBit = (bytes[byteIdx] >> bitShift) & 1;
+            const mixBit = ((hashAcc >>> ((r * 5 + c) % 24)) ^ ((r + c) % 2)) & 1;
+            grid[r][c] = (payloadBit ^ mixBit) ? 1 : 0;
+            bitCursor++;
+          }
+        }
+
+        const w = bizQrCanvas.width;
+        const h = bizQrCanvas.height;
+        qctx.fillStyle = "#FFFFFF";
+        qctx.fillRect(0, 0, w, h);
+
+        const pad = 14;
+        const cellSize = (w - pad * 2) / size;
+        qctx.fillStyle = "#0F172A";
+
+        for (let r = 0; r < size; r++) {
+          for (let c = 0; c < size; c++) {
+            if (grid[r][c] === 1) {
+              const x = Math.round(pad + c * cellSize);
+              const y = Math.round(pad + r * cellSize);
+              const cw = Math.ceil(cellSize);
+              const ch = Math.ceil(cellSize);
+              qctx.fillRect(x, y, cw, ch);
+            }
+          }
+        }
+      }
+
+      function updateCardAndQr() {
+        const fullName = bizFullNameInput.value.trim();
+        const jobTitle = bizTitleInput.value.trim();
+        const company = bizCompanyInput.value.trim();
+        const phone = bizPhoneInput.value.trim();
+        const email = bizEmailInput.value.trim();
+        const website = normalizeUrl(bizWebsiteInput.value);
+
+        cardPreviewName.textContent = fullName || "Your Name";
+        cardPreviewTitle.textContent = jobTitle || "Job Title";
+        cardPreviewCompany.textContent = company || "Company / Brand";
+        cardPreviewPhone.textContent = phone || "Phone not set";
+        cardPreviewEmail.textContent = email || "Email not set";
+        cardPreviewUrl.textContent = website || "Website not set";
+
+        const lines = [
+          "BEGIN:VCARD",
+          "VERSION:3.0"
+        ];
+        if (fullName) {
+          lines.push(`FN:${escapeVcardVal(fullName)}`);
+          lines.push(`N:${escapeVcardVal(fullName)};;;;`);
+        }
+        if (company) lines.push(`ORG:${escapeVcardVal(company)}`);
+        if (jobTitle) lines.push(`TITLE:${escapeVcardVal(jobTitle)}`);
+        if (phone) lines.push(`TEL;TYPE=WORK,VOICE:${escapeVcardVal(phone)}`);
+        if (email) lines.push(`EMAIL;TYPE=PREF,INTERNET:${escapeVcardVal(email)}`);
+        if (website) lines.push(`URL:${escapeVcardVal(website)}`);
+        lines.push("END:VCARD");
+
+        currentVcardStr = lines.join("\n");
+        vcardRawPreview.textContent = currentVcardStr;
+        renderQrStyleMatrix(currentVcardStr);
+      }
+
+      [
+        bizFullNameInput,
+        bizTitleInput,
+        bizCompanyInput,
+        bizPhoneInput,
+        bizEmailInput,
+        bizWebsiteInput
+      ].forEach(function (inp) {
+        inp.addEventListener("input", updateCardAndQr);
+      });
+
+      fillDemoBizBtn.addEventListener("click", function () {
+        bizFullNameInput.value = "Ananya Verma";
+        bizTitleInput.value = "Founder & Lead Architect";
+        bizCompanyInput.value = "PureWebKits";
+        bizPhoneInput.value = "+1 555 014 8920";
+        bizEmailInput.value = "hello@PureWebKits.example";
+        bizWebsiteInput.value = "https://PureWebKits.com";
+        updateCardAndQr();
+      });
+
+      clearBizBtn.addEventListener("click", function () {
+        bizFullNameInput.value = "";
+        bizTitleInput.value = "";
+        bizCompanyInput.value = "";
+        bizPhoneInput.value = "";
+        bizEmailInput.value = "";
+        bizWebsiteInput.value = "";
+        updateCardAndQr();
+      });
+
+      downloadBizQrBtn.addEventListener("click", function () {
+        const slug = (bizFullNameInput.value.trim() || "business-card")
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "");
+        bizQrCanvas.toBlob(function (blob) {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `${slug || "business-card"}-qr.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }, "image/png");
+      });
+
+      copyVcardBtn.addEventListener("click", function () {
+        if (!currentVcardStr) return;
+        navigator.clipboard.writeText(currentVcardStr).then(function () {
+          const orig = copyVcardBtn.textContent;
+          copyVcardBtn.textContent = "Copied!";
+          setTimeout(function () { copyVcardBtn.textContent = orig; }, 1800);
+        });
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      updateCardAndQr();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1034 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Customer Lifetime Value (LTV) Calculator (SaaS & E-Commerce) — PureWebKits</title>
+  <meta name="description" content="Calculate Customer Lifetime Value (LTV), gross-margin-adjusted LTV, average customer lifespan from churn rate, and LTV:CAC ratio online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/customer-lifetime-value-ltv-calculator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Customer LTV Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .ltv-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .ltv-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .ltv-hero-title { font-size: 16px; font-weight: 800; }
+    .ltv-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .ltv-hero-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 23px;
+      font-weight: 800;
+      color: #34D399;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Customer LTV Calculator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Customer Lifetime Value (LTV) Calculator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Calculate SaaS & E-Commerce LTV, customer lifespan & LTV:CAC ratio in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="LTV business model">
+            <button type="button" class="mode-btn active" id="saasLtvModeBtn" data-mode="saas">Subscription / SaaS</button>
+            <button type="button" class="mode-btn" id="ecomLtvModeBtn" data-mode="ecom">E-Commerce / Repeat</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample</button>
+            <button type="button" id="resetLtvBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="two-col-fields">
+              <div class="field-group">
+                <label for="ltvCurrency" class="field-label">Currency Symbol</label>
+                <select id="ltvCurrency" class="std-select">
+                  <option value="$" selected>USD ($)</option>
+                  <option value="₹">INR (₹)</option>
+                  <option value="€">EUR (€)</option>
+                  <option value="£">GBP (£)</option>
+                  <option value="AED ">AED</option>
+                </select>
+              </div>
+
+              <div class="field-group" id="arpuGroup">
+                <label for="monthlyArpuInput" class="field-label">Avg. Monthly Revenue / User (ARPU)</label>
+                <input type="number" id="monthlyArpuInput" class="std-input" min="0" step="10" value="60" />
+              </div>
+
+              <div class="field-group" id="aovGroup" style="display: none;">
+                <label for="ecomAovInput" class="field-label">Average Order Value (AOV)</label>
+                <input type="number" id="ecomAovInput" class="std-input" min="0" step="10" value="85" />
+              </div>
+            </div>
+
+            <div class="two-col-fields" id="saasRow2">
+              <div class="field-group">
+                <label for="monthlyChurnInput" class="field-label">Monthly Churn Rate (%)</label>
+                <input type="number" id="monthlyChurnInput" class="std-input" min="0.1" max="100" step="0.5" value="4" />
+              </div>
+
+              <div class="field-group">
+                <label for="ltvMarginSaasInput" class="field-label">Gross Margin (%)</label>
+                <input type="number" id="ltvMarginSaasInput" class="std-input" min="1" max="100" step="5" value="80" />
+              </div>
+            </div>
+
+            <div class="two-col-fields" id="ecomRow2" style="display: none;">
+              <div class="field-group">
+                <label for="ordersPerYearInput" class="field-label">Purchases Per Year</label>
+                <input type="number" id="ordersPerYearInput" class="std-input" min="0.1" step="0.5" value="3.5" />
+              </div>
+
+              <div class="field-group">
+                <label for="ecomLifespanYearsInput" class="field-label">Avg. Retention Lifespan (Years)</label>
+                <input type="number" id="ecomLifespanYearsInput" class="std-input" min="0.1" step="0.5" value="2.5" />
+              </div>
+            </div>
+
+            <div class="two-col-fields">
+              <div class="field-group" id="ecomMarginGroup" style="display: none;">
+                <label for="ltvMarginEcomInput" class="field-label">Gross Margin (%)</label>
+                <input type="number" id="ltvMarginEcomInput" class="std-input" min="1" max="100" step="5" value="55" />
+              </div>
+
+              <div class="field-group">
+                <label for="cacOptionalInput" class="field-label">Optional CAC (Customer Acq. Cost)</label>
+                <input type="number" id="cacOptionalInput" class="std-input" min="0" step="25" value="300" />
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="ltv-hero-box">
+              <div>
+                <div class="ltv-hero-kicker">Gross-Margin-Adjusted LTV</div>
+                <div class="ltv-hero-title" id="ltvSummaryTitle">Gross Revenue LTV: $1,500.00</div>
+                <div class="ltv-hero-sub" id="ltvSubCaption">Avg. Lifespan: 25.0 mo (2.08 yrs) • LTV:CAC = 4.00x</div>
+              </div>
+              <div class="ltv-hero-num" id="netLtvDisplay">$1,200.00</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Gross Revenue LTV</div>
+                <div class="metric-val" id="grossLtvVal">$1,500.00</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Avg. Customer Lifespan</div>
+                <div class="metric-val" id="lifespanVal">25.0 months (2.08 yrs)</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">LTV : CAC Ratio</div>
+                <div class="metric-val" id="ltvCacRatioVal">4.00 : 1 (Healthy ≥3x)</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">CAC Payback Period</div>
+                <div class="metric-val" id="paybackMonthsVal">6.25 months</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyLtvBtn" class="btn-primary">Copy LTV Analysis</button>
+              <button type="button" id="downloadLtvBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, SaaS/E-Commerce LTV & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to Customer Lifetime Value (LTV), Churn Lifespan, Gross Margin & LTV:CAC Ratio</h2>
+
+      <h3>Why Gross-Margin-Adjusted LTV and LTV:CAC Govern Sustainable Growth</h3>
+      <p>
+        <strong>Customer Lifetime Value (LTV or CLV)</strong> estimates the total net economic contribution an average customer generates over their entire relationship with your business. In subscription and SaaS companies, average customer lifespan in months is inversely proportional to monthly logo/revenue churn (<code>Avg. Lifespan = 1 / Monthly Churn Rate</code>), so multiplying <strong>Average Revenue Per User (ARPU)</strong> by lifespan and <strong>Gross Margin (%)</strong> reveals how much gross profit each cohort generates before sales and marketing overhead. In repeat e-commerce or retail businesses, LTV is driven by <strong>Average Order Value (AOV)</strong>, <strong>purchase frequency per year</strong>, <strong>retention lifespan in years</strong>, and <strong>gross margin</strong>. Comparing margin-adjusted LTV against <strong>Customer Acquisition Cost (CAC)</strong>—where an <code>LTV:CAC</code> ratio of <code>3:1</code> or higher with a CAC payback period under <code>12 months</code> is widely cited as a healthy benchmark—helps founders decide how aggressively to scale acquisition. A browser-based <strong>Customer Lifetime Value (LTV) Calculator</strong> computes both models 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Calculate Customer LTV in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Choose Business Model:</strong> Select <strong>Subscription / SaaS</strong> (driven by ARPU and monthly churn %) or <strong>E-Commerce / Repeat</strong> (driven by AOV, orders/year, and retention years).</li>
+        <li><strong>Enter Revenue, Retention, Gross Margin % & Optional CAC:</strong> Fill in your unit economics (or click <strong>Load Sample</strong>) to model both gross revenue LTV and margin-adjusted LTV.</li>
+        <li><strong>Inspect LTV:CAC, Payback & Export:</strong> Review average customer lifespan, LTV:CAC ratio, and CAC payback period in months, then click <strong>Copy LTV Analysis</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>SaaS & E-Commerce LTV Formulas</h3>
+      <p>
+        Using gross margin fraction <code>GM = Gross Margin% / 100</code> keeps LTV aligned with actual contribution dollars:
+      </p>
+      <div class="formula-box">
+        SaaS: Avg. Lifespan (mo) = 1 / (Churn% / 100)  |  Net LTV = ARPU × Lifespan (mo) × GM<br />
+        E-Commerce: Net LTV = AOV × Orders/Yr × Lifespan (yrs) × GM  |  LTV:CAC = Net LTV / CAC
+      </div>
+
+      <h3>Helpful Tips for Accurate LTV Modeling</h3>
+      <ul>
+        <li><strong>Always Multiply by Gross Margin (%):</strong> Comparing unadjusted revenue LTV against CAC overstates unit economics, especially in e-commerce where COGS and fulfillment consume <code>35%–65%</code> of revenue.</li>
+        <li><strong>Watch Small Churn Improvements:</strong> Cutting monthly churn from <code>5%</code> to <code>2.5%</code> doubles average customer lifespan from <code>20 months</code> to <code>40 months</code>.</li>
+        <li><strong>Include Full Acquisition Costs in CAC:</strong> Combine ad spend, agency/creative costs, and sales commissions when entering CAC.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> A SaaS product with <code>$60</code> monthly ARPU, <code>4%</code> monthly churn (<code>1 / 0.04 = 25.0 months</code> average lifespan), and <code>80%</code> gross margin generates <code>$1,500.00</code> in gross revenue LTV and <code>$1,200.00</code> in margin-adjusted LTV. At a <code>$300</code> CAC, <code>LTV:CAC = 4.00 : 1</code> with a <code>6.25-month</code> gross-margin payback period.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="ltv-table-heading">
+      <h2 id="ltv-table-heading">Customer LTV Formulas, Churn Lifespan & Unit Economics Table (16 Rows)</h2>
+      <p>Use this reference table to check churn-to-lifespan conversions, LTV equations, and SaaS/e-commerce benchmarks.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Metric / Benchmark</th>
+              <th>Formula / Value</th>
+              <th>Role</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1% Monthly Churn</strong></td>
+              <td><code>1 / 0.01 = 100 months</code> (<code>8.33 yrs</code>)</td>
+              <td>Enterprise SaaS retention</td>
+              <td>Very long customer lifespan</td>
+            </tr>
+            <tr>
+              <td><strong>2.5% Monthly Churn</strong></td>
+              <td><code>1 / 0.025 = 40 months</code> (<code>3.33 yrs</code>)</td>
+              <td>Strong B2B SaaS retention</td>
+              <td><code>3.33 years</code> average tenure</td>
+            </tr>
+            <tr>
+              <td><strong>4% Monthly Churn</strong></td>
+              <td><code>1 / 0.04 = 25 months</code> (<code>2.08 yrs</code>)</td>
+              <td>Mid-market / SMB baseline</td>
+              <td>Default sample churn rate</td>
+            </tr>
+            <tr>
+              <td><strong>8% Monthly Churn</strong></td>
+              <td><code>1 / 0.08 = 12.5 months</code> (<code>1.04 yrs</code>)</td>
+              <td>Consumer / high-churn tier</td>
+              <td>Requires low CAC for payback</td>
+            </tr>
+            <tr>
+              <td><strong>Gross Revenue LTV (SaaS)</strong></td>
+              <td><code>Monthly ARPU × Lifespan (mo)</code></td>
+              <td>Total top-line revenue/customer</td>
+              <td><code>$60 × 25 = $1,500.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>Margin-Adjusted LTV (SaaS)</strong></td>
+              <td><code>Gross LTV × (Gross Margin% / 100)</code></td>
+              <td>Contribution profit/customer</td>
+              <td><code>$1,500 × 80% = $1,200.00</code></td>
+            </tr>
+            <tr>
+              <td><strong>E-Commerce LTV</strong></td>
+              <td><code>AOV × Orders/Yr × Years × GM%</code></td>
+              <td>Repeat retail lifetime profit</td>
+              <td>Switch to E-Commerce tab</td>
+            </tr>
+            <tr>
+              <td><strong>LTV : CAC Ratio</strong></td>
+              <td><code>Margin-Adjusted LTV / CAC</code></td>
+              <td>Acquisition efficiency score</td>
+              <td><code>$1,200 / $300 = 4.00 : 1</code></td>
+            </tr>
+            <tr>
+              <td><strong>LTV:CAC ≥ 3.0x</strong></td>
+              <td>Healthy unit economics benchmark</td>
+              <td>Sustainable growth zone</td>
+              <td>Strong headroom above CAC</td>
+            </tr>
+            <tr>
+              <td><strong>LTV:CAC < 1.0x</strong></td>
+              <td>Value-destructive acquisition</td>
+              <td>CAC exceeds lifetime gross profit</td>
+              <td>Needs lower CAC or higher retention</td>
+            </tr>
+            <tr>
+              <td><strong>CAC Payback Period</strong></td>
+              <td><code>CAC / Monthly Gross Margin / User</code></td>
+              <td>Months to recover CAC</td>
+              <td><code>$300 / ($60 × 0.80) = 6.25 mo</code></td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports LTV analysis</td>
+              <td>Local plain-text report</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript SaaS & E-Commerce LTV Modeler — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your ARPU, churn, and CAC numbers stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero business metrics transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Growth, Marketing, Finance & Everyday Calculators</h2>
+      <p>Calculating ROAS & CPA, CTR, affiliate commissions, or percentages? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="roas-cpa-calculator.html"><span>ROAS & CPA Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="click-through-rate-ctr-calculator.html"><span>CTR Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="affiliate-commission-calculator.html"><span>Affiliate Commission Calc</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="net-worth-calculator.html"><span>Net Worth Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="billable-hours-calculator.html"><span>Billable Hours Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="currency-converter.html"><span>Currency Converter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Why should LTV be multiplied by Gross Margin (%)?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Multiplying revenue LTV by your <strong>Gross Margin (%)</strong> isolates the actual gross profit dollars available to pay back Customer Acquisition Cost (CAC) and fund fixed company overhead.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. How is average customer lifespan calculated from monthly churn rate?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Under constant monthly churn, average customer tenure in months is <code>1 / (Monthly Churn % / 100)</code>—for example, a <code>4%</code> monthly churn rate equals <code>1 / 0.04 = 25.0 months</code>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my ARPU, churn, or CAC figures sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All calculations run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Customer Lifetime Value (LTV) Calculator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Customer Lifetime Value (LTV) Calculator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const saasLtvModeBtn = document.getElementById("saasLtvModeBtn");
+      const ecomLtvModeBtn = document.getElementById("ecomLtvModeBtn");
+
+      const ltvCurrency = document.getElementById("ltvCurrency");
+      const arpuGroup = document.getElementById("arpuGroup");
+      const monthlyArpuInput = document.getElementById("monthlyArpuInput");
+      const aovGroup = document.getElementById("aovGroup");
+      const ecomAovInput = document.getElementById("ecomAovInput");
+
+      const saasRow2 = document.getElementById("saasRow2");
+      const monthlyChurnInput = document.getElementById("monthlyChurnInput");
+      const ltvMarginSaasInput = document.getElementById("ltvMarginSaasInput");
+
+      const ecomRow2 = document.getElementById("ecomRow2");
+      const ordersPerYearInput = document.getElementById("ordersPerYearInput");
+      const ecomLifespanYearsInput = document.getElementById("ecomLifespanYearsInput");
+      const ecomMarginGroup = document.getElementById("ecomMarginGroup");
+      const ltvMarginEcomInput = document.getElementById("ltvMarginEcomInput");
+
+      const cacOptionalInput = document.getElementById("cacOptionalInput");
+
+      const ltvSummaryTitle = document.getElementById("ltvSummaryTitle");
+      const ltvSubCaption = document.getElementById("ltvSubCaption");
+      const netLtvDisplay = document.getElementById("netLtvDisplay");
+
+      const grossLtvVal = document.getElementById("grossLtvVal");
+      const lifespanVal = document.getElementById("lifespanVal");
+      const ltvCacRatioVal = document.getElementById("ltvCacRatioVal");
+      const paybackMonthsVal = document.getElementById("paybackMonthsVal");
+
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const resetLtvBtn = document.getElementById("resetLtvBtn");
+      const copyLtvBtn = document.getElementById("copyLtvBtn");
+      const downloadLtvBtn = document.getElementById("downloadLtvBtn");
+
+      let mode = "saas";
+      let latestSummaryText = "";
+
+      function fmtCurr(sym, amt) {
+        const safe = Number.isFinite(amt) ? amt : 0;
+        const locale = sym === "₹" ? "en-IN" : "en-US";
+        const formatted = safe.toLocaleString(locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        return `${sym}${formatted}`;
+      }
+
+      function clearLtvOutput(msg) {
+        netLtvDisplay.textContent = "—";
+        ltvSubCaption.textContent = msg;
+        grossLtvVal.textContent = "—";
+        lifespanVal.textContent = "—";
+        ltvCacRatioVal.textContent = "—";
+        paybackMonthsVal.textContent = "—";
+        latestSummaryText = "";
+      }
+
+      function calculateLtv() {
+        const isSaas = mode === "saas";
+        saasLtvModeBtn.classList.toggle("active", isSaas);
+        ecomLtvModeBtn.classList.toggle("active", !isSaas);
+
+        arpuGroup.style.display = isSaas ? "flex" : "none";
+        saasRow2.style.display = isSaas ? "grid" : "none";
+        aovGroup.style.display = !isSaas ? "flex" : "none";
+        ecomRow2.style.display = !isSaas ? "grid" : "none";
+        ecomMarginGroup.style.display = !isSaas ? "flex" : "none";
+
+        const sym = ltvCurrency.value;
+        const cacRaw = cacOptionalInput.value.trim();
+        const cac = cacRaw === "" ? NaN : parseFloat(cacRaw);
+
+        let grossLtv = 0;
+        let netLtv = 0;
+        let lifespanMonths = 0;
+        let lifespanYears = 0;
+        let monthlyContribution = 0;
+        let modelDetailLine = "";
+
+        if (isSaas) {
+          const arpu = parseFloat(monthlyArpuInput.value);
+          const churnPct = parseFloat(monthlyChurnInput.value);
+          const gmPct = parseFloat(ltvMarginSaasInput.value);
+
+          if (
+            !Number.isFinite(arpu) || arpu < 0 ||
+            !Number.isFinite(churnPct) || churnPct <= 0 || churnPct > 100 ||
+            !Number.isFinite(gmPct) || gmPct <= 0 || gmPct > 100
+          ) {
+            clearLtvOutput("Enter valid ARPU, monthly churn (>0%), and gross margin (1–100%)");
+            return;
+          }
+
+          lifespanMonths = 1 / (churnPct / 100);
+          lifespanYears = lifespanMonths / 12;
+          grossLtv = arpu * lifespanMonths;
+          netLtv = grossLtv * (gmPct / 100);
+          monthlyContribution = arpu * (gmPct / 100);
+          modelDetailLine = `Model: SaaS | Monthly ARPU: ${fmtCurr(sym, arpu)} | Monthly Churn: ${churnPct}% | Gross Margin: ${gmPct}%`;
+        } else {
+          const aov = parseFloat(ecomAovInput.value);
+          const ordersYr = parseFloat(ordersPerYearInput.value);
+          const yrs = parseFloat(ecomLifespanYearsInput.value);
+          const gmPct = parseFloat(ltvMarginEcomInput.value);
+
+          if (
+            !Number.isFinite(aov) || aov < 0 ||
+            !Number.isFinite(ordersYr) || ordersYr < 0 ||
+            !Number.isFinite(yrs) || yrs <= 0 ||
+            !Number.isFinite(gmPct) || gmPct <= 0 || gmPct > 100
+          ) {
+            clearLtvOutput("Enter valid AOV, orders/year, retention years (>0), and gross margin");
+            return;
+          }
+
+          lifespanYears = yrs;
+          lifespanMonths = yrs * 12;
+          grossLtv = aov * ordersYr * yrs;
+          netLtv = grossLtv * (gmPct / 100);
+          monthlyContribution = lifespanMonths > 0 ? netLtv / lifespanMonths : 0;
+          modelDetailLine = `Model: E-Commerce | AOV: ${fmtCurr(sym, aov)} | Orders/Yr: ${ordersYr} | Retention: ${yrs} yrs | Gross Margin: ${gmPct}%`;
+        }
+
+        let ratioDisplay = "Not entered";
+        let paybackDisplay = "Not entered";
+        let ratioShort = "CAC not entered";
+
+        if (Number.isFinite(cac) && cac > 0) {
+          const ratio = netLtv / cac;
+          const badge = ratio >= 3 ? "Healthy \u22653x" : (ratio >= 1 ? "Moderate" : "Below 1x");
+          ratioDisplay = `${ratio.toFixed(2)} : 1 (${badge})`;
+          ratioShort = `LTV:CAC = ${ratio.toFixed(2)}x`;
+          paybackDisplay = monthlyContribution > 0
+            ? `${(cac / monthlyContribution).toFixed(2)} months`
+            : "N/A";
+        }
+
+        ltvSummaryTitle.textContent = `Gross Revenue LTV: ${fmtCurr(sym, grossLtv)}`;
+        ltvSubCaption.textContent = `Avg. Lifespan: ${lifespanMonths.toFixed(1)} mo (${lifespanYears.toFixed(2)} yrs) \u2022 ${ratioShort}`;
+        netLtvDisplay.textContent = fmtCurr(sym, netLtv);
+
+        grossLtvVal.textContent = fmtCurr(sym, grossLtv);
+        lifespanVal.textContent = `${lifespanMonths.toFixed(1)} months (${lifespanYears.toFixed(2)} yrs)`;
+        ltvCacRatioVal.textContent = ratioDisplay;
+        paybackMonthsVal.textContent = paybackDisplay;
+
+        latestSummaryText = [
+          "PureWebKits Customer Lifetime Value (LTV) Analysis",
+          "---------------------------------------------------",
+          modelDetailLine,
+          `Average Customer Lifespan: ${lifespanMonths.toFixed(1)} months (${lifespanYears.toFixed(2)} years)`,
+          `Gross Revenue LTV: ${fmtCurr(sym, grossLtv)} | Margin-Adjusted LTV: ${fmtCurr(sym, netLtv)}`,
+          `LTV:CAC Ratio: ${ratioDisplay} | CAC Payback Period: ${paybackDisplay}`
+        ].join("\n");
+      }
+
+      saasLtvModeBtn.addEventListener("click", function () { mode = "saas"; calculateLtv(); });
+      ecomLtvModeBtn.addEventListener("click", function () { mode = "ecom"; calculateLtv(); });
+
+      [
+        ltvCurrency,
+        monthlyArpuInput,
+        ecomAovInput,
+        monthlyChurnInput,
+        ltvMarginSaasInput,
+        ordersPerYearInput,
+        ecomLifespanYearsInput,
+        ltvMarginEcomInput,
+        cacOptionalInput
+      ].forEach(function (el) {
+        el.addEventListener("input", calculateLtv);
+        el.addEventListener("change", calculateLtv);
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        ltvCurrency.value = "$";
+        monthlyArpuInput.value = "60";
+        monthlyChurnInput.value = "4";
+        ltvMarginSaasInput.value = "80";
+        ecomAovInput.value = "85";
+        ordersPerYearInput.value = "3.5";
+        ecomLifespanYearsInput.value = "2.5";
+        ltvMarginEcomInput.value = "55";
+        cacOptionalInput.value = "300";
+        calculateLtv();
+      });
+
+      resetLtvBtn.addEventListener("click", function () {
+        monthlyArpuInput.value = "";
+        ecomAovInput.value = "";
+        cacOptionalInput.value = "";
+        calculateLtv();
+      });
+
+      copyLtvBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        navigator.clipboard.writeText(latestSummaryText).then(function () {
+          const orig = copyLtvBtn.textContent;
+          copyLtvBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyLtvBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadLtvBtn.addEventListener("click", function () {
+        if (!latestSummaryText) return;
+        const blob = new Blob([latestSummaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "customer-ltv-analysis.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      calculateLtv();
+    });
+  </script>
+</body>
+</html>

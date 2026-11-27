@@ -1,0 +1,1154 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Random Name Picker & Giveaway Winner Generator — PureWebKits</title>
+  <meta name="description" content="Pick random winners, draw multiple names without duplicates, or generate balanced random teams using hardware crypto randomness online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/random-name-picker.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Random Name Picker Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .mode-pills {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .two-col-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .std-textarea {
+      width: 100%;
+      min-height: 205px;
+      padding: 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.55;
+      color: var(--text-main);
+      background: #F8FAFC;
+      resize: vertical;
+      outline: none;
+    }
+    .std-textarea:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .np-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .np-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .np-winner-stage {
+      font-size: clamp(20px, 3vw, 26px);
+      font-weight: 800;
+      color: #34D399;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+    .np-hero-sub { font-size: 12px; color: #CBD5E1; }
+
+    /* Drawn Winners / Teams Cards */
+    .drawn-cards-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 215px;
+      overflow-y: auto;
+    }
+    .winner-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .winner-rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 26px;
+      height: 24px;
+      padding: 0 7px;
+      border-radius: 6px;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .winner-name-txt {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-main);
+      flex: 1;
+      word-break: break-word;
+    }
+    .team-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .team-card-head {
+      font-size: 11.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--primary-dark);
+      margin-bottom: 3px;
+    }
+    .team-card-members {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+    .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .two-col-fields { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Random Name Picker Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Random Name Picker</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Hardware crypto-random winner draws, duplicate cleanup & team generator in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div class="mode-pills" role="tablist" aria-label="Picker mode">
+            <button type="button" class="mode-btn active" id="drawWinnersModeBtn" data-mode="winners">Draw Random Winners</button>
+            <button type="button" class="mode-btn" id="makeTeamsModeBtn" data-mode="teams">Random Team Generator</button>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="dedupeNamesBtn" class="btn-sec">Remove Duplicates</button>
+            <button type="button" id="loadSampleBtn" class="btn-sec">Load Sample (12 Names)</button>
+            <button type="button" id="clearNamesBtn" class="btn-sec">Clear</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <div class="field-label-row">
+                <label for="namesListInput" class="field-label">Participant Names (One Per Line or Comma-Separated)</label>
+                <span id="participantCountBadge" style="font-size:12px; font-weight:800; color:var(--primary);">12 Names</span>
+              </div>
+              <textarea id="namesListInput" class="std-textarea" placeholder="Paste or type names here (one per line or separated by commas)...">Aarav Sharma
+Maya Patel
+Liam O'Connor
+Sophia Chen
+Rohan Verma
+Emma Wilson
+Noah Garcia
+Ananya Gupta
+Lucas Meyer
+Priya Nair
+Ethan Brooks
+Zara Khan</textarea>
+            </div>
+
+            <div class="two-col-fields" id="winnersControlsRow">
+              <div class="field-group">
+                <label for="winnerCountInput" class="field-label">Number of Winners to Draw</label>
+                <input type="number" id="winnerCountInput" class="std-input" min="1" max="500" step="1" value="1" />
+              </div>
+
+              <div class="field-group">
+                <label for="afterDrawBehaviorSelect" class="field-label">After Each Draw</label>
+                <select id="afterDrawBehaviorSelect" class="std-select">
+                  <option value="keep" selected>Keep Drawn Names in Pool</option>
+                  <option value="remove">Remove Drawn Names From Pool</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="two-col-fields" id="teamsControlsRow" style="display: none;">
+              <div class="field-group">
+                <label for="teamCountInput" class="field-label">Number of Balanced Teams</label>
+                <input type="number" id="teamCountInput" class="std-input" min="2" max="100" step="1" value="3" />
+              </div>
+
+              <div class="field-group">
+                <label for="teamPrefixInput" class="field-label">Team Label Prefix</label>
+                <input type="text" id="teamPrefixInput" class="std-input" style="font-family:inherit;" value="Team" />
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="pickActionBtn" class="btn-primary">Pick Random Winner</button>
+              <button type="button" id="shuffleListBtn" class="btn-sec" style="height: 40px;">Shuffle List</button>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="np-hero-box">
+              <div class="np-hero-kicker" id="npHeroKicker">Crypto-Random Selection</div>
+              <div class="np-winner-stage" id="npWinnerStage">Ready to Pick</div>
+              <div class="np-hero-sub" id="npHeroSub">12 eligible participants • 8.33% odds per entry</div>
+            </div>
+
+            <div class="drawn-cards-wrap" id="drawnResultsContainer">
+              <div style="font-size:13px; color:var(--text-muted); padding:6px 2px;">Click <strong>Pick Random Winner</strong> to run an unbiased Fisher–Yates shuffle using <code>window.crypto.getRandomValues()</code>.</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Remaining Pool Size</div>
+                <div class="metric-val" id="poolRemainingVal">12 participants</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Single-Draw Odds</div>
+                <div class="metric-val" id="singleOddsVal">8.33% (1 in 12)</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyResultsBtn" class="btn-sec" style="height: 38px;">Copy Results</button>
+              <button type="button" id="downloadResultsBtn" class="btn-sec" style="height: 38px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Fisher-Yates Crypto Shuffle & Worked Example -->
+    <article class="content-card">
+      <h2>Complete User Guide to the Random Name Picker, Fisher–Yates Crypto Shuffle & Team Generator</h2>
+
+      <h3>How Unbiased Fisher–Yates Shuffling & Hardware Randomness Work</h3>
+      <p>
+        Whether you are selecting giveaway winners from a social media comment export, calling on students in a classroom, assigning code reviewers, or splitting participants into balanced breakout groups, a fair draw requires sampling without replacement using an unbiased shuffle algorithm. Naive sorting tricks (such as sorting with random floating-point offsets) introduce subtle ordering bias; instead, this tool implements the <strong>Fisher–Yates (Knuth) shuffle</strong> powered by the browser's hardware-backed <code>window.crypto.getRandomValues()</code> with rejection sampling to eliminate modulo bias. Every permutation of <code>N</code> participants is mathematically equiprobable (<code>1 / N!</code>), ensuring every name in your list has an exact <code>1 / N</code> probability of being picked first. A browser-based <strong>Random Name Picker</strong> runs 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Pick Random Winners or Generate Teams in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Paste or Type Participant Names:</strong> Enter names one per line (or comma-separated) in <strong>Participant Names</strong>—click <strong>Remove Duplicates</strong> if you want each person entered strictly once, or leave duplicate lines in place for weighted raffle tickets.</li>
+        <li><strong>Choose Draw Winners or Team Generator Mode:</strong> Stay in <strong>Draw Random Winners</strong> and set <strong>Number of Winners to Draw</strong> (plus whether to automatically remove drawn winners from the pool), or switch to <strong>Random Team Generator</strong> to divide participants evenly across <code>N</code> teams.</li>
+        <li><strong>Run the Draw & Export Results:</strong> Click <strong>Pick Random Winner</strong> (or <strong>Generate Random Teams</strong>) to reveal the animated selection, then export via <strong>Copy Results</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Hypergeometric Draw Odds & Balanced Team Size Formulas</h3>
+      <p>
+        When drawing <code>k</code> distinct winners without replacement from <code>N</code> participants:
+      </p>
+      <div class="formula-box">
+        Single-Winner Probability = 1 / N  |  Multi-Winner Inclusion Odds (k draws) = k / N<br />
+        Balanced Team Size = floor(N / T) or ceil(N / T) across T teams
+      </div>
+
+      <h3>Helpful Tips for Giveaways, Raffles & Classroom Draws</h3>
+      <ul>
+        <li><strong>Use "Remove Drawn Names From Pool" for Multi-Round Giveaways:</strong> When awarding 1st, 2nd, and 3rd prizes one at a time, selecting <strong>Remove Drawn Names From Pool</strong> ensures nobody wins twice across rounds.</li>
+        <li><strong>Paste Directly From Spreadsheets or CSV Columns:</strong> Copying a column from Excel or Google Sheets pastes one name per line cleanly into the input box.</li>
+        <li><strong>Need a Visual Spinning Wheel Instead?</strong> Try our companion <a href="spin-wheel.html" style="color:var(--primary); font-weight:700;">Spin Wheel</a> tool for live screen-share animations.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Drawing <code>3</code> distinct winners from a list of <code>12</code> participants gives each participant a <code>1 / 12 = 8.33%</code> chance of taking the #1 spot and a <code>3 / 12 = 25.00%</code> overall probability of being selected among the three winners.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="np-table-heading">
+      <h2 id="np-table-heading">Random Name Picker Odds, Algorithms & Feature Reference Table (16 Rows)</h2>
+      <p>Use this reference table to check selection probabilities, shuffle properties, and built-in controls.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature / Pool Size</th>
+              <th>Formula / Behavior</th>
+              <th>Odds / Output</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>10 Participants (1 Winner)</strong></td>
+              <td><code>1 / 10</code> selection probability</td>
+              <td><code>10.00%</code> per entry</td>
+              <td>Small classroom or standup draw</td>
+            </tr>
+            <tr>
+              <td><strong>12 Participants (Default Sample)</strong></td>
+              <td><code>1 / 12</code> selection probability</td>
+              <td><code>8.33%</code> per entry</td>
+              <td><code>25.00%</code> for 3 winners</td>
+            </tr>
+            <tr>
+              <td><strong>50 Participants (1 Winner)</strong></td>
+              <td><code>1 / 50</code> selection probability</td>
+              <td><code>2.00%</code> per entry</td>
+              <td>Mid-size event raffle</td>
+            </tr>
+            <tr>
+              <td><strong>100 Participants (5 Winners)</strong></td>
+              <td><code>5 / 100</code> inclusion odds</td>
+              <td><code>5.00%</code> per entry</td>
+              <td>Sampling without replacement</td>
+            </tr>
+            <tr>
+              <td><strong>500+ Participants</strong></td>
+              <td><code>O(N)</code> linear Fisher–Yates shuffle</td>
+              <td>Instant < 1 ms execution</td>
+              <td>Handles large comment exports</td>
+            </tr>
+            <tr>
+              <td><strong>Fisher–Yates Shuffle</strong></td>
+              <td>Unbiased in-place permutation</td>
+              <td>All <code>N!</code> orders equiprobable</td>
+              <td>Eliminates sort-comparator bias</td>
+            </tr>
+            <tr>
+              <td><strong>Rejection-Sampled Crypto RNG</strong></td>
+              <td><code>window.crypto.getRandomValues()</code></td>
+              <td>Zero modulo bias</td>
+              <td>CSPRNG hardware entropy</td>
+            </tr>
+            <tr>
+              <td><strong>Remove Duplicates Button</strong></td>
+              <td>Case-insensitive deduplication</td>
+              <td>Preserves original casing</td>
+              <td>Ensures 1 entry per person</td>
+            </tr>
+            <tr>
+              <td><strong>Auto-Remove Winners Option</strong></td>
+              <td>Removes selected names after draw</td>
+              <td>Supports multi-round giveaways</td>
+              <td>Toggleable in dropdown</td>
+            </tr>
+            <tr>
+              <td><strong>Random Team Generator Mode</strong></td>
+              <td>Round-robin distribution after shuffle</td>
+              <td>Balanced team sizes (±1)</td>
+              <td>Switch mode in top bar</td>
+            </tr>
+            <tr>
+              <td><strong>Comma or Newline Parsing</strong></td>
+              <td>Splits on line breaks or commas</td>
+              <td>Trims whitespace automatically</td>
+              <td>Ignores blank lines</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download Results</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports ranked winners or teams</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript CSPRNG & Fisher–Yates Shuffler — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your participant lists and winners stay locally in your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero names or attendee lists transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser access with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Randomizers, Generators, Timers & Everyday Utilities</h2>
+      <p>Spinning a visual wheel, generating strong passwords, running a Pomodoro timer, or creating QR codes? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="spin-wheel.html"><span>Spin Wheel</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-generator.html"><span>Password Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="study-timer-pomodoro.html"><span>Study Timer (Pomodoro)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="gpa-calculator.html"><span>GPA Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How does the Random Name Picker ensure fair, unbiased winners?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            It shuffles the participant pool using the <strong>Fisher–Yates algorithm</strong> driven by <code>window.crypto.getRandomValues()</code> with modulo-bias rejection—guaranteeing that every entry has an identical probability of selection.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I split a list of names into balanced random teams?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> Click <strong>Random Team Generator</strong> at the top of the studio, enter the desired number of teams, and click <strong>Generate Random Teams</strong> to distribute everyone evenly across groups.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my participant lists or winners sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All shuffling, deduplication, and team assignments run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Random Name Picker free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Crypto-Random Name Picker & Team Generator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const SAMPLE_NAMES = [
+        "Aarav Sharma", "Maya Patel", "Liam O'Connor", "Sophia Chen",
+        "Rohan Verma", "Emma Wilson", "Noah Garcia", "Ananya Gupta",
+        "Lucas Meyer", "Priya Nair", "Ethan Brooks", "Zara Khan"
+      ];
+
+      const drawWinnersModeBtn = document.getElementById("drawWinnersModeBtn");
+      const makeTeamsModeBtn = document.getElementById("makeTeamsModeBtn");
+      const dedupeNamesBtn = document.getElementById("dedupeNamesBtn");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const clearNamesBtn = document.getElementById("clearNamesBtn");
+
+      const namesListInput = document.getElementById("namesListInput");
+      const participantCountBadge = document.getElementById("participantCountBadge");
+
+      const winnersControlsRow = document.getElementById("winnersControlsRow");
+      const winnerCountInput = document.getElementById("winnerCountInput");
+      const afterDrawBehaviorSelect = document.getElementById("afterDrawBehaviorSelect");
+
+      const teamsControlsRow = document.getElementById("teamsControlsRow");
+      const teamCountInput = document.getElementById("teamCountInput");
+      const teamPrefixInput = document.getElementById("teamPrefixInput");
+
+      const pickActionBtn = document.getElementById("pickActionBtn");
+      const shuffleListBtn = document.getElementById("shuffleListBtn");
+
+      const npHeroKicker = document.getElementById("npHeroKicker");
+      const npWinnerStage = document.getElementById("npWinnerStage");
+      const npHeroSub = document.getElementById("npHeroSub");
+      const drawnResultsContainer = document.getElementById("drawnResultsContainer");
+
+      const poolRemainingVal = document.getElementById("poolRemainingVal");
+      const singleOddsVal = document.getElementById("singleOddsVal");
+
+      const copyResultsBtn = document.getElementById("copyResultsBtn");
+      const downloadResultsBtn = document.getElementById("downloadResultsBtn");
+
+      let mode = "winners";
+      let isAnimating = false;
+      let latestExportText = "";
+
+      function parseNames() {
+        return namesListInput.value
+          .split(/[\r\n,]+/)
+          .map(function (s) { return s.trim(); })
+          .filter(Boolean);
+      }
+
+      // Rejection-sampled CSPRNG integer in [0, max)
+      function secureRandomInt(max) {
+        if (max <= 1) return 0;
+        if (window.crypto && window.crypto.getRandomValues) {
+          const range = 4294967296;
+          const limit = range - (range % max);
+          const arr = new Uint32Array(1);
+          let val = 0;
+          do {
+            window.crypto.getRandomValues(arr);
+            val = arr[0];
+          } while (val >= limit);
+          return val % max;
+        }
+        return Math.floor(Math.random() * max);
+      }
+
+      function fisherYatesShuffle(list) {
+        const copy = list.slice();
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = secureRandomInt(i + 1);
+          const tmp = copy[i];
+          copy[i] = copy[j];
+          copy[j] = tmp;
+        }
+        return copy;
+      }
+
+      function syncModeAndCounts() {
+        const isWinners = mode === "winners";
+        drawWinnersModeBtn.classList.toggle("active", isWinners);
+        makeTeamsModeBtn.classList.toggle("active", !isWinners);
+        winnersControlsRow.style.display = isWinners ? "grid" : "none";
+        teamsControlsRow.style.display = !isWinners ? "grid" : "none";
+        pickActionBtn.textContent = isWinners ? "Pick Random Winner" : "Generate Random Teams";
+
+        const names = parseNames();
+        const n = names.length;
+        participantCountBadge.textContent = `${n} ${n === 1 ? "Name" : "Names"}`;
+        poolRemainingVal.textContent = `${n} ${n === 1 ? "participant" : "participants"}`;
+        singleOddsVal.textContent = n > 0
+          ? `${(100 / n).toFixed(2)}% (1 in ${n})`
+          : "—";
+        pickActionBtn.disabled = isAnimating || n === 0;
+      }
+
+      function runDraw() {
+        const names = parseNames();
+        if (isAnimating || names.length === 0) return;
+
+        if (mode === "winners") {
+          const requested = Math.max(1, parseInt(winnerCountInput.value, 10) || 1);
+          const drawCount = Math.min(requested, names.length);
+          const removeAfter = afterDrawBehaviorSelect.value === "remove";
+
+          isAnimating = true;
+          pickActionBtn.disabled = true;
+          npHeroKicker.textContent = "Shuffling Pool...";
+          npHeroSub.textContent = `Drawing ${drawCount} of ${names.length} participants...`;
+
+          let ticks = 0;
+          const maxTicks = 12;
+          const spinInterval = setInterval(function () {
+            const previewIdx = secureRandomInt(names.length);
+            npWinnerStage.textContent = names[previewIdx];
+            ticks++;
+            if (ticks >= maxTicks) {
+              clearInterval(spinInterval);
+              isAnimating = false;
+
+              // Shuffle indexed entries so duplicate names are handled cleanly
+              const indexed = names.map(function (name, idx) { return { name: name, idx: idx }; });
+              const shuffled = fisherYatesShuffle(indexed);
+              const picked = shuffled.slice(0, drawCount);
+
+              if (removeAfter) {
+                const pickedIdxSet = new Set(picked.map(function (p) { return p.idx; }));
+                const remaining = names.filter(function (_, idx) { return !pickedIdxSet.has(idx); });
+                namesListInput.value = remaining.join("\n");
+              }
+
+              npHeroKicker.textContent = drawCount === 1
+                ? "Selected Random Winner"
+                : `Selected ${drawCount} Random Winners`;
+              npWinnerStage.textContent = drawCount === 1
+                ? picked[0].name
+                : picked.map(function (p) { return p.name; }).join(", ");
+              npHeroSub.textContent = `Drawn from ${names.length} entries (${((drawCount / names.length) * 100).toFixed(2)}% inclusion odds)`;
+
+              drawnResultsContainer.innerHTML = "";
+              picked.forEach(function (item, idx) {
+                const card = document.createElement("div");
+                card.className = "winner-card";
+                const badge = document.createElement("span");
+                badge.className = "winner-rank-badge";
+                badge.textContent = `#${idx + 1}`;
+                const nameSpan = document.createElement("span");
+                nameSpan.className = "winner-name-txt";
+                nameSpan.textContent = item.name;
+                card.appendChild(badge);
+                card.appendChild(nameSpan);
+                drawnResultsContainer.appendChild(card);
+              });
+
+              latestExportText = [
+                "PureWebKits Random Name Picker Results",
+                "---------------------------------------",
+                `Pool Size: ${names.length} | Winners Drawn: ${drawCount}`,
+                ...picked.map(function (p, i) { return `#${i + 1}: ${p.name}`; })
+              ].join("\n");
+
+              syncModeAndCounts();
+            }
+          }, 42);
+        } else {
+          const teamCount = Math.max(2, Math.min(names.length, parseInt(teamCountInput.value, 10) || 2));
+          const prefix = teamPrefixInput.value.trim() || "Team";
+          const shuffled = fisherYatesShuffle(names);
+
+          const teams = Array.from({ length: teamCount }, function () { return []; });
+          shuffled.forEach(function (person, idx) {
+            teams[idx % teamCount].push(person);
+          });
+
+          npHeroKicker.textContent = "Balanced Random Teams";
+          npWinnerStage.textContent = `${teamCount} Teams Generated`;
+          npHeroSub.textContent = `${names.length} participants divided into ${teamCount} groups`;
+
+          drawnResultsContainer.innerHTML = "";
+          const exportLines = [
+            "PureWebKits Random Team Generator Results",
+            "------------------------------------------",
+            `Total Participants: ${names.length} | Teams: ${teamCount}`
+          ];
+
+          teams.forEach(function (members, idx) {
+            const card = document.createElement("div");
+            card.className = "team-card";
+            const head = document.createElement("div");
+            head.className = "team-card-head";
+            head.textContent = `${prefix} ${idx + 1} (${members.length} members)`;
+            const body = document.createElement("div");
+            body.className = "team-card-members";
+            body.textContent = members.join(", ");
+            card.appendChild(head);
+            card.appendChild(body);
+            drawnResultsContainer.appendChild(card);
+
+            exportLines.push("", `${prefix} ${idx + 1}: ${members.join(", ")}`);
+          });
+
+          latestExportText = exportLines.join("\n");
+          syncModeAndCounts();
+        }
+      }
+
+      drawWinnersModeBtn.addEventListener("click", function () { mode = "winners"; syncModeAndCounts(); });
+      makeTeamsModeBtn.addEventListener("click", function () { mode = "teams"; syncModeAndCounts(); });
+
+      namesListInput.addEventListener("input", syncModeAndCounts);
+      pickActionBtn.addEventListener("click", runDraw);
+
+      shuffleListBtn.addEventListener("click", function () {
+        if (isAnimating) return;
+        const shuffled = fisherYatesShuffle(parseNames());
+        namesListInput.value = shuffled.join("\n");
+        syncModeAndCounts();
+      });
+
+      dedupeNamesBtn.addEventListener("click", function () {
+        if (isAnimating) return;
+        const seen = new Set();
+        const unique = [];
+        parseNames().forEach(function (name) {
+          const key = name.toLowerCase();
+          if (!seen.has(key)) {
+            seen.add(key);
+            unique.push(name);
+          }
+        });
+        namesListInput.value = unique.join("\n");
+        syncModeAndCounts();
+      });
+
+      loadSampleBtn.addEventListener("click", function () {
+        if (isAnimating) return;
+        namesListInput.value = SAMPLE_NAMES.join("\n");
+        winnerCountInput.value = "1";
+        teamCountInput.value = "3";
+        syncModeAndCounts();
+      });
+
+      clearNamesBtn.addEventListener("click", function () {
+        if (isAnimating) return;
+        namesListInput.value = "";
+        npWinnerStage.textContent = "Ready to Pick";
+        npHeroSub.textContent = "Add names on the left to start";
+        drawnResultsContainer.innerHTML = '<div style="font-size:13px; color:var(--text-muted); padding:6px 2px;">Enter participant names on the left and click <strong>Pick Random Winner</strong>.</div>';
+        latestExportText = "";
+        syncModeAndCounts();
+      });
+
+      copyResultsBtn.addEventListener("click", function () {
+        if (!latestExportText) return;
+        navigator.clipboard.writeText(latestExportText).then(function () {
+          const orig = copyResultsBtn.textContent;
+          copyResultsBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyResultsBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadResultsBtn.addEventListener("click", function () {
+        if (!latestExportText) return;
+        const blob = new Blob([latestExportText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "random-name-picker-results.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      syncModeAndCounts();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1030 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Podcast Episode Planner (Rundown, Timestamps & Show Notes) — PureWebKits</title>
+  <meta name="description" content="Plan podcast episode segments, cumulative run-of-show timestamps, guest talking points, and formatted show notes online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/podcast-episode-planner.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1120px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Podcast Episode Planner Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover:not(:disabled) { background: #E2E8F0; }
+    .btn-sec:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .ep-meta-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1.2fr 0.8fr 0.8fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input {
+      width: 100%;
+      height: 40px;
+      padding: 0 11px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .sum-card {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 11px 14px;
+    }
+    .sum-card.light {
+      background: #F8FAFC;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+    .sum-kicker {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: #93C5FD;
+    }
+    .sum-card.light .sum-kicker { color: var(--text-muted); }
+    .sum-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 17px;
+      font-weight: 800;
+      color: #34D399;
+      margin-top: 2px;
+    }
+    .sum-card.light .sum-val { color: var(--text-main); }
+
+    /* Add Segment Bar */
+    .add-seg-bar {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 1.4fr 0.65fr 1.5fr auto;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    /* Segments List */
+    .seg-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .seg-item {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 11px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .seg-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .seg-time-badge {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      background: var(--primary-soft);
+      padding: 4px 9px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .seg-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .seg-notes {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      word-break: break-word;
+    }
+    .seg-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .btn-mini {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+      padding: 5px 9px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-mini:hover:not(:disabled) { background: #E2E8F0; }
+    .btn-mini:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-mini.del {
+      color: #991B1B;
+      background: #FEF2F2;
+      border-color: #FECACA;
+    }
+
+    .notes-preview-box {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      max-height: 190px;
+      overflow-y: auto;
+      margin-bottom: 14px;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 900px) {
+      .ep-meta-grid, .summary-strip, .add-seg-bar { grid-template-columns: 1fr 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+      .ep-meta-grid, .summary-strip, .add-seg-bar { grid-template-columns: 1fr; }
+      .seg-item { flex-direction: column; align-items: flex-start; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Podcast Episode Planner Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Podcast Episode Planner</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Build run-of-show segments, cumulative timestamps & show notes in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">
+            Plan episode segments, reorder talking points & generate timestamped show notes locally:
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="loadSampleEpBtn" class="btn-sec">Load Sample Episode</button>
+            <button type="button" id="clearSegmentsBtn" class="btn-sec">Clear Segments</button>
+          </div>
+        </div>
+
+        <div class="ep-meta-grid">
+          <div class="field-group">
+            <label for="epShowTitleInput" class="field-label">Show Name</label>
+            <input type="text" id="epShowTitleInput" class="std-input" value="PureWeb Builders Podcast" />
+          </div>
+          <div class="field-group">
+            <label for="epTitleInput" class="field-label">Episode Title</label>
+            <input type="text" id="epTitleInput" class="std-input" value="Ep. 42 — Building Fast Browser Tools" />
+          </div>
+          <div class="field-group">
+            <label for="epGuestInput" class="field-label">Guest / Co-Host</label>
+            <input type="text" id="epGuestInput" class="std-input" value="Rohan Mehta" />
+          </div>
+          <div class="field-group">
+            <label for="epTargetMinsInput" class="field-label">Target Length (Min)</label>
+            <input type="number" id="epTargetMinsInput" class="std-input" min="5" max="240" step="1" value="30" />
+          </div>
+        </div>
+
+        <div class="summary-strip">
+          <div class="sum-card">
+            <div class="sum-kicker">Planned Runtime</div>
+            <div class="sum-val" id="plannedRuntimeVal">00:00</div>
+          </div>
+          <div class="sum-card light">
+            <div class="sum-kicker">Target Variance</div>
+            <div class="sum-val" id="targetVarianceVal">—</div>
+          </div>
+          <div class="sum-card light">
+            <div class="sum-kicker">Segments Count</div>
+            <div class="sum-val" id="segCountVal">0 segments</div>
+          </div>
+          <div class="sum-card light">
+            <div class="sum-kicker">Est. Words (~145 wpm)</div>
+            <div class="sum-val" id="estWordsVal">~0 words</div>
+          </div>
+        </div>
+
+        <div class="add-seg-bar">
+          <div class="field-group">
+            <label for="newSegTitleInput" class="field-label">Segment Title</label>
+            <input type="text" id="newSegTitleInput" class="std-input" placeholder="e.g., Deep Dive: Client-Side Storage" />
+          </div>
+          <div class="field-group">
+            <label for="newSegMinsInput" class="field-label">Duration (Min)</label>
+            <input type="number" id="newSegMinsInput" class="std-input" min="0.5" max="120" step="0.5" value="8" />
+          </div>
+          <div class="field-group">
+            <label for="newSegNotesInput" class="field-label">Talking Points / Notes</label>
+            <input type="text" id="newSegNotesInput" class="std-input" placeholder="Key questions, takeaways, or sponsor cue" />
+          </div>
+          <button type="button" id="addSegBtn" class="btn-primary" style="height:40px;">+ Add Segment</button>
+        </div>
+
+        <div class="seg-list" id="segmentsListContainer"></div>
+
+        <div class="field-label" style="margin-bottom:6px;">Generated Timestamped Show Notes Preview</div>
+        <div class="notes-preview-box" id="showNotesPreviewBox"></div>
+
+        <div class="btn-row">
+          <button type="button" id="copyShowNotesBtn" class="btn-primary">Copy Show Notes</button>
+          <button type="button" id="downloadShowNotesBtn" class="btn-sec" style="height:40px;">Download .txt</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Run-of-Show Pacing & Show Notes -->
+    <article class="content-card">
+      <h2>Complete User Guide to Podcast Episode Planning, Run-of-Show Timestamps & Show Notes</h2>
+
+      <h3>How Segment Pacing and Cumulative Timestamps Keep Episodes Tight and Engaging</h3>
+      <p>
+        Great podcast episodes rarely happen by accident—they rely on a clear <strong>run-of-show</strong> that balances a concise cold open or intro, focused topic segments, natural transitions, and a memorable wrap-up while respecting listeners' time. Mapping each segment's planned duration in minutes produces automatic <strong>cumulative timestamps</strong> (<code>MM:SS</code>) for both recording pacing and post-production chapter markers or YouTube/podcast show notes. Comparing your total planned runtime against a target episode length also reveals immediately whether your outline is running tight or over-scoped before you hit record. A browser-based <strong>Podcast Episode Planner</strong> runs 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Plan a Podcast Episode in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Set Episode Metadata & Target Runtime:</strong> Enter your show name, episode title, guest/co-host name, and target episode length in minutes.</li>
+        <li><strong>Add & Reorder Run-of-Show Segments:</strong> Add segments with durations and talking points—use the <strong>Up / Down</strong> buttons to reorder segments and watch cumulative start times update automatically.</li>
+        <li><strong>Copy or Download Timestamped Show Notes:</strong> Review the live show-notes preview and click <strong>Copy Show Notes</strong> or <strong>Download .txt</strong> for your recording doc or episode description.</li>
+      </ol>
+
+      <h3>Cumulative Timestamp & Speaking Pace Formula</h3>
+      <p>
+        At a natural conversational speaking rate of ~<code>145 words per minute</code> and cumulative segment durations <code>d<sub>1</sub>, d<sub>2</sub>, ...</code>:
+      </p>
+      <div class="formula-box">
+        Start Time of Segment k = Σ<sub>i=1..k−1</sub> d<sub>i</sub>  |  Approx. Spoken Words ≈ Total_Minutes × 145
+      </div>
+
+      <h3>Helpful Tips for Smooth Recording & Editing</h3>
+      <ul>
+        <li><strong>Leave Breathing Room for Banter & Follow-Ups:</strong> Conversational interviews naturally expand around strong stories—leaving a few minutes of buffer helps hit your target length cleanly.</li>
+        <li><strong>Capture Key Takeaways as You Plan:</strong> Writing a crisp one-line summary per segment makes editing chapters and writing episode descriptions much faster later.</li>
+        <li><strong>Keep Segments Focused on One Idea at a Time:</strong> Breaking long topics into distinct timed beats keeps listener attention high across longer episodes.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> An episode with a <code>2.0m</code> intro starting at <code>00:00</code>, a <code>12.0m</code> main interview starting at <code>02:00</code>, and an <code>8.0m</code> Q&A starting at <code>14:00</code> totals <code>22.0 minutes</code> (<code>22:00</code>) and corresponds to roughly <code>3,190 spoken words</code> at ~<code>145 wpm</code>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="pod-table-heading">
+      <h2 id="pod-table-heading">Podcast Segment Structure, Pacing & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to structure episode segments, estimate spoken word counts, and format show notes.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Segment / Metric</th>
+              <th>Typical Guideline</th>
+              <th>Purpose in Episode</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Cold Open / Hook</strong></td>
+              <td><code>0:30 – 1:30</code></td>
+              <td>Grabs attention with a teaser/insight</td>
+              <td>Optional before theme intro</td>
+            </tr>
+            <tr>
+              <td><strong>Intro & Guest Framing</strong></td>
+              <td><code>1:30 – 3:00</code></td>
+              <td>Sets context & why guest matters</td>
+              <td>Keep crisp so main topic starts early</td>
+            </tr>
+            <tr>
+              <td><strong>Core Segment 1</strong></td>
+              <td><code>6:00 – 15:00</code></td>
+              <td>Foundational concepts or backstory</td>
+              <td>Anchor with 2–3 concrete prompts</td>
+            </tr>
+            <tr>
+              <td><strong>Core Segment 2</strong></td>
+              <td><code>8:00 – 18:00</code></td>
+              <td>Practical case studies & trade-offs</td>
+              <td>Highlight real examples & lessons</td>
+            </tr>
+            <tr>
+              <td><strong>Rapid-Fire / Q&A</strong></td>
+              <td><code>4:00 – 10:00</code></td>
+              <td>Punchy takeaways & audience angle</td>
+              <td>Great for short-form clip hooks</td>
+            </tr>
+            <tr>
+              <td><strong>Outro & Call to Action</strong></td>
+              <td><code>1:00 – 2:30</code></td>
+              <td>Recap, links & subscribe prompt</td>
+              <td>Keep CTA focused on one next step</td>
+            </tr>
+            <tr>
+              <td><strong>Conversational Pace</strong></td>
+              <td><code>~135 – 160 wpm</code></td>
+              <td>Estimates script/talking volume</td>
+              <td><code>145 wpm</code> used as baseline estimate</td>
+            </tr>
+            <tr>
+              <td><strong>Cumulative Timestamps</strong></td>
+              <td><code>MM:SS</code> per segment</td>
+              <td>Tracks run-of-show & chapters</td>
+              <td>Recalculates on add/edit/reorder</td>
+            </tr>
+            <tr>
+              <td><strong>Target Variance</strong></td>
+              <td><code>Planned − Target</code></td>
+              <td>Shows if outline is under/over target</td>
+              <td>Helps tighten pacing pre-record</td>
+            </tr>
+            <tr>
+              <td><strong>Segment Reordering</strong></td>
+              <td>Move Up / Move Down</td>
+              <td>Tests narrative arc flow</td>
+              <td>Updates timestamps immediately</td>
+            </tr>
+            <tr>
+              <td><strong>Copy Show Notes</strong></td>
+              <td>Timestamped plain text</td>
+              <td>Paste into CMS, YouTube, or notes</td>
+              <td>Local clipboard action</td>
+            </tr>
+            <tr>
+              <td><strong>Download .txt</strong></td>
+              <td>Plain-text run-of-show file</td>
+              <td>Archive episode plan locally</td>
+              <td>Generated in browser</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Rundown & Show-Notes Planner — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your episode outlines and notes stay strictly inside your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero unreleased episode ideas transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser episode planner with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Creator, Audio, Text & Everyday Utilities</h2>
+      <p>Trimming audio clips, testing your microphone or speakers, counting words, or running a Pomodoro focus timer? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="audio-cutter.html"><span>Audio Cutter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="microphone-test.html"><span>Microphone Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="speaker-audio-test.html"><span>Speaker Audio Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="study-timer-pomodoro.html"><span>Study Timer (Pomodoro)</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. How are cumulative timestamps calculated in the Podcast Episode Planner?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Each segment starts at the sum of all preceding segments' durations in <code>MM:SS</code> format, so reordering or changing a segment duration updates every subsequent timestamp automatically.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Can I use decimal durations like 2.5 minutes for short intros or ad reads?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes.</strong> The duration field accepts <code>0.5</code>-minute increments (such as <code>1.5</code> or <code>2.5</code> minutes) and converts seconds cleanly into <code>MM:SS</code> timestamps.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are my episode titles, guest notes, or show notes sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All segment management and show-notes formatting run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online Podcast Episode Planner free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Podcast Episode Rundown & Show Notes Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const DEFAULT_SEGMENTS = [
+        { id: 1, title: "Intro & Episode Hook", minutes: 2.0, notes: "Welcome listeners, state today's core takeaway & guest intro" },
+        { id: 2, title: "Origin Story & Core Setup", minutes: 8.0, notes: "How the project started and why client-side privacy matters" },
+        { id: 3, title: "Deep Dive: Workflow & Trade-Offs", minutes: 12.0, notes: "Walk through real examples, edge cases, and lessons learned" },
+        { id: 4, title: "Listener Questions & Wrap-Up", minutes: 5.0, notes: "Summary checklist, resources, and closing call to action" }
+      ];
+
+      const epShowTitleInput = document.getElementById("epShowTitleInput");
+      const epTitleInput = document.getElementById("epTitleInput");
+      const epGuestInput = document.getElementById("epGuestInput");
+      const epTargetMinsInput = document.getElementById("epTargetMinsInput");
+
+      const loadSampleEpBtn = document.getElementById("loadSampleEpBtn");
+      const clearSegmentsBtn = document.getElementById("clearSegmentsBtn");
+
+      const plannedRuntimeVal = document.getElementById("plannedRuntimeVal");
+      const targetVarianceVal = document.getElementById("targetVarianceVal");
+      const segCountVal = document.getElementById("segCountVal");
+      const estWordsVal = document.getElementById("estWordsVal");
+
+      const newSegTitleInput = document.getElementById("newSegTitleInput");
+      const newSegMinsInput = document.getElementById("newSegMinsInput");
+      const newSegNotesInput = document.getElementById("newSegNotesInput");
+      const addSegBtn = document.getElementById("addSegBtn");
+
+      const segmentsListContainer = document.getElementById("segmentsListContainer");
+      const showNotesPreviewBox = document.getElementById("showNotesPreviewBox");
+      const copyShowNotesBtn = document.getElementById("copyShowNotesBtn");
+      const downloadShowNotesBtn = document.getElementById("downloadShowNotesBtn");
+
+      let segments = DEFAULT_SEGMENTS.map(function (s) { return Object.assign({}, s); });
+      let nextId = 10;
+      let latestShowNotes = "";
+
+      function formatMmSsFromMinutes(minsFloat) {
+        const totalSec = Math.max(0, Math.round(minsFloat * 60));
+        const mm = Math.floor(totalSec / 60);
+        const ss = totalSec % 60;
+        return `${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
+      }
+
+      function renderEpisodePlanner() {
+        const showName = epShowTitleInput.value.trim() || "Podcast Show";
+        const epTitle = epTitleInput.value.trim() || "Untitled Episode";
+        const guest = epGuestInput.value.trim();
+        const targetMins = Math.max(0, parseFloat(epTargetMinsInput.value) || 0);
+
+        let runningMins = 0;
+        const computedItems = segments.map(function (seg) {
+          const startMmSs = formatMmSsFromMinutes(runningMins);
+          const durMins = Math.max(0.5, parseFloat(seg.minutes) || 0.5);
+          runningMins += durMins;
+          return {
+            id: seg.id,
+            title: seg.title,
+            minutes: durMins,
+            notes: seg.notes,
+            startMmSs: startMmSs
+          };
+        });
+
+        plannedRuntimeVal.textContent = formatMmSsFromMinutes(runningMins);
+        segCountVal.textContent = `${computedItems.length} ${computedItems.length === 1 ? "segment" : "segments"}`;
+        estWordsVal.textContent = `~${Math.round(runningMins * 145).toLocaleString("en-US")} words`;
+
+        if (targetMins > 0) {
+          const diff = runningMins - targetMins;
+          if (Math.abs(diff) < 0.05) {
+            targetVarianceVal.textContent = "On Target (0.0m)";
+          } else if (diff > 0) {
+            targetVarianceVal.textContent = `+${diff.toFixed(1)}m over target`;
+          } else {
+            targetVarianceVal.textContent = `${diff.toFixed(1)}m under target`;
+          }
+        } else {
+          targetVarianceVal.textContent = "—";
+        }
+
+        segmentsListContainer.innerHTML = "";
+        if (computedItems.length === 0) {
+          segmentsListContainer.innerHTML = '<div style="font-size:13px; color:var(--text-muted); padding:8px;">No segments yet — add a segment above or click Load Sample Episode.</div>';
+        } else {
+          computedItems.forEach(function (item, idx) {
+            const row = document.createElement("div");
+            row.className = "seg-item";
+            row.innerHTML = `
+              <div class="seg-left">
+                <span class="seg-time-badge">${item.startMmSs} (${item.minutes.toFixed(1)}m)</span>
+                <div>
+                  <div class="seg-title">${idx + 1}. ${item.title}</div>
+                  ${item.notes ? `<div class="seg-notes">${item.notes}</div>` : ""}
+                </div>
+              </div>
+              <div class="seg-actions">
+                <button type="button" class="btn-mini up-btn" ${idx === 0 ? "disabled" : ""} title="Move Up">↑</button>
+                <button type="button" class="btn-mini dn-btn" ${idx === computedItems.length - 1 ? "disabled" : ""} title="Move Down">↓</button>
+                <button type="button" class="btn-mini del del-btn" title="Remove">Remove</button>
+              </div>
+            `;
+
+            row.querySelector(".up-btn").addEventListener("click", function () {
+              if (idx <= 0) return;
+              const tmp = segments[idx - 1];
+              segments[idx - 1] = segments[idx];
+              segments[idx] = tmp;
+              renderEpisodePlanner();
+            });
+
+            row.querySelector(".dn-btn").addEventListener("click", function () {
+              if (idx >= segments.length - 1) return;
+              const tmp = segments[idx + 1];
+              segments[idx + 1] = segments[idx];
+              segments[idx] = tmp;
+              renderEpisodePlanner();
+            });
+
+            row.querySelector(".del-btn").addEventListener("click", function () {
+              segments = segments.filter(function (s) { return s.id !== item.id; });
+              renderEpisodePlanner();
+            });
+
+            segmentsListContainer.appendChild(row);
+          });
+        }
+
+        const headerLines = [
+          `${showName} — ${epTitle}`,
+          guest ? `Guest / Co-Host: ${guest}` : null,
+          `Total Planned Runtime: ${formatMmSsFromMinutes(runningMins)} (${runningMins.toFixed(1)} mins) | Est. Spoken Words: ~${Math.round(runningMins * 145)}`,
+          "",
+          "Timestamps & Run-of-Show:"
+        ].filter(function (line) { return line !== null; });
+
+        const segLines = computedItems.map(function (item) {
+          return `${item.startMmSs} — ${item.title}${item.notes ? ": " + item.notes : ""}`;
+        });
+
+        latestShowNotes = headerLines.concat(segLines).join("\n");
+        showNotesPreviewBox.textContent = latestShowNotes;
+      }
+
+      addSegBtn.addEventListener("click", function () {
+        const title = newSegTitleInput.value.trim();
+        const mins = Math.max(0.5, Math.min(180, parseFloat(newSegMinsInput.value) || 5));
+        const notes = newSegNotesInput.value.trim();
+        if (!title) {
+          newSegTitleInput.focus();
+          return;
+        }
+        segments.push({
+          id: nextId++,
+          title: title,
+          minutes: mins,
+          notes: notes
+        });
+        newSegTitleInput.value = "";
+        newSegNotesInput.value = "";
+        newSegMinsInput.value = "5";
+        renderEpisodePlanner();
+        newSegTitleInput.focus();
+      });
+
+      newSegTitleInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          addSegBtn.click();
+        }
+      });
+
+      loadSampleEpBtn.addEventListener("click", function () {
+        epShowTitleInput.value = "PureWeb Builders Podcast";
+        epTitleInput.value = "Ep. 42 — Building Fast Browser Tools";
+        epGuestInput.value = "Rohan Mehta";
+        epTargetMinsInput.value = "30";
+        segments = DEFAULT_SEGMENTS.map(function (s, i) {
+          return { id: nextId + i, title: s.title, minutes: s.minutes, notes: s.notes };
+        });
+        nextId += DEFAULT_SEGMENTS.length;
+        renderEpisodePlanner();
+      });
+
+      clearSegmentsBtn.addEventListener("click", function () {
+        segments = [];
+        renderEpisodePlanner();
+      });
+
+      [epShowTitleInput, epTitleInput, epGuestInput, epTargetMinsInput].forEach(function (inp) {
+        inp.addEventListener("input", renderEpisodePlanner);
+      });
+
+      copyShowNotesBtn.addEventListener("click", function () {
+        if (!latestShowNotes) return;
+        navigator.clipboard.writeText(latestShowNotes).then(function () {
+          const orig = copyShowNotesBtn.textContent;
+          copyShowNotesBtn.textContent = "Copied!";
+          setTimeout(function () { copyShowNotesBtn.textContent = orig; }, 1800);
+        });
+      });
+
+      downloadShowNotesBtn.addEventListener("click", function () {
+        if (!latestShowNotes) return;
+        const blob = new Blob([latestShowNotes], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "podcast-episode-show-notes.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      renderEpisodePlanner();
+    });
+  </script>
+</body>
+</html>

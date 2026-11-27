@@ -1,0 +1,962 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online MAC Address Lookup & OUI Vendor Inspector — PureWebKits</title>
+  <meta name="description" content="Inspect and format any MAC address, look up IEEE OUI vendor prefixes, detect unicast vs. multicast and locally administered (LAA/randomized) bits, and convert to EUI-64 online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/mac-address-lookup.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* MAC Address Lookup Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover { background: #E2E8F0; }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-col, .result-col { display: flex; flex-direction: column; gap: 13px; }
+    .result-col {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input {
+      width: 100%;
+      height: 44px;
+      padding: 0 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    .sample-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 2px;
+    }
+    .sample-chip {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      border-radius: 999px;
+      padding: 4px 11px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .sample-chip:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .mac-hero-box {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .mac-hero-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93C5FD;
+    }
+    .mac-hero-title { font-size: 17px; font-weight: 800; color: #34D399; word-break: break-word; }
+    .mac-hero-sub { font-size: 12px; color: #CBD5E1; }
+    .mac-hero-oui {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 16px;
+      font-weight: 800;
+      color: #38BDF8;
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      padding: 6px 10px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+    .mac-hero-oui.invalid {
+      color: #FCA5A5;
+      background: rgba(248, 113, 113, 0.14);
+      border-color: rgba(248, 113, 113, 0.35);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-key {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-main);
+      word-break: break-word;
+    }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 820px) {
+      .calc-grid, .metrics-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive MAC Address Lookup Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online MAC Address Lookup & Inspector</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side: Parse any MAC format, check OUI vendor, U/L & I/G bits & IPv6 EUI-64 in your browser
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">
+            Paste any 48-bit MAC format (<code>:</code>, <code>-</code>, <code>.</code>, or plain hex) — runs locally with zero server uploads:
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="genRandomMacBtn" class="btn-sec">Generate Random MAC</button>
+            <button type="button" id="resetMacBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="calc-grid">
+          <div class="form-col">
+            <div class="field-group">
+              <label for="macAddressInput" class="field-label">MAC Address (48-Bit / 12 Hex Digits)</label>
+              <input type="text" id="macAddressInput" class="std-input" placeholder="e.g., 3C:5A:B4:12:34:56 or 001A.2B3C.4D5E" value="3C:5A:B4:12:34:56" />
+            </div>
+
+            <div class="field-group">
+              <span class="field-label">Quick Sample MACs</span>
+              <div class="sample-chips">
+                <button type="button" class="sample-chip" data-mac="3C:5A:B4:12:34:56">Google (3C:5A:B4)</button>
+                <button type="button" class="sample-chip" data-mac="A4:83:E7:9A:BC:10">Apple (A4:83:E7)</button>
+                <button type="button" class="sample-chip" data-mac="00:50:56:88:21:09">VMware (00:50:56)</button>
+                <button type="button" class="sample-chip" data-mac="00:1B:44:11:22:33">Cisco (00:1B:44)</button>
+                <button type="button" class="sample-chip" data-mac="DA:A1:19:4E:82:1F">Private / Randomized</button>
+                <button type="button" class="sample-chip" data-mac="FF:FF:FF:FF:FF:FF">Broadcast (FF:FF...)</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="result-col">
+            <div class="mac-hero-box">
+              <div>
+                <div class="mac-hero-kicker">OUI Vendor / Address Classification</div>
+                <div class="mac-hero-title" id="macVendorTitle">Google, Inc.</div>
+                <div class="mac-hero-sub" id="macSubCaption">Universally Administered (UAA) • Unicast</div>
+              </div>
+              <div class="mac-hero-oui" id="macOuiBadge">3C:5A:B4</div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-key">Colon / Dash / Cisco</div>
+                <div class="metric-val" id="macFormatsVal">3C:5A:B4:12:34:56</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Admin Scope (Bit 1)</div>
+                <div class="metric-val" id="adminScopeVal">Universally Administered (UAA)</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Transmission Type (Bit 0)</div>
+                <div class="metric-val" id="txTypeVal">Unicast</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-key">Modified IPv6 EUI-64</div>
+                <div class="metric-val" id="eui64Val">3e5a:b4ff:fe12:3456</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="copyMacReportBtn" class="btn-primary">Copy MAC Report</button>
+              <button type="button" id="downloadMacReportBtn" class="btn-sec" style="height: 40px;">Download .txt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, OUI Prefixes, U/L Bit & EUI-64 -->
+    <article class="content-card">
+      <h2>Complete User Guide to MAC Addresses, OUI Vendor Prefixes, U/L Bits & IPv6 EUI-64</h2>
+
+      <h3>How 48-Bit MAC Addresses and IEEE OUI Prefixes Work</h3>
+      <p>
+        A <strong>Media Access Control (MAC) address</strong> is a <code>48-bit</code> (6-byte / 12-hexadecimal-digit) hardware identifier assigned to network interfaces on Ethernet, Wi-Fi, and Bluetooth devices. The first three octets (<code>24 bits</code>) form the <strong>Organizationally Unique Identifier (OUI)</strong>—registered through the IEEE Registration Authority to identify the hardware manufacturer or vendor—while the remaining three octets (<code>24 bits</code>) are assigned by the vendor to uniquely identify each interface. Beyond vendor lookup, the two least significant bits of the first byte carry critical networking flags: <strong>Bit 0 (I/G — Individual/Group)</strong> distinguishes a <em>Unicast</em> address (<code>0</code>) from a <em>Multicast/Broadcast</em> address (<code>1</code>), and <strong>Bit 1 (U/L — Universal/Local)</strong> indicates whether the address is <em>Universally Administered (UAA)</em> by the vendor (<code>0</code>) or <em>Locally Administered (LAA)</em> by software/OS privacy MAC randomization (<code>1</code>, seen whenever the second hex digit has bit 2 set—i.e., ends in <code>2, 6, A, or E</code>). A browser-based <strong>MAC Address Lookup</strong> tool formats, decodes flags, and computes IPv6 EUI-64 identifiers 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Inspect & Format a MAC Address in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter or Select a MAC Address:</strong> Type any 12-hex-digit MAC address in colon (<code>AA:BB:CC:DD:EE:FF</code>), hyphen (<code>AA-BB-CC-DD-EE-FF</code>), Cisco dot (<code>AABB.CCDD.EEFF</code>), or raw hex format—or click a preset chip / <strong>Generate Random MAC</strong>.</li>
+        <li><strong>Read Vendor, U/L & Unicast/Multicast Flags:</strong> Check the matched OUI vendor prefix, whether the address is Universally or Locally Administered (randomized/private Wi-Fi), and whether it is Unicast, Multicast, or Broadcast.</li>
+        <li><strong>Copy Formatted Variants & Export Report:</strong> View the derived IPv6 modified EUI-64 interface ID and click <strong>Copy MAC Report</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Locally Administered Bit & Modified EUI-64 Conversion Formula</h3>
+      <p>
+        To check whether a MAC address is locally administered (private/randomized) and derive its modified IPv6 EUI-64:
+      </p>
+      <div class="formula-box">
+        Is Locally Administered = ((First_Byte & 0x02) !== 0)  |  Is Multicast = ((First_Byte & 0x01) !== 0)<br />
+        Modified EUI-64 = [Byte0 ^ 0x02] : Byte1 : Byte2 : FF : FE : Byte3 : Byte4 : Byte5
+      </div>
+
+      <h3>Helpful Tips for Network Troubleshooting & Wi-Fi Privacy</h3>
+      <ul>
+        <li><strong>Why Modern Phones & Laptops Show "Private" or "Randomized" MACs:</strong> iOS, Android, Windows, and macOS frequently generate locally administered MAC addresses (where the second hex digit is <code>2, 6, A, or E</code>) per Wi-Fi network to prevent cross-network tracking—which means that specific randomized MAC won't match a factory OUI vendor table.</li>
+        <li><strong>Broadcast & Multicast MACs Are Not Hardware Vendors:</strong> <code>FF:FF:FF:FF:FF:FF</code> is the Layer-2 broadcast address, and any address with an odd first byte (such as <code>01:00:5E:...</code> for IPv4 multicast) is a group/multicast address rather than a single device.</li>
+        <li><strong>Convert Between Formats Easily:</strong> Linux/macOS/Windows often display colon or hyphen notation, while Cisco IOS uses three groups of four hex digits separated by dots.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Taking MAC <code>3C:5A:B4:12:34:56</code> gives OUI <code>3C:5A:B4</code> (<em>Google, Inc.</em>), first byte <code>0x3C</code> (binary <code>00111100</code> → Bit 0 = <code>0</code> Unicast, Bit 1 = <code>0</code> Universally Administered), and modified IPv6 EUI-64 <code>3e5a:b4ff:fe12:3456</code>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="mac-table-heading">
+      <h2 id="mac-table-heading">MAC Address Formats, Bit Flags & OUI Reference Table (16 Rows)</h2>
+      <p>Use this reference table to understand MAC notations, bit flags, and common OUI prefixes.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Format / Concept</th>
+              <th>Example / Rule</th>
+              <th>Role / Meaning</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Colon Notation</strong></td>
+              <td><code>3C:5A:B4:12:34:56</code></td>
+              <td>Standard IEEE / Linux / macOS format</td>
+              <td>2 hex digits per byte separated by <code>:</code></td>
+            </tr>
+            <tr>
+              <td><strong>Hyphen Notation</strong></td>
+              <td><code>3C-5A-B4-12-34-56</code></td>
+              <td>Common Windows / command-line format</td>
+              <td>Uses <code>-</code> between bytes</td>
+            </tr>
+            <tr>
+              <td><strong>Cisco Dot Notation</strong></td>
+              <td><code>3C5A.B412.3456</code></td>
+              <td>Cisco IOS & network switch format</td>
+              <td>Three 4-hex-digit groups</td>
+            </tr>
+            <tr>
+              <td><strong>Unicast Bit (I/G = 0)</strong></td>
+              <td>Even first byte (e.g., <code>0x3C</code>)</td>
+              <td>Single destination interface</td>
+              <td>Standard host/router MAC</td>
+            </tr>
+            <tr>
+              <td><strong>Multicast Bit (I/G = 1)</strong></td>
+              <td>Odd first byte (e.g., <code>0x01</code>)</td>
+              <td>Group / multicast frame</td>
+              <td><code>01:00:5E</code> maps IPv4 multicast</td>
+            </tr>
+            <tr>
+              <td><strong>Broadcast MAC</strong></td>
+              <td><code>FF:FF:FF:FF:FF:FF</code></td>
+              <td>All hosts on local broadcast domain</td>
+              <td>48 ones in binary</td>
+            </tr>
+            <tr>
+              <td><strong>Universal Bit (U/L = 0)</strong></td>
+              <td>2nd hex digit in <code>0, 4, 8, C</code></td>
+              <td>Factory / vendor-assigned (UAA)</td>
+              <td>Matches IEEE OUI registry</td>
+            </tr>
+            <tr>
+              <td><strong>Local Bit (U/L = 1)</strong></td>
+              <td>2nd hex digit in <code>2, 6, A, E</code></td>
+              <td>Locally administered / randomized</td>
+              <td>Common on modern phones & VMs</td>
+            </tr>
+            <tr>
+              <td><strong>IPv6 EUI-64</strong></td>
+              <td>Inserts <code>FF:FE</code> & flips U/L bit</td>
+              <td>64-bit interface identifier</td>
+              <td>Used in SLAAC IPv6 addresses</td>
+            </tr>
+            <tr>
+              <td><strong>OUI Prefix Length</strong></td>
+              <td>First <code>6</code> hex chars (<code>24</code> bits)</td>
+              <td>Identifies manufacturer block</td>
+              <td>Followed by <code>24-bit</code> NIC serial</td>
+            </tr>
+            <tr>
+              <td><strong>Built-In OUI Lookup</strong></td>
+              <td>Instant local prefix table + fallback</td>
+              <td>Identifies major vendors offline</td>
+              <td>Flags LAA / Multicast / Broadcast</td>
+            </tr>
+            <tr>
+              <td><strong>Copy & Download</strong></td>
+              <td><code>.txt</code> / Clipboard</td>
+              <td>Exports all MAC formats & flags</td>
+              <td>Local plain-text output</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript 48-Bit MAC Parser & EUI-64 Converter — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Your MAC addresses stay strictly inside your browser</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Processing</span> — Zero hardware identifiers transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser inspection with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Networking, Developer, Security & Everyday Utilities</h2>
+      <p>Inspecting your browser fingerprint, testing password strength, formatting JSON, or creating QR codes? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="browser-fingerprint-inspector.html"><span>Browser Fingerprint Inspector</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-strength-tester.html"><span>Password Strength Tester</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="spin-wheel.html"><span>Spin Wheel</span><span class="arrow">→</span></a>
+        <a class="related-link" href="age-calculator.html"><span>Age Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Why does my phone's Wi-Fi MAC address not match a manufacturer OUI?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Modern smartphones, tablets, and laptops often use <strong>Locally Administered (randomized/private) MAC addresses</strong> per network for privacy—indicated when the <strong>U/L bit is set</strong> (the second hex digit ends in <code>2, 6, A, or E</code>).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. Which MAC address formats can I paste into the lookup box?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            You can paste any valid 12-hex-character MAC using colons (<code>3C:5A:B4:12:34:56</code>), hyphens (<code>3C-5A-B4-12-34-56</code>), Cisco dots (<code>3C5A.B412.3456</code>), or plain unformatted hex (<code>3C5AB4123456</code>).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are the MAC addresses I look up sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All parsing, OUI checks, bit flag decoding, and EUI-64 conversions run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online MAC Address Lookup free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side MAC Address Lookup, Bit-Flag & EUI-64 Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const OUI_TABLE = {
+        "3C5AB4": "Google, Inc.",
+        "F4F5D8": "Google, Inc.",
+        "A483E7": "Apple, Inc.",
+        "F01898": "Apple, Inc.",
+        "3C22FB": "Apple, Inc.",
+        "005056": "VMware, Inc.",
+        "000C29": "VMware, Inc.",
+        "001B44": "Cisco Systems, Inc.",
+        "001A2B": "Ayecom Technology Co., Ltd.",
+        "BC5FF4": "ASUSTek COMPUTER INC.",
+        "74D435": "GIGA-BYTE TECHNOLOGY CO.,LTD.",
+        "3C970E": "Wistron InfoComm (Kunshan) Co., Ltd.",
+        "E45F01": "Raspberry Pi Trading Ltd",
+        "DC2658": "Espressif Inc.",
+        "3497F6": "ASUSTek COMPUTER INC.",
+        "00155D": "Microsoft Corporation (Hyper-V)",
+        "080027": "PCS Systemtechnik GmbH (VirtualBox)"
+      };
+
+      const macAddressInput = document.getElementById("macAddressInput");
+      const genRandomMacBtn = document.getElementById("genRandomMacBtn");
+      const resetMacBtn = document.getElementById("resetMacBtn");
+      const sampleChips = document.querySelectorAll(".sample-chip");
+
+      const macVendorTitle = document.getElementById("macVendorTitle");
+      const macSubCaption = document.getElementById("macSubCaption");
+      const macOuiBadge = document.getElementById("macOuiBadge");
+
+      const macFormatsVal = document.getElementById("macFormatsVal");
+      const adminScopeVal = document.getElementById("adminScopeVal");
+      const txTypeVal = document.getElementById("txTypeVal");
+      const eui64Val = document.getElementById("eui64Val");
+
+      const copyMacReportBtn = document.getElementById("copyMacReportBtn");
+      const downloadMacReportBtn = document.getElementById("downloadMacReportBtn");
+
+      let latestReportText = "";
+
+      function parseHexMac(raw) {
+        const cleaned = raw.replace(/[^0-9a-fA-F]/g, "").toUpperCase();
+        if (cleaned.length !== 12) return null;
+        const bytes = [];
+        for (let i = 0; i < 12; i += 2) {
+          bytes.push(parseInt(cleaned.slice(i, i + 2), 16));
+        }
+        return { hex12: cleaned, bytes: bytes };
+      }
+
+      function computeEui64(bytes) {
+        const b0Flipped = bytes[0] ^ 0x02;
+        const euiBytes = [
+          b0Flipped,
+          bytes[1],
+          bytes[2],
+          0xff,
+          0xfe,
+          bytes[3],
+          bytes[4],
+          bytes[5]
+        ];
+        const hexPairs = euiBytes.map(function (b) {
+          return b.toString(16).padStart(2, "0");
+        });
+        return `${hexPairs[0]}${hexPairs[1]}:${hexPairs[2]}${hexPairs[3]}:${hexPairs[4]}${hexPairs[5]}:${hexPairs[6]}${hexPairs[7]}`;
+      }
+
+      function inspectMac() {
+        const parsed = parseHexMac(macAddressInput.value);
+        if (!parsed) {
+          macOuiBadge.className = "mac-hero-oui invalid";
+          macOuiBadge.textContent = "INVALID";
+          macVendorTitle.textContent = "Enter a Valid 48-Bit MAC";
+          macSubCaption.textContent = "Requires 12 hexadecimal digits (e.g., 3C:5A:B4:12:34:56)";
+          macFormatsVal.textContent = "—";
+          adminScopeVal.textContent = "—";
+          txTypeVal.textContent = "—";
+          eui64Val.textContent = "—";
+          latestReportText = "";
+          return;
+        }
+
+        const { hex12, bytes } = parsed;
+        const colonFmt = hex12.match(/.{2}/g).join(":");
+        const dashFmt = hex12.match(/.{2}/g).join("-");
+        const ciscoFmt = `${hex12.slice(0, 4)}.${hex12.slice(4, 8)}.${hex12.slice(8, 12)}`.toLowerCase();
+        const oui6 = hex12.slice(0, 6);
+        const ouiColon = `${oui6.slice(0, 2)}:${oui6.slice(2, 4)}:${oui6.slice(4, 6)}`;
+
+        const isMulticast = (bytes[0] & 0x01) !== 0;
+        const isBroadcast = hex12 === "FFFFFFFFFFFF";
+        const isLocalAdmin = (bytes[0] & 0x02) !== 0;
+
+        let vendorLabel = "";
+        if (isBroadcast) {
+          vendorLabel = "Ethernet Broadcast Address";
+        } else if (isLocalAdmin) {
+          vendorLabel = "Locally Administered / Randomized MAC";
+        } else if (Object.prototype.hasOwnProperty.call(OUI_TABLE, oui6)) {
+          vendorLabel = OUI_TABLE[oui6];
+        } else {
+          vendorLabel = "Unlisted / Other IEEE OUI Prefix";
+        }
+
+        const adminText = isLocalAdmin
+          ? "Locally Administered (LAA)"
+          : "Universally Administered (UAA)";
+        const txText = isBroadcast
+          ? "Broadcast (All Nodes)"
+          : (isMulticast ? "Multicast (Group)" : "Unicast (Single Host)");
+        const eui64Str = computeEui64(bytes);
+
+        macOuiBadge.className = "mac-hero-oui";
+        macOuiBadge.textContent = ouiColon;
+        macVendorTitle.textContent = vendorLabel;
+        macSubCaption.textContent = `${adminText} \u2022 ${txText}`;
+
+        macFormatsVal.textContent = `${colonFmt} / ${ciscoFmt}`;
+        adminScopeVal.textContent = adminText;
+        txTypeVal.textContent = txText;
+        eui64Val.textContent = eui64Str;
+
+        latestReportText = [
+          "PureWebKits MAC Address Lookup Report",
+          "--------------------------------------",
+          `Colon Format: ${colonFmt}`,
+          `Hyphen Format: ${dashFmt}`,
+          `Cisco Format: ${ciscoFmt}`,
+          `OUI Prefix: ${ouiColon} (${oui6})`,
+          `Vendor / Classification: ${vendorLabel}`,
+          `Admin Scope: ${adminText} | Transmission Type: ${txText}`,
+          `Modified IPv6 EUI-64: ${eui64Str}`
+        ].join("\n");
+      }
+
+      macAddressInput.addEventListener("input", inspectMac);
+
+      sampleChips.forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          macAddressInput.value = chip.getAttribute("data-mac") || "3C:5A:B4:12:34:56";
+          inspectMac();
+        });
+      });
+
+      genRandomMacBtn.addEventListener("click", function () {
+        const randBytes = new Uint8Array(6);
+        if (window.crypto && window.crypto.getRandomValues) {
+          window.crypto.getRandomValues(randBytes);
+        } else {
+          for (let i = 0; i < 6; i++) randBytes[i] = Math.floor(Math.random() * 256);
+        }
+        // Unicast + Locally Administered (0x02)
+        randBytes[0] = (randBytes[0] & 0xfe) | 0x02;
+        const hex = Array.from(randBytes).map(function (b) {
+          return b.toString(16).padStart(2, "0").toUpperCase();
+        }).join(":");
+        macAddressInput.value = hex;
+        inspectMac();
+      });
+
+      resetMacBtn.addEventListener("click", function () {
+        macAddressInput.value = "";
+        inspectMac();
+      });
+
+      copyMacReportBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        navigator.clipboard.writeText(latestReportText).then(function () {
+          const orig = copyMacReportBtn.textContent;
+          copyMacReportBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copyMacReportBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadMacReportBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        const blob = new Blob([latestReportText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "mac-address-report.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      inspectMac();
+    });
+  </script>
+</body>
+</html>

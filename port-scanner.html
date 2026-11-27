@@ -1,0 +1,1053 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Port Scanner Simulator & Service Port Reference — PureWebKits</title>
+  <meta name="description" content="Simulate TCP/UDP network port scans across preset service profiles or custom port ranges, inspect well-known ports (22, 53, 80, 443, 3306, 5432, 6379, 8080), and export scan reports online for free. 100% client-side with zero server uploads." />
+  <link rel="canonical" href="https://PureWebKits.com/port-scanner-simulator.html" />
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --bg-page: #F8FAFC;
+      --bg-hero: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --success: #059669;
+      --danger: #DC2626;
+      --navy: #182234;
+      --navy-dark: #111827;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Sticky White Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Hero & Tool Box */
+    .tool-hero {
+      background: var(--bg-hero);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 44px;
+    }
+    .container { max-width: 1120px; margin: 0 auto; }
+    .hero-header { text-align: center; max-width: 780px; margin: 0 auto 24px; }
+    .hero-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .trust-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Port Scanner Simulator Studio */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-sec {
+      background: #F1F5F9;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sec:hover:not(:disabled) { background: #E2E8F0; }
+    .btn-sec:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .controls-row {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1.2fr auto;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 11.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .std-input, .std-select {
+      width: 100%;
+      height: 41px;
+      padding: 0 11px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #F8FAFC;
+      outline: none;
+    }
+    .std-input:focus, .std-select:focus { border-color: var(--primary); background: #FFFFFF; }
+
+    /* Summary Strip */
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .sum-card {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 11px 14px;
+    }
+    .sum-card.light {
+      background: #F8FAFC;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+    .sum-kicker {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: #93C5FD;
+    }
+    .sum-card.light .sum-kicker { color: var(--text-muted); }
+    .sum-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 17px;
+      font-weight: 800;
+      color: #34D399;
+      margin-top: 2px;
+    }
+    .sum-card.light .sum-val { color: var(--text-main); }
+
+    /* Scan Results Table */
+    .scan-table-wrap {
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #FFFFFF;
+    }
+    .scan-scroll {
+      max-height: 310px;
+      overflow-y: auto;
+    }
+    .scan-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+    .scan-table th {
+      position: sticky;
+      top: 0;
+      background: #F1F5F9;
+      font-weight: 800;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-main);
+      z-index: 2;
+    }
+    .scan-table td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #E2E8F0;
+      color: var(--text-muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px;
+    }
+    .scan-table tr:last-child td { border-bottom: none; }
+    .st-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .st-open {
+      background: #ECFDF5;
+      color: #065F46;
+      border: 1px solid #A7F3D0;
+    }
+    .st-filtered {
+      background: #FFFBEB;
+      color: #92400E;
+      border: 1px solid #FDE68A;
+    }
+    .st-closed {
+      background: #F1F5F9;
+      color: #475569;
+      border: 1px solid #CBD5E1;
+    }
+    .st-pending {
+      background: #EFF6FF;
+      color: #1D4ED8;
+      border: 1px solid #BFDBFE;
+    }
+
+    .footer-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* Content Sections */
+    .main-content {
+      max-width: 980px;
+      margin: 32px auto 50px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+    .content-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+    .content-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+    .content-card h3 { font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: var(--text-main); }
+    .content-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 12px; }
+    .content-card ol, .content-card ul { padding-left: 20px; color: var(--text-muted); font-size: 15px; margin-bottom: 14px; }
+    .content-card li { margin-bottom: 8px; }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 5px; font-size: 13.5px; color: #0F172A; }
+    .formula-box {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1E3A8A;
+      margin: 14px 0;
+      font-family: monospace;
+      line-height: 1.65;
+    }
+    .example-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box p:last-child { margin-bottom: 0; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th { background: #F1F5F9; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    tr:last-child td { border-bottom: none; }
+    .limit-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 12.5px; padding: 3px 9px; border-radius: 6px; }
+
+    /* Related Tools & FAQs */
+    .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .related-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 15px; background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+    }
+    .related-link:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .faq-item { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-btn {
+      width: 100%; background: #F8FAFC; border: none; padding: 16px 18px;
+      text-align: left; font-size: 15px; font-weight: 700; color: var(--text-main);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .faq-icon { font-size: 20px; font-weight: 700; color: var(--primary); transition: transform 0.2s ease; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-panel {
+      display: none; padding: 16px 18px; background: #FFFFFF;
+      border-top: 1px solid var(--border); font-size: 14.5px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-item.open .faq-panel { display: block; }
+
+    /* Dark Navy 5-Column Footer */
+    .site-footer { background: var(--navy); color: #CBD5E1; padding-top: 48px; }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 30px;
+    }
+    .footer-logo-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .footer-brand-name { font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em; }
+    .footer-brand-name span { color: #60A5FA; }
+    .footer-brand-desc { font-size: 13.5px; color: #94A3B8; line-height: 1.6; }
+    .footer-col h4 { color: #FFFFFF; font-size: 14.5px; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; font-size: 13.5px; }
+    .footer-col a:hover { color: #FFFFFF; }
+    .footer-bottom { background: var(--navy-dark); padding: 18px 20px; font-size: 13.5px; color: #94A3B8; }
+    .footer-bottom-inner { max-width: 1200px; margin: 0 auto; }
+
+    @media (max-width: 900px) {
+      .controls-row, .summary-strip { grid-template-columns: 1fr 1fr; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+      .controls-row, .summary-strip { grid-template-columns: 1fr; }
+      .nav-links { gap: 14px; font-size: 14px; }
+      .tools-grid, .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky White Header with 3D Cube Logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand-logo" aria-label="PureWebKits Home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+          <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+          <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+          <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+        </svg>
+        <div>PureWeb<span>Kits</span></div>
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="index.html">All Tools</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BLOCK 1: Hero & Interactive Port Scanner Simulator Studio -->
+  <section class="tool-hero">
+    <div class="container">
+      <div class="hero-header">
+        <h1>Free Online Port Scanner Simulator</h1>
+        <div class="trust-pill">
+          <span class="trust-dot" aria-hidden="true"></span>
+          100% Client-Side Educational Simulator: Explore TCP/UDP port states, service mappings & firewall profiles safely
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="studio-topbar">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">
+            Simulated educational scan engine — sends zero external network packets or raw sockets from your browser:
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="stopSimScanBtn" class="btn-sec" disabled>Stop Scan</button>
+            <button type="button" id="resetSimScanBtn" class="btn-sec">Reset</button>
+          </div>
+        </div>
+
+        <div class="controls-row">
+          <div class="field-group">
+            <label for="simTargetHostInput" class="field-label">Simulated Target Host / Label</label>
+            <input type="text" id="simTargetHostInput" class="std-input" value="192.168.1.10" placeholder="e.g., 192.168.1.10 or lab-server.local" />
+          </div>
+
+          <div class="field-group">
+            <label for="simProfileSelect" class="field-label">Host Profile Preset</label>
+            <select id="simProfileSelect" class="std-select">
+              <option value="web_server" selected>Web & App Server (80, 443, 22, 8080)</option>
+              <option value="workstation">Hardened Workstation (Mostly Closed/Filtered)</option>
+              <option value="db_stack">Database & Cache Node (3306, 5432, 6379)</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label for="simPortsInput" class="field-label">Ports / Ranges (1–65535)</label>
+            <input type="text" id="simPortsInput" class="std-input" value="21, 22, 53, 80, 443, 3306, 5432, 6379, 8080, 8443" />
+          </div>
+
+          <button type="button" id="runSimScanBtn" class="btn-primary">Run Simulated Scan</button>
+        </div>
+
+        <div class="summary-strip">
+          <div class="sum-card">
+            <div class="sum-kicker">Open Ports</div>
+            <div class="sum-val" id="simOpenCountVal">0</div>
+          </div>
+          <div class="sum-card light">
+            <div class="sum-kicker">Filtered</div>
+            <div class="sum-val" id="simFilteredCountVal">0</div>
+          </div>
+          <div class="sum-card light">
+            <div class="sum-kicker">Closed</div>
+            <div class="sum-val" id="simClosedCountVal">0</div>
+          </div>
+          <div class="sum-card light">
+            <div class="sum-kicker">Scan Progress</div>
+            <div class="sum-val" id="simProgressVal">0 / 10</div>
+          </div>
+        </div>
+
+        <div class="scan-table-wrap">
+          <div class="scan-scroll">
+            <table class="scan-table">
+              <thead>
+                <tr>
+                  <th>Port</th>
+                  <th>Transport</th>
+                  <th>Known Service</th>
+                  <th>Simulated State</th>
+                  <th>Simulated Latency</th>
+                </tr>
+              </thead>
+              <tbody id="simScanTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="footer-bar">
+          <div style="font-size:12px; color:var(--text-muted);">
+            Educational simulation only — only scan hosts and networks you own or have explicit authorization to test.
+          </div>
+          <div class="btn-row">
+            <button type="button" id="copySimReportBtn" class="btn-sec" style="height:38px;">Copy Scan Report</button>
+            <button type="button" id="downloadSimReportBtn" class="btn-sec" style="height:38px;">Download .txt</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCKS 2, 3 & 4 -->
+  <main class="main-content">
+
+    <!-- BLOCK 2: 450+ Words Original User Guide, Port States & Responsible Testing -->
+    <article class="content-card">
+      <h2>Complete User Guide to Network Port States, Common Service Ports & Safe Simulation</h2>
+
+      <h3>How TCP/UDP Ports, Open/Closed/Filtered States & Firewall Behavior Work</h3>
+      <p>
+        On IP networks, a <strong>port number</strong> (from <code>1</code> to <code>65535</code>) identifies a specific application endpoint or service running behind an IP address—such as port <code>22</code> for SSH, port <code>53</code> for DNS, port <code>80</code> for HTTP, port <code>443</code> for HTTPS, or port <code>5432</code> for PostgreSQL. When a scanner probes a port, the response (or lack of response) typically falls into three classic states: <strong>Open</strong> (an application is actively listening and accepting connections on that port), <strong>Closed</strong> (the host is reachable and responds that no service is listening on that port, often via a TCP RST packet), or <strong>Filtered</strong> (a firewall, ACL, or packet filter drops or blocks probes so the state cannot be confirmed). Because standard web browsers cannot open raw TCP/UDP SYN sockets directly, this <strong>Port Scanner Simulator</strong> models deterministic, educational port-state outcomes across host profiles and custom port lists 100% locally in your browser—with zero server uploads.
+      </p>
+
+      <h3>How to Use the Port Scanner Simulator in 3 Easy Steps</h3>
+      <ol>
+        <li><strong>Enter a Target Label & Choose a Profile Preset:</strong> Type an example host/IP label and pick a profile such as <strong>Web & App Server</strong>, <strong>Hardened Workstation</strong>, or <strong>Database & Cache Node</strong>.</li>
+        <li><strong>Customize Ports or Ranges (1–65535):</strong> Enter comma-separated ports or hyphenated ranges (such as <code>22, 80, 443, 8000-8005</code>) and click <strong>Run Simulated Scan</strong>.</li>
+        <li><strong>Review Port States & Export Report:</strong> Inspect Open, Filtered, and Closed counts plus per-port service labels and simulated latency, then export via <strong>Copy Scan Report</strong> or <strong>Download .txt</strong>.</li>
+      </ol>
+
+      <h3>Port Number Ranges & Service Identification</h3>
+      <p>
+        IANA divides the <code>16-bit</code> (<code>65,536</code>-port) address space into three main ranges:
+      </p>
+      <div class="formula-box">
+        Well-Known / System Ports: 0–1023 • Registered Ports: 1024–49151 • Ephemeral / Dynamic: 49152–65535<br />
+        Total Possible Ports = 2<sup>16</sup> = 65,536
+      </div>
+
+      <h3>Helpful Tips for Network Security & Authorized Audits</h3>
+      <ul>
+        <li><strong>Close Unused Services & Restrict Management Ports:</strong> Production servers typically expose only required public ports (like <code>80</code> and <code>443</code>) while restricting administrative ports (like <code>22</code> or database ports) via firewalls or VPNs.</li>
+        <li><strong>Always Obtain Authorization Before Real Scanning:</strong> Running live port scanners against external networks or hosts without explicit permission can violate terms of service, trigger security alerts, or be illegal.</li>
+        <li><strong>Use Local CLI Tools for Real Packet Diagnostics:</strong> When authorized to audit your own machine or lab subnet, tools like <code>nmap</code> or OS firewall utilities perform actual packet-level checks.</li>
+      </ul>
+
+      <div class="example-box">
+        <p><strong>Worked Example:</strong> Scanning ports <code>22, 80, 443, 3306, 8080</code> against a simulated <strong>Web & App Server</strong> shows <code>80 (HTTP)</code> and <code>443 (HTTPS)</code> as <strong>Open</strong>, <code>22 (SSH)</code> as <strong>Filtered</strong> (restricted behind firewall/VPN), and unused <code>3306 (MySQL)</code> as <strong>Closed</strong>.</p>
+      </div>
+    </article>
+
+    <!-- BLOCK 3: 16-Row Reference Data Table -->
+    <section class="content-card" aria-labelledby="port-table-heading">
+      <h2 id="port-table-heading">Well-Known Network Ports, Protocols & Reference Table (16 Rows)</h2>
+      <p>Use this reference table to review common TCP/UDP ports, default services, and port scan classifications.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Port Number</th>
+              <th>Default Service</th>
+              <th>Typical Transport</th>
+              <th>Common Role / Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Port 21</strong></td>
+              <td>FTP</td>
+              <td>TCP</td>
+              <td>File Transfer Protocol (control channel)</td>
+            </tr>
+            <tr>
+              <td><strong>Port 22</strong></td>
+              <td>SSH</td>
+              <td>TCP</td>
+              <td>Secure Shell remote login & SFTP</td>
+            </tr>
+            <tr>
+              <td><strong>Port 25</strong></td>
+              <td>SMTP</td>
+              <td>TCP</td>
+              <td>Simple Mail Transfer Protocol (mail relay)</td>
+            </tr>
+            <tr>
+              <td><strong>Port 53</strong></td>
+              <td>DNS</td>
+              <td>UDP / TCP</td>
+              <td>Domain Name System resolution</td>
+            </tr>
+            <tr>
+              <td><strong>Port 80</strong></td>
+              <td>HTTP</td>
+              <td>TCP</td>
+              <td>Unencrypted web traffic (often redirects to 443)</td>
+            </tr>
+            <tr>
+              <td><strong>Port 110 / 143</strong></td>
+              <td>POP3 / IMAP</td>
+              <td>TCP</td>
+              <td>Email retrieval protocols</td>
+            </tr>
+            <tr>
+              <td><strong>Port 443</strong></td>
+              <td>HTTPS</td>
+              <td>TCP (QUIC/UDP for HTTP/3)</td>
+              <td>TLS-encrypted web traffic</td>
+            </tr>
+            <tr>
+              <td><strong>Port 3306</strong></td>
+              <td>MySQL / MariaDB</td>
+              <td>TCP</td>
+              <td>Relational database server</td>
+            </tr>
+            <tr>
+              <td><strong>Port 3389</strong></td>
+              <td>RDP</td>
+              <td>TCP / UDP</td>
+              <td>Remote Desktop Protocol</td>
+            </tr>
+            <tr>
+              <td><strong>Port 5432</strong></td>
+              <td>PostgreSQL</td>
+              <td>TCP</td>
+              <td>PostgreSQL relational database</td>
+            </tr>
+            <tr>
+              <td><strong>Port 6379</strong></td>
+              <td>Redis</td>
+              <td>TCP</td>
+              <td>In-memory data store / cache</td>
+            </tr>
+            <tr>
+              <td><strong>Port 8080 / 8443</strong></td>
+              <td>HTTP Alt / HTTPS Alt</td>
+              <td>TCP</td>
+              <td>Proxy, app server & dev/admin ports</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Engine</strong></td>
+              <td colspan="3">Browser JavaScript Port Scan Simulator — Zero Server Latency</td>
+            </tr>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td colspan="3">None — Runs strictly inside your browser with zero external packets sent</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy Status</strong></td>
+              <td colspan="3"><span class="limit-badge">100% Local Simulation</span> — Zero scan targets transmitted</td>
+            </tr>
+            <tr>
+              <td><strong>No Sign-Up Required</strong></td>
+              <td colspan="3">Instant browser simulation with zero registration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOCK 4A: Related Tools -->
+    <section class="content-card" aria-labelledby="related-tools-heading">
+      <h2 id="related-tools-heading">Related Networking, Privacy, Security & Developer Utilities</h2>
+      <p>Checking IP/DNS exposure, looking up MAC addresses, testing password strength, or formatting JSON? Explore our companion client-side tools:</p>
+      <div class="tools-grid">
+        <a class="related-link" href="ip-dns-leak-test.html"><span>IP & DNS Leak Test</span><span class="arrow">→</span></a>
+        <a class="related-link" href="mac-address-lookup.html"><span>MAC Address Lookup</span><span class="arrow">→</span></a>
+        <a class="related-link" href="password-strength-tester.html"><span>Password Strength Tester</span><span class="arrow">→</span></a>
+        <a class="related-link" href="json-formatter.html"><span>JSON Formatter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="browser-fingerprint-inspector.html"><span>Browser Fingerprint Inspector</span><span class="arrow">→</span></a>
+        <a class="related-link" href="qr-code-generator.html"><span>QR Code Generator</span><span class="arrow">→</span></a>
+        <a class="related-link" href="word-counter.html"><span>Word & Character Counter</span><span class="arrow">→</span></a>
+        <a class="related-link" href="percentage-calculator.html"><span>Percentage Calculator</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- BLOCK 4B: 4 Professional Accordion FAQs -->
+    <section class="content-card" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button type="button" class="faq-btn" aria-expanded="true">
+            <span>1. Does this Port Scanner Simulator send real TCP/UDP packets to the target host?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>No.</strong> Web browsers do not expose raw TCP/UDP port scanning sockets—this tool simulates realistic port responses locally in JavaScript for learning, training, and report formatting without sending external probe traffic.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>2. What is the practical difference between a "Closed" port and a "Filtered" port?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            A <strong>Closed</strong> port indicates the host responded that no service is currently listening there, whereas a <strong>Filtered</strong> port indicates a firewall or filter is blocking or dropping probes so reachability is obscured.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>3. Are the host labels or port lists I enter sent to any server?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            Never. All simulation logic and report generation run 100% client-side inside your browser.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-btn" aria-expanded="false">
+            <span>4. Is this Online Port Scanner Simulator free to use?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-panel">
+            <strong>Yes!</strong> It is completely free with no sign-up required.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Dark Navy 5-Column Footer with Matching Side-by-Side 3D Cube Logo -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo-row" aria-label="PureWebKits Home">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2L25 8.2V19.8L14 26L3 19.8V8.2L14 2Z" fill="#2563EB"/>
+            <path d="M14 2L25 8.2L14 14.4L3 8.2L14 2Z" fill="#60A5FA"/>
+            <path d="M14 14.4L25 8.2V19.8L14 26V14.4Z" fill="#1D4ED8"/>
+            <path d="M8.5 11.2L14 14.4V20.5L8.5 17.3V11.2Z" fill="#DBEAFE" fill-opacity="0.35"/>
+          </svg>
+          <span class="footer-brand-name">PureWeb<span>Kits</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          Your all-in-one suite of 240+ free, fast, and privacy-respecting online utility tools built for everyday work.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Image & PDF</h4>
+        <ul>
+          <li><a href="compress-image-to-exact-kb.html">Compress Image to KB</a></li>
+          <li><a href="signature-resizer.html">Signature Resizer</a></li>
+          <li><a href="jpg-to-png.html">JPG to PNG</a></li>
+          <li><a href="merge-pdf.html">Merge PDF</a></li>
+          <li><a href="compress-pdf.html">Compress PDF</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Developer & Text</h4>
+        <ul>
+          <li><a href="json-formatter.html">JSON Formatter</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+          <li><a href="word-counter.html">Word Counter</a></li>
+          <li><a href="qr-code-generator.html">QR Code Generator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Finance & Country</h4>
+        <ul>
+          <li><a href="emi-calculator.html">EMI Calculator</a></li>
+          <li><a href="currency-converter.html">Currency Converter</a></li>
+          <li><a href="us-paycheck-calculator.html">US Paycheck Calculator</a></li>
+          <li><a href="indian-gst-calculator.html">Indian GST Calculator</a></li>
+          <li><a href="uae-gratuity-calculator.html">UAE Gratuity Calculator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company & Legal</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        © 2026 PureWebKits.com. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- 100% Client-Side Educational Port Scanner Simulator Engine -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const KNOWN_SERVICES = {
+        21: { svc: "FTP", proto: "TCP" },
+        22: { svc: "SSH", proto: "TCP" },
+        23: { svc: "Telnet", proto: "TCP" },
+        25: { svc: "SMTP", proto: "TCP" },
+        53: { svc: "DNS", proto: "UDP/TCP" },
+        80: { svc: "HTTP", proto: "TCP" },
+        110: { svc: "POP3", proto: "TCP" },
+        143: { svc: "IMAP", proto: "TCP" },
+        443: { svc: "HTTPS", proto: "TCP" },
+        445: { svc: "SMB", proto: "TCP" },
+        1433: { svc: "MSSQL", proto: "TCP" },
+        3306: { svc: "MySQL", proto: "TCP" },
+        3389: { svc: "RDP", proto: "TCP" },
+        5432: { svc: "PostgreSQL", proto: "TCP" },
+        6379: { svc: "Redis", proto: "TCP" },
+        8000: { svc: "HTTP-Alt", proto: "TCP" },
+        8080: { svc: "HTTP-Proxy", proto: "TCP" },
+        8443: { svc: "HTTPS-Alt", proto: "TCP" },
+        27017: { svc: "MongoDB", proto: "TCP" }
+      };
+
+      const PROFILE_OPEN_PORTS = {
+        web_server: new Set([22, 80, 443, 8080, 8443]),
+        workstation: new Set([443]),
+        db_stack: new Set([22, 3306, 5432, 6379])
+      };
+
+      const PROFILE_FILTERED_PORTS = {
+        web_server: new Set([21, 3306, 5432]),
+        workstation: new Set([22, 80, 135, 445, 3389]),
+        db_stack: new Set([80, 443, 27017])
+      };
+
+      const simTargetHostInput = document.getElementById("simTargetHostInput");
+      const simProfileSelect = document.getElementById("simProfileSelect");
+      const simPortsInput = document.getElementById("simPortsInput");
+      const runSimScanBtn = document.getElementById("runSimScanBtn");
+      const stopSimScanBtn = document.getElementById("stopSimScanBtn");
+      const resetSimScanBtn = document.getElementById("resetSimScanBtn");
+
+      const simOpenCountVal = document.getElementById("simOpenCountVal");
+      const simFilteredCountVal = document.getElementById("simFilteredCountVal");
+      const simClosedCountVal = document.getElementById("simClosedCountVal");
+      const simProgressVal = document.getElementById("simProgressVal");
+      const simScanTableBody = document.getElementById("simScanTableBody");
+
+      const copySimReportBtn = document.getElementById("copySimReportBtn");
+      const downloadSimReportBtn = document.getElementById("downloadSimReportBtn");
+
+      let scanRows = [];
+      let scanTimer = null;
+      let isScanning = false;
+      let latestReportText = "";
+
+      function parsePortList(rawStr) {
+        const ports = [];
+        const seen = new Set();
+        const tokens = rawStr.split(/[\s,]+/).filter(Boolean);
+
+        tokens.forEach(function (tok) {
+          if (tok.includes("-")) {
+            const parts = tok.split("-").map(Number);
+            const start = Math.max(1, Math.min(65535, parts[0] || 0));
+            const end = Math.max(1, Math.min(65535, parts[1] || 0));
+            if (start > 0 && end >= start) {
+              const cappedEnd = Math.min(end, start + 127);
+              for (let p = start; p <= cappedEnd; p++) {
+                if (!seen.has(p) && ports.length < 150) {
+                  seen.add(p);
+                  ports.push(p);
+                }
+              }
+            }
+          } else {
+            const p = parseInt(tok, 10);
+            if (Number.isInteger(p) && p >= 1 && p <= 65535 && !seen.has(p) && ports.length < 150) {
+              seen.add(p);
+              ports.push(p);
+            }
+          }
+        });
+
+        return ports;
+      }
+
+      function simulatePortState(port, profile) {
+        const openSet = PROFILE_OPEN_PORTS[profile] || PROFILE_OPEN_PORTS.web_server;
+        const filtSet = PROFILE_FILTERED_PORTS[profile] || PROFILE_FILTERED_PORTS.web_server;
+
+        let state = "Closed";
+        if (openSet.has(port)) {
+          state = "Open";
+        } else if (filtSet.has(port)) {
+          state = "Filtered";
+        } else if (port % 19 === 0) {
+          state = "Open";
+        } else if (port % 7 === 0) {
+          state = "Filtered";
+        }
+
+        const latMs = state === "Filtered"
+          ? `${(45 + ((port * 13) % 85))} ms (timeout/drop)`
+          : `${(2 + ((port * 7) % 24))} ms`;
+
+        return { state: state, latency: latMs };
+      }
+
+      function renderTableAndCounts() {
+        let openC = 0;
+        let filtC = 0;
+        let closedC = 0;
+        let doneC = 0;
+
+        simScanTableBody.innerHTML = "";
+        scanRows.forEach(function (r) {
+          if (r.state !== "Pending") {
+            doneC++;
+            if (r.state === "Open") openC++;
+            else if (r.state === "Filtered") filtC++;
+            else closedC++;
+          }
+
+          const pillClass = r.state === "Open"
+            ? "st-open"
+            : (r.state === "Filtered" ? "st-filtered" : (r.state === "Closed" ? "st-closed" : "st-pending"));
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><strong>${r.port}</strong></td>
+            <td>${r.proto}</td>
+            <td>${r.service}</td>
+            <td><span class="st-pill ${pillClass}">${r.state}</span></td>
+            <td>${r.latency}</td>
+          `;
+          simScanTableBody.appendChild(tr);
+        });
+
+        simOpenCountVal.textContent = String(openC);
+        simFilteredCountVal.textContent = String(filtC);
+        simClosedCountVal.textContent = String(closedC);
+        simProgressVal.textContent = `${doneC} / ${scanRows.length}`;
+
+        const hostLabel = simTargetHostInput.value.trim() || "simulated-host";
+        latestReportText = [
+          "PureWebKits Port Scanner Simulator Report (Educational)",
+          "-------------------------------------------------------",
+          `Target Label: ${hostLabel} | Profile: ${simProfileSelect.value}`,
+          `Summary: Open=${openC}, Filtered=${filtC}, Closed=${closedC} (${doneC}/${scanRows.length} scanned)`,
+          "",
+          ...scanRows.filter(function (r) { return r.state !== "Pending"; }).map(function (r) {
+            return `Port ${r.port}/${r.proto} (${r.service}): ${r.state} [${r.latency}]`;
+          })
+        ].join("\n");
+      }
+
+      function preparePortsList() {
+        if (scanTimer) {
+          clearInterval(scanTimer);
+          scanTimer = null;
+        }
+        isScanning = false;
+        runSimScanBtn.disabled = false;
+        stopSimScanBtn.disabled = true;
+
+        const ports = parsePortList(simPortsInput.value);
+        scanRows = ports.map(function (p) {
+          const info = KNOWN_SERVICES[p] || { svc: p <= 1023 ? "System/IANA" : (p <= 49151 ? "Registered" : "Ephemeral"), proto: "TCP" };
+          return {
+            port: p,
+            proto: info.proto,
+            service: info.svc,
+            state: "Pending",
+            latency: "—"
+          };
+        });
+        renderTableAndCounts();
+      }
+
+      function startSimulatedScan() {
+        preparePortsList();
+        if (scanRows.length === 0) return;
+
+        isScanning = true;
+        runSimScanBtn.disabled = true;
+        stopSimScanBtn.disabled = false;
+
+        const profile = simProfileSelect.value;
+        let idx = 0;
+
+        scanTimer = setInterval(function () {
+          if (idx >= scanRows.length) {
+            clearInterval(scanTimer);
+            scanTimer = null;
+            isScanning = false;
+            runSimScanBtn.disabled = false;
+            stopSimScanBtn.disabled = true;
+            renderTableAndCounts();
+            return;
+          }
+
+          const sim = simulatePortState(scanRows[idx].port, profile);
+          scanRows[idx].state = sim.state;
+          scanRows[idx].latency = sim.latency;
+          idx++;
+          renderTableAndCounts();
+        }, 70);
+      }
+
+      runSimScanBtn.addEventListener("click", startSimulatedScan);
+
+      stopSimScanBtn.addEventListener("click", function () {
+        if (scanTimer) {
+          clearInterval(scanTimer);
+          scanTimer = null;
+        }
+        isScanning = false;
+        runSimScanBtn.disabled = false;
+        stopSimScanBtn.disabled = true;
+      });
+
+      resetSimScanBtn.addEventListener("click", preparePortsList);
+      simPortsInput.addEventListener("input", preparePortsList);
+      simProfileSelect.addEventListener("change", preparePortsList);
+
+      copySimReportBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        navigator.clipboard.writeText(latestReportText).then(function () {
+          const orig = copySimReportBtn.textContent;
+          copySimReportBtn.textContent = "Copied!";
+          setTimeout(function () {
+            copySimReportBtn.textContent = orig;
+          }, 1800);
+        });
+      });
+
+      downloadSimReportBtn.addEventListener("click", function () {
+        if (!latestReportText) return;
+        const blob = new Blob([latestReportText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "port-scan-simulator-report.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+
+      // Accordion FAQ Toggle
+      document.querySelectorAll(".faq-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          item.classList.toggle("open", !isOpen);
+          btn.setAttribute("aria-expanded", String(!isOpen));
+        });
+      });
+
+      preparePortsList();
+    });
+  </script>
+</body>
+</html>
